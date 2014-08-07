@@ -1,0 +1,75 @@
+# Description:
+# adc/dac substitution file. 
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# Licence as published by the Free Software Foundation; either
+# version 2.1 of the Licence, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public Licence for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# Licence along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Contact details:
+# mark.clift@synchrotron.org.au
+# 800 Blackburn Road, Clayton, Victoria 3168, Australia.
+#
+# P    - PV prefix
+# R    - Record Name
+# PORT - Asyn port name
+# ADDR - Hardware port to read
+# PREC - Precision
+
+file "$(GALIL)/GalilSup/Db/galil_analog_in.template"
+{ 
+   pattern { P,           R,          PORT,    ADDR,  PREC }
+
+	   { "DMC01",    "GalilAi0",  "Galil", "0",   "3"  }
+	   { "DMC01",    "GalilAi1",  "Galil", "1",   "3"  }
+	   { "DMC01",    "GalilAi2",  "Galil", "2",   "3"  }
+	   { "DMC01",    "GalilAi3",  "Galil", "3",   "3"  }
+	   { "DMC01",    "GalilAi4",  "Galil", "4",   "3"  }
+	   { "DMC01",    "GalilAi5",  "Galil", "5",   "3"  }
+	   { "DMC01",    "GalilAi6",  "Galil", "6",   "3"  }
+	   { "DMC01",    "GalilAi7",  "Galil", "7",   "3"  }
+
+           { "RIO01",    "GalilAi0",  "RIO",   "0",   "3"  }
+	   { "RIO01",    "GalilAi1",  "RIO",   "1",   "3"  }
+	   { "RIO01",    "GalilAi2",  "RIO",   "2",   "3"  }
+	   { "RIO01",    "GalilAi3",  "RIO",   "3",   "3"  }
+	   { "RIO01",    "GalilAi4",  "RIO",   "4",   "3"  }
+	   { "RIO01",    "GalilAi5",  "RIO",   "5",   "3"  }
+	   { "RIO01",    "GalilAi6",  "RIO",   "6",   "3"  }
+	   { "RIO01",    "GalilAi7",  "RIO",   "7",   "3"  }
+}
+
+file "$(GALIL)/GalilSup/Db/galil_analog_out.template"
+{ 
+   pattern { P,          R,           PORT,    ADDR,  PREC,  LOPR,  HOPR }
+
+           { "DMC01",    "GalilAo0",  "Galil", "0",   "3",   "-10", "10" }
+	   { "DMC01",    "GalilAo1",  "Galil", "1",   "3",   "-10", "10" }
+	   { "DMC01",    "GalilAo2",  "Galil", "2",   "3",   "-10", "10" }
+	   { "DMC01",    "GalilAo3",  "Galil", "3",   "3",   "-10", "10" }
+	   { "DMC01",    "GalilAo4",  "Galil", "4",   "3",   "-10", "10" }
+	   { "DMC01",    "GalilAo5",  "Galil", "5",   "3",   "-10", "10" }
+	   { "DMC01",    "GalilAo6",  "Galil", "6",   "3",   "-10", "10" }
+	   { "DMC01",    "GalilAo7",  "Galil", "7",   "3",   "-10", "10" }
+
+           { "RIO01",    "GalilAo0",  "RIO",   "0",   "3",   "-10", "10" }
+	   { "RIO01",    "GalilAo1",  "RIO",   "1",   "3",   "-10", "10" }
+	   { "RIO01",    "GalilAo2",  "RIO",   "2",   "3",   "-10", "10" }
+	   { "RIO01",    "GalilAo3",  "RIO",   "3",   "3",   "-10", "10" }
+	   { "RIO01",    "GalilAo4",  "RIO",   "4",   "3",   "-10", "10" }
+	   { "RIO01",    "GalilAo5",  "RIO",   "5",   "3",   "-10", "10" }
+	   { "RIO01",    "GalilAo6",  "RIO",   "6",   "3",   "-10", "10" }
+	   { "RIO01",    "GalilAo7",  "RIO",   "7",   "3",   "-10", "10" }
+}
+
+# end
+

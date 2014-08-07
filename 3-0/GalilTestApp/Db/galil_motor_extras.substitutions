@@ -1,0 +1,57 @@
+# $File: //ASP/Dev/SBS/4_Controls/4_3_Network_Infrastructure/4_3_1_Comms_Common_Services/sw/device_drivers/Galil/1-5/galilTestApp/Db/galil_motor_extras.substitutions $
+# $Revision: #3 $
+# $DateTime: 2012/03/22 09:46:31 $
+# $Author: cliftm $
+#
+# Description
+# Substitution file for readback/commands that are in addition to features provided by motorRecord
+# 
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# Licence as published by the Free Software Foundation; either
+# version 2.1 of the Licence, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public Licence for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# Licence along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+# 
+# Contact details:
+# mark.clift@synchrotron.org.au
+# 800 Blackburn Road, Clayton, Victoria 3168, Australia.
+#
+# P - Motion device
+# M - Motor name
+# PORT - Asyn port of controller
+# ADDR - Axis number 0-7
+# PREC - Precision of analog records
+# SCAN - Scan period for monitor records
+# MTRTYPE - motor type =
+#       	0 - Servo
+#		1 - Reverse servo
+#		2 - High active stepper
+#		3 - Low active stepper
+#		4 - Reverse high active stepper
+#		5 - Reverse low active stepper
+# MTRON - motor off 0, motor on 1
+
+file "$(GALIL)/GalilSup/Db/galil_motor_extras.template"
+{
+pattern
+{   P,       M,    PORT,    ADDR, PREC, SCAN,        MTRTYPE, MTRON, EGU  }
+ {  "DMC01", "A",  "Galil", 0,    3,    "1 second",  "3",     "0",   "mm" }
+ {  "DMC01", "B",  "Galil", 1,    3,    "1 second",  "3",     "0",   "mm" }
+ {  "DMC01", "C",  "Galil", 2,    3,    "1 second",  "3",     "0",   "mm" }
+ {  "DMC01", "D",  "Galil", 3,    3,    "1 second",  "3",     "0",   "mm" }
+ {  "DMC01", "E",  "Galil", 4,    3,    "1 second",  "1",     "0",   "mm" }
+ {  "DMC01", "F",  "Galil", 5,    3,    "1 second",  "3",     "0",   "mm" }
+ {  "DMC01", "G",  "Galil", 6,    3,    "1 second",  "3",     "0",   "mm" }
+ {  "DMC01", "H",  "Galil", 7,    3,    "1 second",  "3",     "0",   "mm" }
+}
+
+
+# end

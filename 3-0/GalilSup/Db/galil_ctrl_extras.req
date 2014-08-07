@@ -1,0 +1,26 @@
+# Controller settings
+$(P)LIMITTYPE_CMD.VAL
+$(P)HOMETYPE_CMD.VAL
+
+# Kinematic variables
+$(P)Q_SP.VAL
+$(P)R_SP.VAL
+$(P)S_SP.VAL
+$(P)T_SP.VAL
+$(P)U_SP.VAL
+$(P)V_SP.VAL
+$(P)W_SP.VAL
+$(P)X_SP.VAL
+$(P)Y_SP.VAL
+$(P)Z_SP.VAL
+$(P)Q_SP.DESC
+$(P)R_SP.DESC
+$(P)S_SP.DESC
+$(P)T_SP.DESC
+$(P)U_SP.DESC
+$(P)V_SP.DESC
+$(P)W_SP.DESC
+$(P)X_SP.DESC
+$(P)Y_SP.DESC
+$(P)Z_SP.DESC
+

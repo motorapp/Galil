@@ -1,0 +1,12 @@
+#CONFIG
+# Add target archs here to support "gnumake <action>.<arch>"
+# from <supporttop>/utils.
+
+# for real
+#CROSS_COMPILER_TARGET_ARCHS=vxWorks-68040 vxWorks-68040lc vxWorks-ppc604 vxWorks-ppc603 vxWorks-ppc604_long RTEMS-mvme167
+#CROSS_COMPILER_HOST_ARCHS=solaris-sparc-gnu linux-x86 win32-x86
+
+# For debugging build
+#CROSS_COMPILER_TARGET_ARCHS=vxWorks-ppc604 vxWorks-ppc604_long
+#CROSS_COMPILER_HOST_ARCHS=solaris-sparc-gnu
+

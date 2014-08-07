@@ -1,0 +1,21 @@
+export EPICS_HOST_ARCH=win32-x86
+
+export VSINSTALLDIR="C:\Program Files\Microsoft Visual Studio .NET 2003\Common7\IDE"
+export VSINSTALLDIR_sh="/cygdrive/c/Program Files/Microsoft Visual Studio .NET 2003/Common7/IDE"
+export VCINSTALLDIR="C:\Program Files\Microsoft Visual Studio .NET 2003"
+export VCINSTALLDIR_sh="/cygdrive/c/Program Files/Microsoft Visual Studio .NET 2003"
+export FrameworkDir=C:\WINDOWS\Microsoft.NET\Framework
+export FrameworkDir_sh=/cygdrive/c/WINDOWS/Microsoft.NET/Framework
+export FrameworkVersion=v1.1.4322
+export FrameworkSDKDir="c:\Program Files\Microsoft Visual Studio .NET 2003\SDK\v1.1"
+export FrameworkSDKDir_sh="/cygdrive/c/Program Files/Microsoft Visual Studio .NET 2003/SDK/v1.1"
+
+export DevEnvDir=$VSINSTALLDIR
+export DevEnvDir_sh=$VSINSTALLDIR_sh
+
+export MSVCDir=$VCINSTALLDIR/VC7
+export MSVCDir_sh=$VCINSTALLDIR_sh/VC7
+
+export PATH="$DevEnvDir_sh:$MSVCDir_sh/BIN:$VCINSTALLDIR/Common7/Tools:$VCINSTALLDIR_sh/Common7/Tools/bin/prerelease:$VCINSTALLDIR_sh/Common7/Tools/bin:$FrameworkSDKDir_sh/bin:$FrameworkDir_sh/$FrameworkVersion:/usr/bin/:/usr/local/bin:/usr/X11R6/bin/:/corvette/usr/local/epics/base/bin/win32-x86:/corvette/usr/local/epics/extensions_devel/bin/win32-x86"
+export INCLUDE="$MSVCDir/ATLMFC/INCLUDE;$MSVCDir/INCLUDE;$MSVCDir/PlatformSDK/include/prerelease;$MSVCDir/PlatformSDK/include;$FrameworkSDKDir/include"
+export LIB="$MSVCDir/ATLMFC/LIB;$MSVCDir/LIB;$MSVCDir/PlatformSDK/lib/prerelease;$MSVCDir/PlatformSDK/lib;$FrameworkSDKDir/lib"

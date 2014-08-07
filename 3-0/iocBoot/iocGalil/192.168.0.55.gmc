@@ -1,0 +1,309 @@
+#AUTO
+XQ #THREADB,1
+XQ #THREADC,2
+XQ #THREADD,3
+XQ #THREADE,4
+XQ #THREADF,5
+XQ #THREADG,6
+XQ #THREADH,7
+#THREADA
+IF ((rdecelA=1) & (_BGA=0) & (homeA=0))
+DCA=oldecelA;rdecelA=0
+ENDIF
+IF ((_LRA=1) & (_LFA=1))
+limA=0
+ENDIF
+IF ((homeA=1))
+IF ((hjogA=0) & (_BGA=0) & ((_LRA=0) | (_LFA=0)))
+speedA=_SPA;DCA=hjgdcA;JGA=hjgspA;WT100;BGA;hjogA=1
+ENDIF
+IF ((_LRA=1) & (_LFA=1) & (hjogA=1) & (_BGA=1))
+STA
+ENDIF
+IF ((_LRA=1) & (_LFA=1) & (hjogA=1) & (_BGA=0))
+IF (ueipA=1)
+SPA=speedA;DCA=67107840;FIA;WT100;BGA;hjogA=2
+ELSE
+SPA=speedA;hjogA=3
+ENDIF;ENDIF
+IF ((hjogA=2) & (_BGA=0))
+hjogA=3
+ENDIF
+IF ((_LRA=1) & (_LFA=1) & (hjogA=3) & (_BGA=0))
+WT10;hjogA=0;homeA=0;homedA=1
+IF (phregA=1)
+IF (ueipA=1)
+DEA=enhmvalA;DPA=mrhmvalA
+ELSE
+DPA=mrhmvalA
+ENDIF;ENDIF;ENDIF
+ENDIF
+counter=counter+1
+IF (mlock=1)
+II ,,dpon,dvalues
+ENDIF
+JP #THREADA
+#THREADB
+IF ((rdecelB=1) & (_BGB=0) & (homeB=0))
+DCB=oldecelB;rdecelB=0
+ENDIF
+IF ((_LRB=1) & (_LFB=1))
+limB=0
+ENDIF
+IF ((homeB=1))
+IF ((hjogB=0) & (_BGB=0) & ((_LRB=0) | (_LFB=0)))
+speedB=_SPB;DCB=hjgdcB;JGB=hjgspB;WT100;BGB;hjogB=1
+ENDIF
+IF ((_LRB=1) & (_LFB=1) & (hjogB=1) & (_BGB=1))
+STB
+ENDIF
+IF ((_LRB=1) & (_LFB=1) & (hjogB=1) & (_BGB=0))
+IF (ueipB=1)
+SPB=speedB;DCB=67107840;FIB;WT100;BGB;hjogB=2
+ELSE
+SPB=speedB;hjogB=3
+ENDIF;ENDIF
+IF ((hjogB=2) & (_BGB=0))
+hjogB=3
+ENDIF
+IF ((_LRB=1) & (_LFB=1) & (hjogB=3) & (_BGB=0))
+WT10;hjogB=0;homeB=0;homedB=1
+IF (phregB=1)
+IF (ueipB=1)
+DEB=enhmvalB;DPB=mrhmvalB
+ELSE
+DPB=mrhmvalB
+ENDIF;ENDIF;ENDIF
+ENDIF
+JP #THREADB
+#THREADC
+IF ((rdecelC=1) & (_BGC=0) & (homeC=0))
+DCC=oldecelC;rdecelC=0
+ENDIF
+IF ((_LRC=1) & (_LFC=1))
+limC=0
+ENDIF
+IF ((homeC=1))
+IF ((hjogC=0) & (_BGC=0) & ((_LRC=0) | (_LFC=0)))
+speedC=_SPC;DCC=hjgdcC;JGC=hjgspC;WT100;BGC;hjogC=1
+ENDIF
+IF ((_LRC=1) & (_LFC=1) & (hjogC=1) & (_BGC=1))
+STC
+ENDIF
+IF ((_LRC=1) & (_LFC=1) & (hjogC=1) & (_BGC=0))
+IF (ueipC=1)
+SPC=speedC;DCC=67107840;FIC;WT100;BGC;hjogC=2
+ELSE
+SPC=speedC;hjogC=3
+ENDIF;ENDIF
+IF ((hjogC=2) & (_BGC=0))
+hjogC=3
+ENDIF
+IF ((_LRC=1) & (_LFC=1) & (hjogC=3) & (_BGC=0))
+WT10;hjogC=0;homeC=0;homedC=1
+IF (phregC=1)
+IF (ueipC=1)
+DEC=enhmvalC;DPC=mrhmvalC
+ELSE
+DPC=mrhmvalC
+ENDIF;ENDIF;ENDIF
+ENDIF
+JP #THREADC
+#THREADD
+IF ((rdecelD=1) & (_BGD=0) & (homeD=0))
+DCD=oldecelD;rdecelD=0
+ENDIF
+IF ((_LRD=1) & (_LFD=1))
+limD=0
+ENDIF
+IF ((homeD=1))
+IF ((hjogD=0) & (_BGD=0) & ((_LRD=0) | (_LFD=0)))
+speedD=_SPD;DCD=hjgdcD;JGD=hjgspD;WT100;BGD;hjogD=1
+ENDIF
+IF ((_LRD=1) & (_LFD=1) & (hjogD=1) & (_BGD=1))
+STD
+ENDIF
+IF ((_LRD=1) & (_LFD=1) & (hjogD=1) & (_BGD=0))
+IF (ueipD=1)
+SPD=speedD;DCD=67107840;FID;WT100;BGD;hjogD=2
+ELSE
+SPD=speedD;hjogD=3
+ENDIF;ENDIF
+IF ((hjogD=2) & (_BGD=0))
+hjogD=3
+ENDIF
+IF ((_LRD=1) & (_LFD=1) & (hjogD=3) & (_BGD=0))
+WT10;hjogD=0;homeD=0;homedD=1
+IF (phregD=1)
+IF (ueipD=1)
+DED=enhmvalD;DPD=mrhmvalD
+ELSE
+DPD=mrhmvalD
+ENDIF;ENDIF;ENDIF
+ENDIF
+JP #THREADD
+#THREADE
+IF ((rdecelE=1) & (_BGE=0) & (homeE=0))
+DCE=oldecelE;rdecelE=0
+ENDIF
+IF ((_LRE=1) & (_LFE=1))
+limE=0
+ENDIF
+IF ((homeE=1))
+IF ((hjogE=0) & (_BGE=0) & ((_LRE=0) | (_LFE=0)))
+speedE=_SPE;DCE=hjgdcE;JGE=hjgspE;WT100;BGE;hjogE=1
+ENDIF
+IF ((_LRE=1) & (_LFE=1) & (hjogE=1) & (_BGE=1))
+STE
+ENDIF
+IF ((_LRE=1) & (_LFE=1) & (hjogE=1) & (_BGE=0))
+IF (ueipE=1)
+SPE=speedE;DCE=67107840;FIE;WT100;BGE;hjogE=2
+ELSE
+SPE=speedE;hjogE=3
+ENDIF;ENDIF
+IF ((hjogE=2) & (_BGE=0))
+hjogE=3
+ENDIF
+IF ((_LRE=1) & (_LFE=1) & (hjogE=3) & (_BGE=0))
+WT10;hjogE=0;homeE=0;homedE=1
+IF (phregE=1)
+IF (ueipE=1)
+DEE=enhmvalE;DPE=mrhmvalE
+ELSE
+DPE=mrhmvalE
+ENDIF;ENDIF;ENDIF
+ENDIF
+JP #THREADE
+#THREADF
+IF ((rdecelF=1) & (_BGF=0) & (homeF=0))
+DCF=oldecelF;rdecelF=0
+ENDIF
+IF ((_LRF=1) & (_LFF=1))
+limF=0
+ENDIF
+IF ((homeF=1))
+IF ((hjogF=0) & (_BGF=0) & ((_LRF=0) | (_LFF=0)))
+speedF=_SPF;DCF=hjgdcF;JGF=hjgspF;WT100;BGF;hjogF=1
+ENDIF
+IF ((_LRF=1) & (_LFF=1) & (hjogF=1) & (_BGF=1))
+STF
+ENDIF
+IF ((_LRF=1) & (_LFF=1) & (hjogF=1) & (_BGF=0))
+IF (ueipF=1)
+SPF=speedF;DCF=67107840;FIF;WT100;BGF;hjogF=2
+ELSE
+SPF=speedF;hjogF=3
+ENDIF;ENDIF
+IF ((hjogF=2) & (_BGF=0))
+hjogF=3
+ENDIF
+IF ((_LRF=1) & (_LFF=1) & (hjogF=3) & (_BGF=0))
+WT10;hjogF=0;homeF=0;homedF=1
+IF (phregF=1)
+IF (ueipF=1)
+DEF=enhmvalF;DPF=mrhmvalF
+ELSE
+DPF=mrhmvalF
+ENDIF;ENDIF;ENDIF
+ENDIF
+JP #THREADF
+#THREADG
+IF ((rdecelG=1) & (_BGG=0) & (homeG=0))
+DCG=oldecelG;rdecelG=0
+ENDIF
+IF ((_LRG=1) & (_LFG=1))
+limG=0
+ENDIF
+IF ((homeG=1))
+IF ((hjogG=0) & (_BGG=0) & ((_LRG=0) | (_LFG=0)))
+speedG=_SPG;DCG=hjgdcG;JGG=hjgspG;WT100;BGG;hjogG=1
+ENDIF
+IF ((_LRG=1) & (_LFG=1) & (hjogG=1) & (_BGG=1))
+STG
+ENDIF
+IF ((_LRG=1) & (_LFG=1) & (hjogG=1) & (_BGG=0))
+IF (ueipG=1)
+SPG=speedG;DCG=67107840;FIG;WT100;BGG;hjogG=2
+ELSE
+SPG=speedG;hjogG=3
+ENDIF;ENDIF
+IF ((hjogG=2) & (_BGG=0))
+hjogG=3
+ENDIF
+IF ((_LRG=1) & (_LFG=1) & (hjogG=3) & (_BGG=0))
+WT10;hjogG=0;homeG=0;homedG=1
+IF (phregG=1)
+IF (ueipG=1)
+DEG=enhmvalG;DPG=mrhmvalG
+ELSE
+DPG=mrhmvalG
+ENDIF;ENDIF;ENDIF
+ENDIF
+JP #THREADG
+#THREADH
+IF ((rdecelH=1) & (_BGH=0) & (homeH=0))
+DCH=oldecelH;rdecelH=0
+ENDIF
+IF ((_LRH=1) & (_LFH=1))
+limH=0
+ENDIF
+IF ((homeH=1))
+IF ((hjogH=0) & (_BGH=0) & ((_LRH=0) | (_LFH=0)))
+speedH=_SPH;DCH=hjgdcH;JGH=hjgspH;WT100;BGH;hjogH=1
+ENDIF
+IF ((_LRH=1) & (_LFH=1) & (hjogH=1) & (_BGH=1))
+STH
+ENDIF
+IF ((_LRH=1) & (_LFH=1) & (hjogH=1) & (_BGH=0))
+IF (ueipH=1)
+SPH=speedH;DCH=67107840;FIH;WT100;BGH;hjogH=2
+ELSE
+SPH=speedH;hjogH=3
+ENDIF;ENDIF
+IF ((hjogH=2) & (_BGH=0))
+hjogH=3
+ENDIF
+IF ((_LRH=1) & (_LFH=1) & (hjogH=3) & (_BGH=0))
+WT10;hjogH=0;homeH=0;homedH=1
+IF (phregH=1)
+IF (ueipH=1)
+DEH=enhmvalH;DPH=mrhmvalH
+ELSE
+DPH=mrhmvalH
+ENDIF;ENDIF;ENDIF
+ENDIF
+JP #THREADH
+#CMDERR
+errstr=_ED
+errcde=_TC
+cmderr=cmderr+1
+XQ _ED3,_ED1,1
+EN
+#LIMSWI
+IF (((_LRA=0) | (_LFA=0)) & (hjogA=0) & (limA=0))
+oldecelA=_DCA;DCA=limdcA;STA;limA=1;rdecelA=1
+ENDIF
+IF (((_LRB=0) | (_LFB=0)) & (hjogB=0) & (limB=0))
+oldecelB=_DCB;DCB=limdcB;STB;limB=1;rdecelB=1
+ENDIF
+IF (((_LRC=0) | (_LFC=0)) & (hjogC=0) & (limC=0))
+oldecelC=_DCC;DCC=limdcC;STC;limC=1;rdecelC=1
+ENDIF
+IF (((_LRD=0) | (_LFD=0)) & (hjogD=0) & (limD=0))
+oldecelD=_DCD;DCD=limdcD;STD;limD=1;rdecelD=1
+ENDIF
+IF (((_LRE=0) | (_LFE=0)) & (hjogE=0) & (limE=0))
+oldecelE=_DCE;DCE=limdcE;STE;limE=1;rdecelE=1
+ENDIF
+IF (((_LRF=0) | (_LFF=0)) & (hjogF=0) & (limF=0))
+oldecelF=_DCF;DCF=limdcF;STF;limF=1;rdecelF=1
+ENDIF
+IF (((_LRG=0) | (_LFG=0)) & (hjogG=0) & (limG=0))
+oldecelG=_DCG;DCG=limdcG;STG;limG=1;rdecelG=1
+ENDIF
+IF (((_LRH=0) | (_LFH=0)) & (hjogH=0) & (limH=0))
+oldecelH=_DCH;DCH=limdcH;STH;limH=1;rdecelH=1
+ENDIF
+RE 1
+EN

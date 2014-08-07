@@ -1,0 +1,812 @@
+
+file {
+	name="/beamline/perforce/Dev/SBS/4_Controls/4_3_Network_Infrastructure/4_3_1_Comms_Common_Services/sw/device_drivers/Galil/3-0/GalilSup/op/adl/galil_motor_extras.adl"
+	version=030105
+}
+display {
+	object {
+		x=732
+		y=221
+		width=425
+		height=390
+	}
+	clr=14
+	bclr=4
+	cmap=""
+	gridSpacing=5
+	gridOn=1
+	snapToGrid=0
+}
+"color map" {
+	ncolors=65
+	colors {
+		ffffff,
+		ececec,
+		dadada,
+		c8c8c8,
+		bbbbbb,
+		aeaeae,
+		9e9e9e,
+		919191,
+		858585,
+		787878,
+		696969,
+		5a5a5a,
+		464646,
+		2d2d2d,
+		000000,
+		00d800,
+		1ebb00,
+		339900,
+		2d7f00,
+		216c00,
+		fd0000,
+		de1309,
+		be190b,
+		a01207,
+		820400,
+		5893ff,
+		597ee1,
+		4b6ec7,
+		3a5eab,
+		27548d,
+		fbf34a,
+		f9da3c,
+		eeb62b,
+		e19015,
+		cd6100,
+		ffb0ff,
+		d67fe2,
+		ae4ebc,
+		8b1a96,
+		610a75,
+		a4aaff,
+		8793e2,
+		6a73c1,
+		4d52a4,
+		343386,
+		c7bb6d,
+		b79d5c,
+		a47e3c,
+		7d5627,
+		58340f,
+		99ffff,
+		73dfff,
+		4ea5f9,
+		2a63e4,
+		0a00b8,
+		ebf1b5,
+		d4db9d,
+		bbc187,
+		a6a462,
+		8b8239,
+		73ff6b,
+		52da3b,
+		3cb420,
+		289315,
+		1a7309,
+	}
+}
+text {
+	object {
+		x=12
+		y=83
+		width=97
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Motor connected"
+}
+"text update" {
+	object {
+		x=155
+		y=83
+		width=120
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_MCONN_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=12
+		y=46
+		width=97
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Motor axis"
+}
+text {
+	object {
+		x=12
+		y=65
+		width=97
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Motorname"
+}
+"text update" {
+	object {
+		x=155
+		y=47
+		width=58
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_AXIS_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=155
+		y=65
+		width=120
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M).NAME"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+composite {
+	object {
+		x=101
+		y=13
+		width=193
+		height=37
+	}
+	"composite name"=""
+	children {
+		text {
+			object {
+				x=101
+				y=20
+				width=193
+				height=30
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="Galil motor extras"
+			align="horiz. centered"
+		}
+		rectangle {
+			object {
+				x=131
+				y=13
+				width=129
+				height=28
+			}
+			"basic attribute" {
+				clr=14
+				fill="outline"
+			}
+		}
+	}
+}
+text {
+	object {
+		x=12
+		y=102
+		width=97
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Motor type"
+}
+menu {
+	object {
+		x=155
+		y=99
+		width=135
+		height=20
+	}
+	control {
+		chan="$(P)$(M)_MTRTYPE_CMD"
+		clr=51
+		bclr=51
+	}
+}
+"text update" {
+	object {
+		x=309
+		y=104
+		width=100
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_MTRTYPE_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=12
+		y=122
+		width=97
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Main encoder"
+}
+text {
+	object {
+		x=12
+		y=142
+		width=97
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Auxiliary encoder"
+}
+menu {
+	object {
+		x=155
+		y=119
+		width=135
+		height=20
+	}
+	control {
+		chan="$(P)$(M)_MENCTYPE_CMD"
+		clr=51
+		bclr=51
+	}
+}
+menu {
+	object {
+		x=155
+		y=139
+		width=135
+		height=20
+	}
+	control {
+		chan="$(P)$(M)_AENCTYPE_CMD"
+		clr=51
+		bclr=51
+	}
+}
+"text update" {
+	object {
+		x=309
+		y=124
+		width=100
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_MENCTYPE_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=309
+		y=144
+		width=100
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_AENCTYPE_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=309
+		y=165
+		width=100
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_OFFONERR_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+menu {
+	object {
+		x=155
+		y=158
+		width=135
+		height=20
+	}
+	control {
+		chan="$(P)$(M)_OFFONERR_CMD"
+		clr=51
+		bclr=51
+	}
+}
+text {
+	object {
+		x=12
+		y=161
+		width=97
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Motor off on error"
+}
+text {
+	object {
+		x=12
+		y=233
+		width=97
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Error (cts)"
+}
+"text entry" {
+	object {
+		x=155
+		y=212
+		width=112
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_ERRLIMIT_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=12
+		y=216
+		width=100
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Error limit (cts)"
+}
+text {
+	object {
+		x=12
+		y=197
+		width=89
+		height=20
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Motor amplifier"
+}
+"text update" {
+	object {
+		x=309
+		y=198
+		width=58
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_ON_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=309
+		y=217
+		width=58
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_ERRLIMIT_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=309
+		y=235
+		width=58
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_ERR_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=12
+		y=250
+		width=69
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Encoder stall"
+}
+"text update" {
+	object {
+		x=309
+		y=252
+		width=81
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_ESTALL_STATUS"
+		clr=54
+		bclr=4
+	}
+	clrmod="alarm"
+	limits {
+	}
+}
+text {
+	object {
+		x=12
+		y=305
+		width=89
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Step smooth factor"
+}
+"text entry" {
+	object {
+		x=155
+		y=304
+		width=112
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_STEPSMOOTH_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=12
+		y=288
+		width=97
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Encoder dead band (EGU)"
+}
+"text entry" {
+	object {
+		x=155
+		y=286
+		width=112
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_EDEL_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=12
+		y=324
+		width=69
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Home value (EGU)"
+}
+"text entry" {
+	object {
+		x=155
+		y=323
+		width=112
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_HOMEVAL_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=12
+		y=360
+		width=69
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Program home value"
+}
+"choice button" {
+	object {
+		x=155
+		y=358
+		width=112
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_PHOME_CMD"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+text {
+	object {
+		x=12
+		y=343
+		width=69
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="EGU after limit"
+}
+"text entry" {
+	object {
+		x=155
+		y=341
+		width=112
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_EGUAFTLIMIT_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=309
+		y=287
+		width=81
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_EDEL_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=309
+		y=306
+		width=58
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_STEPSMOOTH_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=309
+		y=325
+		width=81
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_HOMEVAL_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=309
+		y=344
+		width=81
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_EGUAFTLIMIT_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=12
+		y=270
+		width=69
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Encoder stall time (s)"
+}
+"text entry" {
+	object {
+		x=156
+		y=267
+		width=112
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_ESTALLTIME_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=309
+		y=269
+		width=81
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_ESTALLTIME_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"choice button" {
+	object {
+		x=155
+		y=194
+		width=112
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_ON_CMD"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+"choice button" {
+	object {
+		x=155
+		y=177
+		width=112
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_WLP_CMD"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+text {
+	object {
+		x=12
+		y=179
+		width=89
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Wrong limit protection"
+}
+"text update" {
+	object {
+		x=309
+		y=362
+		width=81
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_PHOME_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=309
+		y=181
+		width=30
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_WLP_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=341
+		y=181
+		width=58
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_WLPACTIVE_STATUS"
+		clr=54
+		bclr=4
+	}
+	clrmod="alarm"
+	limits {
+	}
+}

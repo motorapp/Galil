@@ -1,0 +1,14 @@
+file "$(MOTOR)/db/profileMoveController.template"
+{
+pattern
+{P,       R,      PORT,   NAXES, NPOINTS, NPULSES,  TIMEOUT}
+{DMC01:,  Prof1:, Galil,  8,     1441,    1441,     1}
+}
+
+file "$(GALIL)/GalilSup/Db/galil_profileMoveController.template"
+{
+pattern
+{P,       R,      PORT,   TIMEOUT}
+{DMC01:,  Prof1:, Galil,  1}
+}
+

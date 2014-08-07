@@ -1,0 +1,5 @@
+## configure/RELEASE: Location of external products
+
+include $(TOP)/config/MASTER_RELEASE
+
+TEMPLATE_TOP=$(EPICS_BASE)/templates/makeBaseApp/top

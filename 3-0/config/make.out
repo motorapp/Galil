@@ -1,0 +1,66 @@
+make -C /home/mooney/epics/tmp/synApps_5_2/support/vxStats/1-7-2e install
+make[1]: Entering directory `/home/mooney/epics/tmp/synApps_5_2/support/vxStats/1-7-2e'
+make -C configure install
+make[2]: Entering directory `/home/mooney/epics/tmp/synApps_5_2/support/vxStats/1-7-2e/configure'
+perl /home/mooney/epics/base-3.14.8.2/configure/tools/convertRelease.pl -h cygwin-x86 checkRelease
+perl /home/mooney/epics/base-3.14.8.2/configure/tools/makeMakefile.pl O.cygwin-x86 ../..
+mkdir O.Common
+make -C O.cygwin-x86 -f ../Makefile TOP=../.. T_A=cygwin-x86 install
+make[3]: Entering directory `/home/mooney/epics/tmp/synApps_5_2/support/vxStats/1-7-2e/configure/O.cygwin-x86'
+perl /home/mooney/epics/base-3.14.8.2/configure/tools/convertRelease.pl -h cygwin-x86 CONFIG_APP_INCLUDE
+perl /home/mooney/epics/base-3.14.8.2/configure/tools/convertRelease.pl -h cygwin-x86 RULES_INCLUDE
+make[3]: Leaving directory `/home/mooney/epics/tmp/synApps_5_2/support/vxStats/1-7-2e/configure/O.cygwin-x86'
+make[2]: Leaving directory `/home/mooney/epics/tmp/synApps_5_2/support/vxStats/1-7-2e/configure'
+make -C vxStatsApp install
+make[2]: Entering directory `/home/mooney/epics/tmp/synApps_5_2/support/vxStats/1-7-2e/vxStatsApp'
+make -C src install
+make[3]: Entering directory `/home/mooney/epics/tmp/synApps_5_2/support/vxStats/1-7-2e/vxStatsApp/src'
+perl /home/mooney/epics/base-3.14.8.2/configure/tools/makeMakefile.pl O.cygwin-x86 ../../..
+mkdir O.Common
+make -C O.cygwin-x86 -f ../Makefile TOP=../../.. T_A=cygwin-x86 install
+make[4]: Entering directory `/home/mooney/epics/tmp/synApps_5_2/support/vxStats/1-7-2e/vxStatsApp/src/O.cygwin-x86'
+make[4]: Leaving directory `/home/mooney/epics/tmp/synApps_5_2/support/vxStats/1-7-2e/vxStatsApp/src/O.cygwin-x86'
+make[4]: Entering directory `/home/mooney/epics/tmp/synApps_5_2/support/vxStats/1-7-2e/vxStatsApp/src/O.cygwin-x86'
+Expanding dbd
+/home/mooney/epics/base-3.14.8.2/bin/cygwin-x86/dbExpand.exe  -I . -I .. -I ../../../dbd -I /home/mooney/epics/base-3.14.8.2/dbd -o ../O.Common/vxStats.dbd ../vxStatsInclude.dbd
+Installing dbd file ../../../dbd/vxStats.dbd
+mkdir ../../../dbd
+gcc -c   -D_POSIX_THREADS -D_POSIX_TIMERS        -D_X86_  -DUNIX  -DCYGWIN32 -U_WIN32   -pedantic  -O3  -Wall           -I. -I.. -I../../../include/os/cygwin32 -I../../../include -I/home/mooney/epics/base-3.14.8.2/include/os/cygwin32 -I/home/mooney/epics/base-3.14.8.2/include     -I/home/mooney/epics/base-3.14.8.2/src/rsrv -I/home/mooney/epics/base-3.14.8.2/src/ca    ../ioc_stats.c 
+gcc -c   -D_POSIX_THREADS -D_POSIX_TIMERS        -D_X86_  -DUNIX  -DCYGWIN32 -U_WIN32   -pedantic  -O3  -Wall           -I. -I.. -I../../../include/os/cygwin32 -I../../../include -I/home/mooney/epics/base-3.14.8.2/include/os/cygwin32 -I/home/mooney/epics/base-3.14.8.2/include     -I/home/mooney/epics/base-3.14.8.2/src/rsrv -I/home/mooney/epics/base-3.14.8.2/src/ca    ../BSlib.c 
+../../../lib/cygwin-x86: No such file or directory at /home/mooney/epics/base-3.14.8.2/configure/tools/fullPathName.pl line 14
+g++ -o ioc_stats.exe      -L../../../lib/cygwin-x86      -Wl,-rpath,/home/mooney/epics/base-3.14.8.2/lib/cygwin-x86        ioc_stats.o BSlib.o      -lpthread    -lm -lgcc
+gcc -c   -D_POSIX_THREADS -D_POSIX_TIMERS        -D_X86_  -DUNIX  -DCYGWIN32 -U_WIN32   -pedantic  -O3  -Wall           -I. -I.. -I../../../include/os/cygwin32 -I../../../include -I/home/mooney/epics/base-3.14.8.2/include/os/cygwin32 -I/home/mooney/epics/base-3.14.8.2/include     -I/home/mooney/epics/base-3.14.8.2/src/rsrv -I/home/mooney/epics/base-3.14.8.2/src/ca    ../rdbls.c 
+../../../lib/cygwin-x86: No such file or directory at /home/mooney/epics/base-3.14.8.2/configure/tools/fullPathName.pl line 14
+g++ -o rdbls.exe      -L../../../lib/cygwin-x86      -Wl,-rpath,/home/mooney/epics/base-3.14.8.2/lib/cygwin-x86        rdbls.o BSlib.o      -lpthread    -lm -lgcc
+gcc -c   -D_POSIX_THREADS -D_POSIX_TIMERS        -D_X86_  -DUNIX  -DCYGWIN32 -U_WIN32   -pedantic  -O3  -Wall           -I. -I.. -I../../../include/os/cygwin32 -I../../../include -I/home/mooney/epics/base-3.14.8.2/include/os/cygwin32 -I/home/mooney/epics/base-3.14.8.2/include     -I/home/mooney/epics/base-3.14.8.2/src/rsrv -I/home/mooney/epics/base-3.14.8.2/src/ca    ../rdbapplist.c 
+../../../lib/cygwin-x86: No such file or directory at /home/mooney/epics/base-3.14.8.2/configure/tools/fullPathName.pl line 14
+g++ -o rdbapplist.exe      -L../../../lib/cygwin-x86      -Wl,-rpath,/home/mooney/epics/base-3.14.8.2/lib/cygwin-x86        rdbapplist.o BSlib.o      -lpthread    -lm -lgcc
+Installing binary ../../../bin/cygwin-x86/ioc_stats.exe
+mkdir ../../../bin
+mkdir ../../../bin/cygwin-x86
+Installing binary ../../../bin/cygwin-x86/rdbls.exe
+Installing binary ../../../bin/cygwin-x86/rdbapplist.exe
+make[4]: Leaving directory `/home/mooney/epics/tmp/synApps_5_2/support/vxStats/1-7-2e/vxStatsApp/src/O.cygwin-x86'
+make[3]: Leaving directory `/home/mooney/epics/tmp/synApps_5_2/support/vxStats/1-7-2e/vxStatsApp/src'
+make -C srcOpi install
+make[3]: Entering directory `/home/mooney/epics/tmp/synApps_5_2/support/vxStats/1-7-2e/vxStatsApp/srcOpi'
+make[3]: Nothing to be done for `install'.
+make[3]: Leaving directory `/home/mooney/epics/tmp/synApps_5_2/support/vxStats/1-7-2e/vxStatsApp/srcOpi'
+make -C Db install
+make[3]: Entering directory `/home/mooney/epics/tmp/synApps_5_2/support/vxStats/1-7-2e/vxStatsApp/Db'
+perl /home/mooney/epics/base-3.14.8.2/configure/tools/makeMakefile.pl O.cygwin-x86 ../../..
+mkdir O.Common
+make -C O.cygwin-x86 -f ../Makefile TOP=../../.. T_A=cygwin-x86 install
+make[4]: Entering directory `/home/mooney/epics/tmp/synApps_5_2/support/vxStats/1-7-2e/vxStatsApp/Db/O.cygwin-x86'
+Inflating database from ../vxStats-template.substitutions using local rule
+msi -S../vxStats-template.substitutions > vxStats-template.db </dev/null
+/bin/sh: msi: command not found
+make[4]: *** [../O.Common/vxStats-template.db] Error 127
+make[4]: Leaving directory `/home/mooney/epics/tmp/synApps_5_2/support/vxStats/1-7-2e/vxStatsApp/Db/O.cygwin-x86'
+make[3]: *** [install.cygwin-x86] Error 2
+make[3]: Leaving directory `/home/mooney/epics/tmp/synApps_5_2/support/vxStats/1-7-2e/vxStatsApp/Db'
+make[2]: *** [Db.install] Error 2
+make[2]: Leaving directory `/home/mooney/epics/tmp/synApps_5_2/support/vxStats/1-7-2e/vxStatsApp'
+make[1]: *** [vxStatsApp.install] Error 2
+make[1]: Leaving directory `/home/mooney/epics/tmp/synApps_5_2/support/vxStats/1-7-2e'
+make: *** [/home/mooney/epics/tmp/synApps_5_2/support/vxStats/1-7-2e.install] Error 2

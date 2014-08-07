@@ -1,0 +1,67 @@
+# Description:
+# Coordinate systems substitution file. 
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# Licence as published by the Free Software Foundation; either
+# version 2.1 of the Licence, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public Licence for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# Licence along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Contact details:
+# mark.clift@synchrotron.org.au
+# 800 Blackburn Road, Clayton, Victoria 3168, Australia.
+
+# Coordinate system status
+#
+# P    - PV prefix
+# R    - Record Name
+# PORT - Asyn port name
+# ADDR - Hardware port to read
+# SCAN - Scan period for monitor records
+
+file "$(GALIL)/GalilSup/Db/galil_coordinate_system.template"
+{ 
+   pattern { P,          R,    PORT,    ADDR,  SCAN }
+
+	   { "DMC01",    "S",  "Galil", "0",   ".1 second"  }
+	   { "DMC01",    "T",  "Galil", "1",   ".1 second"  }
+}
+
+# Coordinate system variables
+#
+# P    - PV prefix
+# R    - Record Name
+# PORT - Asyn port name
+# ADDR - Hardware port to read
+# PREC - Precision
+#
+# Regardless of record name, addr 0-9 is mapped Q-Z in driver
+# These variables Q-Z can be used in GalilCreateCSAxes function called from iocShell
+
+file "$(GALIL)/GalilSup/Db/galil_coordinate_system_variables.template"
+{ 
+   pattern { P,           R,    PORT,    ADDR,  PREC }
+
+	   { "DMC01",     "Q",  "Galil", "0",   "5"  }
+	   { "DMC01",     "R",  "Galil", "1",   "5"  }
+	   { "DMC01",     "S",  "Galil", "2",   "5"  }
+	   { "DMC01",     "T",  "Galil", "3",   "5"  }
+	   { "DMC01",     "U",  "Galil", "4",   "5"  }
+	   { "DMC01",     "V",  "Galil", "5",   "5"  }
+	   { "DMC01",     "W",  "Galil", "6",   "5"  }
+	   { "DMC01",     "X",  "Galil", "7",   "5"  }
+           { "DMC01",     "Y",  "Galil", "8",   "5"  }
+	   { "DMC01",     "Z",  "Galil", "9",   "5"  }
+
+}
+
+# end
+
