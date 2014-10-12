@@ -1,6 +1,6 @@
 
 file {
-	name="/beamline/perforce/Dev/SBS/4_Controls/4_3_Network_Infrastructure/4_3_1_Comms_Common_Services/sw/device_drivers/Galil/3-0/GalilSup/op/adl/galil_motor_extras.adl"
+	name="/home/ics/git/Galil-3-0/3-0/GalilSup/op/adl/galil_motor_extras.adl"
 	version=030105
 }
 display {
@@ -8,7 +8,7 @@ display {
 		x=732
 		y=221
 		width=425
-		height=390
+		height=455
 	}
 	clr=14
 	bclr=4
@@ -807,6 +807,173 @@ text {
 		bclr=4
 	}
 	clrmod="alarm"
+	limits {
+	}
+}
+text {
+	object {
+		x=12
+		y=378
+		width=69
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Motor amp auto on/off"
+}
+"choice button" {
+	object {
+		x=155
+		y=376
+		width=112
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_AUTOONOFF_CMD"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+text {
+	object {
+		x=12
+		y=396
+		width=69
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Motor amp on delay"
+}
+text {
+	object {
+		x=12
+		y=415
+		width=69
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Motor amp off delay"
+}
+"text entry" {
+	object {
+		x=155
+		y=412
+		width=112
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_OFFDELAY_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text entry" {
+	object {
+		x=155
+		y=394
+		width=112
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_ONDELAY_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=309
+		y=379
+		width=81
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_AUTOONOFF_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=309
+		y=397
+		width=81
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_ONDELAY_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=309
+		y=415
+		width=81
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_OFFDELAY_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=12
+		y=434
+		width=69
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Motor amp off fraction"
+}
+"text entry" {
+	object {
+		x=155
+		y=430
+		width=112
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_OFFFRAC_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=309
+		y=433
+		width=81
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_OFFFRAC_MON"
+		clr=54
+		bclr=4
+	}
 	limits {
 	}
 }

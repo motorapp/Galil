@@ -25,6 +25,12 @@
 
 #define KPMAX		      1023.875
 #define KDMAX		      4095.875
+#define HOMING_RESET_DELAY    2.0		//Time motor must be stopped before homing flag true is reset to false
+
+//pollServices request numbers
+#define MOTOR_STOP 0
+#define MOTOR_POST 1
+#define MOTOR_OFF 2
 
 class GalilAxis : public asynMotorAxis
 {
@@ -75,6 +81,26 @@ public:
    asynStatus setLimitDecel(double velocity);
    //Extract axis data from GalilController data record
    asynStatus getStatus(void);
+   //Set poller status variables bassed on GalilController data record info
+   bool setStatus(void);
+   //Verify encoder operation whilst moving for safety
+   void checkEncoder(void);
+   //Stop motor if wrong limit activated and wrongLimitProtection is enabled
+   void wrongLimitProtection(void);
+   //Reset homing now status
+   void checkHoming(void);
+   //Service slow and infrequent requests from poll thread to write to the controller
+   //We do this in a separate thread so the poll thread is not slowed
+   //Also poll thread doesnt have a lock and is not allowed to call writeReadController
+   void pollServices(void);
+   //Execute motor record prem function
+   void executePrem(void);
+   //Execute motor power auto on
+   void executeAutoOn(void);
+   //Execute motor record post function
+   void executePost(void);
+   //Execute motor power auto off
+   void executeAutoOff(void);
 
   /* These are the methods we override from the base class */
   asynStatus move(double position, int relative, double min_velocity, double max_velocity, double acceleration);
@@ -100,29 +126,46 @@ private:
   int switch_type_;			//switch type for motor enable/disable function
   char *enables_string_;		//Motor enable/disable string specified by user
   int invert_ssi_;			//Invert ssi encoder.  Reverse -ve, and +ve direction of ssi
+
+  double highLimit_;			//High soft limit
+  double lowLimit_;			//Low soft limit
+  double encmratio_;			//Encoder/motor ratio
+  bool encmratioset_;			//Flag to indicate if the ratio has been set
+  int deferredCoordsys_;		//Coordinate system 0 (S) or 1 (T)
+  double deferredAcceleration_;		//Coordinate system acceleration
+  double deferredVelocity_;		//Coordinate system velocity
+  double deferredPosition_;		//Deferred move position
+  bool deferredMove_;			//Has a deferred move been set
+
+  //Variables that should only be used by poller thread (after startup)
+  epicsTimeStamp pestall_nowt_;		//Used to track length of time encoder has been stalled for
+  epicsTimeStamp pestall_begint_;	//Time when possible encoder stall first detected
+  int ueip_;				//motorRecord ueip
+  int motorType_;			//MotorType set for this poll cycle
   double motor_position_;		//aux encoder or step count register
   double encoder_position_;		//main encoder register
   double last_motor_position_;		//aux encoder or step count register stored from previous poll.  Used to detect movement.
   double last_encoder_position_;	//main encoder register stored from previous poll.  Used to detect movement.
   int direction_;			//Movement direction
   bool inmotion_;			//Axis in motion status from controller
-  bool protectStop_;			//Used to flag that protected stop has occurred already
   bool fwd_;				//Forward limit status
   bool rev_;				//Reverse limit status
-  bool home_;				//Home status
-  double highLimit_;			//High soft limit
-  double lowLimit_;			//Low soft limit
-  double encmratio_;			//Encoder/motor ratio
-  bool encmratioset_;			//Flag to indicate if the ratio has been set
-  epicsTimeStamp pestall_nowt_;		//Used to track length of time encoder has been stalled for
-  epicsTimeStamp pestall_begint_;	//Time when possible encoder stall first detected
+  bool home_;				//Home switch raw status direct from data record
+  int done_;				//Motor done status passed to motor record
+  int last_done_;			//Backup of done status at end of each poll.  Used to detect stop
+  bool homing_;				//Is motor homing now
+  epicsTimeStamp stop_nowt_;		//Used to track length of motor stopped for.  Reset homing_ to false
+  epicsTimeStamp stop_begint_;		//Used to track length of motor stopped for.  Reset homing_ to false
+  bool encDirOk_;			//Encoder direction ok flag
+  bool motorMove_;			//Motor move status
+  bool encoderMove_;			//Encoder move status
   bool pestall_detected_;		//Possible encoder stall detected flag
-  int deferredCoordsys_;		//Coordinate system 0 (S) or 1 (T)
-  double deferredAcceleration_;		//Coordinate system acceleration
-  double deferredVelocity_;		//Coordinate system velocity
-  double deferredPosition_;		//Deferred move position
-  bool deferredMove_;			//Has a deferred move been set
-  
+  epicsEventId pollRequestEvent_;       //Poll wants to write to controller
+  int pollRequest_;			//The service number poll would like done
+  bool stopExecuted_;			//Has motor been stopped due to encoder stall or wrong limit protection
+  bool postExecuted_;			//Has post been executed after motor stop
+  bool autooffExecuted_;		//Has motor auto off executed after motor stop
+
 friend class GalilController;
 };
 

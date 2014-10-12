@@ -30,17 +30,24 @@
 # P:EPICSName_CMD
 
 # GalilStr is a galil command or variable 
-# eg. TI0, SB 1, uservarname, etc
+# eg. TI0, SB 1, user variable name, etc
 
-# DRVCMD = VAR (GalilStr is a galil variable)
-# DRVCMD = CMD (GalilStr is a galil command)
+# DRVCMD = USER_VAR (GalilStr is a galil variable)
+# DRVCMD = USER_CMD (GalilStr is a galil command)
+# SCAN = use I/O Intr when EPICS only will change the value.
+#        use Periodic scan when external will change value.
+# PINI = YES will push autosave or default value to controller at startup
 
-
-file "$(GALIL)/db/galil_userdef_records.template"
+file "$(GALIL)/GalilSup/Db/galil_userdef_records.template"
 {
+
 pattern
-{ P,               EPICSName,            GalilStr, DRVCMD, SCAN,        DRVL, DRVH, LOW,  HIGH, LSV,     HSV,     ZNAM,      ONAM,  ZSV,        OSV,        C, DEFAULT, EGU,  PINI}
-#{"SR08ID01WFS01", "EXPOSURE_TIME",      "expsT",  "VAR"   ".1 second", 1,    1000, 1,    1000, "MINOR", "MINOR", "Invalid", "Ok",  "MAJOR",    "NO_ALARM", 0, "10",    "ms", "YES"}
+{ P,               PORT,    EPICSName,        GalilStr, DRVCMD,     SCAN,       DRVL, DRVH, LOW,  HIGH, LSV,     HSV,     ZNAM,      ONAM,  ZSV,      OSV,        DEFAULT, EGU,  PINI }
+
+ {"SR08ID01WFS01", "Galil", "EXPOSURE_TIME",  "expsT",  "USER_VAR", "I/O Intr", 1,    1000, 1,    1000, "MINOR", "MINOR", "Invalid", "Ok",  "MAJOR",  "NO_ALARM", "10",    "ms", "YES"}
+ {"SR08ID01WFS01", "Galil", "DIGITAL_PORT0",  "TI",     "USER_CMD", "1 second", 1,    1000, 1,    1000, "MINOR", "MINOR", "Invalid", "Ok",  "MAJOR",  "NO_ALARM", "10",    "",   "YES"}
+
 }
 
 # end
+

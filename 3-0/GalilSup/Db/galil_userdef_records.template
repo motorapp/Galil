@@ -32,11 +32,11 @@ record(ai,"$(P):$(EPICSName)_MONITOR")
 {
 	field(DESC,"$(EPICSName) monitor")
 	field(SCAN,"$(SCAN)")
-	field(DTYP,"G21X3")
+	field(DTYP,"asynFloat64")
 	field(PINI,"$(PINI)")
 	field(EGU, "$(EGU)")
 	field(FLNK,"$(P):$(EPICSName)_STATUS")
-	field(INP, "#C$(C) S0 @$(DRVCMD)$(GalilStr)")
+	field(INP, "@asyn($(PORT),0)$(DRVCMD) $(GalilStr)")
 
 # Alarm thresholds
 	field(LOW,  "$(LOW)")
@@ -63,12 +63,13 @@ record(bi,"$(P):$(EPICSName)_STATUS")
 record(ao,"$(P):$(EPICSName)_SP")
 {
 	field(DESC,"$(EPICSName) setpoint")
-	field(DTYP,"G21X3")
+	field(DTYP,"asynFloat64")
 	
 	field(EGU, "$(EGU)")
 	field(DOL, "$(P):$(EPICSName)_SP")
 	field(FLNK,"$(P):$(EPICSName)_MONITOR")
-	field(OUT, "#C$(C) S0 @$(DRVCMD)$(GalilStr)")
+	field(PINI,"$(PINI)")
+	field(OUT, "@asyn($(PORT),0)$(DRVCMD) $(GalilStr)")
 	
 # Set default value here.
 	field(VAL, "$(DEFAULT)")

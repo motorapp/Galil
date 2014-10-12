@@ -1,14 +1,14 @@
 
 file {
-	name="/beamline/ioc/GalilSup/op/adl/galil_ctrl_extras.adl"
+	name="/home/ics/git/Galil-3-0/3-0/GalilSup/op/adl/galil_ctrl_extras.adl"
 	version=030105
 }
 display {
 	object {
-		x=883
-		y=172
+		x=560
+		y=147
 		width=410
-		height=520
+		height=602
 	}
 	clr=14
 	bclr=4
@@ -880,4 +880,99 @@ text {
 		clr=14
 	}
 	textix="CS motors"
+}
+"text update" {
+	object {
+		x=74
+		y=529
+		width=331
+		height=15
+	}
+	monitor {
+		chan="$(DMC)ERROR_MON"
+		clr=14
+		bclr=56
+	}
+	format="string"
+	limits {
+	}
+}
+text {
+	object {
+		x=23
+		y=544
+		width=65
+		height=17
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Command console"
+}
+"text entry" {
+	object {
+		x=74
+		y=561
+		width=331
+		height=20
+	}
+	control {
+		chan="$(DMC)SEND_STR_CMD"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=74
+		y=581
+		width=331
+		height=15
+	}
+	monitor {
+		chan="$(DMC)SEND_STR_MON"
+		clr=14
+		bclr=56
+	}
+	format="string"
+	limits {
+	}
+}
+text {
+	object {
+		x=23
+		y=563
+		width=65
+		height=17
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Command"
+}
+text {
+	object {
+		x=23
+		y=580
+		width=65
+		height=17
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Response"
+}
+text {
+	object {
+		x=23
+		y=513
+		width=65
+		height=17
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Controller mesg"
 }

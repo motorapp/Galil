@@ -124,6 +124,8 @@ void GalilPoller::run(void)
 		sprintf(pCntrl_->cmd_, "BN");
 		pCntrl_->writeReadController(functionName);
 
+		
+
 		//Break from loop
 		break;
 		}

@@ -40,7 +40,7 @@ GalilConnector::GalilConnector(void)
 void GalilConnector::run(void)
 {
 	unsigned i;
-	bool shuttingDown = false;
+	int shuttingDown = 0;
 	//Check to see what controllers need disconnect/connect
 	while (true)
 		{

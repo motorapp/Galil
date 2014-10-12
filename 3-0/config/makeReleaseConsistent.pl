@@ -76,6 +76,9 @@ use POSIX;
 use File::Copy;
 use Env;
 
+use File::Temp;
+use Fcntl;
+
 $mitera = 0;
 $ritera = 0;
 $supporttop = shift;
@@ -142,7 +145,7 @@ for ($itera = 0; $itera < $ritera; $itera++)
     do
     {
 	$tempfile = tmpnam();
-    } until sysopen(TEMP, $tempfile, O_RDWR | O_CREAT | O_EXCL, 0600);
+    } until sysopen(TEMP, $tempfile, O_RDWR | O_CREAT | O_EXCL, 0755);
 
     while ($line = <IN>)
     {

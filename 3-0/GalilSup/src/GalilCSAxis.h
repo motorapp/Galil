@@ -32,14 +32,14 @@ public:
 
   GalilCSAxis(class GalilController *pC, 	//The GalilController
 	     char axisname,			//The coordinate system axis name I-P
-	     char *csaxes, 			//List of coordinate system axis
-	     char *forward,			//Forward kinematic transform used to calculate the coordinate system axis position from real axis positions
-             char *fwdvars, 			//Forward kinematic variables List of Q-Z
-	     char *fwdsubs, 			//Forward kinematic substitutes List of A-P
-             char *axes,                        //List of real axis
-	     char **reverse,			//Reverse transforms to calculate each real axis position in the coordinate system
-	     char **revvars,			//Reverse kinematic variables List of Q-Z
-	     char **revsubs);			//Reverse kinematic substitutes List of A-P
+         char *csaxes, 			//List of coordinate system axis
+         char *forward,			//Forward kinematic transform used to calculate the coordinate system axis position from real axis positions
+         char *fwdvars, 		//Forward kinematic variables List of Q-Z
+	     char *fwdsubs, 		//Forward kinematic substitutes List of A-P
+         char *axes,            //List of real axis
+	     char **reverse,		//Reverse transforms to calculate each real axis position in the coordinate system
+	     char **revvars,		//Reverse kinematic variables List of Q-Z
+	     char **revsubs);		//Reverse kinematic substitutes List of A-P
 
   //These are the methods that are new to this class
   //Store settings, and implement defaults
@@ -69,20 +69,20 @@ public:
 private:
   GalilController *pC_;      		/**< Pointer to the asynMotorController to which this axis belongs.
                                 	*   Abbreviated because it is used very frequently */
-  char axisName_;			//The axis letter I-P
-  char *raxes_;				//List of real axis in the coordinate system axis
-  char *csaxes_;			//List of coordinate system axis related to this cs axis
-  char *forward_;			//forward kinematic transform used to calculate the coordinate system position from real axis positions
-  char *fwdvars_;			//Forward kinematic variables List of Q-Z
-  char *fwdsubs_;			//Forward kinematic substitutes List of A-P
-  char **reverse_;			//reverse transforms to calculate each real axis position in the coordinate system
-  char **revvars_;			//Reverse kinematic variables List of Q-Z
-  char **revsubs_;			//Reverse kinematic substitutes List of A-P
-  int coordsys_;			//The coordinate system S or T that we started when moving
-  double motor_position_;		//aux encoder or step count register
-  double encoder_position_;		//main encoder register
-  double last_motor_position_;		//aux encoder or step count register stored from previous poll
-  int direction_;			//Direction of cs axis
+  char axisName_;			   //The axis letter I-P
+  char *raxes_;				   //List of real axis in the coordinate system axis
+  char *csaxes_;			   //List of coordinate system axis related to this cs axis
+  char *forward_;			   //forward kinematic transform used to calculate the coordinate system position from real axis positions
+  char *fwdvars_;			   //Forward kinematic variables List of Q-Z
+  char *fwdsubs_;			   //Forward kinematic substitutes List of A-P
+  char **reverse_;			   //Reverse transforms to calculate each real axis position in the coordinate system
+  char **revvars_;			   //Reverse kinematic variables List of Q-Z
+  char **revsubs_;			   //Reverse kinematic substitutes List of A-P
+  int coordsys_;			   //The coordinate system S or T that we started when moving
+  double motor_position_;	   //aux encoder or step count register
+  double encoder_position_;	   //main encoder register
+  double last_motor_position_; //aux encoder or step count register stored from previous poll
+  int direction_;			   //Direction of cs axis
  
 friend class GalilController;
 };

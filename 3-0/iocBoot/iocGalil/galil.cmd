@@ -17,7 +17,7 @@ dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_digital_ports.substitutions")
 dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_analog_ports.substitutions")
 
 #Load user defined functions
-#dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_userdef_records.substitutions")
+dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_userdef_records.substitutions")
 
 #Load profiles
 dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_profileMoveController.substitutions")
