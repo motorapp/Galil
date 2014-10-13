@@ -1199,8 +1199,10 @@ void GalilAxis::pollServices(void)
 
   while (true)
      {
+     //Wait for poll to request a service
      epicsEventWait(pollRequestEvent_);
      pC_->lock();
+     //What did poll request
      switch (pollRequest_)
         {
         case MOTOR_STOP: stop(1);
@@ -1217,7 +1219,9 @@ void GalilAxis::pollServices(void)
                             {
                             //Wait user specified time before executing auto motor off
                             pC_->getDoubleParam(axisNo_, pC_->GalilAutoOffDelay_, &offdelay);
+                            pC_->unlock();
                             epicsThreadSleep(offdelay);
+                            pC_->lock();
                             //Execute the motor off command
                             setClosedLoop(false);
                             }
@@ -1262,7 +1266,9 @@ void GalilAxis::executeAutoOn(void)
      setClosedLoop(true);
      //Wait user specified time after turning motor on
      pC_->getDoubleParam(axisNo_, pC_->GalilAutoOnDelay_, &ondelay);
+     pC_->unlock();
      epicsThreadSleep(ondelay);
+     pC_->lock();
      }
 }
 
