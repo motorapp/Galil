@@ -47,14 +47,14 @@ using namespace std; //cout ostringstream vector string
   */
 GalilCSAxis::GalilCSAxis(class GalilController *pC, 	//The GalilController
 	     char axisname,				//The coordinate system axis name I-P
-	     char *csaxes, 				//List of coordinate system axis
-         char *forward,				//Forward kinematic transform used to calculate the coordinate system axis position from real axis positions
-         char *fwdvars, 			//Forward kinematic variables List of Q-X
-	     char *fwdsubs, 			//Forward kinematic substitutes List of A-P
-         char *axes,                //List of real axis
-	     char **reverse,			//Reverse transforms to calculate each real axis position in the coordinate system
-	     char **revvars,			//Reverse kinematic variables List of Q-X
-	     char **revsubs)			//Reverse kinematic substitutes List of A-P
+	     char *csaxes,				//List of coordinate system axis
+             char *forward,				//Forward kinematic transform used to calculate the coordinate system axis position from real axis positions
+             char *fwdvars,				//Forward kinematic variables List of Q-X
+	     char *fwdsubs,				//Forward kinematic substitutes List of A-P
+             char *axes,				//List of real axis
+	     char **reverse,				//Reverse transforms to calculate each real axis position in the coordinate system
+	     char **revvars,				//Reverse kinematic variables List of Q-X
+	     char **revsubs)				//Reverse kinematic substitutes List of A-P
   : asynMotorAxis(pC, (toupper(axisname) - AASCII)),
     pC_(pC)
 {
@@ -145,8 +145,6 @@ asynStatus GalilCSAxis::move(double position, int relative, double minVelocity, 
   //Do the coordinate system axis move, using deferredMoves facility
   if (!status)
 	{
-	//Set controller deferred move in paramList
-	pC_->setIntegerParam(pC_->motorDeferMoves_, 1);
 	//Now set controller deferred move flag
 	pC_->setDeferredMoves(true);
 
@@ -160,12 +158,8 @@ asynStatus GalilCSAxis::move(double position, int relative, double minVelocity, 
 		pAxis->move(nmotor_positions[i], relative, minVelocity, maxVelocity, acceleration);
 		}
 
-	//Clear controller deferred move in paramList
-	pC_->setIntegerParam(pC_->motorDeferMoves_, 0);
 	//Clear controller deferred move flag, and start motion
 	pC_->setDeferredMoves(false);
-        //Allow time for motion to begin
-        epicsThreadSleep(.1);
 	}
 
   //Return status
@@ -182,16 +176,14 @@ asynStatus GalilCSAxis::moveVelocity(double minVelocity, double maxVelocity, dou
   double position;
 
   //Choose large move distance to simulate jog function
-  position = (maxVelocity > 0) ? 838860 : -838860;
+  position = (maxVelocity > 0) ? 8388600 : -8388600;
+
   //Do the "jog"
   move(position, 0, minVelocity, fabs(maxVelocity), acceleration);
-  //Allow time for motion to begin
-  epicsThreadSleep(.02);
-
+  
   //Always return success. Dont need more error mesgs
   return asynSuccess;
 }
-
 
 /** Stop the motor.
   * \param[in] acceleration The acceleration value. Units=steps/sec/sec. */

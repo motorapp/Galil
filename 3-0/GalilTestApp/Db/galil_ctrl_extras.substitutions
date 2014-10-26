@@ -27,7 +27,8 @@
 
 # P    - PV prefix
 # PORT - Asyn port name
-# SCAN - Scan period for monitor records
+# SCAN - Scan period for monitor records.  Use passive when only epics will change value (default)
+#      - Periodic scan will slow controller update performance (poller)
 # DEFAULT_LIMITTYPE = 0 Normally open, 1 Normally closed
 # DEFAULT_HOMETYPE = 0 Normally open, 1 Normally closed
 # PREC - precision
@@ -35,10 +36,9 @@
 file "$(GALIL)/GalilSup/Db/galil_ctrl_extras.template"
 {
 pattern
-{   P,	     PORT,    SCAN, 	    DEFAULT_HOMETYPE, DEFAULT_LIMITTYPE, PREC}
- {  "DMC01", "Galil", ".1 second",  1,                1,                 5 }
+{   P,	     PORT,    SCAN, 	  DEFAULT_HOMETYPE, DEFAULT_LIMITTYPE, PREC}
+ {  "DMC01", "Galil", "Passive",  1,                1,                 5 }
 }
-
 
 # end
 

@@ -31,6 +31,7 @@
 #define finite(x) _finite(x)
 #endif /* _WIN32/_WIN64 */
 
+#define BEGIN_TIMEOUT 2.0
 #define AASCII 65
 #define QASCII 81
 #define SCALCARGS 16
@@ -176,12 +177,6 @@ public:
   asynStatus abortProfile();
   //asynStatus readbackProfile();
 
-  //Execute motor record prem function for motor list
-  void executePrem(const char *axes);
-
-  //Execute motor power auto on
-  void executeAutoOn(const char *axes);
-
   /* These are the methods that are new to this class */
   void GalilStartController(char *code_file, int eeprom_write, int display_code);
   void connectManager(void);
@@ -203,8 +198,13 @@ public:
   asynStatus runProfile();
   asynStatus runLinearProfile(FILE *profFile);
   bool motorsMoving(char *axes);
-  asynStatus startLinearProfileCoordsys(char coordName, const char *axes);
+  asynStatus startLinearProfileCoordsys(int coordsys, char coordName, const char *axes);
   asynStatus motorsToProfileStartPosition(FILE *profFile, char *axes, bool move);
+  //Execute motor record prem function for motor list
+  void executePrem(const char *axes);
+  //Execute motor power auto on
+  void executeAutoOn(const char *axes);
+  void processUnsolicitedMesgs(void);
 
   /* Deferred moves functions.*/
   asynStatus processDeferredMovesInGroup(int coordsys, char *axes, char *moves, double acceleration, double velocity);
@@ -309,6 +309,9 @@ private:
 
   epicsTimeStamp pollnowt_;		//Used for debugging, and tracking overall poll performance
   epicsTimeStamp polllastt_;		//Used for debugging, and tracking overall poll performance
+
+  epicsTimeStamp begin_nowt_;		//Used to track length of time motor begin takes
+  epicsTimeStamp begin_begint_;		//Used to track length of time motor begin takes
 
   bool movesDeferred_;			//Should moves be deferred for this controller
 

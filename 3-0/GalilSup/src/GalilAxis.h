@@ -22,15 +22,15 @@
 
 #include "asynMotorController.h"
 #include "asynMotorAxis.h"
+#include "epicsMessageQueue.h"
 
 #define KPMAX		      1023.875
 #define KDMAX		      4095.875
-#define HOMING_RESET_DELAY    2.0		//Time motor must be stopped before homing flag true is reset to false
 
 //pollServices request numbers
-#define MOTOR_STOP 0
-#define MOTOR_POST 1
-#define MOTOR_OFF 2
+static const int MOTOR_STOP = 0;
+static const int MOTOR_POST = 1;
+static const int MOTOR_OFF = 2;
 
 class GalilAxis : public asynMotorAxis
 {
@@ -82,13 +82,13 @@ public:
    //Extract axis data from GalilController data record
    asynStatus getStatus(void);
    //Set poller status variables bassed on GalilController data record info
-   bool setStatus(void);
+   void setStatus(bool *moving);
    //Verify encoder operation whilst moving for safety
    void checkEncoder(void);
    //Stop motor if wrong limit activated and wrongLimitProtection is enabled
    void wrongLimitProtection(void);
-   //Reset homing now status
-   void checkHoming(void);
+   //Sets time motor has been stopped for in GalilAxis::stopped_time_
+   void setStopTime(void);
    //Service slow and infrequent requests from poll thread to write to the controller
    //We do this in a separate thread so the poll thread is not slowed
    //Also poll thread doesnt have a lock and is not allowed to call writeReadController
@@ -101,6 +101,8 @@ public:
    void executePost(void);
    //Execute motor power auto off
    void executeAutoOff(void);
+   //Begin motor motion
+   asynStatus beginMotion(const char *caller);
 
   /* These are the methods we override from the base class */
   asynStatus move(double position, int relative, double min_velocity, double max_velocity, double acceleration);
@@ -137,6 +139,9 @@ private:
   double deferredPosition_;		//Deferred move position
   bool deferredMove_;			//Has a deferred move been set
 
+  epicsTimeStamp begin_nowt_;		//Used to track length of time motor begin takes
+  epicsTimeStamp begin_begint_;		//Used to track length of time motor begin takes
+  
   //Variables that should only be used by poller thread (after startup)
   epicsTimeStamp pestall_nowt_;		//Used to track length of time encoder has been stalled for
   epicsTimeStamp pestall_begint_;	//Time when possible encoder stall first detected
@@ -154,17 +159,19 @@ private:
   int done_;				//Motor done status passed to motor record
   int last_done_;			//Backup of done status at end of each poll.  Used to detect stop
   bool homing_;				//Is motor homing now
-  epicsTimeStamp stop_nowt_;		//Used to track length of motor stopped for.  Reset homing_ to false
-  epicsTimeStamp stop_begint_;		//Used to track length of motor stopped for.  Reset homing_ to false
+  epicsTimeStamp stop_nowt_;		//Used to track length of motor stopped for.
+  epicsTimeStamp stop_begint_;		//Used to track length of motor stopped for.
+  double stopped_time_;			//Time motor has been stopped for
   bool encDirOk_;			//Encoder direction ok flag
   bool motorMove_;			//Motor move status
   bool encoderMove_;			//Encoder move status
   bool pestall_detected_;		//Possible encoder stall detected flag
-  epicsEventId pollRequestEvent_;       //Poll wants to write to controller
-  int pollRequest_;			//The service number poll would like done
-  bool stopExecuted_;			//Has motor been stopped due to encoder stall or wrong limit protection
-  bool postExecuted_;			//Has post been executed after motor stop
-  bool autooffExecuted_;		//Has motor auto off executed after motor stop
+  epicsMessageQueue pollRequest_;	//The service numbers poll would like done
+  bool stopSent_;			//Has motor stop mesg been sent to pollServices thread due to encoder stall or wrong limit protection
+  bool postSent_;			//Has post mesg been sent to pollServices thread after motor stop
+  bool autooffSent_;			//Has motor auto off mesg been sent to pollServices thread after motor stop
+  bool postExecuted_;			//Has pollServices executed post
+  bool autooffExecuted_;		//Has pollServices executed the autooff
 
 friend class GalilController;
 };

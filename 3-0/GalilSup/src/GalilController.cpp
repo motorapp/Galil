@@ -114,7 +114,7 @@ GalilController::GalilController(const char *portName, const char *address, doub
                          (int)(ASYN_CANBLOCK | ASYN_MULTIDEVICE), 
                          (int)1, // autoconnect
                          (int)0, (int)0),  // Default priority and stack size
-						 numAxes_(0)
+  numAxes_(0)
 {
   struct Galilmotor_enables *motor_enables = NULL;  //Convenience pointer to GalilController motor_enables[digport]
   unsigned i;
@@ -789,7 +789,7 @@ asynStatus GalilController::buildLinearProfile()
   getIntegerParam(profileNumPoints_, &nPoints);
 
   //Check provided fileName
-  if (strcmp(fileName, "") == 0)
+  if (!abs(strcmp(fileName, "")))
 	{
 	strcpy(message, "Bad trajectory file name");
 	return asynError;
@@ -1208,31 +1208,51 @@ asynStatus GalilController::motorsToProfileStartPosition(FILE *profFile, char *a
 /* Convenience function to begin linear profile using specified coordinate system
    Called after filling the linear buffer
 */
-asynStatus GalilController::startLinearProfileCoordsys(char coordName, const char *axes)
+asynStatus GalilController::startLinearProfileCoordsys(int coordsys, char coordName, const char *axes)
 {
   static const char *functionName = "startProfileCoordsys";
   char message[MAX_MESSAGE_LEN];	//Profile execute message
-  int status = asynSuccess;		//Start status
+  double begin_time;			//Time taken to begin
+  int segprocessed = 0;			//Segments processed by the coordsys
+
+  //Execute motor auto on function
+  executeAutoOn(axes);
 
   //Execute motor record prem
   executePrem(axes);
 
-  //Execute motor auto on function
-  executeAutoOn(axes);
- 
-  //Start profile execution
-  sprintf(cmd_, "BG %c \n", coordName);
-  status |= writeReadController(functionName);
-  if (status)
-	{
-	strcpy(message, "Profile start failed...");		//Update message
-	//Store message in ParamList
-	setStringParam(profileExecuteMessage_, message);
-	}
-
-  //start fail
-  if (status)
-	return asynError;	//Return error
+  //Begin the move
+  //Get time when attempt motor begin
+  epicsTimeGetCurrent(&begin_begint_);
+  sprintf(cmd_, "BG%c", coordName);
+  if (writeReadController(functionName) == asynSuccess)
+     {
+     while (segprocessed < 1 && !profileAbort_) //Pause until 1 segment processed
+        {
+        epicsThreadSleep(.001);
+        epicsTimeGetCurrent(&begin_nowt_);
+        //Calculate time begin has taken so far
+        begin_time = epicsTimeDiffInSeconds(&begin_nowt_, &begin_begint_);
+        if (begin_time > BEGIN_TIMEOUT)
+           {
+           strcpy(message, "Profile start failed...\n");
+           //Store message in ParamList
+           setStringParam(profileExecuteMessage_, message);
+           callParamCallbacks();
+           return asynError;	//Return error
+           }
+        //Segments processed
+	getIntegerParam(coordsys, GalilCoordSysSegments_, &segprocessed);
+        }
+     }
+  else
+     {
+     strcpy(message, "Profile start failed...");
+     //Store message in ParamList
+     setStringParam(profileExecuteMessage_, message);
+     callParamCallbacks();
+     return asynError;	//Return error
+     }
 
   //Start success
   setIntegerParam(profileExecuteState_, PROFILE_EXECUTE_EXECUTING);
@@ -1351,21 +1371,11 @@ asynStatus GalilController::runLinearProfile(FILE *profFile)
 			if (!profStarted && !motorsMoving(axes) && !status && !profileAbort_)
 				{
 				//Start the profile
-				status = startLinearProfileCoordsys(coordName, axes);
+				status = startLinearProfileCoordsys(coordsys, coordName, axes);
 				profStarted = (status) ? false : true;
-				//Pause until at least 1 segment has been processed
+				//Buffer next if started ok
 				if (!status)
-					{
-					unlock();
-					while (segprocessed < 1 && !profileAbort_)
-						{
-						epicsThreadSleep(.01);
-						//Segments processed
-						getIntegerParam(coordsys, GalilCoordSysSegments_, &segprocessed);
-						}
 					bufferNext = true;
-					lock();
-					}
 				}
 			}
 
@@ -1421,20 +1431,8 @@ asynStatus GalilController::runLinearProfile(FILE *profFile)
   //Start short profiles that fit entirely in the controller buffer <= MAX_SEGMENTS
   if (!profStarted && !motorsMoving(axes) && !status && !profileAbort_)
   	{
-	status = startLinearProfileCoordsys(coordName, axes);
+	status = startLinearProfileCoordsys(coordsys, coordName, axes);
 	profStarted = (status) ? false : true;
-	//Pause until at least 1 segment has been processed
-	if (!status)
-		{
-		while (segprocessed < 1)
-			{
-			unlock();
-			epicsThreadSleep(.01);
-			lock();
-			//Segments processed
-			getIntegerParam(coordsys, GalilCoordSysSegments_, &segprocessed);
-			}
-		}
 	}
 
   //User aborted while motors still moving to start
@@ -1517,7 +1515,7 @@ asynStatus GalilController::runProfile()
 	//LINEAR or PVT type
 	fscanf(profFile, "%s\n", profType);
 	//Call appropriate method to handle this profile type
-	if (strcmp(profType, "LINEAR")==0)
+	if (!abs(strcmp(profType, "LINEAR")))
 		status = runLinearProfile(profFile);
 	//Done, close the file
 	fclose(profFile);
@@ -1548,8 +1546,11 @@ asynStatus GalilController::processDeferredMovesInGroup(int coordsys, char *axes
   const char *functionName = "GalilController::processDeferredMovesInGroup";
   GalilAxis *pAxis;		//GalilAxis pointer
   char coordName;		//Coordinate system name
-  asynStatus status;		//Result
+  int csmoving = 0;		//Coordinate system moving status
+  asynStatus status;	//Result
   unsigned index;		//looping
+  char mesg[MAX_MESSAGE_LEN];	//Controller error mesg if begin fail
+  double begin_time;		//Time taken for motion to begin
 
   //Selected coordinate system name
   coordName = (coordsys == 0 ) ? 'S' : 'T';
@@ -1581,15 +1582,37 @@ asynStatus GalilController::processDeferredMovesInGroup(int coordsys, char *axes
   sprintf(cmd_, "LE");
   writeReadController(functionName);
 
-  //Execute motor record prem
-  executePrem(axes);
-
   //Execute motor auto on function
   executeAutoOn(axes);
 
+  //Execute motor record prem
+  executePrem(axes);
+
   //move the coordinate system
+  //Get time when attempt motor begin
+  epicsTimeGetCurrent(&begin_begint_);
   sprintf(cmd_, "BG %c", coordName);
   status = writeReadController(functionName);
+  if (!status)
+     {  //Started without error.  Pause till cs is moving
+     while (!csmoving)
+        {
+        epicsThreadSleep(.001);
+        epicsTimeGetCurrent(&begin_nowt_);
+        //Calculate time begin has taken so far
+        begin_time = epicsTimeDiffInSeconds(&begin_nowt_, &begin_begint_);
+        if (begin_time > BEGIN_TIMEOUT)
+           {
+           sprintf(mesg, "%s begin failure coordsys %c\n", functionName, coordName);
+           //Set controller error mesg monitor
+           setStringParam(GalilCtrlError_, mesg);
+           status = asynError;
+           break;  //Something went wrong
+           }
+        //Retrieve coordinate system moving status as set by poll thread
+        getIntegerParam(coordsys, GalilCoordSysMoving_, &csmoving);
+        }
+     }
 
   //Loop through the axes list for this coordinate system
   //Turn off deferredMove_ for these axis as coordinated move has been started
@@ -1628,8 +1651,6 @@ asynStatus GalilController::setDeferredMoves(bool deferMoves)
 	movesDeferred_ = true;
 	return asynSuccess;
   	}
-
-  //callParamCallbacks();
 
   //We are ending deferred moves.  So process them
   asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, 
@@ -1823,21 +1844,10 @@ asynStatus GalilController::readInt32(asynUser *pasynUser, epicsInt32 *value)
 	else    //Comms error, return last ParamList value set using setIntegerParam
 		getIntegerParam(pAxis->axisNo_, function, value);
 	}
-   else if (function == GalilProgramHome_)
+  else if (function == GalilProgramHome_)
 	{
 	sprintf(cmd_, "MG phreg%c", pAxis->axisName_);
 	status = get_integer(GalilProgramHome_, value, pAxis->axisNo_);
-	}
-  else if (function == GalilHomed_)
-	{
-	sprintf(cmd_, "MG homed%c", pAxis->axisName_);
-	status = get_integer(GalilHomed_, value, pAxis->axisNo_);
-	//Set motorRecord MSTA bit 15 motorStatusHomed_ too
-	//Homed is not part of Galil data record, we support it in galil code instead and must poll it
-	//We do it here so we don't slow GalilPoller thread in async mode
-	//We must use asynMotorAxis version of setIntegerParam to set MSTA bits for this MotorAxis
-	pAxis->setIntegerParam(motorStatusHomed_, (int)*value);
-	callParamCallbacks();
 	}
   else if (function >= GalilSSIInput_ && function <= GalilSSIData_)
 	{
@@ -1914,19 +1924,19 @@ asynStatus GalilController::readFloat64(asynUser *pasynUser, epicsFloat64 *value
     
   if (function == GalilStepSmooth_)
      {
-	 sprintf(cmd_, "MG _KS%c", pAxis->axisName_);
-	 status = get_double(GalilStepSmooth_, value, pAxis->axisNo_);
-	 }
+     sprintf(cmd_, "MG _KS%c", pAxis->axisName_);
+     status = get_double(GalilStepSmooth_, value, pAxis->axisNo_);
+     }
   else if (function == GalilErrorLimit_)
-	 {
-	 sprintf(cmd_, "MG _ER%c", pAxis->axisName_);
-	 status = get_double(GalilErrorLimit_, value, pAxis->axisNo_);
-	 }
+     {
+     sprintf(cmd_, "MG _ER%c", pAxis->axisName_);
+     status = get_double(GalilErrorLimit_, value, pAxis->axisNo_);
+     }
   else if (function == GalilUserCmd_)
      {
      //For when input records are set to periodic scan not I/O Intr
-	 epicsSnprintf(cmd_, sizeof(cmd_), "%s", (const char*)pasynUser->userData);
-	 status = get_double(GalilUserVar_, value);
+     epicsSnprintf(cmd_, sizeof(cmd_), "%s", (const char*)pasynUser->userData);
+     status = get_double(GalilUserVar_, value);
      }
   else if (function == GalilUserVar_)
      {
@@ -1935,10 +1945,10 @@ asynStatus GalilController::readFloat64(asynUser *pasynUser, epicsFloat64 *value
      status = get_double(GalilUserVar_, value);
      }
   else
-	 {
-	 status = asynPortDriver::readFloat64(pasynUser, value);
-	 reqd_comms = false;
-	 }
+     {
+     status = asynPortDriver::readFloat64(pasynUser, value);
+     reqd_comms = false;
+     }
     
   //Flag comms error only if function reqd comms
   check_comms(reqd_comms, status);
@@ -2359,7 +2369,60 @@ asynStatus GalilController::writeOctet(asynUser *pasynUser, const char*  value, 
   return asynSuccess;
 }
 
-	
+//Process unsolicited message from the controller
+//Called by poll thread.  Must not lock, or use writeReadController
+void GalilController::processUnsolicitedMesgs(void)
+{
+   char *charstr;		//The current token
+   GalilAxis *pAxis;	 	//GalilAxis
+   char rawbuf[MAX_MESSAGE_LEN];//Unsolicited mesg buf
+   char mesg[MAX_MESSAGE_LEN];	//The message
+   char axisName;		//Axis number message is for
+   int value;			//The value contained in the message
+
+   //Collect unsolicted message   
+   strcpy(rawbuf, gco_->message(0).c_str());
+
+   //Break message into tokens
+   charstr = strtok(rawbuf, " \n");
+   while (charstr != NULL)
+      {
+      //Determine axis message is for
+      axisName = (char)charstr[strlen(charstr)-1];
+      //Extract the message
+      strncpy(mesg, charstr, strlen(charstr)-1);
+      //Null terminate the message
+      mesg[strlen(charstr)-1] = '\0';
+      //Retrieve GalilAxis instance for the correct axis
+      pAxis = getAxis(axisName - AASCII);
+      //Retrieve the value
+      charstr = strtok(NULL, " \n");
+      if (charstr != NULL && pAxis)
+         {
+         value = atoi(charstr);
+         //Process known messages
+         //Motor homed message
+         if (!abs(strcmp(mesg, "homed")))
+            {
+            //Set homed status for this axis
+            pAxis->setIntegerParam(GalilHomed_, value);
+            //Set motorRecord MSTA bit 15 motorStatusHomed_ too
+            //Homed is not part of Galil data record, we support it using Galil code and unsolicited messages over tcp instead
+            //We must use asynMotorAxis version of setIntegerParam to set MSTA bits for this MotorAxis
+            pAxis->setIntegerParam(motorStatusHomed_, value);
+            callParamCallbacks();
+            }
+
+         //Motor homing status message
+         if (!abs(strcmp(mesg, "home")))
+            pAxis->homing_ = false;
+         }
+
+      //Retrieve next mesg
+      charstr = strtok(NULL, " \n");
+      }
+}
+
 //Extract controller data from GalilController data record
 //Return status of GalilController data record acquisition
 void GalilController::getStatus(void)
@@ -2408,6 +2471,9 @@ void GalilController::getStatus(void)
 				paramDouble = (double)gco_->sourceValue(recdata_, src);
 				setDoubleParam(addr, GalilAnalogOutRBV_, paramDouble);
 				}
+
+			//Process unsolicited mesgs from controller
+			processUnsolicitedMesgs();
 
 			//Retrieve currently selected coordinate system 
 			getIntegerParam(GalilCoordSys_, &coordsys);
@@ -2464,7 +2530,7 @@ asynStatus GalilController::poll(void)
 	polllastt_.secPastEpoch = pollnowt_.secPastEpoch;
 	polllastt_.nsec = pollnowt_.nsec;
 	
-	//if (time_taken > 0.01)
+	//if (time_taken > 0.02)
 	//	{
 	//	printf("%s GalilController::poll %2.3lfs\n", model_, time_taken);
 	//	}
@@ -2625,11 +2691,12 @@ asynStatus GalilController::writeReadController(const char *caller)
 void GalilController::GalilStartController(char *code_file, int eeprom_write, int display_code)
 {
 	const char *functionName = "GalilStartController";
-	unsigned i;					 //General purpose looping
-	bool start_ok = true;				 //Have the controller threads started ok
-	bool download_ok = true;			 //Was user specified code delivered successfully
-	string uc;					 //Uploaded code from controller
-	string dc;					 //Code to download to controller
+	unsigned i;					//General purpose looping
+	bool start_ok = true;		//Have the controller threads started ok
+	bool download_ok = true;	//Was user specified code delivered successfully
+	int homed[MAX_GALIL_AXES];	//Backup of homed status 
+	string uc;					//Uploaded code from controller
+	string dc;					//Code to download to controller
 
 	//Backup parameters used by developer for later re-start attempts of this controller
 	//This allows full recovery after disconnect of controller
@@ -2739,6 +2806,21 @@ void GalilController::GalilStartController(char *code_file, int eeprom_write, in
 						errlogPrintf("Burning parameters to EEPROM model %s, address %s\n",model_, address_);
 				
 					epicsThreadSleep(3);
+
+					//Before burning variables backup the homed status of each axis
+					//Then set homed to 0 for each axis
+					//Done so homed is always 0 at controller power on
+					if (numAxes_ > 0)
+						{
+						for (i=0;i<numAxes_;i++)
+							{
+							sprintf(cmd_, "MG homed%c\n", i + AASCII);
+							writeReadController(functionName);
+							homed[i] = atoi(resp_);
+							sprintf(cmd_, "homed%c=0\n", i + AASCII);
+							writeReadController(functionName);
+							}
+						}
 				
 					/*Burn variables to EEPROM*/
 					sprintf(cmd_, "BV");
@@ -2746,6 +2828,16 @@ void GalilController::GalilStartController(char *code_file, int eeprom_write, in
 						errlogPrintf("Error burning variables to EEPROM model %s, address %s\n",model_, address_);
 					else
 						errlogPrintf("Burning variables to EEPROM model %s, address %s\n",model_, address_);
+
+					//Now restore homed status that controller had before burning variables
+					if (numAxes_ > 0)
+						{
+						for (i=0;i<numAxes_;i++)
+							{
+							sprintf(cmd_, "homed%c=%d\n", i + AASCII, homed[i]);
+							writeReadController(functionName);
+							}
+						}
 				
 					epicsThreadSleep(3);
 					}
@@ -2969,7 +3061,7 @@ void GalilController::read_codefile(const char *code_file)
 	char file[MAX_FILENAME_LEN];
 	FILE *fp;
 
-	if (strcmp(code_file,"")!=0)
+	if (strcmp(code_file, ""))
 		{
 		strcpy(file, code_file);
 
@@ -3177,13 +3269,13 @@ asynStatus GalilController::drvUserCreate(asynUser *pasynUser, const char* drvIn
      //split drvInfocpy into tokens
      //first token is DRVCMD = CMD, OCTET, OCTET_VAL, or VAR
      charstr = strtok((char *)drvInfocpy, " ");
-     if (!strcmp(charstr, GalilUserCmdString))
+     if (!abs(strcmp(charstr, GalilUserCmdString)))
         pasynUser->reason = GalilUserCmd_;
-     if (!strcmp(charstr, GalilUserOctetString))
+     if (!abs(strcmp(charstr, GalilUserOctetString)))
         pasynUser->reason = GalilUserOctet_;
-     if (!strcmp(charstr, GalilUserOctetValString))
+     if (!abs(strcmp(charstr, GalilUserOctetValString)))
         pasynUser->reason = GalilUserOctetVal_;
-     if (!strcmp(charstr, GalilUserVarString))
+     if (!abs(strcmp(charstr, GalilUserVarString)))
         pasynUser->reason = GalilUserVar_;
      //Second token is GalilStr
      charstr = strtok(NULL, "\n");
