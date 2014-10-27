@@ -334,17 +334,13 @@ void GalilAxis::gen_homecode(char c,			//GalilAxis::axisName_ used very often
 		//Stop motor once off limit
 		sprintf(axis_thread_code,"%sIF ((_LR%c=1) & (_LF%c=1) & (hjog%c=1) & (_BG%c=1))\nST%c\nENDIF\n",axis_thread_code,c,c,c,c,c);
 		//Find encoder index 
-		sprintf(axis_thread_code,"%sIF ((_LR%c=1) & (_LF%c=1) & (hjog%c=1) & (_BG%c=0))\nIF (ueip%c=1)\nSP%c=speed%c;DC%c=67107840;FI%c;WT100;BG%c;hjog%c=2\nELSE\n",axis_thread_code,c,c,c,c,c,c,c,c,c,c,c);
+		sprintf(axis_thread_code,"%sIF ((_LR%c=1) & (_LF%c=1) & (hjog%c=1) & (_BG%c=0))\nIF ((ueip%c=1) & (ui%c=1))\nSP%c=speed%c;DC%c=67107840;FI%c;WT100;BG%c;hjog%c=2\nELSE\n",axis_thread_code,c,c,c,c,c,c,c,c,c,c,c,c);
 		//If no encoder we are home already
 		sprintf(axis_thread_code,"%sSP%c=speed%c;hjog%c=3\nENDIF;ENDIF\n",axis_thread_code,c,c,c);
 		//If encoder index complete we are home
 		sprintf(axis_thread_code,"%sIF ((hjog%c=2) & (_BG%c=0))\nhjog%c=3\nENDIF\n",axis_thread_code,c,c,c);
 		//Unset home flag
-		sprintf(axis_thread_code,"%sIF ((_LR%c=1) & (_LF%c=1) & (hjog%c=3) & (_BG%c=0))\nWT10;hjog%c=0;home%c=0;homed%c=1\n",axis_thread_code,c,c,c,c,c,c,c);
-		//program home register once home found if set to do so
-		sprintf(axis_thread_code,"%sIF (phreg%c=1)\nIF (ueip%c=1)\nDE%c=enhmval%c;DP%c=mrhmval%c\nELSE\nDP%c=mrhmval%c\nENDIF;ENDIF\n",axis_thread_code,c,c,c,c,c,c,c,c);
-		//Send unsolicited messages to epics informing home and homed status
-                sprintf(axis_thread_code,"%sMG \"homed%c\",homed%c;MG \"home%c\",home%c;\nENDIF;ENDIF\n", axis_thread_code,c,c,c,c);
+		sprintf(axis_thread_code,"%sIF ((_LR%c=1) & (_LF%c=1) & (hjog%c=3) & (_BG%c=0))\nWT10;hjog%c=0\n",axis_thread_code,c,c,c,c,c);
 		}	
 	else
 		{
@@ -356,18 +352,22 @@ void GalilAxis::gen_homecode(char c,			//GalilAxis::axisName_ used very often
 		//Stop motor once off home
 		sprintf(axis_thread_code,"%sIF ((_HM%c=hswiact%c) & (hjog%c=1) & (_BG%c=1))\nST%c\nENDIF\n",axis_thread_code,c,c,c,c,c);
 		//Find encoder index
-		sprintf(axis_thread_code,"%sIF ((_HM%c=hswiact%c) & (hjog%c=1) & (_BG%c=0))\nIF (ueip%c=1)\nDC%c=67107840;SP%c=speed%c;FI%c;BG%c;hjog%c=2\nELSE\n",axis_thread_code,c,c,c,c,c,c,c,c,c,c,c);
+		sprintf(axis_thread_code,"%sIF ((_HM%c=hswiact%c) & (hjog%c=1) & (_BG%c=0))\nIF ((ueip%c=1) & (ui%c=1))\nDC%c=67107840;SP%c=speed%c;FI%c;BG%c;hjog%c=2\nELSE\n",axis_thread_code,c,c,c,c,c,c,c,c,c,c,c,c);
 		//If no encoder we are home already
 		sprintf(axis_thread_code,"%sDC%c=oldecel%c;SP%c=speed%c;hjog%c=3\nENDIF;ENDIF\n",axis_thread_code,c,c,c,c,c);
 		//If encoder index complete we are home
 		sprintf(axis_thread_code,"%sIF ((hjog%c=2) & (_BG%c=0))\nDC%c=oldecel%c;hjog%c=3\nENDIF\n",axis_thread_code,c,c,c,c,c);
 		//Unset home flag
-		sprintf(axis_thread_code,"%sIF ((_HM%c=hswiact%c) & (hjog%c=3) & (_BG%c=0))\nWT10;hjog%c=0;home%c=0;homed%c=1\n",axis_thread_code,c,c,c,c,c,c,c);
-		//program home register once home found if set to do so
-		sprintf(axis_thread_code,"%sIF ((phreg%c=1))\nIF (ueip%c=1)\nDE%c=enhmval%c;DP%c=mrhmval%c;\nELSE\nDP%c=mrhmval%c\nENDIF;ENDIF\n",axis_thread_code,c,c,c,c,c,c,c,c);
-		//Send unsolicited messages to epics informing home and homed status
-                sprintf(axis_thread_code,"%sMG \"homed%c\",homed%c;MG \"home%c\",home%c\nENDIF;ENDIF\n", axis_thread_code,c,c,c,c);
+		sprintf(axis_thread_code,"%sIF ((_HM%c=hswiact%c) & (hjog%c=3) & (_BG%c=0))\nWT10;hjog%c=0\n",axis_thread_code,c,c,c,c,c);
 		}
+
+	//Common homing code regardless of homing to limit or home switch
+	//program home register once home found if set to do so
+	sprintf(axis_thread_code,"%sIF ((phreg%c=1))\nIF (ueip%c=1)\nDE%c=enhmval%c;DP%c=mrhmval%c;\nELSE\nDP%c=mrhmval%c\nENDIF;ENDIF\n",axis_thread_code,c,c,c,c,c,c,c,c);
+	//do drive after home move
+	sprintf(axis_thread_code,"%sIF (dah%c=1)\nPA%c=dahv%c;BG%c\nENDIF\n", axis_thread_code,c,c,c,c);
+	//Send unsolicited messages to epics informing home and homed status
+	sprintf(axis_thread_code,"%sWT100;home%c=0;homed%c=1;MG \"homed%c\",homed%c;MG \"home%c\",home%c\nENDIF;ENDIF\n", axis_thread_code,c,c,c,c,c,c);
 	
 	//Initialize home related parameters on controller
 	//initialise home variable for this axis, set to not homming just yet.  Set to homming only when doing a home
@@ -411,11 +411,7 @@ void GalilAxis::gen_homecode(char c,			//GalilAxis::axisName_ used very often
 	//initialise encoder home value variable, with sensible default.
 	sprintf(pC_->cmd_, "enhmval%c=0\n", c);
 	pC_->writeReadController(functionName);
-
-        //initialise program home register with value flag to 1
-	sprintf(pC_->cmd_, "phreg%c=1\n", c);
-	pC_->writeReadController(functionName);
-		
+	
 	//Add code that counts cpu cycles through thread 0
 	if (axisName_ == 'A')
 		{
@@ -566,6 +562,7 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
   double hvel;			//home velocity in counts per sec calculated from maxVelocity
   long accel;			//Acceleration/Deceleration when limit not active
   int wlp, wlpactive;		//Wrong limit protection.  When motor hits wrong limit
+  double dahv;			//Drive after home value
 
   //Retrieve wrong limit protection setting
   pC_->getIntegerParam(axisNo_, pC_->GalilWrongLimitProtection_, &wlp);
@@ -583,8 +580,9 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
   	pC_->getDoubleParam(axisNo_, pC_->motorResolution_, &mres);
   	pC_->getDoubleParam(axisNo_, pC_->GalilUserOffset_, &off);
   	pC_->getDoubleParam(axisNo_, pC_->GalilHomeValue_, &homeval);
+  	pC_->getDoubleParam(axisNo_, pC_->GalilDriveAfterHomeValue_, &dahv);
 
-	//Calculate polarity of encdoer, step register home value
+	//Calculate polarity of encoder, step register home value
 	dirm = (dir == 0) ? 1 : -1;
 	//Calculate direction of jog off home switch
 	home_direction = (forwards == 0) ? 1 : -1;
@@ -606,7 +604,13 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
 		mrhmval = 0.0;
 		}
 
-	//Write home parameters to controller
+        //Calculate drive after home value in cts
+	dahv = (double)((dahv - off)/mres) * dirm;
+        
+	//drive after home value in cts
+        sprintf(pC_->cmd_, "dahv%c=%.0lf\n", axisName_, dahv);
+	pC_->writeReadController(functionName);
+
 	//Write home value for auxiliary (step count) register
         sprintf(pC_->cmd_, "mrhmval%c=%.0lf\n", axisName_, mrhmval);
 	pC_->writeReadController(functionName);
@@ -1237,9 +1241,12 @@ void GalilAxis::pollServices(void)
                             postExecuted_ = true;
                             }
                          break;
-        case MOTOR_OFF:  //Execute the motor off command
-                         setClosedLoop(false);
-                         autooffExecuted_ = true;
+        case MOTOR_OFF:  if (done_)
+                            {
+                            //Execute the motor off command
+                            setClosedLoop(false);
+                            autooffExecuted_ = true;
+                            }
                          break;
 	default: break;
         }
@@ -1456,7 +1463,8 @@ skip:
    if ((postSent_ && !postExecuted_) || (autooffSent_ && !autooffExecuted_))
       {
       *moving = true;
-      done_ = 0;
+      //leave done_ alone as autooff will only execute when done is true
+      //done_ = 0;
       }
    //Pass moving status to motorRecord
    setIntegerParam(pC_->motorStatusDone_, done_);

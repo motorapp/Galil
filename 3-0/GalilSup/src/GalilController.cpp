@@ -174,10 +174,13 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilPremString, asynParamOctet, &GalilPrem_);
   createParam(GalilPostString, asynParamOctet, &GalilPost_);
 
+  createParam(GalilUseIndexString, asynParamInt32, &GalilUseIndex_);
+  createParam(GalilDriveAfterHomeString, asynParamInt32, &GalilDriveAfterHome_);
+  createParam(GalilDriveAfterHomeValueString, asynParamFloat64, &GalilDriveAfterHomeValue_);
+
   createParam(GalilAutoOnOffString, asynParamInt32, &GalilAutoOnOff_);
   createParam(GalilAutoOnDelayString, asynParamFloat64, &GalilAutoOnDelay_);
   createParam(GalilAutoOffDelayString, asynParamFloat64, &GalilAutoOffDelay_);
-  createParam(GalilAutoOffFractionString, asynParamFloat64, &GalilAutoOffFraction_);
 
   createParam(GalilMainEncoderString, asynParamInt32, &GalilMainEncoder_);
   createParam(GalilAuxEncoderString, asynParamInt32, &GalilAuxEncoder_);
@@ -2165,6 +2168,20 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 	//Write setting to controller
 	status = writeReadController(functionName);
 	}
+  else if (function == GalilUseIndex_)
+	{
+	sprintf(cmd_, "ui%c=%d", pAxis->axisName_, value);
+        //printf("GalilUseIndex_ %s value %d\n", cmd_, value);
+	//Write setting to controller
+	status = writeReadController(functionName);
+	}
+  else if (function == GalilDriveAfterHome_)
+	{
+	sprintf(cmd_, "dah%c=%d", pAxis->axisName_, value);
+        //printf("GalilDriveAfterHome_ %s value %d\n", cmd_, value);
+	//Write setting to controller
+	status = writeReadController(functionName);
+	}
   else if (function >= GalilSSIInput_ && function <= GalilSSIData_)
 	{
 	int ssicapable;	//Local copy of GalilSSICapable_
@@ -2266,52 +2283,52 @@ asynStatus GalilController::writeFloat64(asynUser *pasynUser, epicsFloat64 value
      
   if (function == GalilStepSmooth_)
      {
-	 if (pAxis)
-	    {
-		//Write new stepper smoothing factor to GalilController
-		sprintf(cmd_, "KS%c=%lf",pAxis->axisName_, value);
-		//printf("GalilStepSmooth_ cmd:%s value %lf\n", cmd, value);
-		status = writeReadController(functionName);
-		}
-	 }
+     if (pAxis)
+        {
+        //Write new stepper smoothing factor to GalilController
+        sprintf(cmd_, "KS%c=%lf",pAxis->axisName_, value);
+        //printf("GalilStepSmooth_ cmd:%s value %lf\n", cmd, value);
+        status = writeReadController(functionName);
+        }
+     }
   else if (function == GalilErrorLimit_)
-	 {
-	 if (pAxis)
-	    {
-		//Write new error limit to GalilController
-		sprintf(cmd_, "ER%c=%lf",pAxis->axisName_, value);
-		//printf("GalilErrorLimit_ cmd:%s value %lf\n", cmd, value);
-		status = writeReadController(functionName);
-		}
-	 }
+     {
+     if (pAxis)
+        {
+        //Write new error limit to GalilController
+        sprintf(cmd_, "ER%c=%lf",pAxis->axisName_, value);
+        //printf("GalilErrorLimit_ cmd:%s value %lf\n", cmd, value);
+        status = writeReadController(functionName);
+        }
+     }
   else if (function == GalilAnalogOut_)
-	 {
-	 //Write new analog value to specified output (addr)
-	 sprintf(cmd_, "AO %d, %f", addr, value);
-	 //printf("GalilAnalogOut_ cmd:%s value %lf\n", cmd, value);
-	 status = writeReadController(functionName);
-	 }
+     {
+     //Write new analog value to specified output (addr)
+     sprintf(cmd_, "AO %d, %f", addr, value);
+     //printf("GalilAnalogOut_ cmd:%s value %lf\n", cmd, value);
+     status = writeReadController(functionName);
+     }
   else if (function == GalilOutputCompareStart_ || function == GalilOutputCompareIncr_)
-	 {
-	 status = setOutputCompare(addr);
-	 }
+     {
+     status = setOutputCompare(addr);
+     }
   else if (function == GalilUserCmd_)
      {
-	 epicsSnprintf(cmd_, sizeof(cmd_), "%s", (const char*)pasynUser->userData);
-	 if ( (status = writeReadController(functionName)) == asynSuccess)
-	    setDoubleParam(0, function, atof(resp_));  //For when input records set to I/O Intr
+     epicsSnprintf(cmd_, sizeof(cmd_), "%s", (const char*)pasynUser->userData);
+     if ( (status = writeReadController(functionName)) == asynSuccess)
+        setDoubleParam(0, function, atof(resp_));  //For when input records set to I/O Intr
      }
   else if (function == GalilUserVar_)
      {
-	 epicsSnprintf(cmd_, sizeof(cmd_), "%s=%lf", (const char*)pasynUser->userData, value);
-	 status = writeReadController(functionName);
+     epicsSnprintf(cmd_, sizeof(cmd_), "%s=%lf", (const char*)pasynUser->userData, value);
+     status = writeReadController(functionName);
      }
   else
-	 {
+     {
      /* Call base class method */
 	 status = asynMotorController::writeFloat64(pasynUser, value);
 	 reqd_comms = false;
-	 }
+     }
     
   //Flag comms error only if function reqd comms
   check_comms(reqd_comms, status);

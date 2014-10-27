@@ -155,9 +155,9 @@ record(bi,"$(P):$(M)_PHOME_STATUS")
 	field(PINI, "YES")
 	field(DTYP, "asynInt32")
 	field(SCAN, "$(SCAN)")
-	field(ZNAM, "Off")
+	field(ZNAM, "No")
 	field(ZSV,  "NO_ALARM")
-	field(ONAM, "On")
+	field(ONAM, "Yes")
 	field(OSV,  "NO_ALARM")
 	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_PHOME")
 }
@@ -168,12 +168,89 @@ record(bo,"$(P):$(M)_PHOME_CMD")
 	field(DTYP,"asynInt32")
 	field(VAL, "1")
 	field(PINI,"YES")
-	field(ZNAM,"Off")
+	field(ZNAM,"No")
 	field(ZSV, "NO_ALARM")
-	field(ONAM,"On")
+	field(ONAM,"Yes")
 	field(OSV, "NO_ALARM")
 	field(OUT, "@asyn($(PORT),$(ADDR))MOTOR_PHOME")
 	field(FLNK,"$(P):$(M)_PHOME_STATUS")
+}
+
+record(bi,"$(P):$(M)_UINDEX_STATUS")
+{
+	field(DESC, "use index")
+	field(PINI, "YES")
+	field(DTYP, "asynInt32")
+	field(SCAN, "$(SCAN)")
+	field(ZNAM, "No")
+	field(ZSV,  "NO_ALARM")
+	field(ONAM, "Yes")
+	field(OSV,  "NO_ALARM")
+	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_USEINDEX")
+}
+
+record(bo,"$(P):$(M)_UINDEX_CMD")
+{
+	field(DESC,"use index")
+	field(DTYP,"asynInt32")
+	field(VAL, "1")
+	field(PINI,"YES")
+	field(ZNAM,"No")
+	field(ZSV, "NO_ALARM")
+	field(ONAM,"Yes")
+	field(OSV, "NO_ALARM")
+	field(OUT, "@asyn($(PORT),$(ADDR))MOTOR_USEINDEX")
+	field(FLNK,"$(P):$(M)_UINDEX_STATUS")
+}
+
+record(bi,"$(P):$(M)_DAH_STATUS")
+{
+	field(DESC, "drv after home")
+	field(PINI, "YES")
+	field(DTYP, "asynInt32")
+	field(SCAN, "$(SCAN)")
+	field(ZNAM, "No")
+	field(ZSV,  "NO_ALARM")
+	field(ONAM, "Yes")
+	field(OSV,  "NO_ALARM")
+	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_DRIVE_AHOME")
+}
+
+record(bo,"$(P):$(M)_DAH_CMD")
+{
+	field(DESC,"drv after home")
+	field(DTYP,"asynInt32")
+	field(VAL, "1")
+	field(PINI,"YES")
+	field(ZNAM,"No")
+	field(ZSV, "NO_ALARM")
+	field(ONAM,"Yes")
+	field(OSV, "NO_ALARM")
+	field(OUT, "@asyn($(PORT),$(ADDR))MOTOR_DRIVE_AHOME")
+	field(FLNK,"$(P):$(M)_DAH_STATUS")
+}
+
+record(ai,"$(P):$(M)_DAHV_MON")
+{
+	field(DESC,"drv after home val")
+	field(PINI,"YES")
+	field(EGU, "$(EGU)")
+	field(DTYP,"asynFloat64")
+	field(SCAN,"$(SCAN)")
+	field(PREC,"$(PREC)")
+	field(INP, "@asyn($(PORT),$(ADDR))MOTOR_DRIVE_AHOME_VALUE")
+}
+
+record(ao,"$(P):$(M)_DAHV_SP")
+{
+	field(DESC,"drv after home val")
+	field(DTYP,"asynFloat64")
+	field(EGU, "$(EGU)")
+	field(PREC,"$(PREC)")
+	field(VAL, "1")
+	field(PINI,"YES")
+	field(OUT, "@asyn($(PORT),$(ADDR))MOTOR_DRIVE_AHOME_VALUE")
+	field(FLNK,"$(P):$(M)_DAHV_MON")
 }
 
 record(ai,"$(P):$(M)_EGUAFTLIMIT_MON")
@@ -648,29 +725,6 @@ record(ao,"$(P):$(M)_OFFDELAY_SP")
 	field(PINI, "YES")
 	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_AUTO_OFFDELAY")
 	field(FLNK, "$(P):$(M)_OFFDELAY_MON")
-}
-
-#Motor auto power off fraction
-record(ai,"$(P):$(M)_OFFFRAC_MON")
-{
-	field(DESC, "mtr pwr off frac")
-	field(DTYP, "asynFloat64")
-	field(SCAN, "$(SCAN)")
-	field(PREC, "$(PREC)")
-	field(EGU,  "Secs")
-	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_AUTO_OFFFRAC")
-}
-
-record(ao,"$(P):$(M)_OFFFRAC_SP")
-{
-	field(DESC, "mtr pwr off frac")
-	field(DTYP, "asynFloat64")
-	field(PREC, "$(PREC)")
-	field(EGU,  "Secs")
-	field(VAL,  "0.000")
-	field(PINI, "YES")
-	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_AUTO_OFFFRAC")
-	field(FLNK, "$(P):$(M)_OFFFRAC_MON")
 }
 
 record(bi,"$(P):$(M)_ON_STATUS")

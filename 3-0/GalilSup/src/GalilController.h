@@ -99,10 +99,12 @@
 #define GalilUseEncoderString		"MOTOR_UEIP"
 #define GalilPremString			"MOTOR_PREM"
 #define GalilPostString			"MOTOR_POST"
+#define GalilUseIndexString		"MOTOR_USEINDEX"
+#define GalilDriveAfterHomeString	"MOTOR_DRIVE_AHOME"
+#define GalilDriveAfterHomeValueString	"MOTOR_DRIVE_AHOME_VALUE"
 #define GalilAutoOnOffString		"MOTOR_AUTO_ONOFF"
 #define GalilAutoOnDelayString		"MOTOR_AUTO_ONDELAY"
 #define GalilAutoOffDelayString		"MOTOR_AUTO_OFFDELAY"
-#define GalilAutoOffFractionString	"MOTOR_AUTO_OFFFRAC"
 
 #define GalilMainEncoderString		"MOTOR_MAIN_ENCODER"
 #define GalilAuxEncoderString		"MOTOR_AUX_ENCODER"
@@ -254,10 +256,12 @@ protected:
   int GalilUseEncoder_;
   int GalilPrem_;
   int GalilPost_;
+  int GalilUseIndex_;
+  int GalilDriveAfterHome_;
+  int GalilDriveAfterHomeValue_;
   int GalilAutoOnOff_;
   int GalilAutoOnDelay_;
   int GalilAutoOffDelay_;
-  int GalilAutoOffFraction_;
 
   int GalilMainEncoder_;
   int GalilAuxEncoder_;
