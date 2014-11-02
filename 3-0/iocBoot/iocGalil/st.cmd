@@ -15,6 +15,9 @@ cd ${TOP}/iocBoot/${IOC}
 # 1D data, but it doesn't store anything to disk.  (See 'saveData' below for that.)
 dbLoadRecords("$(SSCAN)/sscanApp/Db/scan.db","P=IOC01:,MAXPTS1=8000,MAXPTS2=1000,MAXPTS3=10,MAXPTS4=10,MAXPTSH=8000")
 
+## uncomment to see every command sent to galil
+#epicsEnvSet("GALIL_DEBUG_FILE", "galil_debug.txt")
+
 # Configure an example controller
 < galil.cmd
 

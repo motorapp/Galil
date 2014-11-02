@@ -1,6 +1,6 @@
 
 file {
-	name="/beamline/ioc/GalilSup/op/adl/galil_profileMove.adl"
+	name="/home/ics/git/Galil-3-0/3-0/GalilSup/op/adl/galil_profileMove.adl"
 	version=030105
 }
 display {
@@ -1359,252 +1359,229 @@ text {
 	}
 	textix="Servo only"
 }
-composite {
+text {
+	object {
+		x=40
+		y=511
+		width=50
+		height=20
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Build"
+}
+"message button" {
+	object {
+		x=96
+		y=511
+		width=96
+		height=20
+	}
+	control {
+		chan="$(P)$(R)Build"
+		clr=14
+		bclr=51
+	}
+	label="Build"
+	press_msg="1"
+}
+"text update" {
+	object {
+		x=201
+		y=511
+		width=103
+		height=20
+	}
+	monitor {
+		chan="$(P)$(R)BuildState"
+		clr=50
+		bclr=13
+	}
+	clrmod="alarm"
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=201
+		y=586
+		width=103
+		height=20
+	}
+	monitor {
+		chan="$(P)$(R)ExecuteState"
+		clr=50
+		bclr=14
+	}
+	clrmod="alarm"
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=315
+		y=511
+		width=103
+		height=20
+	}
+	monitor {
+		chan="$(P)$(R)BuildStatus"
+		clr=50
+		bclr=14
+	}
+	clrmod="alarm"
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=315
+		y=586
+		width=103
+		height=20
+	}
+	monitor {
+		chan="$(P)$(R)ExecuteStatus"
+		clr=50
+		bclr=14
+	}
+	clrmod="alarm"
+	limits {
+	}
+}
+text {
+	object {
+		x=109
+		y=486
+		width=70
+		height=20
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Command"
+}
+text {
+	object {
+		x=227
+		y=486
+		width=50
+		height=20
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="State"
+}
+text {
+	object {
+		x=336
+		y=486
+		width=60
+		height=20
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Status"
+}
+"message button" {
+	object {
+		x=422
+		y=576
+		width=100
+		height=30
+	}
+	control {
+		chan="$(P)$(R)Abort"
+		clr=14
+		bclr=20
+	}
+	label="Abort!"
+	press_msg="1"
+	release_msg="0"
+}
+text {
 	object {
 		x=20
-		y=486
-		width=502
-		height=180
+		y=611
+		width=70
+		height=20
 	}
-	"composite name"=""
-	children {
-		text {
-			object {
-				x=40
-				y=511
-				width=50
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Build"
-		}
-		"message button" {
-			object {
-				x=96
-				y=511
-				width=96
-				height=20
-			}
-			control {
-				chan="$(P)$(R)Build"
-				clr=14
-				bclr=51
-			}
-			label="Build"
-			press_msg="1"
-		}
-		"text update" {
-			object {
-				x=201
-				y=511
-				width=103
-				height=20
-			}
-			monitor {
-				chan="$(P)$(R)BuildState"
-				clr=50
-				bclr=13
-			}
-			clrmod="alarm"
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=201
-				y=586
-				width=103
-				height=20
-			}
-			monitor {
-				chan="$(P)$(R)ExecuteState"
-				clr=50
-				bclr=14
-			}
-			clrmod="alarm"
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=315
-				y=511
-				width=103
-				height=20
-			}
-			monitor {
-				chan="$(P)$(R)BuildStatus"
-				clr=50
-				bclr=14
-			}
-			clrmod="alarm"
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=315
-				y=586
-				width=103
-				height=20
-			}
-			monitor {
-				chan="$(P)$(R)ExecuteStatus"
-				clr=50
-				bclr=14
-			}
-			clrmod="alarm"
-			limits {
-			}
-		}
-		text {
-			object {
-				x=109
-				y=486
-				width=70
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Command"
-		}
-		text {
-			object {
-				x=227
-				y=486
-				width=50
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="State"
-		}
-		text {
-			object {
-				x=336
-				y=486
-				width=60
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Status"
-		}
-		text {
-			object {
-				x=40
-				y=641
-				width=50
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Abort"
-		}
-		"message button" {
-			object {
-				x=96
-				y=636
-				width=150
-				height=30
-			}
-			control {
-				chan="$(P)$(R)Abort"
-				clr=14
-				bclr=20
-			}
-			label="Abort!"
-			press_msg="1"
-			release_msg="0"
-		}
-		text {
-			object {
-				x=20
-				y=611
-				width=70
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Message"
-		}
-		"text update" {
-			object {
-				x=97
-				y=614
-				width=425
-				height=15
-			}
-			monitor {
-				chan="$(P)$(R)ExecuteMessage"
-				clr=14
-				bclr=56
-			}
-			format="string"
-			limits {
-			}
-		}
-		text {
-			object {
-				x=20
-				y=586
-				width=70
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Execute"
-		}
-		"message button" {
-			object {
-				x=96
-				y=586
-				width=96
-				height=20
-			}
-			control {
-				chan="$(P)$(R)Execute"
-				clr=14
-				bclr=51
-			}
-			label="Execute"
-			press_msg="1"
-		}
-		"text update" {
-			object {
-				x=97
-				y=539
-				width=425
-				height=15
-			}
-			monitor {
-				chan="$(P)$(R)BuildMessage"
-				clr=14
-				bclr=56
-			}
-			format="string"
-			limits {
-			}
-		}
-		text {
-			object {
-				x=20
-				y=536
-				width=70
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Message"
-		}
+	"basic attribute" {
+		clr=14
 	}
+	textix="Message"
+}
+"text update" {
+	object {
+		x=11
+		y=627
+		width=512
+		height=15
+	}
+	monitor {
+		chan="$(P)$(R)ExecuteMessage"
+		clr=14
+		bclr=56
+	}
+	format="string"
+	limits {
+	}
+}
+text {
+	object {
+		x=20
+		y=586
+		width=70
+		height=20
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Execute"
+}
+"message button" {
+	object {
+		x=96
+		y=586
+		width=96
+		height=20
+	}
+	control {
+		chan="$(P)$(R)Execute"
+		clr=14
+		bclr=51
+	}
+	label="Execute"
+	press_msg="1"
+}
+"text update" {
+	object {
+		x=11
+		y=553
+		width=512
+		height=15
+	}
+	monitor {
+		chan="$(P)$(R)BuildMessage"
+		clr=14
+		bclr=56
+	}
+	format="string"
+	limits {
+	}
+}
+text {
+	object {
+		x=20
+		y=536
+		width=70
+		height=20
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Message"
 }

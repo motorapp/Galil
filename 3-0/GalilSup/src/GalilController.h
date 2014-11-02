@@ -20,6 +20,7 @@
 #ifndef GalilController_H
 #define GalilController_H
 
+#include "macLib.h"
 #include "GalilAxis.h"
 #include "GalilCSAxis.h"
 #include "GalilConnector.h"
@@ -35,7 +36,7 @@
 #define AASCII 65
 #define QASCII 81
 #define SCALCARGS 16
-#define MAX_GALIL_STRING_SIZE 80
+#define MAX_GALIL_STRING_SIZE 256
 #define MAX_GALIL_AXES 8
 #define MAX_GALIL_VARS 10
 #define MAX_GALIL_CSAXES 8
@@ -135,6 +136,9 @@
 #define GalilUserOctetValString		"USER_OCTET_VAL"
 #define GalilUserVarString		"USER_VAR"
 
+#define GalilEthAddrString	  	"CONTROLLER_ETHADDR"
+#define GalilSerialNumString	  	"CONTROLLER_SERIALNUM"
+
 /* For each digital input, we maintain a list of motors, and the state the input should be in*/
 /* To disable the motor */
 struct Galilmotor_enables {
@@ -180,7 +184,7 @@ public:
   //asynStatus readbackProfile();
 
   /* These are the methods that are new to this class */
-  void GalilStartController(char *code_file, int eeprom_write, int display_code);
+  void GalilStartController(char *code_file, int eeprom_write, int display_code, unsigned thread_mask);
   void connectManager(void);
   void connect(void);
   void connected(void);
@@ -189,8 +193,9 @@ public:
   void setParamDefaults(void);
   void gen_card_codeend(void);
   void gen_motor_enables_code(void);
-  void write_gen_codefile(void);
+  void write_gen_codefile(const char* suffix);
   void read_codefile(const char *code_file);
+  void read_codefile_part(const char *code_file, MAC_HANDLE* mac_handle);
   asynStatus writeReadController(const char *caller);
   void check_comms(bool reqd_comms, asynStatus status);
   asynStatus get_integer(int function, epicsInt32 *value, int axisNo);
@@ -292,6 +297,8 @@ protected:
   int GalilUserOctet_;
   int GalilUserOctetVal_;
   int GalilUserVar_;
+  int GalilEthAddr_;
+  int GalilSerialNum_;
 //Add new parameters here
 
   int GalilCommunicationError_;
@@ -303,8 +310,12 @@ private:
   GalilPoller *poller_;			//GalilPoller to acquire a datarecord
   char address_[256];			//address string
   char model_[256];			//model string
-  char code_file_[256];			//Code file that user gave to GalilStartController
-  int eeprom_write_;			//eeprom_write_ that user gave to GalilStartController
+  char code_file_[2048];		//Code file(s) that user gave to GalilStartController
+
+  int burn_program_;			//Burn program options that user gave to GalilStartController
+  int burn_parameters_;			//Burn parameters at shutdown.  Done if motor type changed on any axis.
+					//Wrong motor at pwr on is a problem
+					
   bool connect_fail_reported_;		//Has initial connection failure been reported to iocShell
   int consecutive_timeouts_;		//Used for connection management
   bool code_assembled_;			//Has code for the GalilController hardware been assembled
@@ -321,6 +332,7 @@ private:
 
   epicsEventId profileExecuteEvent_;	//Event for executing motion profiles
   bool profileAbort_;			//Abort profile request flag.  Aborts profile when set true
+  unsigned thread_mask_;		//Mask detailing which threads are expected to be running after program download Bit 0 = thread 0 etc
 
   vector<char> recdata_;		//Data record from controller
   asynStatus recstatus_;		//Status of last record acquisition

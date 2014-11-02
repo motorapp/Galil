@@ -36,7 +36,7 @@ record(ai,"$(P):$(EPICSName)_MONITOR")
 	field(PINI,"$(PINI)")
 	field(EGU, "$(EGU)")
 	field(FLNK,"$(P):$(EPICSName)_STATUS")
-	field(INP, "@asyn($(PORT),0)$(DRVCMD) $(GalilStr)")
+	field(INP, "@asyn($(PORT),0)USER_$(DRVCMD) $(GalilStr)")
 
 # Alarm thresholds
 	field(LOW,  "$(LOW)")
@@ -69,7 +69,7 @@ record(ao,"$(P):$(EPICSName)_SP")
 	field(DOL, "$(P):$(EPICSName)_SP")
 	field(FLNK,"$(P):$(EPICSName)_MONITOR")
 	field(PINI,"$(PINI)")
-	field(OUT, "@asyn($(PORT),0)$(DRVCMD) $(GalilStr)")
+	field(OUT, "@asyn($(PORT),0)USER_$(DRVCMD) $(GalilStr)")
 	
 # Set default value here.
 	field(VAL, "$(DEFAULT)")

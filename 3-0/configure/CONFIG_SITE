@@ -24,3 +24,5 @@
 # define INSTALL_LOCATION here
 #INSTALL_LOCATION=<fullpathname>
 
+include $(TOP)/configure/CONFIG_GMC
+

@@ -24,8 +24,9 @@
 #include "asynMotorAxis.h"
 #include "epicsMessageQueue.h"
 
-#define KPMAX		      1023.875
-#define KDMAX		      4095.875
+#define KPMAX			1023.875
+#define KDMAX			4095.875
+#define HOMING_TIMEOUT		1.5
 
 //pollServices request numbers
 static const int MOTOR_STOP = 0;
@@ -89,6 +90,8 @@ public:
    void wrongLimitProtection(void);
    //Sets time motor has been stopped for in GalilAxis::stopped_time_
    void setStopTime(void);
+   //Reset homing if stopped_time_ great than
+   void checkHoming(void);
    //Service slow and infrequent requests from poll thread to write to the controller
    //We do this in a separate thread so the poll thread is not slowed
    //Also poll thread doesnt have a lock and is not allowed to call writeReadController
@@ -101,6 +104,8 @@ public:
    void executePost(void);
    //Execute motor power auto off
    void executeAutoOff(void);
+   //Check velocity and wlp protection
+   asynStatus beginCheck(const char *functionName, double maxVelocity);
    //Begin motor motion
    asynStatus beginMotion(const char *caller);
 
@@ -141,6 +146,8 @@ private:
 
   epicsTimeStamp begin_nowt_;		//Used to track length of time motor begin takes
   epicsTimeStamp begin_begint_;		//Used to track length of time motor begin takes
+
+  bool newmove_;			//Has another move been initiated by upper layers.  Blocks auto off
   
   //Variables that should only be used by poller thread (after startup)
   epicsTimeStamp pestall_nowt_;		//Used to track length of time encoder has been stalled for

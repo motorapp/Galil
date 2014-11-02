@@ -72,6 +72,24 @@ record(bi,"$(P):HOMETYPE_STATUS")
    	field(INP,  "@asyn($(PORT),0)CONTROLLER_HOMETYPE")
 }
 
+record(stringin,"$(P):ETHADDR_MON")
+{
+	field(DESC, "Ctrl Ethernet address")
+	field(DTYP, "asynOctetRead")
+	field(PINI, "YES")
+	field(SCAN, "I/O Intr")
+   	field(INP,  "@asyn($(PORT),0)CONTROLLER_ETHADDR")
+}
+
+record(stringin,"$(P):SERIALNUM_MON")
+{
+	field(DESC, "Ctrl Serial Number")
+	field(DTYP, "asynOctetRead")
+	field(PINI, "YES")
+	field(SCAN, "I/O Intr")
+   	field(INP,  "@asyn($(PORT),0)CONTROLLER_SERIALNUM")
+}
+
 record(bi,"$(P):COMMERR_STATUS")
 {
 	field(DESC, "Comm err")

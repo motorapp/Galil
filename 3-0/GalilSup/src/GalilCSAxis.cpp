@@ -33,7 +33,11 @@ using namespace std; //cout ostringstream vector string
 #include <iocsh.h>
 #include <epicsThread.h>
 #include <errlog.h>
+
+extern "C" {
 #include "sCalcPostfix.h"
+}
+
 #include "postfix.h"
 
 #include <asynOctetSyncIO.h>
@@ -176,7 +180,10 @@ asynStatus GalilCSAxis::moveVelocity(double minVelocity, double maxVelocity, dou
   double position;
 
   //Choose large move distance to simulate jog function
-  position = (maxVelocity > 0) ? 8388600 : -8388600;
+  position = (maxVelocity > 0) ? 838860 : -838860;
+
+  //Convert position to relative
+  position = motor_position_ + position;
 
   //Do the "jog"
   move(position, 0, minVelocity, fabs(maxVelocity), acceleration);
@@ -324,7 +331,7 @@ int GalilCSAxis::reverseTransform(double nposition, double nmotor_positions[])
   return status;
 }
 
-//Peform forward kinematic transform using readback data, variables and store results in GalilCSAxis as csaxis readback
+//Perform forward kinematic transform using readback data, variables and store results in GalilCSAxis as csaxis readback
 int GalilCSAxis::forwardTransform(void)
 {
    //const char *functionName="GalilCSAxis::getStatus";

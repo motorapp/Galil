@@ -119,9 +119,12 @@ void GalilPoller::run(void)
 		//Tell controller to stop async data record
 		if (pCntrl_->async_records_ && pCntrl_->gco_ != NULL)
 			pCntrl_->gco_->recordsStart(0);
-		//Burn parameters, in case user changed them (eg. motor type)
-		sprintf(pCntrl_->cmd_, "BN");
-		pCntrl_->writeReadController(functionName);
+		if (pCntrl_->burn_parameters_)
+			{
+			//Burn parameters, in case user changed critical parameters (eg. motor type)
+			sprintf(pCntrl_->cmd_, "BN");
+			pCntrl_->writeReadController(functionName);
+			}
 		//Break from loop
 		break;
 		}
