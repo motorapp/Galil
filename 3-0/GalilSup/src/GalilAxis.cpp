@@ -1531,10 +1531,11 @@ skip:
    setIntegerParam(pC_->motorStatusHome_, home);
    //Pass direction to motorRecord
    setIntegerParam(pC_->motorStatusDirection_, direction_);
-   //Tell upper layers motor is moving whilst post, autooff and homing requests are being executed
-   //This prevents new moves being initiated whilst post, autooff, and homing requests are being executed
-   //Done late in poll to allow parallel execution with pollServices (post, autooff)
-   if ((postSent_ && !postExecuted_) || (autooffSent_ && !autooffExecuted_) || homing_)
+   //Tell upper layers motor is moving whilst post, and homing requests are being executed
+   //This prevents new moves being initiated whilst post, homing requests are being executed
+   //Also keeps HOMR and HOMF 1 until homing finished
+   //Done late in poll to allow parallel execution with pollServices
+   if ((postSent_ && !postExecuted_) || homing_)
       {
       *moving = true;
       done_ = 0;
