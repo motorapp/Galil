@@ -260,6 +260,7 @@ GalilController::GalilController(const char *portName, const char *address, doub
   limit_code_ = (char *)calloc(MAX_GALIL_AXES * (LIMIT_CODE_LEN),sizeof(char));
   digital_code_ = (char *)calloc(MAX_GALIL_AXES * (INP_CODE_LEN),sizeof(char));
   card_code_ = (char *)calloc(MAX_GALIL_AXES * (THREAD_CODE_LEN+LIMIT_CODE_LEN+INP_CODE_LEN),sizeof(char));
+  user_code_ = (char *)calloc(MAX_GALIL_AXES * (THREAD_CODE_LEN+LIMIT_CODE_LEN+INP_CODE_LEN),sizeof(char));
   //zero code buffers
   strcpy(thread_code_, "");
   strcpy(limit_code_, "");
@@ -2802,14 +2803,24 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
 			strcat(card_code_, thread_code_);
 			strcat(card_code_, limit_code_);
 			strcat(card_code_, digital_code_);
-
-			write_gen_codefile("_gen"); // dump generated codefile, which we may or may not actually use
+			// dump generated codefile, which we may or may not actually use
+			write_gen_codefile("_gen"); 
 			}
 
-		//load up code file specified by user (ie. generated, or generated & user edited, or complete user code)
-		read_codefile(code_file);
+		//load up code file specified by user, if any
+                if (strcmp(code_file, ""))
+			{
+			if (read_codefile(code_file) == asynSuccess)
+				{
+				//Copy the user code into card code buffer
+				//Ready for delivery to controller
+				strcpy(card_code_, user_code_);
+				}
+			else
+				thread_mask_ = 0;  //Forced to use generated code
+			}
 
-		//Dump code we will send to the controller, which may be either generated or user specified
+		//Dump card_code_ to file
 		write_gen_codefile("");
 		}
 
@@ -2853,9 +2864,7 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
 		dc.erase (std::remove(dc.begin(), dc.end(), '\r'), dc.end());
 
 		/*If code we wish to download differs from controller current code then download the new code*/
-		//Allow zero code to be transferred to RIO only
-		if ((dc.compare(uc) != 0 && dc.compare("") != 0) ||
-                     (strncmp(model_, "RIO", 3) == 0 && dc.compare(uc) != 0))
+		if (dc.compare(uc) != 0 && dc.compare("") != 0)
 			{
 			//Change \n to \r (Galil Communications Library expects \r separated lines)
 			std::replace(dc.begin(), dc.end(), '\n', '\r');
@@ -2998,6 +3007,7 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
 		free(thread_code_);
 		free(limit_code_);
 		free(digital_code_);
+		free(user_code_);
 		//The GalilController code is fully assembled, and stored in GalilController::card_code_
 		code_assembled_ = true;
 		}
@@ -3142,75 +3152,113 @@ void GalilController::write_gen_codefile(const char* suffix)
 		errlogPrintf("Could not open for write file: %s",filename);
 }
 
-/// as well as a single code_file, also handles extended syntax of:
-///          "header_file;first_axis_file!second_axis_file!third_axis_file;footer_file"
-/// this allows the downloaded program to be assembed from on-disk templates that are tailored to the
-/// specific e.g. homing required. Within an axis_file, $(AXIS) is replaced by the relevant axis letter
-void GalilController::read_codefile(const char *code_file)
+// Load file(s) specified by user into GalilController instance
+// The result is stored in GalilController->user_code_ 
+// as well as a single code_file, also handles extended syntax of:
+//          "header_file;first_axis_file!second_axis_file!third_axis_file;footer_file"
+// this allows the downloaded program to be assembed from on-disk templates that are tailored to the
+// specific e.g. homing required. Within an axis_file, $(AXIS) is replaced by the relevant axis letter
+asynStatus GalilController::read_codefile(const char *code_file)
 {
-	if (strcmp(code_file,"") == 0)
-	{
-		return;
-	}
-	card_code_[0] = '\0';
-	if (strchr(code_file, ';') == NULL)
-	{
-		read_codefile_part(code_file, NULL); // only one part (whole code file specified)
-		return;
-	}
-	char* code_file_copy = strdup(code_file); // as strtok() modifies string
-	const char* header_file = strtok(code_file_copy, ";");
+	MAC_HANDLE *mac_handle = NULL;			//Used for macro substitution
+	char axis_value[MAX_GALIL_AXES];		//Axis letter to substitute in
+	char *code_file_copy1 = strdup(code_file);	// as strtok() modifies string
+	char *code_file_copy2 = strdup(code_file);	// as strtok() modifies string
+        char *body_files[MAX_GALIL_AXES];		//List of body file names
+	string str;					//For easy string manipulation
+	int i, j;					//Looping
+
+	//Empty the user code buffer
+	user_code_[0] = '\0';
+
+	//Case where entire code specified in a single file
+	if (strchr(code_file, ';') == NULL)  	
+		return read_codefile_part(code_file, NULL);
+
+	//Case where code is specified using templates
+	//Get header file name
+	const char* header_file = strtok(code_file_copy1, ";");
 	if (header_file == NULL)
 	{
 		errlogPrintf("\nread_codefile: no header file\n\n");
-		return;
+		return asynError;
 	}
-	read_codefile_part(header_file, NULL);
-	char* body_files = strtok(NULL, ";");
-	if (body_files == NULL)
-	{
-		errlogPrintf("\nread_codefile: no body files\n\n");
-		return;
-	}
-	body_files = strdup(body_files);  // make copy in case further calls to strtok() are an issue
+	//Read the header file contents
+	if (read_codefile_part(header_file, NULL))
+		return asynError;	//Cant read header
+	//Skip the body file names for now
+	strtok(NULL, ";");
+	//Get the footer file name
 	const char* footer_file = strtok(NULL, ";");
 	if (footer_file == NULL)
 	{
 		errlogPrintf("\nread_codefile: no footer file\n\n");
-		return;
+		return asynError;
 	}
-	MAC_HANDLE *mac_handle = NULL;
+
+	//Get the body file names
+	i = 0;
+	//Skip the header file name
+	strtok(code_file_copy2, ";");
+	body_files[i] = strtok(NULL, "!");
+	//Make sure we have some body file names
+	if (body_files[i] == NULL)
+		{
+			errlogPrintf("\nread_codefile: no body files\n\n");
+			return asynError;
+		}
+	//Retrieve the entire list of body file names
+	while (body_files[i] != NULL && i < MAX_GALIL_AXES)
+		{
+		//Strip the footer if its in this token
+		str.assign(body_files[i]);
+		if (str.find_first_of(";") != string::npos)
+			str.erase(str.find_first_of(";"));
+		//Copy possibly modified string back into body_files
+		strcpy(body_files[i], str.c_str());
+		i++;
+		//Read the body file names
+		body_files[i] = strtok(NULL, "!");
+		}
+
+	//Read the body files
 	macCreateHandle(&mac_handle, NULL);
-	char axis_value[MAX_GALIL_AXES];
-	const char* body_file = strtok(body_files, "!");
-	for(int i = 0; body_file != NULL; ++i) // i will loop over axis index, 0=A,1=B etc.
-	{
+	for (j = 0; j < i; j++)
+		{
 		macPushScope(mac_handle);
 		// define the macros we will substitute in the included codefile
-		sprintf(axis_value, "%c", i + 'A');
+		sprintf(axis_value, "%c", j + 'A');
 		macPutValue(mac_handle, "AXIS", axis_value);  // substitute $(AXIS) for axis letter 
-		read_codefile_part(body_file, mac_handle);
+		if (read_codefile_part(body_files[j], mac_handle))
+			return asynError;	//Cant read the body file
 		macPopScope(mac_handle);
-		body_file = strtok(NULL, "!");
-	}
+		}
 	macDeleteHandle(mac_handle);
-	read_codefile_part(footer_file, NULL);
-	free(body_files);
-	free(code_file_copy);
+	
+	//Read the footer file
+	if (read_codefile_part(footer_file, NULL))
+		return asynError;	//Cant read footer file
+
+	//Free the ram we used
+        free(code_file_copy1);
+	free(code_file_copy2);
+	//All ok
+	return asynSuccess;
 }
 
 /*-----------------------------------------------------------------------------------*/
 /*  Load the galil code specified into the controller class
 */
 
-void GalilController::read_codefile_part(const char *code_file, MAC_HANDLE* mac_handle)
+asynStatus GalilController::read_codefile_part(const char *code_file, MAC_HANDLE* mac_handle)
 {
 	int i = 0;
+	char file[MAX_FILENAME_LEN];
+	FILE *fp;
+	//local temp code buffers
 	int max_size = MAX_GALIL_AXES * (THREAD_CODE_LEN+LIMIT_CODE_LEN+INP_CODE_LEN);
 	char* user_code = (char*)calloc(max_size,sizeof(char));
 	char* user_code_exp = (char*)calloc(max_size,sizeof(char));
-	char file[MAX_FILENAME_LEN];
-	FILE *fp;
 
 	if (strcmp(code_file,"")!=0)
 		{
@@ -3246,18 +3294,24 @@ void GalilController::read_codefile_part(const char *code_file, MAC_HANDLE* mac_
 			if (mac_handle != NULL) // substitute macro definitios for e.g. $(AXIS)
 				{
 				macExpandString(mac_handle, user_code, user_code_exp, max_size);
-				strcat(card_code_, user_code_exp);
+				//Copy code into GalilController temporary area
+				strcat(user_code_, user_code_exp);
 				}
 			else
 				{
-				strcat(card_code_, user_code);
+				//Copy code into GalilController temporary area
+				strcat(user_code_, user_code);
 				}
 			}
 		else
-			errlogPrintf("\ngalil_read_codefile: Can't open user code file \"%s\", using generated code\n\n", code_file);
+			{
+			errlogPrintf("\nread_codefile_part: Can't open user code file \"%s\", using generated code\n\n", code_file);
+			return asynError;
+			}
 		}
 	free(user_code);
 	free(user_code_exp);
+	return asynSuccess;
 }
 
 /** Find kinematic variables Q-X and substitute them for variable in range A-P for sCalcPerform

@@ -194,8 +194,8 @@ public:
   void gen_card_codeend(void);
   void gen_motor_enables_code(void);
   void write_gen_codefile(const char* suffix);
-  void read_codefile(const char *code_file);
-  void read_codefile_part(const char *code_file, MAC_HANDLE* mac_handle);
+  asynStatus read_codefile(const char *code_file);
+  asynStatus read_codefile_part(const char *code_file, MAC_HANDLE* mac_handle);
   asynStatus writeReadController(const char *caller);
   void check_comms(bool reqd_comms, asynStatus status);
   asynStatus get_integer(int function, epicsInt32 *value, int axisNo);
@@ -318,7 +318,7 @@ private:
 					
   bool connect_fail_reported_;		//Has initial connection failure been reported to iocShell
   int consecutive_timeouts_;		//Used for connection management
-  bool code_assembled_;			//Has code for the GalilController hardware been assembled
+  bool code_assembled_;			//Has code for the GalilController hardware been assembled (ie. is card_code_ all set to send)
   bool async_records_;			//Are the data records obtained async(DR), or sync (QR)
   double updatePeriod_;			//Period between data records in ms
 
@@ -344,7 +344,8 @@ private:
   char *thread_code_;			//Code generated for every axis on this controller (eg. home code, stepper pos maintenance)
   char *limit_code_;			//Code generated for limit switches on this controller
   char *digital_code_;			//Code generated for digital inputs on this controller
-  char *card_code_;			//All code generated for the controller
+  char *card_code_;			//All code generated for the controller.  This is the buffer actually sent to controller
+  char *user_code_;			//Code supplied by user for the controller.  This is copied to card_code_ above if all goes well
 
   char cmd_[MAX_GALIL_STRING_SIZE];     //holds the assembled Galil cmd string
   char resp_[MAX_GALIL_STRING_SIZE];    //Response from Galil controller

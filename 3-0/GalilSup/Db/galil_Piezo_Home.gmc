@@ -9,7 +9,7 @@ IF ((home${AXIS}=1))
 IF ((hjog${AXIS}=0) & (_BG${AXIS}=1))
 ST${AXIS};ENDIF
 IF ((hjog${AXIS}=0) & (_BG${AXIS}=0))
-oldecel${AXIS}=_DC${AXIS};speed${AXIS}=_SP${AXIS};
+oldecel${AXIS}=_DC${AXIS};speed${AXIS}=_SP${AXIS}
 AC${AXIS}=(@ABS[hjgdc${AXIS}])*10
 DC${AXIS}=(@ABS[hjgdc${AXIS}])*20
 SP${AXIS}=(@ABS[hjgsp${AXIS}])*10
@@ -28,7 +28,7 @@ IF ((hjog${AXIS}=3) & (_BG${AXIS}=0))
 MO${AXIS};WT10;hjog${AXIS}=0;home${AXIS}=0;homed${AXIS}=1
 MG "home${AXIS}", home${AXIS};MG "homed${AXIS}", homed${AXIS}
 IF ((phreg${AXIS}=1))
-DE${AXIS}=enhmval${AXIS};DP${AXIS}=mrhmval${AXIS};
+DE${AXIS}=enhmval${AXIS};DP${AXIS}=mrhmval${AXIS}
 ENDIF
 ENDIF
 ENDIF

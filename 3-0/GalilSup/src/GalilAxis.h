@@ -146,10 +146,7 @@ private:
 
   epicsTimeStamp begin_nowt_;		//Used to track length of time motor begin takes
   epicsTimeStamp begin_begint_;		//Used to track length of time motor begin takes
-
-  bool newmove_;			//Has another move been initiated by upper layers.  Blocks auto off
-  
-  //Variables that should only be used by poller thread (after startup)
+ 
   epicsTimeStamp pestall_nowt_;		//Used to track length of time encoder has been stalled for
   epicsTimeStamp pestall_begint_;	//Time when possible encoder stall first detected
   int ueip_;				//motorRecord ueip
@@ -179,6 +176,7 @@ private:
   bool autooffSent_;			//Has motor auto off mesg been sent to pollServices thread after motor stop
   bool postExecuted_;			//Has pollServices executed post
   bool autooffExecuted_;		//Has pollServices executed the autooff
+  bool autooffAllowed_;			//Block autoOff if autoOn has released lock for on delay
 
 friend class GalilController;
 };

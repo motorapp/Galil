@@ -84,22 +84,22 @@ GalilCreateCSAxes("Galil","I=(A+B)/2,J=B-A","A=I-J/2,B=I+J/2")
 # GalilStartController command parameters are:
 #
 # 1. char *portName Asyn port for controller
-# 2. char *code file to deliver to the controller we are starting. "" = use generated code
+# 2. char *code file(s) to deliver to the controller we are starting. "" = use generated code (recommended)
+#             Specify a single file or to use templates use: headerfile;bodyfile1!bodyfile2!bodyfileN;footerfile
 # 3. int   Burn program to EEPROM conditions
 #             0 = transfer code if differs from eeprom, dont burn code to eeprom, then finally execute code thread 0.
 #             1 = transfer code if differs from eeprom, burn code to eeprom, then finally execute code thread 0.
 #             It is asssumed thread 0 starts all other required threads
-#
 # 4. int   display code. Set bit 1 to display generated code and or the code file specified.  Set bit 2 to display uploaded code
 # 5. int   Thread mask.  Check these threads are running after controller code start.  Bit 0 = thread 0 and so on
-#          if 0 and GalilCreateAxis appears > 0 then threads 0 to number of GalilCreateAxis is checked (good when using the generated code)
+#             if thread mask = 0 and GalilCreateAxis appears > 0 then threads 0 to number of GalilCreateAxis is checked (good when using the generated code)
 
 # Start the controller
 GalilStartController("Galil", "", 1, 0, 0)
 
 # Start the controller
 # Example using homing routine template assembly
-# GalilStartController("Galil", "$(GALIL)/GalilSup/Db/galil_Default_Header.gmc;$(GALIL)/GalilSup/Db/galil_Home_RevLimit.gmc!$(GALIL)/GalilSup/Db/galil_Home_ForwLimit.gmc!$(GALIL)/GalilSup/Db/galil_Home_Home.gmc!$(GALIL)/GalilSup/Db/galil_Home_ForwLimit.gmc!$(GALIL)/GalilSup/Db/galil_Piezo_Home.gmc!$(GALIL)/GalilSup/Db/galil_Piezo_Home.gmc!$(GALIL)/GalilSup/Db/galil_Piezo_Home.gmc!$(GALIL)/GalilSup/Db/galil_Piezo_Home.gmc;$(GALIL)/GalilSup/Db/galil_Default_Footer.gmc", 0, 0, 3)
+#GalilStartController("Galil", "$(GALIL)/GalilSup/Db/galil_Default_Header.gmc;$(GALIL)/GalilSup/Db/galil_Home_RevLimit.gmc!$(GALIL)/GalilSup/Db/galil_Home_ForwLimit.gmc!$(GALIL)/GalilSup/Db/galil_Home_Home.gmc!$(GALIL)/GalilSup/Db/galil_Home_ForwLimit.gmc!$(GALIL)/GalilSup/Db/galil_Piezo_Home.gmc!$(GALIL)/GalilSup/Db/galil_Piezo_Home.gmc!$(GALIL)/GalilSup/Db/galil_Piezo_Home.gmc!$(GALIL)/GalilSup/Db/galil_Piezo_Home.gmc;$(GALIL)/GalilSup/Db/galil_Default_Footer.gmc", 0, 0, 3)
 
 # Start the controller
 GalilStartController("RIO", "rio.gmc", 1, 0, 0)

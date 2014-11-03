@@ -159,9 +159,6 @@ asynStatus GalilAxis::setDefaults(int limit_as_home, char *enables_string, int s
 	//Motor not homing now
 	homing_ = false;
 
-	//No moves have been initiated yet
-	newmove_ = false;
-
 	//Motor stop mesg not sent to pollServices thread for stall or wrong limit
 	stopSent_ = false;
 
@@ -170,6 +167,9 @@ asynStatus GalilAxis::setDefaults(int limit_as_home, char *enables_string, int s
 
 	//Motor power auto on/off mesg not sent to pollServices thread yet
 	autooffExecuted_ = autooffSent_ = false;
+
+	//AutoOn delay not in progress so autooff allowed
+        autooffAllowed_ = true;
 
 	return asynSuccess;
 }
@@ -481,9 +481,6 @@ asynStatus GalilAxis::move(double position, int relative, double minVelocity, do
   //Check velocity and wlp protection
   if (beginCheck(functionName, maxVelocity))
      return asynSuccess;  //Nothing to do
-
-  //Flag new move on the way
-  newmove_ = true;
   
   //Ensure home flag is 0
   sprintf(pC_->cmd_, "home%c=0", axisName_);
@@ -569,9 +566,6 @@ asynStatus GalilAxis::move(double position, int relative, double minVelocity, do
 		printf("Motor %c disabled by digital/binary input via GalilCreateAxis setting\n", axisName_);
 	}
 
-  //Flag no new move on the way
-  newmove_ = false;
-
   //Always return success. Dont need more error mesgs
   return asynSuccess;
 }
@@ -604,9 +598,6 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
   //Home only if interlock ok
   if (motor_enabled())
   	{
-        //Flag new move on the way
-	newmove_ = true;
-
 	//Retrieve relevant parameters
 	pC_->getIntegerParam(axisNo_, pC_->GalilDirection_, &dir);
         pC_->getDoubleParam(axisNo_, pC_->GalilEncoderResolution_, &eres);
@@ -703,9 +694,6 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
 	//Sitting on the home limit is one example of this
 	sprintf(pC_->cmd_, "home%c=1\n", axisName_);
 	pC_->writeReadController(functionName);
-
-	//Flag no new move on the way
-	newmove_ = false;
 	}
   else
 	printf("Motor %c disabled due to digital input condition\n", axisName_);
@@ -765,9 +753,6 @@ asynStatus GalilAxis::moveVelocity(double minVelocity, double maxVelocity, doubl
   //Check interlock status before allowing move
   if (motor_enabled())
   	{
-	//Flag new move on the way
-	newmove_ = true;
-
 	//Ensure home flag is 0
 	sprintf(pC_->cmd_, "home%c=0", axisName_);
 	pC_->writeReadController(functionName);
@@ -793,9 +778,6 @@ asynStatus GalilAxis::moveVelocity(double minVelocity, double maxVelocity, doubl
 					
 	//Begin the move
 	beginMotion(functionName);
-
-	//Flag no new moving on the way
-	newmove_ = false;
 	}
   else
 	{
@@ -1319,7 +1301,7 @@ void GalilAxis::pollServices(void)
                             postExecuted_ = true;
                             }
                          break;
-        case MOTOR_OFF:  if (!inmotion_ && !newmove_)
+        case MOTOR_OFF:  if (!inmotion_ && autooffAllowed_)
                             {
                             //Execute the motor off command
                             setClosedLoop(false);
@@ -1374,9 +1356,22 @@ void GalilAxis::executeAutoOn(void)
      setClosedLoop(true);
      //Wait user specified time after turning motor on
      pC_->getDoubleParam(axisNo_, pC_->GalilAutoOnDelay_, &ondelay);
-     pC_->unlock();
-     epicsThreadSleep(ondelay);
-     pC_->lock();
+     if (ondelay >= 0.035)
+        {
+        //Block autooff whilst lock release for delay
+        autooffAllowed_ = false;
+        epicsThreadSleep(.001);
+        pC_->unlock();
+        epicsThreadSleep(ondelay);
+        pC_->lock();
+        //Reset stop timer for auto off
+        stop_begint_ = stop_nowt_;
+        autooffSent_ = false;
+        //Autooff now allowed as we have lock now anyway
+        autooffAllowed_ = true;
+        }
+     else
+        epicsThreadSleep(ondelay);
      }
 }
 
@@ -1408,7 +1403,7 @@ void GalilAxis::executeAutoOff(void)
   //Execute motor auto power off if activated
   if ((pC_->getIntegerParam(axisNo_, pC_->GalilAutoOnOff_, &autoonoff) == asynSuccess) &&
       (pC_->getDoubleParam(axisNo_, pC_->GalilAutoOffDelay_, &offdelay) == asynSuccess))
-     if (autoonoff && !homing_ && done_ && !autooffSent_ && stopped_time_ >= offdelay)
+     if (autoonoff && autooffAllowed_ && !homing_ && done_ && !autooffSent_ && stopped_time_ >= offdelay)
         {
         //Send the motor off command
         pollRequest_.send((void*)&MOTOR_OFF, sizeof(int));
