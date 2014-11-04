@@ -1358,9 +1358,11 @@ void GalilAxis::executeAutoOn(void)
      pC_->getDoubleParam(axisNo_, pC_->GalilAutoOnDelay_, &ondelay);
      if (ondelay >= 0.035)
         {
-        //Block autooff whilst lock release for delay
+		//AutoOn delay long enough to justify releasing lock to other threads
+        //Case where autoon delay greater than autooff delay.  Dont wont motor turning off
+		//Whilst still waiting AutoOn delay
+		//Block autooff whilst lock released for AutoOn delay
         autooffAllowed_ = false;
-        epicsThreadSleep(.001);
         pC_->unlock();
         epicsThreadSleep(ondelay);
         pC_->lock();
@@ -1370,7 +1372,7 @@ void GalilAxis::executeAutoOn(void)
         //Autooff now allowed as we have lock now anyway
         autooffAllowed_ = true;
         }
-     else
+     else //AutoOn delay too short to bother releasing lock to other threads
         epicsThreadSleep(ondelay);
      }
 }

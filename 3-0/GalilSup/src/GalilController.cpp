@@ -2512,7 +2512,10 @@ void GalilController::getStatus(void)
 				sprintf(src, "_TI%d", addr);
 				paramUDig = (unsigned)gco_->sourceValue(recdata_, src);
 				//ValueMask = 0xFF because a byte is 8 bits
+				//Callbacks happen on value change
 				setUIntDigitalParam(addr, GalilBinaryIn_, paramUDig, 0xFF );
+				//Example showing forced callbacks even if no value change
+				//setUIntDigitalParam(addr, GalilBinaryIn_, paramUDig, 0xFF, 0xFF );
 				}
 			//data record has digital outputs in banks of 16 bits for dmc, 8 bits for rio
 			for (addr=0;addr<BINARYOUT_WORDS;addr++)
@@ -2520,7 +2523,10 @@ void GalilController::getStatus(void)
 				sprintf(src, "_OP%d", addr);
 				paramUDig = (unsigned)gco_->sourceValue(recdata_, src);
 				//ValueMask = 0xFFFF because a word is 16 bits
+				//Callbacks happen on value change
 				setUIntDigitalParam(addr, GalilBinaryOutRBV_, paramUDig, 0xFFFF );
+				//Example showing forced callbacks even if no value change
+				//setUIntDigitalParam(addr, GalilBinaryOutRBV_, paramUDig, 0xFFFF, 0xFFFF );
 				}
 			//Analog ports on rio
 			for (addr=0;addr<ANALOG_PORTS;addr++)
@@ -2592,7 +2598,7 @@ asynStatus GalilController::poll(void)
 	//Store current time for next cycle
 	polllastt_.secPastEpoch = pollnowt_.secPastEpoch;
 	polllastt_.nsec = pollnowt_.nsec;
-	
+
 	//if (time_taken > 0.02)
 	//	{
 	//	printf("%s GalilController::poll %2.3lfs\n", model_, time_taken);
@@ -2845,10 +2851,10 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
 			uc.erase (std::remove(uc.begin(), uc.end(), '\r'), uc.end());
 			}
 		catch (string e)
-		      	{
+			{
 			//Upload failed
-		      	cout << "GalilStartController:Upload failed:" << " " << e;
-		      	}
+			cout << "GalilStartController:Upload failed:" << " " << e;
+			}
 
 		if ((display_code == 2) || (display_code == 3))
 			{
