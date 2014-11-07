@@ -2442,12 +2442,13 @@ void GalilController::processUnsolicitedMesgs(void)
    char mesg[MAX_MESSAGE_LEN];	//The message
    char axisName;		//Axis number message is for
    int value;			//The value contained in the message
+   char *tokSave = NULL;	//Remaining tokens
 
    //Collect unsolicted message   
    strcpy(rawbuf, gco_->message(0).c_str());
 
    //Break message into tokens
-   charstr = strtok(rawbuf, " \n");
+   charstr = epicsStrtok_r(rawbuf, " \n", &tokSave);
    while (charstr != NULL)
       {
       //Determine axis message is for
@@ -2459,7 +2460,7 @@ void GalilController::processUnsolicitedMesgs(void)
       //Retrieve GalilAxis instance for the correct axis
       pAxis = getAxis(axisName - AASCII);
       //Retrieve the value
-      charstr = strtok(NULL, " \n");
+      charstr = epicsStrtok_r(NULL, " \n", &tokSave);
       if (charstr != NULL && pAxis)
          {
          value = atoi(charstr);
@@ -2482,7 +2483,7 @@ void GalilController::processUnsolicitedMesgs(void)
          }
 
       //Retrieve next mesg
-      charstr = strtok(NULL, " \n");
+      charstr = epicsStrtok_r(NULL, " \n", &tokSave);
       }
 }
 
@@ -2814,17 +2815,14 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
 			}
 
 		//load up code file specified by user, if any
-                if (strcmp(code_file, ""))
+		if (!read_codefile(code_file))
 			{
-			if (read_codefile(code_file) == asynSuccess)
-				{
-				//Copy the user code into card code buffer
-				//Ready for delivery to controller
-				strcpy(card_code_, user_code_);
-				}
-			else
-				thread_mask_ = 0;  //Forced to use generated code
+			//Copy the user code into card code buffer
+			//Ready for delivery to controller
+			strcpy(card_code_, user_code_);
 			}
+		else
+			thread_mask_ = 0;  //Forced to use generated code
 
 		//Dump card_code_ to file
 		write_gen_codefile("");
@@ -3166,89 +3164,68 @@ void GalilController::write_gen_codefile(const char* suffix)
 // specific e.g. homing required. Within an axis_file, $(AXIS) is replaced by the relevant axis letter
 asynStatus GalilController::read_codefile(const char *code_file)
 {
-	MAC_HANDLE *mac_handle = NULL;			//Used for macro substitution
-	char axis_value[MAX_GALIL_AXES];		//Axis letter to substitute in
-	char *code_file_copy1 = strdup(code_file);	// as strtok() modifies string
-	char *code_file_copy2 = strdup(code_file);	// as strtok() modifies string
-        char *body_files[MAX_GALIL_AXES];		//List of body file names
-	string str;					//For easy string manipulation
-	int i, j;					//Looping
+	char* code_file_copy = strdup(code_file); 	//As epicsStrtok_r() modifies string
+	char *tokSave = NULL;				//Remaining tokens
+	char axis_value[MAX_GALIL_AXES];	//Substitute axis name
 
+	if (strcmp(code_file, "") == 0)
+	{	//No code file(s) specified, use generated code
+		return asynError;
+	}
 	//Empty the user code buffer
 	user_code_[0] = '\0';
-
-	//Case where entire code specified in a single file
-	if (strchr(code_file, ';') == NULL)  	
-		return read_codefile_part(code_file, NULL);
-
-	//Case where code is specified using templates
-	//Get header file name
-	const char* header_file = strtok(code_file_copy1, ";");
+	if (strchr(code_file, ';') == NULL)
+	{
+		return read_codefile_part(code_file, NULL); // only one part (whole code file specified)
+	}
+	//Retrieve header file name
+	const char* header_file = epicsStrtok_r(code_file_copy, ";", &tokSave);
 	if (header_file == NULL)
 	{
 		errlogPrintf("\nread_codefile: no header file\n\n");
 		return asynError;
 	}
-	//Read the header file contents
+	//Read the header file
 	if (read_codefile_part(header_file, NULL))
-		return asynError;	//Cant read header
-	//Skip the body file names for now
-	strtok(NULL, ";");
-	//Get the footer file name
-	const char* footer_file = strtok(NULL, ";");
+		return asynError;
+	//Retrieve body file names
+	char* body_files = epicsStrtok_r(NULL, ";", &tokSave);
+	if (body_files == NULL)
+	{
+		errlogPrintf("\nread_codefile: no body files\n\n");
+		return asynError;
+	}
+	//Retrieve footer file name
+	const char* footer_file = epicsStrtok_r(NULL, ";",  &tokSave);
 	if (footer_file == NULL)
 	{
 		errlogPrintf("\nread_codefile: no footer file\n\n");
 		return asynError;
 	}
-
-	//Get the body file names
-	i = 0;
-	//Skip the header file name
-	strtok(code_file_copy2, ";");
-	body_files[i] = strtok(NULL, "!");
-	//Make sure we have some body file names
-	if (body_files[i] == NULL)
-		{
-			errlogPrintf("\nread_codefile: no body files\n\n");
-			return asynError;
-		}
-	//Retrieve the entire list of body file names
-	while (body_files[i] != NULL && i < MAX_GALIL_AXES)
-		{
-		//Strip the footer if its in this token
-		str.assign(body_files[i]);
-		if (str.find_first_of(";") != string::npos)
-			str.erase(str.find_first_of(";"));
-		//Copy possibly modified string back into body_files
-		strcpy(body_files[i], str.c_str());
-		i++;
-		//Read the body file names
-		body_files[i] = strtok(NULL, "!");
-		}
-
 	//Read the body files
+	MAC_HANDLE *mac_handle = NULL;
 	macCreateHandle(&mac_handle, NULL);
-	for (j = 0; j < i; j++)
-		{
+	tokSave = NULL;
+	const char* body_file = epicsStrtok_r(body_files, "!", &tokSave);
+	for(int i = 0; body_file != NULL; ++i) // i will loop over axis index, 0=A,1=B etc.
+	{
 		macPushScope(mac_handle);
-		// define the macros we will substitute in the included codefile
-		sprintf(axis_value, "%c", j + 'A');
+		//Define the macros we will substitute in the included codefile
+		sprintf(axis_value, "%c", i + 'A');
 		macPutValue(mac_handle, "AXIS", axis_value);  // substitute $(AXIS) for axis letter 
-		if (read_codefile_part(body_files[j], mac_handle))
-			return asynError;	//Cant read the body file
+		//Read the body file
+		if (read_codefile_part(body_file, mac_handle))
+			return asynError;
 		macPopScope(mac_handle);
-		}
+		//Retrieve the next body file name
+		body_file = epicsStrtok_r(NULL, "!", &tokSave);
+	}
 	macDeleteHandle(mac_handle);
-	
 	//Read the footer file
 	if (read_codefile_part(footer_file, NULL))
-		return asynError;	//Cant read footer file
-
+		return asynError;
 	//Free the ram we used
-        free(code_file_copy1);
-	free(code_file_copy2);
-	//All ok
+	free(code_file_copy);
 	return asynSuccess;
 }
 
@@ -3440,6 +3417,7 @@ asynStatus GalilController::findVariableSubstitutes(char *axes, char *csaxes, ch
 asynStatus GalilController::breakupTransform(char *raw, char *axes, char **equations)
 {
   char *charstr;			//The current token
+  char *tokSave = NULL;			//Remaining tokens
   int status;				//Result
   bool expectAxis = true;		//Token to expect next is axis, or equation
   unsigned i = 0, j = 0;		//For counting number of axis, and equations respectively
@@ -3447,7 +3425,7 @@ asynStatus GalilController::breakupTransform(char *raw, char *axes, char **equat
   status = asynSuccess;
 
   //Break raw transform up into tokens
-  charstr = strtok(raw, "=");
+  charstr = epicsStrtok_r(raw, "=", &tokSave);
   while (charstr != NULL)
 	{
         if (expectAxis)
@@ -3457,7 +3435,7 @@ asynStatus GalilController::breakupTransform(char *raw, char *axes, char **equat
 		//Increment axis count
 		i++;
 		//Keep parsing the same string
-		charstr = strtok(NULL, ",");
+		charstr = epicsStrtok_r(NULL, ",", &tokSave);
 		}
 	else
 		{
@@ -3466,7 +3444,7 @@ asynStatus GalilController::breakupTransform(char *raw, char *axes, char **equat
 		//Increment equation count
 		j++;
 		//Keep parsing the same string
-		charstr = strtok(NULL, "=");
+		charstr = epicsStrtok_r(NULL, "=", &tokSave);
 		}
 	//Toggle expectAxis
 	expectAxis = (expectAxis) ? false : true;
@@ -3477,8 +3455,9 @@ asynStatus GalilController::breakupTransform(char *raw, char *axes, char **equat
 asynStatus GalilController::drvUserCreate(asynUser *pasynUser, const char* drvInfo, const char** pptypeName, size_t* psize)
 {
    //const char *functionName = "drvUserCreate";
-   char *drvInfocpy;				  //copy of drvInfo
-   char *charstr;		                  //The current token
+   char *drvInfocpy;				//copy of drvInfo
+   char *charstr;				//The current token
+   char *tokSave = NULL;			//Remaining tokens
 
    //Check if USER_CMD, USER_VAR, USER_OCTET, or USER_OCTET_VAL
    if (strncmp(drvInfo, "USER_", 5) == 0)
@@ -3487,7 +3466,7 @@ asynStatus GalilController::drvUserCreate(asynUser *pasynUser, const char* drvIn
      drvInfocpy = epicsStrDup((const char *)drvInfo);
      //split drvInfocpy into tokens
      //first token is DRVCMD = CMD, OCTET, OCTET_VAL, or VAR
-     charstr = strtok((char *)drvInfocpy, " ");
+     charstr = epicsStrtok_r((char *)drvInfocpy, " ", &tokSave);
      if (!abs(strcmp(charstr, GalilUserCmdString)))
         pasynUser->reason = GalilUserCmd_;
      if (!abs(strcmp(charstr, GalilUserOctetString)))
@@ -3497,10 +3476,12 @@ asynStatus GalilController::drvUserCreate(asynUser *pasynUser, const char* drvIn
      if (!abs(strcmp(charstr, GalilUserVarString)))
         pasynUser->reason = GalilUserVar_;
      //Second token is GalilStr
-     charstr = strtok(NULL, "\n");
+     charstr = epicsStrtok_r(NULL, "\n", &tokSave);
      //Store copy of GalilStr in pasynuser userdata
      if (charstr != NULL)
         pasynUser->userData = epicsStrDup(charstr);
+     //Free the ram we used
+     free(drvInfocpy);
      return asynSuccess;
      }
   else
