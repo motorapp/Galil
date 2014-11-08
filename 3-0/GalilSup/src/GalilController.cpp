@@ -32,9 +32,9 @@
 // 02/11/14 M.Clift Changed homing mechanism to use unsolicted messaging
 // 02/11/14 M.Clift Several bug fixes in autooff, GalilCSAxis, polling
 // 09/11/14 M.Clift Re-named drive after home to Jog after home
-                    Moved Jog after home, and program home register functionality into driver.
-                    Fixed bugs in homing
-                    Block moves until autosave restore completed
+//                  Moved Jog after home, and program home register functionality into driver.
+//                  Fixed bugs in homing
+//                  Block moves until autosave restore completed
 
 #include <stdio.h>
 #include <math.h>
