@@ -27,10 +27,14 @@
 // 09/10/14 M.Clift Repaired gcl problems under windows
 // 10/10/14 M.Clift Added Motor record PREM/POST support
 // 11/10/14 M.Clift & F.Akeroyd Added auto pwr on/off features
-// 02/11/14 F.Akeroyd & M.Clift Added ability to construct galil code from template
+// 02/11/14 F.Akeroyd Added ability to construct galil code from template
 // 02/11/14 F.Akeroyd & M.Clift enhanced GalilStartController handling of user code
 // 02/11/14 M.Clift Changed homing mechanism to use unsolicted messaging
 // 02/11/14 M.Clift Several bug fixes in autooff, GalilCSAxis, polling
+// 09/11/14 M.Clift Re-named drive after home to Jog after home
+                    Moved Jog after home, and program home register functionality into driver.
+                    Fixed bugs in homing
+                    Block moves until autosave restore completed
 
 #include <stdio.h>
 #include <math.h>
@@ -184,8 +188,8 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilPostString, asynParamOctet, &GalilPost_);
 
   createParam(GalilUseIndexString, asynParamInt32, &GalilUseIndex_);
-  createParam(GalilDriveAfterHomeString, asynParamInt32, &GalilDriveAfterHome_);
-  createParam(GalilDriveAfterHomeValueString, asynParamFloat64, &GalilDriveAfterHomeValue_);
+  createParam(GalilJogAfterHomeString, asynParamInt32, &GalilJogAfterHome_);
+  createParam(GalilJogAfterHomeValueString, asynParamFloat64, &GalilJogAfterHomeValue_);
 
   createParam(GalilAutoOnOffString, asynParamInt32, &GalilAutoOnOff_);
   createParam(GalilAutoOnDelayString, asynParamFloat64, &GalilAutoOnDelay_);
@@ -1193,7 +1197,7 @@ asynStatus GalilController::motorsToProfileStartPosition(FILE *profFile, char *a
   int axisNo;				//Axis number
   int moveMode[MAX_GALIL_AXES];  	//Move mode absolute or relative
   double startp[MAX_GALIL_AXES];	//Motor start positions from file
-  double atime, velo, mres;		//Required mr attributes
+  double accl, velo, mres;		//Required mr attributes
   double velocity, acceleration;	//Used to move motors to start
   char message[MAX_MESSAGE_LEN];	//Profile execute message
   int status = asynSuccess;
@@ -1222,12 +1226,12 @@ asynStatus GalilController::motorsToProfileStartPosition(FILE *profFile, char *a
 	//Skip axis if not instantiated
 	if (!pAxis) continue;
 	//Retrieve needed mr attributes
-	getDoubleParam(axisNo, GalilMotorAccl_, &atime);
+	getDoubleParam(axisNo, GalilMotorAccl_, &accl);
 	getDoubleParam(axisNo, GalilMotorVelo_, &velo);
 	getDoubleParam(axisNo, motorResolution_, &mres);
 	//Calculate velocity and acceleration in steps
 	velocity = velo/mres;
-	acceleration = velocity/atime;
+	acceleration = velocity/accl;
 	if (move) //Move to first position in profile if moveMode = Absolute
 		status = pAxis->move(startp[axisNo], 0, 0, velocity, acceleration);
 	else      //Stop motor moving to start
@@ -1647,7 +1651,7 @@ asynStatus GalilController::processDeferredMovesInGroup(int coordsys, char *axes
         begin_time = epicsTimeDiffInSeconds(&begin_nowt_, &begin_begint_);
         if (begin_time > BEGIN_TIMEOUT)
            {
-           sprintf(mesg, "%s begin failure coordsys %c\n", functionName, coordName);
+           sprintf(mesg, "%s begin failure coordsys %c", functionName, coordName);
            //Set controller error mesg monitor
            setStringParam(GalilCtrlError_, mesg);
            status = asynError;
@@ -1887,11 +1891,6 @@ asynStatus GalilController::readInt32(asynUser *pasynUser, epicsInt32 *value)
 		}
 	else    //Comms error, return last ParamList value set using setIntegerParam
 		getIntegerParam(pAxis->axisNo_, function, value);
-	}
-  else if (function == GalilProgramHome_)
-	{
-	sprintf(cmd_, "MG phreg%c", pAxis->axisName_);
-	status = get_integer(GalilProgramHome_, value, pAxis->axisNo_);
 	}
   else if (function >= GalilSSIInput_ && function <= GalilSSIData_)
 	{
@@ -2200,13 +2199,6 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 		status = writeReadController(functionName);
 		}
 	}
-  else if (function == GalilProgramHome_)
-	{
-	sprintf(cmd_, "phreg%c=%d", pAxis->axisName_, value);
-	//printf("GalilProgramHome_ cmd:%s value %d\n", cmd_, value);
-	//Write setting to controller
-	status = writeReadController(functionName);
-	}
   else if (function == GalilUseEncoder_)
 	{
 	sprintf(cmd_, "ueip%c=%d", pAxis->axisName_, value);
@@ -2221,10 +2213,10 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 	//Write setting to controller
 	status = writeReadController(functionName);
 	}
-  else if (function == GalilDriveAfterHome_)
+  else if (function == GalilJogAfterHome_)
 	{
-	sprintf(cmd_, "dah%c=%d", pAxis->axisName_, value);
-        //printf("GalilDriveAfterHome_ %s value %d\n", cmd_, value);
+	sprintf(cmd_, "jah%c=%d", pAxis->axisName_, value);
+        //printf("GalilJogAfterHome_ %s value %d\n", cmd_, value);
 	//Write setting to controller
 	status = writeReadController(functionName);
 	}
@@ -2465,9 +2457,18 @@ void GalilController::processUnsolicitedMesgs(void)
          {
          value = atoi(charstr);
          //Process known messages
+
          //Motor homed message
          if (!abs(strcmp(mesg, "homed")))
             {
+            //Send homed message to pollServices only if homed%c=1
+            if (value)
+               {
+               //Send homed message to pollServices
+               pAxis->homedExecuted_ = false;
+               pAxis->pollRequest_.send((void*)&MOTOR_HOMED, sizeof(int));
+               pAxis->homedSent_ = true;
+               }
             //Set homed status for this axis
             pAxis->setIntegerParam(GalilHomed_, value);
             //Set motorRecord MSTA bit 15 motorStatusHomed_ too
@@ -2783,11 +2784,12 @@ asynStatus GalilController::writeReadController(const char *caller)
 void GalilController::GalilStartController(char *code_file, int burn_program, int display_code, unsigned thread_mask)
 {
 	const char *functionName = "GalilStartController";
-	unsigned i;					 //General purpose looping
-	bool start_ok = true;				 //Have the controller threads started ok
-	bool download_ok = true;			 //Was user specified code delivered successfully
-	string uc;					 //Uploaded code from controller
-	string dc;					 //Code to download to controller
+	int homed[MAX_GALIL_AXES];			//Backup of homed status
+	unsigned i;					//General purpose looping
+	bool start_ok = true;				//Have the controller threads started ok
+	bool download_ok = true;			//Was user specified code delivered successfully
+	string uc;					//Uploaded code from controller
+	string dc;					//Code to download to controller
 
 	//Backup parameters used by developer for later re-start attempts of this controller
 	//This allows full recovery after disconnect of controller
@@ -2901,8 +2903,6 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
 						errlogPrintf("Error burning code to EEPROM model %s, address %s\n",model_, address_);
 					else
 						errlogPrintf("Burning code to EEPROM model %s, address %s\n",model_, address_);
-				
-					epicsThreadSleep(3);
 			
 					/*Burn parameters to EEPROM*/
 					sprintf(cmd_, "BN");
@@ -2910,8 +2910,21 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
 						errlogPrintf("Error burning parameters to EEPROM model %s, address %s\n",model_, address_);
 					else
 						errlogPrintf("Burning parameters to EEPROM model %s, address %s\n",model_, address_);
-				
-					epicsThreadSleep(3);
+
+					//Before burning variables backup the homed status of each axis
+					//Then set homed to 0 for each axis
+					//Done so homed is always 0 at controller power on
+					if (numAxes_ > 0)
+						{
+						for (i=0;i<numAxes_;i++)
+							{
+							sprintf(cmd_, "MG homed%c\n", i + AASCII);
+							writeReadController(functionName);
+							homed[i] = atoi(resp_);
+							sprintf(cmd_, "homed%c=0\n", i + AASCII);
+							writeReadController(functionName);
+							}
+						}
 				
 					/*Burn variables to EEPROM*/
 					sprintf(cmd_, "BV");
@@ -2919,8 +2932,16 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
 						errlogPrintf("Error burning variables to EEPROM model %s, address %s\n",model_, address_);
 					else
 						errlogPrintf("Burning variables to EEPROM model %s, address %s\n",model_, address_);
-				
-					epicsThreadSleep(3);
+
+					//Now restore homed status that controller had before burning variables
+					if (numAxes_ > 0)
+						{
+						for (i=0;i<numAxes_;i++)
+							{
+							sprintf(cmd_, "homed%c=%d\n", i + AASCII, homed[i]);
+							writeReadController(functionName);
+							}
+						}
 					}
 				}
 			}

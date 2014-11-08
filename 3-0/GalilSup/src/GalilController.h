@@ -101,8 +101,8 @@
 #define GalilPremString			"MOTOR_PREM"
 #define GalilPostString			"MOTOR_POST"
 #define GalilUseIndexString		"MOTOR_USEINDEX"
-#define GalilDriveAfterHomeString	"MOTOR_DRIVE_AHOME"
-#define GalilDriveAfterHomeValueString	"MOTOR_DRIVE_AHOME_VALUE"
+#define GalilJogAfterHomeString		"MOTOR_JOG_AHOME"
+#define GalilJogAfterHomeValueString	"MOTOR_JOG_AHOME_VALUE"
 #define GalilAutoOnOffString		"MOTOR_AUTO_ONOFF"
 #define GalilAutoOnDelayString		"MOTOR_AUTO_ONDELAY"
 #define GalilAutoOffDelayString		"MOTOR_AUTO_OFFDELAY"
@@ -262,8 +262,8 @@ protected:
   int GalilPrem_;
   int GalilPost_;
   int GalilUseIndex_;
-  int GalilDriveAfterHome_;
-  int GalilDriveAfterHomeValue_;
+  int GalilJogAfterHome_;
+  int GalilJogAfterHomeValue_;
   int GalilAutoOnOff_;
   int GalilAutoOnDelay_;
   int GalilAutoOffDelay_;

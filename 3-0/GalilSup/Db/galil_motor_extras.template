@@ -203,9 +203,9 @@ record(bo,"$(P):$(M)_UINDEX_CMD")
 	field(FLNK,"$(P):$(M)_UINDEX_STATUS")
 }
 
-record(bi,"$(P):$(M)_DAH_STATUS")
+record(bi,"$(P):$(M)_JAH_STATUS")
 {
-	field(DESC, "drv after home")
+	field(DESC, "Jog after home")
 	field(PINI, "YES")
 	field(DTYP, "asynInt32")
 	field(SCAN, "$(SCAN)")
@@ -213,12 +213,12 @@ record(bi,"$(P):$(M)_DAH_STATUS")
 	field(ZSV,  "NO_ALARM")
 	field(ONAM, "Yes")
 	field(OSV,  "NO_ALARM")
-	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_DRIVE_AHOME")
+	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_JOG_AHOME")
 }
 
-record(bo,"$(P):$(M)_DAH_CMD")
+record(bo,"$(P):$(M)_JAH_CMD")
 {
-	field(DESC,"drv after home")
+	field(DESC,"Jog after home")
 	field(DTYP,"asynInt32")
 	field(VAL, "1")
 	field(PINI,"YES")
@@ -226,31 +226,31 @@ record(bo,"$(P):$(M)_DAH_CMD")
 	field(ZSV, "NO_ALARM")
 	field(ONAM,"Yes")
 	field(OSV, "NO_ALARM")
-	field(OUT, "@asyn($(PORT),$(ADDR))MOTOR_DRIVE_AHOME")
-	field(FLNK,"$(P):$(M)_DAH_STATUS")
+	field(OUT, "@asyn($(PORT),$(ADDR))MOTOR_JOG_AHOME")
+	field(FLNK,"$(P):$(M)_JAH_STATUS")
 }
 
-record(ai,"$(P):$(M)_DAHV_MON")
+record(ai,"$(P):$(M)_JAHV_MON")
 {
-	field(DESC,"drv after home val")
+	field(DESC,"Jog after home val")
 	field(PINI,"YES")
 	field(EGU, "$(EGU)")
 	field(DTYP,"asynFloat64")
 	field(SCAN,"$(SCAN)")
 	field(PREC,"$(PREC)")
-	field(INP, "@asyn($(PORT),$(ADDR))MOTOR_DRIVE_AHOME_VALUE")
+	field(INP, "@asyn($(PORT),$(ADDR))MOTOR_JOG_AHOME_VALUE")
 }
 
-record(ao,"$(P):$(M)_DAHV_SP")
+record(ao,"$(P):$(M)_JAHV_SP")
 {
-	field(DESC,"drv after home val")
+	field(DESC,"Jog after home val")
 	field(DTYP,"asynFloat64")
 	field(EGU, "$(EGU)")
 	field(PREC,"$(PREC)")
 	field(VAL, "1")
 	field(PINI,"YES")
-	field(OUT, "@asyn($(PORT),$(ADDR))MOTOR_DRIVE_AHOME_VALUE")
-	field(FLNK,"$(P):$(M)_DAHV_MON")
+	field(OUT, "@asyn($(PORT),$(ADDR))MOTOR_JOG_AHOME_VALUE")
+	field(FLNK,"$(P):$(M)_JAHV_MON")
 }
 
 record(ai,"$(P):$(M)_EGUAFTLIMIT_MON")

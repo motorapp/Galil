@@ -533,7 +533,7 @@ text {
 "text entry" {
 	object {
 		x=155
-		y=323
+		y=340
 		width=112
 		height=18
 	}
@@ -548,7 +548,7 @@ text {
 text {
 	object {
 		x=12
-		y=361
+		y=360
 		width=69
 		height=18
 	}
@@ -574,7 +574,7 @@ text {
 text {
 	object {
 		x=12
-		y=343
+		y=324
 		width=69
 		height=18
 	}
@@ -586,7 +586,7 @@ text {
 "text entry" {
 	object {
 		x=155
-		y=341
+		y=323
 		width=112
 		height=18
 	}
@@ -631,7 +631,7 @@ text {
 "text update" {
 	object {
 		x=309
-		y=325
+		y=344
 		width=81
 		height=18
 	}
@@ -646,7 +646,7 @@ text {
 "text update" {
 	object {
 		x=309
-		y=344
+		y=325
 		width=81
 		height=18
 	}
@@ -673,7 +673,7 @@ text {
 "text entry" {
 	object {
 		x=156
-		y=267
+		y=268
 		width=112
 		height=18
 	}
@@ -832,147 +832,136 @@ text {
 		height=18
 	}
 	control {
-		chan="$(P)$(M)_DAHV_SP"
+		chan="$(P)$(M)_JAHV_SP"
 		clr=14
 		bclr=51
 	}
 	limits {
 	}
 }
-composite {
+text {
 	object {
 		x=12
-		y=432
-		width=378
-		height=57
+		y=434
+		width=69
+		height=18
 	}
-	"composite name"=""
-	children {
-		text {
-			object {
-				x=12
-				y=434
-				width=69
-				height=18
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Motor amp auto on/off"
-		}
-		"choice button" {
-			object {
-				x=155
-				y=432
-				width=112
-				height=18
-			}
-			control {
-				chan="$(P)$(M)_AUTOONOFF_CMD"
-				clr=14
-				bclr=51
-			}
-			stacking="column"
-		}
-		text {
-			object {
-				x=12
-				y=452
-				width=69
-				height=18
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Motor amp on delay"
-		}
-		text {
-			object {
-				x=12
-				y=471
-				width=69
-				height=18
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Motor amp off delay"
-		}
-		"text entry" {
-			object {
-				x=155
-				y=468
-				width=112
-				height=18
-			}
-			control {
-				chan="$(P)$(M)_OFFDELAY_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		"text entry" {
-			object {
-				x=155
-				y=450
-				width=112
-				height=18
-			}
-			control {
-				chan="$(P)$(M)_ONDELAY_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=309
-				y=435
-				width=81
-				height=18
-			}
-			monitor {
-				chan="$(P)$(M)_AUTOONOFF_STATUS"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=309
-				y=453
-				width=81
-				height=18
-			}
-			monitor {
-				chan="$(P)$(M)_ONDELAY_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=309
-				y=471
-				width=81
-				height=18
-			}
-			monitor {
-				chan="$(P)$(M)_OFFDELAY_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Motor amp auto on/off"
+}
+"choice button" {
+	object {
+		x=155
+		y=432
+		width=112
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_AUTOONOFF_CMD"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+text {
+	object {
+		x=12
+		y=452
+		width=69
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Motor amp on delay"
+}
+text {
+	object {
+		x=12
+		y=471
+		width=69
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Motor amp off delay"
+}
+"text entry" {
+	object {
+		x=155
+		y=468
+		width=112
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_OFFDELAY_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text entry" {
+	object {
+		x=155
+		y=450
+		width=112
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_ONDELAY_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=309
+		y=435
+		width=81
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_AUTOONOFF_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=309
+		y=453
+		width=81
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_ONDELAY_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=309
+		y=471
+		width=81
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_OFFDELAY_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
 	}
 }
 text {
@@ -985,7 +974,7 @@ text {
 	"basic attribute" {
 		clr=14
 	}
-	textix="Drive after home"
+	textix="Jog after home"
 }
 text {
 	object {
@@ -997,7 +986,7 @@ text {
 	"basic attribute" {
 		clr=14
 	}
-	textix="Drive after home value"
+	textix="Jog after home to (EGU)"
 }
 "choice button" {
 	object {
@@ -1007,7 +996,7 @@ text {
 		height=18
 	}
 	control {
-		chan="$(P)$(M)_DAH_CMD"
+		chan="$(P)$(M)_JAH_CMD"
 		clr=14
 		bclr=51
 	}
@@ -1016,7 +1005,7 @@ text {
 text {
 	object {
 		x=12
-		y=324
+		y=342
 		width=69
 		height=18
 	}
@@ -1048,7 +1037,7 @@ text {
 		height=18
 	}
 	monitor {
-		chan="$(P)$(M)_DAH_STATUS"
+		chan="$(P)$(M)_JAH_STATUS"
 		clr=54
 		bclr=4
 	}
@@ -1063,7 +1052,7 @@ text {
 		height=18
 	}
 	monitor {
-		chan="$(P)$(M)_DAHV_MON"
+		chan="$(P)$(M)_JAHV_MON"
 		clr=54
 		bclr=4
 	}

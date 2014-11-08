@@ -20,6 +20,6 @@ $(P)$(M)_AUTOONOFF_CMD
 $(P)$(M)_ONDELAY_SP
 $(P)$(M)_OFFDELAY_SP
 $(P)$(M)_UINDEX_CMD
-$(P)$(M)_DAH_CMD
-$(P)$(M)_DAHV_SP
+$(P)$(M)_JAH_CMD
+$(P)$(M)_JAHV_SP
 

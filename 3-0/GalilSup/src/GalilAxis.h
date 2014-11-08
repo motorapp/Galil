@@ -26,12 +26,13 @@
 
 #define KPMAX			1023.875
 #define KDMAX			4095.875
-#define HOMING_TIMEOUT		1.5
+#define HOMING_TIMEOUT		3
 
 //pollServices request numbers
 static const int MOTOR_STOP = 0;
 static const int MOTOR_POST = 1;
 static const int MOTOR_OFF = 2;
+static const int MOTOR_HOMED = 3;
 
 class GalilAxis : public asynMotorAxis
 {
@@ -110,9 +111,9 @@ public:
    asynStatus beginMotion(const char *caller);
 
   /* These are the methods we override from the base class */
-  asynStatus move(double position, int relative, double min_velocity, double max_velocity, double acceleration);
-  asynStatus moveVelocity(double min_velocity, double max_velocity, double acceleration);
-  asynStatus home(double min_velocity, double max_velocity, double acceleration, int forwards);
+  asynStatus move(double position, int relative, double minVelocity, double maxVelocity, double acceleration);
+  asynStatus moveVelocity(double minVelocity, double maxVelocity, double acceleration);
+  asynStatus home(double minVelocity, double maxVelocity, double acceleration, int forwards);
   asynStatus stop(double acceleration);
   asynStatus poll(bool *moving);
   asynStatus setPosition(double position);
@@ -143,6 +144,7 @@ private:
   double deferredVelocity_;		//Coordinate system velocity
   double deferredPosition_;		//Deferred move position
   bool deferredMove_;			//Has a deferred move been set
+  bool axisReady_;			//Has autosave restore completed
 
   epicsTimeStamp begin_nowt_;		//Used to track length of time motor begin takes
   epicsTimeStamp begin_begint_;		//Used to track length of time motor begin takes
@@ -177,6 +179,8 @@ private:
   bool postExecuted_;			//Has pollServices executed post
   bool autooffExecuted_;		//Has pollServices executed the autooff
   bool autooffAllowed_;			//Block autoOff if autoOn has released lock for on delay
+  bool homedSent_;			//Homed message sent to pollServices
+  bool homedExecuted_;			//Homed message has been executed by pollServices
 
 friend class GalilController;
 };
