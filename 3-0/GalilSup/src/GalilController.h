@@ -313,8 +313,6 @@ private:
   char code_file_[2048];		//Code file(s) that user gave to GalilStartController
 
   int burn_program_;			//Burn program options that user gave to GalilStartController
-  int burn_parameters_;			//Burn parameters at shutdown.  Done if motor type changed on any axis.
-					//Wrong motor at pwr on is a problem
 					
   bool connect_fail_reported_;		//Has initial connection failure been reported to iocShell
   int consecutive_timeouts_;		//Used for connection management

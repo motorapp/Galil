@@ -251,8 +251,6 @@ GalilController::GalilController(const char *portName, const char *address, doub
   gco_ = NULL;
   //Code for the controller has not been assembled yet
   code_assembled_ = false;
-  //No reason to burn parameters for this controller at shutdown yet (eg. user changed motor type)
-  burn_parameters_ = false;
   //We have not reported any connect failures
   connect_fail_reported_ = false;
   //We have not recieved a timeout yet
@@ -2285,10 +2283,6 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
     	//printf("GalilMotorType_ cmd:%s value %d\n", cmd_, value);
     	//Write setting to controller
     	status = writeReadController(functionName);
-
-	//After changing motor type, burn parameters at shutdown
-	if (oldmotor != newmtr)
-	        burn_parameters_ = true;
 
     	//IF motor was servo, and now stepper
     	//Galil hardware MAY push main encoder to aux encoder (stepper count reg)
