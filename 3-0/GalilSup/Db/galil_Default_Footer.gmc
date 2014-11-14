@@ -5,72 +5,22 @@ EN
 errstr=_ED;errcde=_TC;cmderr=cmderr+1
 RE 1
 EN
-#LIMSWI
-NO********A Stop on Limit****************************
-IF (((_LRA=0) | (_LFA=0)) & (hjogA=0) & (limA=0))
-oldecelA=_DCA;DCA=limdcA;STA;limA=1;rdecelA=1;ENDIF
-NO********A Cancel home on soft limit violation******
-IF ((@ABS[_MTA]=1)                                                          
-IF (((_DPA>=_FLA) | (_DPA<=_BLA)) & (homeA=1))
-homeA=0;MG "homeA",homeA;ENDIF
-ELSE
-IF (((_DEA>=_FLA) | (_DEA<=_BLA)) & (homeA=1))
-homeA=0;MG "homeA",homeA;ENDIF;ENDIF
-IF (((_LRB=0) | (_LFB=0)) & (hjogB=0) & (limB=0))
-oldecelB=_DCB;DCB=limdcB;STB;limB=1;rdecelB=1;ENDIF
-IF ((@ABS[_MTB]=1)
-IF (((_DPB>=_FLB) | (_DPB<=_BLB)) & (homeB=1))
-homeB=0;MG "homeB",homeB;ENDIF
-ELSE
-IF (((_DEB>=_FLB) | (_DEB<=_BLB)) & (homeB=1))
-homeB=0;MG "homeB",homeB;ENDIF;ENDIF
-IF (((_LRC=0) | (_LFC=0)) & (hjogC=0) & (limC=0))
-oldecelC=_DCC;DCC=limdcC;STC;limC=1;rdecelC=1;ENDIF
-IF ((@ABS[_MTC]=1)
-IF (((_DPC>=_FLC) | (_DPC<=_BLC)) & (homeC=1))
-homeC=0;MG "homeC",homeC;ENDIF
-ELSE
-IF (((_DEC>=_FLC) | (_DEC<=_BLC)) & (homeC=1))
-homeC=0;MG "homeC",homeC;ENDIF;ENDIF
-IF (((_LRD=0) | (_LFD=0)) & (hjogD=0) & (limD=0))
-oldecelD=_DCD;DCD=limdcD;STD;limD=1;rdecelD=1;ENDIF
-IF ((@ABS[_MTD]=1)
-IF (((_DPD>=_FLD) | (_DPD<=_BLD)) & (homeD=1))
-homeD=0;MG "homeD",homeD;ENDIF
-ELSE
-IF (((_DED>=_FLD) | (_DED<=_BLD)) & (homeD=1))
-homeD=0;MG "homeD",homeD;ENDIF;ENDIF
-IF (((_LRE=0) | (_LFE=0)) & (hjogE=0) & (limE=0))
-oldecelE=_DCE;DCE=limdcE;STE;limE=1;rdecelE=1;ENDIF
-IF ((@ABS[_MTE]=1)
-IF (((_DPE>=_FLE) | (_DPE<=_BLE)) & (homeE=1))
-homeE=0;MG "homeE",homeE;ENDIF
-ELSE
-IF (((_DEE>=_FLE) | (_DEE<=_BLE)) & (homeE=1))
-homeE=0;MG "homeE",homeE;ENDIF;ENDIF
-IF (((_LRF=0) | (_LFF=0)) & (hjogF=0) & (limF=0))
-oldecelF=_DCF;DCF=limdcF;STF;limF=1;rdecelF=1;ENDIF
-IF ((@ABS[_MTF]=1)
-IF (((_DPF>=_FLF) | (_DPF<=_BLF)) & (homeF=1))
-homeF=0;MG "homeF",homeF;ENDIF
-ELSE
-IF (((_DEF>=_FLF) | (_DEF<=_BLF)) & (homeF=1))
-homeF=0;MG "homeF",homeF;ENDIF;ENDIF
-IF (((_LRG=0) | (_LFG=0)) & (hjogG=0) & (limG=0))
-oldecelG=_DCG;DCG=limdcG;STG;limG=1;rdecelG=1;ENDIF
-IF ((@ABS[_MTG]=1)
-IF (((_DPG>=_FLG) | (_DPG<=_BLG)) & (homeG=1))
-homeG=0;MG "homeG",homeG;ENDIF
-ELSE
-IF (((_DEG>=_FLG) | (_DEG<=_BLG)) & (homeG=1))
-homeG=0;MG "homeG",homeG;ENDIF;ENDIF
-IF (((_LRH=0) | (_LFH=0)) & (hjogH=0) & (limH=0))
-oldecelH=_DCH;DCH=limdcH;STH;limH=1;rdecelH=1;ENDIF
-IF ((@ABS[_MTH]=1)
-IF (((_DPH>=_FLH) | (_DPH<=_BLH)) & (homeH=1))
-homeH=0;MG "homeA",homeH;ENDIF
-ELSE
-IF (((_DEH>=_FLH) | (_DEH<=_BLH)) & (homeH=1))
-homeH=0;MG "homeH",homeH;ENDIF;ENDIF
+#LIMSWI                                                 
+IF (((_SCA=2) | (_SCA=3)) & (_BGA=1))                   
+oldecelA=_DCA;DCA=limdcA;WT2;STA;DCA=oldecelA;ENDIF     
+IF (((_SCB=2) | (_SCB=3)) & (_BGB=1))                   
+oldecelB=_DCB;DCB=limdcB;WT2;STB;DCB=oldecelB;ENDIF
+IF (((_SCC=2) | (_SCC=3)) & (_BGC=1))
+oldecelC=_DCC;DCC=limdcC;WT2;STC;DCC=oldecelC;ENDIF
+IF (((_SCD=2) | (_SCD=3)) & (_BGD=1))
+oldecelD=_DCD;DCD=limdcD;WT2;STD;DCD=oldecelD;ENDIF
+IF (((_SCE=2) | (_SCE=3)) & (_BGE=1))
+oldecelE=_DCE;DCE=limdcE;WT2;STE;DCE=oldecelE;ENDIF
+IF (((_SCF=2) | (_SCF=3)) & (_BGF=1))
+oldecelF=_DCF;DCF=limdcF;WT2;STF;DCF=oldecelF;ENDIF
+IF (((_SCG=2) | (_SCG=3)) & (_BGG=1))
+oldecelG=_DCG;DCG=limdcG;WT2;STG;DCG=oldecelG;ENDIF
+IF (((_SCH=2) | (_SCH=3)) & (_BGH=1))
+oldecelH=_DCH;DCH=limdcH;WT2;STH;DCH=oldecelH;ENDIF
 RE 1
 EN

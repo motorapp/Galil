@@ -88,7 +88,6 @@
 #define GalilMotorTypeString		"MOTOR_TYPE"
 #define GalilMotorOnString		"MOTOR_ONOFF"
 #define GalilMotorConnectedString	"MOTOR_MCONN"
-#define GalilProgramHomeString		"MOTOR_PHOME"
 #define GalilAfterLimitString		"MOTOR_EGUAFTLIMIT"
 #define GalilHomeValueString		"MOTOR_HOMEVAL"
 #define GalilHomedString		"MOTOR_HOMED"
@@ -109,6 +108,7 @@
 
 #define GalilMainEncoderString		"MOTOR_MAIN_ENCODER"
 #define GalilAuxEncoderString		"MOTOR_AUX_ENCODER"
+
 #define GalilMotorAcclString		"MOTOR_ACCL"
 #define GalilMotorVeloString		"MOTOR_VELO"
 #define GalilMotorVmaxString		"MOTOR_VMAX"
@@ -212,6 +212,7 @@ public:
   //Execute motor power auto on
   void executeAutoOn(const char *axes);
   void processUnsolicitedMesgs(void);
+  static std::string extractEthAddr(const char* str);
 
   /* Deferred moves functions.*/
   asynStatus processDeferredMovesInGroup(int coordsys, char *axes, char *moves, double acceleration, double velocity);
@@ -250,7 +251,6 @@ protected:
   int GalilMotorType_;
   int GalilMotorOn_;
   int GalilMotorConnected_;
-  int GalilProgramHome_;
   int GalilAfterLimit_;
   int GalilHomeValue_;
   int GalilHomed_;

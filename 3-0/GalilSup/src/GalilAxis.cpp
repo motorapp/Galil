@@ -295,41 +295,16 @@ void GalilAxis::gen_limitcode(char c,			 //GalilAxis::axisName_ used very often
 {
 	const char *functionName = "GalilAxis::gen_limitcode";
 	
-	//Setup thread 0 code needed to support LIMSWI routine
-	//code to reset deceleration after limit emergency decel
-	sprintf(axis_thread_code,"%sIF ((rdecel%c=1) & (_BG%c=0) & (home%c=0))\nDC%c=oldecel%c;rdecel%c=0;ENDIF\n",axis_thread_code,c,c,c,c,c,c);
-						
-	//setup code to reset limit active flags, if no limit is active on the specified axis
-	//see limit code below for reasoning behind limit flags  **
-	sprintf(axis_thread_code,"%sIF ((_LR%c=1) & (_LF%c=1))\nlim%c=0;ENDIF\n",axis_thread_code,c,c,c);
-
-	//Hitting a limit during homing to home switch is a fail
-        if (!limit_as_home_)
-		sprintf(axis_thread_code,"%sIF (((_LR%c=0) | (_LF%c=0)) & (home%c=1))\nhome%c=0;MG \"home%c\", home%c;ENDIF\n",axis_thread_code,c,c,c,c,c,c);
-	
-	sprintf(axis_limit_code,"%sNO *********** %c check hard limits ***********\n",axis_limit_code,c);
 	//Setup the LIMSWI interrupt routine. The Galil Code Below, is called once per limit activate on ANY axis **
-	sprintf(axis_limit_code,"%sIF (((_LR%c=0) | (_LF%c=0)) & (hjog%c=0) & (lim%c=0))\noldecel%c=_DC%c;DC%c=limdc%c;ST%c;lim%c=1;rdecel%c=1;ENDIF\n",axis_limit_code,c,c,c,c,c,c,c,c,c,c,c);	
-
-	//Reset homing flag when soft limit hit
-	sprintf(axis_limit_code,"%sNO *********** %c check soft limits ***********\n",axis_limit_code,c);
-	sprintf(axis_limit_code,"%sIF ((@ABS[_MT%c]=1)\n",axis_limit_code,c);	
-	//Motor is a servo
-	sprintf(axis_limit_code,"%sIF (((_DP%c>=_FL%c) | (_DP%c<=_BL%c)) & (home%c=1))\nhome%c=0;MG \"home%c\",home%c;ENDIF\n",axis_limit_code,c,c,c,c,c,c,c,c);
-	sprintf(axis_limit_code,"%sELSE\n",axis_limit_code);	
-	//Motor is a stepper
-	sprintf(axis_limit_code,"%sIF (((_DE%c>=_FL%c) | (_DE%c<=_BL%c)) & (home%c=1))\nhome%c=0;MG \"home%c\",home%c;ENDIF;ENDIF\n",axis_limit_code,c,c,c,c,c,c,c,c);
-
+	//Determine axis that requires stop based on stop code and moving status
+	//Use user desired deceleration, stop motor, then put deceleration back to that for normal moves
+        if (!limit_as_home_)	//Hitting limit when homing to home switch is a fail, cancel home process
+		sprintf(axis_limit_code,"%sIF (((_SC%c=2) | (_SC%c=3)) & (_BG%c=1))\noldecel%c=_DC%c;DC%c=limdc%c;WT2;ST%c;DC%c=oldecel%c;home%c=0;MG \"home%c\",home%c;ENDIF\n",axis_limit_code,c,c,c,c,c,c,c,c,c,c,c,c,c);	
+	else			//Hitting limit when homing to limit switch is normal
+		sprintf(axis_limit_code,"%sIF (((_SC%c=2) | (_SC%c=3)) & (_BG%c=1))\noldecel%c=_DC%c;DC%c=limdc%c;WT2;ST%c;DC%c=oldecel%c;ENDIF\n",axis_limit_code,c,c,c,c,c,c,c,c,c,c);	
+	
 	/*provide sensible default for limdc (limit deceleration) value*/
 	sprintf(pC_->cmd_, "limdc%c=67107840\n", c);
-	pC_->writeReadController(functionName);
-	
-	/*provide sensible default for lim (limit active flag) value*/
-	sprintf(pC_->cmd_, "lim%c=0\n", c);
-	pC_->writeReadController(functionName);
-				
-	/*provide sensible default for rdecel (reset deceleration flag)*/
-	sprintf(pC_->cmd_, "rdecel%c=0\n", c);
 	pC_->writeReadController(functionName);
 }
 
@@ -342,7 +317,6 @@ void GalilAxis::gen_homecode(char c,			//GalilAxis::axisName_ used very often
 	const char *functionName = "gen_limitcode";
 
 	sprintf(axis_thread_code,"%sIF ((home%c=1))\n",axis_thread_code,c);
-	sprintf(axis_thread_code,"%sNO *********** %c home code start ***********\n",axis_thread_code,c);
 	
 	//Setup home code
 	if (limit_as_home_)
@@ -351,22 +325,22 @@ void GalilAxis::gen_homecode(char c,			//GalilAxis::axisName_ used very often
 		/*hjog%c=2 we have found limit switch inner edge*/
 		/*hjog%c=3 we have found our final home pos*/
 		//Code to jog off limit
-		sprintf(axis_thread_code,"%sIF ((hjog%c=0) & (_BG%c=0) & ((_LR%c=0) | (_LF%c=0)))\nspeed%c=_SP%c;DC%c=hjgdc%c;JG%c=hjgsp%c;WT100;BG%c;hjog%c=1;ENDIF\n",axis_thread_code,c,c,c,c,c,c,c,c,c,c,c,c);
+		sprintf(axis_thread_code,"%sIF ((home%c=1) & (_MO%c=0) & (hjog%c=0) & (_BG%c=0) & ((_LR%c=0) | (_LF%c=0)))\nspeed%c=_SP%c;DC%c=hjgdc%c;JG%c=hjgsp%c;WT10;BG%c;hjog%c=1;ENDIF\n",axis_thread_code,c,c,c,c,c,c,c,c,c,c,c,c,c,c);
 		//Stop motor once off limit
 		sprintf(axis_thread_code,"%sIF ((_LR%c=1) & (_LF%c=1) & (hjog%c=1) & (_BG%c=1))\nST%c;ENDIF\n",axis_thread_code,c,c,c,c,c);
 		//Find encoder index 
-		sprintf(axis_thread_code,"%sIF ((_LR%c=1) & (_LF%c=1) & (hjog%c=1) & (_BG%c=0))\nIF ((ueip%c=1) & (ui%c=1))\nSP%c=speed%c;DC%c=67107840;FI%c;WT100;BG%c;hjog%c=2\nELSE\n",axis_thread_code,c,c,c,c,c,c,c,c,c,c,c,c);
+		sprintf(axis_thread_code,"%sIF ((_LR%c=1) & (_LF%c=1) & (hjog%c=1) & (_BG%c=0))\nIF ((home%c=1) & (_MO%c=0) & (ueip%c=1) & (ui%c=1))\nSP%c=speed%c;DC%c=67107840;FI%c;WT10;BG%c;hjog%c=2\nELSE\n",axis_thread_code,c,c,c,c,c,c,c,c,c,c,c,c,c,c);
 		}	
 	else
 		{
 		//Stop motor once home activated
 		sprintf(axis_thread_code,"%sIF ((_HM%c=hswact%c) & (hjog%c=0) & (_BG%c=1))\nST%c;ENDIF\n",axis_thread_code,c,c,c,c,c);
 		//Code to jog off home
-		sprintf(axis_thread_code,"%sIF ((_HM%c=hswact%c) & (hjog%c=0) & (_BG%c=0))\noldecel%c=_DC%c;speed%c=_SP%c;DC%c=hjgdc%c;JG%c=hjgsp%c;WT100;BG%c;hjog%c=1;ENDIF\n",axis_thread_code,c,c,c,c,c,c,c,c,c,c,c,c,c,c);
+		sprintf(axis_thread_code,"%sIF ((home%c=1) & (_MO%c=0) & (_HM%c=hswact%c) & (hjog%c=0) & (_BG%c=0))\nspeed%c=_SP%c;DC%c=hjgdc%c;JG%c=hjgsp%c;WT10;BG%c;hjog%c=1;ENDIF\n",axis_thread_code,c,c,c,c,c,c,c,c,c,c,c,c,c,c);
 		//Stop motor once off home
 		sprintf(axis_thread_code,"%sIF ((_HM%c=hswiact%c) & (hjog%c=1) & (_BG%c=1))\nST%c;ENDIF\n",axis_thread_code,c,c,c,c,c);
 		//Find encoder index
-		sprintf(axis_thread_code,"%sIF ((_HM%c=hswiact%c) & (hjog%c=1) & (_BG%c=0))\nIF ((ueip%c=1) & (ui%c=1))\nSP%c=speed%c;DC%c=67107840;FI%c;WT100;BG%c;hjog%c=2\nELSE\n",axis_thread_code,c,c,c,c,c,c,c,c,c,c,c,c);
+		sprintf(axis_thread_code,"%sIF ((_HM%c=hswiact%c) & (hjog%c=1) & (_BG%c=0))\nIF ((home%c=1) & (_MO%c=0) & (ueip%c=1) & (ui%c=1))\nSP%c=speed%c;DC%c=67107840;FI%c;WT10;BG%c;hjog%c=2\nELSE\n",axis_thread_code,c,c,c,c,c,c,c,c,c,c,c,c,c,c);
 		}
 
 	//Common homing code regardless of homing to limit or home switch
@@ -381,11 +355,9 @@ void GalilAxis::gen_homecode(char c,			//GalilAxis::axisName_ used very often
 		sprintf(axis_thread_code,"%sIF ((_HM%c=hswiact%c) & (hjog%c=3) & (_BG%c=0))\n",axis_thread_code,c,c,c,c);
 	//Common homing code regardless of homing to limit or home switch
 	//Flag homing complete
-	sprintf(axis_thread_code,"%sWT100;hjog%c=0;SP%c=speed%c;DC%c=oldecel%c;home%c=0\n", axis_thread_code,c,c,c,c,c,c);
+	sprintf(axis_thread_code,"%sWT10;hjog%c=0;SP%c=speed%c;home%c=0\n", axis_thread_code,c,c,c,c);
 	//Send unsolicited messages to epics informing home and homed status
-	sprintf(axis_thread_code,"%shomed%c=1;MG \"homed%c\",homed%c;MG \"home%c\",home%c\n", axis_thread_code,c,c,c,c,c);
-
-	sprintf(axis_thread_code,"%sNO *********** %c home code end ***********\nENDIF;ENDIF\n",axis_thread_code,c);
+	sprintf(axis_thread_code,"%shomed%c=1;MG \"homed%c\",homed%c;MG \"home%c\",home%c;ENDIF\nENDIF\n", axis_thread_code,c,c,c,c,c);
 	
 	//Initialize home related parameters on controller
 	//initialise home variable for this axis, set to not homming just yet.  Set to homming only when doing a home
@@ -430,7 +402,7 @@ void GalilAxis::gen_homecode(char c,			//GalilAxis::axisName_ used very often
 	if (axisName_ == 'A')
 		{
 		sprintf(axis_thread_code,"%scounter=counter+1\n",axis_thread_code);
-		
+
 		//initialise counter variable
 		sprintf(pC_->cmd_, "counter=0\n");
 		pC_->writeReadController(functionName);
@@ -562,8 +534,6 @@ asynStatus GalilAxis::move(double position, int relative, double minVelocity, do
 		//Begin the move
 		beginMotion(functionName);
 		}
-	else
-		printf("Motor %c disabled by digital/binary input via GalilCreateAxis setting\n", axisName_);
 	}
 
   //Always return success. Dont need more error mesgs
@@ -581,8 +551,12 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
   static const char *functionName = "GalilAxis::home";
   int home_direction;		//Muliplier to change direction of the jog off home switch
   double hjgsp;			//home jog speed
-  double hjgdc;			//home jog decel
+  long hjgdc;			//home jog decel
   double hvel;			//home velocity in counts per sec calculated from maxVelocity
+  double mres;			//Motor record mres
+  double egu_after_limit;
+  double deccel;
+  double distance;
   long accel;			//Acceleration/Deceleration when limit not active
   int ssiinput;			//SSI encoder register
 
@@ -602,14 +576,21 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
 	//Calculate direction of jog off home switch
 	home_direction = (forwards == 0) ? 1 : -1;
 
-	//Calculate home jog off speed
-	hjgsp = (maxVelocity/10.0) * home_direction;
-	//Calculate home decel required to take 1 second
-	hjgdc = (maxVelocity/10.0) * home_direction;
+	//Retrieve needed parameters
+	pC_->getDoubleParam(axisNo_, pC_->motorResolution_, &mres);
+	pC_->getDoubleParam(axisNo_, pC_->GalilAfterLimit_, &egu_after_limit);
 
-	//Home jog off deceleration
-	sprintf(pC_->cmd_, "hjgdc%c=%.0lf\n", axisName_, hjgdc);
+	//recalculate home/limit switch deceleration for switch jog off given hvel
+	distance = (egu_after_limit < mres) ? mres : egu_after_limit;
+	//suvat equation for acceleration
+	deccel = (maxVelocity * maxVelocity)/((distance/mres) * 2.0);
+	//Find closest hardware setting
+	hjgdc = (long)(lrint(deccel/1024.0) * 1024);
+	sprintf(pC_->cmd_, "hjgdc%c=%ld\n", axisName_, hjgdc);
 	pC_->writeReadController(functionName);
+
+	//Calculate home jog off speed to use hvel
+        hjgsp = maxVelocity * home_direction;
 
 	//Home jog off speed
 	sprintf(pC_->cmd_, "hjgsp%c=%.0lf\n", axisName_, hjgsp);
@@ -653,15 +634,14 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
 	if (!beginMotion(functionName))
 		{
 		homing_ = true;  //Start was successful
+                cancelHomeSent_ = false;  //Homing has not been cancelled yet
 		//tell controller which axis we are doing a home on
-		//We do this last so home algorithm doesn't cancel home jog in incase we 
-		//Sitting on opposite limit to which we are homing is example of when this occurs
+		//We do this last so home algorithm doesn't cancel home jog in incase motor
+		//is sitting on opposite limit to which we are homing
 		sprintf(pC_->cmd_, "home%c=1\n", axisName_);
 		pC_->writeReadController(functionName);
 		}
 	}
-  else
-	printf("Motor %c disabled due to digital input condition\n", axisName_);
 
   //Always return success. Dont need more error mesgs
   return asynSuccess;
@@ -753,11 +733,6 @@ asynStatus GalilAxis::moveVelocity(double minVelocity, double maxVelocity, doubl
 	//Begin the move
 	beginMotion(functionName);
 	}
-  else
-	{
-	//setIntegerParam(pC_->motorStatusProblem_, 1);
-	printf("Motor %c disabled due to digital input condition\n", axisName_);
-	}
    
   //Always return success. Dont need more error mesgs
   return asynSuccess;
@@ -766,7 +741,7 @@ asynStatus GalilAxis::moveVelocity(double minVelocity, double maxVelocity, doubl
 
 /** Stop the motor.
   * \param[in] acceleration The acceleration value. Units=steps/sec/sec. */
-asynStatus GalilAxis::stop(double acceleration )
+asynStatus GalilAxis::stop(double acceleration)
 {
   static const char *functionName = "GalilAxis::stop";
 
@@ -774,11 +749,11 @@ asynStatus GalilAxis::stop(double acceleration )
   sprintf(pC_->cmd_, "home%c=0\n", axisName_);
   pC_->writeReadController(functionName);
   homing_ = false;
-												
+
   //cancel any home switch jog off operations that may be underway
   sprintf(pC_->cmd_, "hjog%c=0\n", axisName_);
   pC_->writeReadController(functionName);
- 
+
   //Stop the axis
   sprintf(pC_->cmd_, "ST%c\n", axisName_);
   pC_->writeReadController(functionName);
@@ -805,12 +780,13 @@ asynStatus GalilAxis::setPosition(double position)
   motor = atoi(pC_->resp_);
 
   //Calculate encoder counts, from provided motor position
-  //encmratio_ is non zero only during autosave restore, or after user changes eres, mres or ueip
+  //encmratio_ is non zero only during autosave restore of position, or after user changes eres, mres, ueip or position
   if (encmratioset_)
-  	enc_pos = (position * encmratio_);   //Autosave restore, or user changed mres, or eres.  IocInit may be in progress
+  	enc_pos = (position * encmratio_);//Autosave restore for positions, or user changed mres, or eres.  IocInit may be in progress
   else
 	{
-	//User has not changed mres, or eres, and autosave restore did not happen.  IocInit also completed.
+	//User has not changed mres, eres, ueip, and autosave restore of position was not necessary or didnt happen
+	//IocInit also completed.
 	pC_->getDoubleParam(axisNo_, pC_->GalilEncoderResolution_, &eres);
 	pC_->getDoubleParam(axisNo_, pC_->motorResolution_, &mres);
 	enc_pos = (position * mres)/eres;
@@ -824,13 +800,14 @@ asynStatus GalilAxis::setPosition(double position)
 	sprintf(pC_->cmd_, "DP%c=%.0lf", axisName_, position);  //Stepper motor, aux register for step count
   pC_->writeReadController(functionName);
   
+  //Set encoder position
   setEncoderPosition(enc_pos);
 
   //Always return success. Dont need more error mesgs
   return asynSuccess;
 }
 
-/** Set the current position of the motor.
+/** Set the current position of the encoder.
   * \param[in] position The new absolute encoder position that should be set in the hardware. Units=steps.*/
 asynStatus GalilAxis::setEncoderPosition(double position)
 {
@@ -862,8 +839,8 @@ asynStatus GalilAxis::setEncoderRatio(double ratio)
 {
   //const char *functionName = "GalilAxis::setEncoderRatio";
 
-  //setEncoder is called during IocInit/Autosave restore, and when user changes 
-  //eres, mres, or ueip is changed
+  //setEncoder is called during IocInit/Autosave for position restore, and when user changes 
+  //eres, mres, ueip or position is changed
   //Store the ratio in GalilAxis instance
   encmratio_ = ratio;
   encmratioset_ = true;
@@ -962,10 +939,6 @@ asynStatus GalilAxis::setClosedLoop(bool closedLoop)
 {
   const char *functionName = "GalilAxis::setClosedLoop";
   asynStatus status;
-
-  //Motor on delibrately last autosave restore item
-  //Axis now ready for move commands
-  axisReady_ = true;
 
   //Enable or disable motor amplifier
   if (closedLoop)
@@ -1235,23 +1208,28 @@ void GalilAxis::setStopTime(void)
 }
 
 //Called by poll thread
-//If motor stopped too long, call stop to cancel homing process
-//Fail safe incase unsolicited message to indicate homing process finished/cancelled was not received
+//Check for soft limit violation
+//Check for homing that has just stopped for some reason
+//Cancel home if either true
 void GalilAxis::checkHoming(void)
 {
    char message[MAX_GALIL_STRING_SIZE];
 
-   if (homing_ && (stopped_time_ >= HOMING_TIMEOUT) && !stopSent_)
-	{
-        //stop the motor
-        pollRequest_.send((void*)&MOTOR_STOP, sizeof(int));
-        //Flag the motor has been stopped
-        stopSent_ = true;
-        //Inform user
-        sprintf(message, "Homing timed out motor %c", axisName_);
-        //Set controller error mesg monitor
-        pC_->setStringParam(0, pC_->GalilCtrlError_, message);
-	}
+   if ((homing_ && (stopped_time_ >= HOMING_TIMEOUT) && !cancelHomeSent_) ||
+       ((motor_position_ > highLimit_ || motor_position_ < lowLimit_) && homing_ && !cancelHomeSent_ && done_))
+      {
+      //Cancel home
+      pollRequest_.send((void*)&MOTOR_CANCEL_HOME, sizeof(int));
+      //Flag home has been cancelled
+      cancelHomeSent_ = true;
+      //Inform user
+      if (stopped_time_ >= HOMING_TIMEOUT)
+         sprintf(message, "%c Homing timed out", axisName_);
+      else
+         sprintf(message, "%c Homing violated soft limits", axisName_);
+      //Set controller error mesg monitor
+      pC_->setStringParam(0, pC_->GalilCtrlError_, message);
+      }
 }
 
 /* C Function which runs the pollServices thread */ 
@@ -1268,7 +1246,7 @@ void GalilAxis::pollServices(void)
   static const char *functionName = "GalilAxis::pollServices";
   char post[MAX_GALIL_STRING_SIZE];	//Motor record post field
   int request = -1; 			//Real service numbers start at 0
-  int jah, phreg;			//Jog after home, and program home register feature status
+  int jah;				//Jog after home feature status
   double jahv;				//Jog after home value in egu
   double homeval;			//User programmed home value in egu
   double enhmval, mrhmval;		//Encoder, and motor register home value in steps
@@ -1292,7 +1270,12 @@ void GalilAxis::pollServices(void)
      //What did poll request
      switch (request)
         {
-        //Poll will wait for POST, and OFF completion but not STOP
+        //Poll will wait for POST, HOMED and OFF completion by setting moving true
+        //Poll will not wait for not STOP, or CANCEL_HOME completion
+        case MOTOR_CANCEL_HOME: sprintf(pC_->cmd_, "home%c=0\n", axisName_);
+                                epicsThreadSleep(.2);  //Wait as controller may still issue move upto this time after
+                                                       //Setting home to 0 (cancel home)
+                                //break; Delibrate fall through to MOTOR_STOP
         case MOTOR_STOP: stop(1);
                          break;
         case MOTOR_POST: if (pC_->getStringParam(axisNo_, pC_->GalilPost_, (int)sizeof(post), post) == asynSuccess)
@@ -1321,12 +1304,11 @@ void GalilAxis::pollServices(void)
                          status |= pC_->getDoubleParam(axisNo_, pC_->GalilEncoderResolution_, &eres);
                          status |= pC_->getDoubleParam(axisNo_, pC_->GalilUserOffset_, &off);
                          status |= pC_->getDoubleParam(axisNo_, pC_->GalilHomeValue_, &homeval);
-                         status |= pC_->getIntegerParam(axisNo_, pC_->GalilProgramHome_, &phreg);
                          status |= pC_->getIntegerParam(axisNo_, pC_->GalilJogAfterHome_, &jah);
                          status |= pC_->getIntegerParam(axisNo_, pC_->GalilUseEncoder_, &ueip);
 
-                         //Program home register
-                         if (!status && phreg)
+                         //Program home registers
+                         if (!status)
                             {
                             //Calculate polarity of encoder, step register home value
                             dirm = (dir == 0) ? 1 : -1;
@@ -1350,24 +1332,27 @@ void GalilAxis::pollServices(void)
                                sprintf(pC_->cmd_, "DE%c=%.0lf\n", axisName_, enhmval);
                                pC_->writeReadController(functionName);
                                }
+                            //Give ample time for position register updates to complete
+                            epicsThreadSleep(.2);
                             }
 
                          //Do jog after home move
                          if (!status && jah)
                             {
-                            //Calculate position, velocity and acceleration
+                            //Calculate position, velocity (velo not hvel) and acceleration
                             velocity = velo/mres;
                             acceleration = velocity/accl;
                             position = (double)((jahv - off)/mres) * dirm;
                             //Do the move
-                            move(position, 0, 0, velocity, acceleration);
+                            if (position != motor_position_)
+                            	move(position, 0, 0, velocity, acceleration);
                             }
 
                          //Homed pollService completed
                          homedExecuted_ = true;
                          homedSent_ = false;
                          break;
-	default: break;
+        default: break;
         }
      //Release the lock
     pC_->unlock();
@@ -1630,6 +1615,7 @@ bool GalilAxis::motor_enabled(void)
     unsigned i, j;				 //General loop counters
     struct Galilmotor_enables *motor_enables = NULL;  //Convenience pointer to GalilController motor_enables[digport]
     unsigned binaryin;				 //binary in state
+    char mesg[MAX_MESSAGE_LEN];			//To inform user when disabled
 
     //Retrieve binary in data for 1st bank from ParamList (ie. bits 0-7)
     pC_->getUIntDigitalParam(0, pC_->GalilBinaryIn_ , &binaryin, 0xFF);
@@ -1653,13 +1639,23 @@ bool GalilAxis::motor_enabled(void)
 				{
 				/* Motor is "no go", due to digital IO state */
 				if (motor_enables->disablestates[j] == 1)
+					{
+					sprintf(mesg, "%c disabled due to digital input", axisName_);
+					//Set controller error mesg monitor
+					pC_->setStringParam(0, pC_->GalilCtrlError_, mesg);
 					return(false);
+					}
 				}
 			else
 				{
 				/* Motor is "no go", due to digital IO state */
 				if (motor_enables->disablestates[j] == 0)
+					{
+					sprintf(mesg, "%c disabled due to digital input", axisName_);
+					//Set controller error mesg monitor
+					pC_->setStringParam(0, pC_->GalilCtrlError_, mesg);
 					return(false);
+					}
 				}				
 			}
 		}

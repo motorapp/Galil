@@ -30,21 +30,20 @@
 
 record(bi,"$(P):$(R)_STATUS")
 {
-        field(DTYP, "asynUInt32Digital")
-        field(INP,  "@asynMask($(PORT) $(WORD) $(MASK))BINARY_OUTRBV")
-        field(SCAN, "I/O Intr")
-        field(ZNAM, "Low")
-        field(ONAM, "High")
+	field(DTYP, "asynUInt32Digital")
+	field(INP,  "@asynMask($(PORT) $(WORD) $(MASK))BINARY_OUTRBV")
+	field(SCAN, "I/O Intr")
+	field(ZNAM, "Low")
+	field(ONAM, "High")
 }
 
 record(bo,"$(P):$(R)_CMD")
 {
 	field(ZNAM, "Low")
-        field(ONAM, "High")
+	field(ONAM, "High")
 	field(PINI, "YES")
 	field(DTYP, "asynUInt32Digital")
-        field(OUT,  "@asynMask($(PORT) $(WORD) $(MASK))BINARY_OUT")
+	field(OUT,  "@asynMask($(PORT) $(WORD) $(MASK))BINARY_OUT")
 }
 
 # end
-

@@ -8,7 +8,7 @@ display {
 		x=732
 		y=221
 		width=425
-		height=492
+		height=473
 	}
 	clr=14
 	bclr=4
@@ -548,32 +548,6 @@ text {
 text {
 	object {
 		x=12
-		y=360
-		width=69
-		height=18
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Program home value"
-}
-"choice button" {
-	object {
-		x=155
-		y=358
-		width=112
-		height=18
-	}
-	control {
-		chan="$(P)$(M)_PHOME_CMD"
-		clr=14
-		bclr=51
-	}
-	stacking="column"
-}
-text {
-	object {
-		x=12
 		y=324
 		width=69
 		height=18
@@ -743,21 +717,6 @@ text {
 "text update" {
 	object {
 		x=309
-		y=362
-		width=81
-		height=18
-	}
-	monitor {
-		chan="$(P)$(M)_PHOME_STATUS"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=309
 		y=181
 		width=30
 		height=18
@@ -798,210 +757,6 @@ text {
 	}
 	textix="Encoder dead band (EGU)"
 }
-"choice button" {
-	object {
-		x=155
-		y=376
-		width=112
-		height=18
-	}
-	control {
-		chan="$(P)$(M)_UINDEX_CMD"
-		clr=14
-		bclr=51
-	}
-	stacking="column"
-}
-text {
-	object {
-		x=12
-		y=378
-		width=69
-		height=18
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Use index when homing"
-}
-"text entry" {
-	object {
-		x=155
-		y=413
-		width=112
-		height=18
-	}
-	control {
-		chan="$(P)$(M)_JAHV_SP"
-		clr=14
-		bclr=51
-	}
-	limits {
-	}
-}
-text {
-	object {
-		x=12
-		y=434
-		width=69
-		height=18
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Motor amp auto on/off"
-}
-"choice button" {
-	object {
-		x=155
-		y=432
-		width=112
-		height=18
-	}
-	control {
-		chan="$(P)$(M)_AUTOONOFF_CMD"
-		clr=14
-		bclr=51
-	}
-	stacking="column"
-}
-text {
-	object {
-		x=12
-		y=452
-		width=69
-		height=18
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Motor amp on delay"
-}
-text {
-	object {
-		x=12
-		y=471
-		width=69
-		height=18
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Motor amp off delay"
-}
-"text entry" {
-	object {
-		x=155
-		y=468
-		width=112
-		height=18
-	}
-	control {
-		chan="$(P)$(M)_OFFDELAY_SP"
-		clr=14
-		bclr=51
-	}
-	limits {
-	}
-}
-"text entry" {
-	object {
-		x=155
-		y=450
-		width=112
-		height=18
-	}
-	control {
-		chan="$(P)$(M)_ONDELAY_SP"
-		clr=14
-		bclr=51
-	}
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=309
-		y=435
-		width=81
-		height=18
-	}
-	monitor {
-		chan="$(P)$(M)_AUTOONOFF_STATUS"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=309
-		y=453
-		width=81
-		height=18
-	}
-	monitor {
-		chan="$(P)$(M)_ONDELAY_MON"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=309
-		y=471
-		width=81
-		height=18
-	}
-	monitor {
-		chan="$(P)$(M)_OFFDELAY_MON"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-text {
-	object {
-		x=12
-		y=396
-		width=69
-		height=18
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Jog after home"
-}
-text {
-	object {
-		x=12
-		y=415
-		width=69
-		height=18
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Jog after home to (EGU)"
-}
-"choice button" {
-	object {
-		x=155
-		y=394
-		width=112
-		height=18
-	}
-	control {
-		chan="$(P)$(M)_JAH_CMD"
-		clr=14
-		bclr=51
-	}
-	stacking="column"
-}
 text {
 	object {
 		x=12
@@ -1014,48 +769,263 @@ text {
 	}
 	textix="Home value (EGU)"
 }
-"text update" {
+composite {
 	object {
-		x=309
-		y=380
-		width=81
-		height=18
+		x=12
+		y=358
+		width=378
+		height=113
 	}
-	monitor {
-		chan="$(P)$(M)_UINDEX_STATUS"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=309
-		y=398
-		width=81
-		height=18
-	}
-	monitor {
-		chan="$(P)$(M)_JAH_STATUS"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=309
-		y=416
-		width=81
-		height=18
-	}
-	monitor {
-		chan="$(P)$(M)_JAHV_MON"
-		clr=54
-		bclr=4
-	}
-	limits {
+	"composite name"=""
+	children {
+		"choice button" {
+			object {
+				x=155
+				y=358
+				width=112
+				height=18
+			}
+			control {
+				chan="$(P)$(M)_UINDEX_CMD"
+				clr=14
+				bclr=51
+			}
+			stacking="column"
+		}
+		text {
+			object {
+				x=12
+				y=360
+				width=69
+				height=18
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="Use index when homing"
+		}
+		"text entry" {
+			object {
+				x=155
+				y=395
+				width=112
+				height=18
+			}
+			control {
+				chan="$(P)$(M)_JAHV_SP"
+				clr=14
+				bclr=51
+			}
+			limits {
+			}
+		}
+		text {
+			object {
+				x=12
+				y=416
+				width=69
+				height=18
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="Motor amp auto on/off"
+		}
+		"choice button" {
+			object {
+				x=155
+				y=414
+				width=112
+				height=18
+			}
+			control {
+				chan="$(P)$(M)_AUTOONOFF_CMD"
+				clr=14
+				bclr=51
+			}
+			stacking="column"
+		}
+		text {
+			object {
+				x=12
+				y=434
+				width=69
+				height=18
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="Motor amp on delay"
+		}
+		text {
+			object {
+				x=12
+				y=453
+				width=69
+				height=18
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="Motor amp off delay"
+		}
+		"text entry" {
+			object {
+				x=155
+				y=450
+				width=112
+				height=18
+			}
+			control {
+				chan="$(P)$(M)_OFFDELAY_SP"
+				clr=14
+				bclr=51
+			}
+			limits {
+			}
+		}
+		"text entry" {
+			object {
+				x=155
+				y=432
+				width=112
+				height=18
+			}
+			control {
+				chan="$(P)$(M)_ONDELAY_SP"
+				clr=14
+				bclr=51
+			}
+			limits {
+			}
+		}
+		"text update" {
+			object {
+				x=309
+				y=417
+				width=81
+				height=18
+			}
+			monitor {
+				chan="$(P)$(M)_AUTOONOFF_STATUS"
+				clr=54
+				bclr=4
+			}
+			limits {
+			}
+		}
+		"text update" {
+			object {
+				x=309
+				y=435
+				width=81
+				height=18
+			}
+			monitor {
+				chan="$(P)$(M)_ONDELAY_MON"
+				clr=54
+				bclr=4
+			}
+			limits {
+			}
+		}
+		"text update" {
+			object {
+				x=309
+				y=453
+				width=81
+				height=18
+			}
+			monitor {
+				chan="$(P)$(M)_OFFDELAY_MON"
+				clr=54
+				bclr=4
+			}
+			limits {
+			}
+		}
+		text {
+			object {
+				x=12
+				y=378
+				width=69
+				height=18
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="Jog after home"
+		}
+		text {
+			object {
+				x=12
+				y=397
+				width=69
+				height=18
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="Jog after home to (EGU)"
+		}
+		"choice button" {
+			object {
+				x=155
+				y=376
+				width=112
+				height=18
+			}
+			control {
+				chan="$(P)$(M)_JAH_CMD"
+				clr=14
+				bclr=51
+			}
+			stacking="column"
+		}
+		"text update" {
+			object {
+				x=309
+				y=362
+				width=81
+				height=18
+			}
+			monitor {
+				chan="$(P)$(M)_UINDEX_STATUS"
+				clr=54
+				bclr=4
+			}
+			limits {
+			}
+		}
+		"text update" {
+			object {
+				x=309
+				y=380
+				width=81
+				height=18
+			}
+			monitor {
+				chan="$(P)$(M)_JAH_STATUS"
+				clr=54
+				bclr=4
+			}
+			limits {
+			}
+		}
+		"text update" {
+			object {
+				x=309
+				y=398
+				width=81
+				height=18
+			}
+			monitor {
+				chan="$(P)$(M)_JAHV_MON"
+				clr=54
+				bclr=4
+			}
+			limits {
+			}
+		}
 	}
 }

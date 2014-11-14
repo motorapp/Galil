@@ -149,33 +149,6 @@ record(bi,"$(P):$(M)_MCONN_STATUS")
 	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_MCONN")
 }
 
-record(bi,"$(P):$(M)_PHOME_STATUS")
-{
-	field(DESC, "prog home")
-	field(PINI, "YES")
-	field(DTYP, "asynInt32")
-	field(SCAN, "$(SCAN)")
-	field(ZNAM, "No")
-	field(ZSV,  "NO_ALARM")
-	field(ONAM, "Yes")
-	field(OSV,  "NO_ALARM")
-	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_PHOME")
-}
-
-record(bo,"$(P):$(M)_PHOME_CMD")
-{
-	field(DESC,"prog home")
-	field(DTYP,"asynInt32")
-	field(VAL, "1")
-	field(PINI,"YES")
-	field(ZNAM,"No")
-	field(ZSV, "NO_ALARM")
-	field(ONAM,"Yes")
-	field(OSV, "NO_ALARM")
-	field(OUT, "@asyn($(PORT),$(ADDR))MOTOR_PHOME")
-	field(FLNK,"$(P):$(M)_PHOME_STATUS")
-}
-
 record(bi,"$(P):$(M)_UINDEX_STATUS")
 {
 	field(DESC, "use index")

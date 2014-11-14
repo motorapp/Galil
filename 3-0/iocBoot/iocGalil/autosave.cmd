@@ -36,8 +36,8 @@ save_restoreSet_CAReconnect(1)
 
 # restore positions at pass 0 so motors don't move
 set_pass0_restoreFile("galilTestApp_positions.sav")
-# restore settings at pass 1 so settings are pushed to hardware
-set_pass1_restoreFile("galilTestApp_settings.sav")
+# restore settings at pass 0
+set_pass0_restoreFile("galilTestApp_settings.sav")
 
 ## End of autosave set-up
 ####################################################
