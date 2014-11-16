@@ -483,7 +483,6 @@ record(mbbi,"$(P):$(M)_AXIS_STATUS")
 	field(SXVL, "6")
 	field(SVVL, "7")
 	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_AXIS")
-
 }
 
 record(mbbo,"$(P):$(M)_MTRTYPE_CMD")
@@ -505,7 +504,15 @@ record(mbbo,"$(P):$(M)_MTRTYPE_CMD")
 	field(VAL,  "$(MTRTYPE)")
 	field(PINI, "YES")
 	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_TYPE")
-	field(FLNK, "$(P):$(M)_MTRTYPE_STATUS")
+	field(FLNK, "$(P):$(M)_MTRTYPE_CMD_FAN")
+}
+
+record(fanout, "$(P):$(M)_MTRTYPE_CMD_FAN")
+{
+	field(SELM, "All")
+	#Changing motor type can change aux encoder also
+	field(LNK1, "$(P):$(M)_MTRTYPE_STATUS")
+	field(LNK2, "$(P):$(M)_AENCTYPE_STATUS")
 }
 
 record(mbbi,"$(P):$(M)_MTRTYPE_STATUS")

@@ -170,7 +170,6 @@ private:
   epicsTimeStamp stop_begint_;		//Used to track length of motor stopped for.
   double stopped_time_;			//Time motor has been stopped for
   bool encDirOk_;			//Encoder direction ok flag
-  bool motorMove_;			//Motor move status
   bool encoderMove_;			//Encoder move status
   bool pestall_detected_;		//Possible encoder stall detected flag
   epicsMessageQueue pollRequest_;	//The service numbers poll would like done

@@ -1,5 +1,6 @@
 $(P)$(M)_STEPSMOOTH_SP
 $(P)$(M)_ESTALLTIME_SP
+$(P)$(M)_EDEL_SP
 $(P)$(M)_MTRTYPE_CMD
 $(P)$(M)_HOMEVAL_SP
 $(P)$(M)_EGUAFTLIMIT_SP
@@ -21,3 +22,4 @@ $(P)$(M)_OFFDELAY_SP
 $(P)$(M)_UINDEX_CMD
 $(P)$(M)_JAH_CMD
 $(P)$(M)_JAHV_SP
+

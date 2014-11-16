@@ -1278,6 +1278,7 @@ asynStatus GalilController::motorsToProfileStartPosition(FILE *profFile, char *a
   double accl, velo, mres;		//Required mr attributes
   double velocity, acceleration;	//Used to move motors to start
   char message[MAX_MESSAGE_LEN];	//Profile execute message
+  double readback;			//Readback controller is using
   int status = asynSuccess;
 
   if (move)
@@ -1312,7 +1313,11 @@ asynStatus GalilController::motorsToProfileStartPosition(FILE *profFile, char *a
 	acceleration = velocity/accl;
 	if (move) //Move to first position in profile if moveMode = Absolute
 		{
-		if (pAxis->motor_position_ != startp[axisNo])
+		readback = pAxis->motor_position_;
+		//If motor is servo and ueip_ = 1 then controller uses encoder_position_ for positioning
+		if (pAxis->ueip_ && (pAxis->motorType_ == 0 || pAxis->motorType_ == 1))
+			readback = pAxis->encoder_position_;
+		if (startp[axisNo] != readback)
 			status = pAxis->move(startp[axisNo], 0, 0, velocity, acceleration);
 		}
 	else      //Stop motor moving to start
