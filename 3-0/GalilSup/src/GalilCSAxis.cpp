@@ -120,6 +120,10 @@ asynStatus GalilCSAxis::setDefaults(void)
   direction_ = 1;
   //This coordinate system axis is not actually using coordinate system S or T right now
   coordsys_ = -1;
+  //The coordinate system is not stopping on a limit switch right now
+  stop_onlimit_ = false;
+  //A move has not been started by this cs axis
+  move_started_ = false;
 
   return asynSuccess;
 }
@@ -139,6 +143,12 @@ asynStatus GalilCSAxis::move(double position, int relative, double minVelocity, 
   GalilAxis *pAxis;				//Real GalilAxis
   int status = asynError;
 
+  //Clear stop on limit before move
+  stop_onlimit_ = false;
+
+  //A move has been started by this cs axis
+  move_started_ = true;
+
   //Perform reverse transform and get new motor positions
   status = reverseTransform(position, nmotor_positions);
 
@@ -146,7 +156,7 @@ asynStatus GalilCSAxis::move(double position, int relative, double minVelocity, 
   if ((coordsys_ = selectFreeCoordinateSystem()) == -1)
 	return asynError;
 
-  //Do the coordinate system axis move, using deferredMoves facility
+  //Do the coordinate system axis move, using deferredMoves facility in GalilController
   if (!status)
 	{
 	//Now set controller deferred move flag
@@ -263,7 +273,8 @@ int GalilCSAxis::selectFreeCoordinateSystem(void)
 asynStatus GalilCSAxis::packKinematicArgs(char *axes, double margs[], double eargs[])
 {
   unsigned i;			//Looping
-  double mpos, epos;	//Motor, and encoder readback data
+  double mpos, epos;		//Motor, and encoder readback data
+  double mres, eres;		//Motor record mres, eres
   int status = asynSuccess;
 
   //Retrieve readbacks for all axis and pack into margs, eargs
@@ -273,14 +284,17 @@ asynStatus GalilCSAxis::packKinematicArgs(char *axes, double margs[], double ear
      //Get the readbacks for the axis
      status |= pC_->getDoubleParam(axes[i] - AASCII, pC_->motorEncoderPosition_, &epos);
      status |= pC_->getDoubleParam(axes[i] - AASCII, pC_->motorPosition_, &mpos);
+     //Retrieve needed motor record fields
+     status |= pC_->getDoubleParam(axes[i] - AASCII, pC_->motorResolution_, &mres);
+     status |= pC_->getDoubleParam(axes[i] - AASCII, pC_->GalilEncoderResolution_, &eres);
 
-     //Pack motor positions for calc
+     //Pack motor positions for calc in dial coordinates
      if (!status)
-        margs[axes[i] - AASCII] = mpos;
+        margs[axes[i] - AASCII] = mpos * mres;
         
-	 //Pack encoder positions for calc
-	 if (!status)
-		eargs[axes[i] - AASCII] = epos;
+     //Pack encoder positions for calc in dial coordinates
+     if (!status)
+        eargs[axes[i] - AASCII] = epos * eres;
      }
 
   return (asynStatus)status;
@@ -290,10 +304,11 @@ asynStatus GalilCSAxis::packKinematicArgs(char *axes, double margs[], double ear
  * for this coordinate system axis
  * And calculate real motor positions
  * \param[in] nposition - New motor position for this coordinate system axis
- * \param[out] motor_positions - Calculated motor positions for the real axis*/
+ * \param[out] nmotor_positions - Calculated motor positions for the real axis*/
 int GalilCSAxis::reverseTransform(double nposition, double nmotor_positions[])
 {
-  double mpos;				//motor position for the related coordinate system saxis
+  double mpos;			//motor position for the related coordinate system saxis
+  double mres;			//motor record mres
   double margs[SCALCARGS];	//Coordinate system axis motor positions used in the transform
   double eargs[SCALCARGS];	//Coordinate system axis encoder positions used in the transform
   unsigned i, j;
@@ -302,8 +317,12 @@ int GalilCSAxis::reverseTransform(double nposition, double nmotor_positions[])
   //Pack args for csaxes
   status |= packKinematicArgs(csaxes_, margs, eargs);
 
+  //Retrieve needed motor record parameters
+  status |= pC_->getDoubleParam(axisName_ - AASCII, pC_->motorResolution_, &mres);
+
   //Substitute new motor position received for this csaxis, instead of using readback
-  margs[axisName_ - AASCII] = nposition;
+  //Also convert position into dial coordinates
+  margs[axisName_ - AASCII] = nposition * mres;
 
   //Pack args for real axes
   status |= packKinematicArgs(raxes_, margs, eargs);
@@ -320,11 +339,15 @@ int GalilCSAxis::reverseTransform(double nposition, double nmotor_positions[])
 		if (!status)
 			margs[revsubs_[i][j] - AASCII] = mpos;
 		}
+	//Retrieve needed motor record parameters
+	status |= pC_->getDoubleParam(raxes_[i] - AASCII, pC_->motorResolution_, &mres);
 
 	if (!status)
 		{
 		//Perform reverse kinematic calc to derive the required real axis positions
 		status |= doCalc(reverse_[i], margs, &nmotor_positions[i]);
+		//Convert dial position value back into steps
+		nmotor_positions[i] = nmotor_positions[i]/mres;
 		}
 	}
 	
@@ -339,6 +362,7 @@ int GalilCSAxis::forwardTransform(void)
   double margs[SCALCARGS];	//Motor positions used in the forward transform
   double eargs[SCALCARGS];	//Encoder positions used in the forward transform
   double mpos, epos;		//Real axis motor and encoder position in steps/counts
+  double mres, eres;		//Motor record mres, and eres
   int status = asynSuccess;	//Asyn paramList return code
 
   //Pack args for real axes
@@ -365,10 +389,17 @@ int GalilCSAxis::forwardTransform(void)
   //Perform forward kinematic calc to get cs axis readback data
   if (!status)
 	{
-	//Motor position
+	//Retrieve needed motor record fields
+	status |= pC_->getDoubleParam(axisName_ - AASCII, pC_->motorResolution_, &mres);
+	status |= pC_->getDoubleParam(axisName_ - AASCII, pC_->GalilEncoderResolution_, &eres);
+	//Calculate motor position readback data in dial coordinates
 	status |= doCalc(forward_, margs, &motor_position_);
-	//Encoder position
+	//Convert from dial to steps for interaction with motor record
+	motor_position_ = motor_position_/mres;
+	//Calculate encoder position readback data in dial coordinates
 	status |= doCalc(forward_, eargs, &encoder_position_);
+	//Convert from dial to steps
+	encoder_position_ = encoder_position_/eres;
 	}
 
   return status;
@@ -405,14 +436,14 @@ asynStatus GalilCSAxis::doCalc(const char *expr, double args[], double *result) 
 asynStatus GalilCSAxis::poll(bool *moving)
 {
    //static const char *functionName = "GalilAxis::poll";
+   GalilAxis *pAxis;		//Galil real axis
    int done;			//Done status
-   bool motor_move;		//motor move move status
    int slipstall, csslipstall;	//Encoder slip stall following error for each motor, and overall cs axis 
    int rev, fwd;		//Real motor rev and fwd limit status
-   int last_csrev, last_csfwd;	//cs axis limit status prior to this poll cycle
-   int csrev, csfwd;	//Determined cs axis limit status
-   int rmoving, csmoving;		//Real axis moving status, coordinate system axis moving status
+   int csrev, csfwd;		//Determined cs axis limit status
+   int rmoving, csmoving;	//Real axis moving status, coordinate system axis moving status derived from real axis moving status
    int status;			//Communication status with controller
+   bool reportlimits;		//Do we report limits for this csaxis under current circumstances
    unsigned i;			//Looping
 
    //Default communication status
@@ -420,17 +451,13 @@ asynStatus GalilCSAxis::poll(bool *moving)
    //Default moving status
    *moving = 0;
    done = 1;
-   motor_move = false;
    //Default slipstall status
    csslipstall = slipstall = 0;
    //cs axis limit status
    csrev = csfwd = 0;
    //Default moving status
    csmoving = rmoving = 0;
-   //Retrieve cs axis previous poll cycle limit status
-   pC_->getIntegerParam(axisNo_, pC_->motorStatusLowLimit_, &last_csrev);
-   pC_->getIntegerParam(axisNo_, pC_->motorStatusHighLimit_, &last_csfwd);
-   
+
    //Perform forward kinematic transform using real axis readback data, variable values, and
    //store results in GalilCSAxis, or asyn ParamList
    status = forwardTransform();
@@ -442,14 +469,16 @@ asynStatus GalilCSAxis::poll(bool *moving)
    else if (motor_position_ < last_motor_position_)
 	direction_ = 0;
 
-   //Save cs axis motor position for next poll cycle
-   last_motor_position_ = motor_position_;
-
    //Get real axis limits, and work out what to propagate to the cs axis
-   //use cs axis direction_, previous cs axis limit status, and axis limit status to work out cs axis limit status
    //Also propagate ANY encoder slip/stall status, and move status to cs axis
    for (i = 0; i < strlen(raxes_); i++)
 	{
+	//Retrieve the GalilAxis real axis
+	pAxis = pC_->getAxis(raxes_[i] - AASCII);
+	if (!pAxis) continue;
+	//Check if real motor stopping on limit only if this cs axis started a move
+	if ((pAxis->stop_code_ == 2 && move_started_) || (pAxis->stop_code_ == 3 && move_started_))
+		stop_onlimit_ = true;
 	//Retrieve moving status
 	status = pC_->getIntegerParam(raxes_[i] - AASCII, pC_->motorStatusMoving_, &rmoving);
 	//Or moving status from all real axis to derive cs moving status
@@ -463,20 +492,17 @@ asynStatus GalilCSAxis::poll(bool *moving)
 	csslipstall |= slipstall;
 	if (!status)
 		{
+		//Report limits only when stop caused by limit and this cs axis started the move
+		reportlimits = false;
+		if (stop_onlimit_)
+			reportlimits = true;
 		//Check cs axis limit status
 		//Check cs axis reverse limit
-		if ((!direction_ && rev) || (last_csrev && direction_ && rev) ||
-		    (!direction_ && fwd) || (last_csrev && direction_ && fwd))
-			{
+		if (!direction_ && reportlimits && (rev || fwd))
 			csrev |= 1;
-			}
-
 		//Check cs axis forward limit
-		if ((direction_ && fwd) || (last_csfwd && !direction_ && fwd) ||
-		    (direction_ && rev) || (last_csfwd && !direction_ && rev))
-			{
+		if (direction_ && reportlimits && (fwd || rev))
 			csfwd |= 1;
-			}
 		}
 	}
 
@@ -484,6 +510,14 @@ asynStatus GalilCSAxis::poll(bool *moving)
    *moving = (csmoving) ? true : false;
    //Done status
    done = (*moving) ? false : true;
+
+   //Reset move started flag
+   if (done)
+      move_started_ = false;
+
+   //Save motor position and done status for next poll cycle
+   last_motor_position_ = motor_position_;
+   last_done_ = done;
 
 skip:
     //Set status

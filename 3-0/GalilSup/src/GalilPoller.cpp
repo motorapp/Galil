@@ -42,6 +42,7 @@ GalilPoller::GalilPoller(GalilController *cntrl)
 	//Poller awake at start
 	pollerSleep_ = false;
 	//Start GalilPoller thread
+	shutdownPoller_ = false;
 	thread.start();
 }
 
@@ -114,7 +115,7 @@ void GalilPoller::run(void)
 		}
 
 	//Kill loop as IOC is shuttingDown
-    	if (pCntrl_->shuttingDown_)
+	if (shutdownPoller_)
 		{
 		//Tell controller to stop async data record
 		if (pCntrl_->async_records_ && pCntrl_->gco_ != NULL)
@@ -128,6 +129,17 @@ void GalilPoller::run(void)
 		break;
 		}
 	}//while 
+}
+
+void GalilPoller::shutdownPoller()
+{
+	shutdownPoller_ = true;
+	thread.exitWait();
+}
+
+GalilPoller::~GalilPoller()
+{
+	shutdownPoller();
 }
 
 //Put poller in sleep mode, and stop async records if needed
@@ -158,8 +170,7 @@ void GalilPoller::wakePoller(void)
 		//Tell controller to re-start async record transmission
 		if (pCntrl_->async_records_ && pCntrl_->gco_ != NULL)
 			{
-			try 
-				{
+			try {
 				pCntrl_->gco_->recordsStart(pCntrl_->updatePeriod_);
 				}
 			catch (string e)

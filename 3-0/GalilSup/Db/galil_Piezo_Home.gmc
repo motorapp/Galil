@@ -6,15 +6,15 @@ IF ((hjog${AXIS}=0) & (_BG${AXIS}=1))
 ST${AXIS};ENDIF
 IF ((hjog${AXIS}=0) & (_BG${AXIS}=0))
 oldecel${AXIS}=_DC${AXIS};speed${AXIS}=_SP${AXIS}
-AC${AXIS}=(@ABS[hjgdc${AXIS}])*10
-DC${AXIS}=(@ABS[hjgdc${AXIS}])*20
-SP${AXIS}=(@ABS[hjgsp${AXIS}])*10
+AC${AXIS}=(@ABS[hjgdc${AXIS}])
+DC${AXIS}=(@ABS[hjgdc${AXIS}])*2
+SP${AXIS}=(@ABS[hjgsp${AXIS}])
 FE${AXIS};SH${AXIS};WT100;BG${AXIS};hjog${AXIS}=1
 ENDIF
 IF ((hjog${AXIS}=1) & (_BG${AXIS}=0))
-AC${AXIS}=(@ABS[hjgdc${AXIS}])*10
-DC${AXIS}=(@ABS[hjgdc${AXIS}])*20
-SP${AXIS}=(@ABS[hjgsp${AXIS}])/20
+AC${AXIS}=(@ABS[hjgdc${AXIS}])
+DC${AXIS}=(@ABS[hjgdc${AXIS}])*2
+SP${AXIS}=(@ABS[hjgsp${AXIS}])
 FE${AXIS};SH${AXIS};WT100;FE${AXIS};BG${AXIS};hjog${AXIS}=2
 ENDIF
 IF ((hjog${AXIS}=2) & (_BG${AXIS}=0))

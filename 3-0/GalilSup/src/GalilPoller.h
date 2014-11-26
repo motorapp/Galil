@@ -27,10 +27,13 @@ public:
   void sleepPoller(bool connected = true);
   virtual void run();
   epicsThread thread;
+  ~GalilPoller();
 
 private:
   GalilController *pCntrl_;		//The GalilController we poll for
   bool pollerSleep_;			//Tell poller to sleep
   epicsEventId pollerSleepEventId_;    	//Poller sleep event
   epicsEventId pollerWakeEventId_;    	//Poller Wake event
+  bool shutdownPoller_;
+  void shutdownPoller();
 };

@@ -32,7 +32,19 @@ GalilConnector::GalilConnector(void)
    :  thread(*this,"GalilConnector",epicsThreadGetStackSize(epicsThreadStackMedium),epicsThreadPriorityLow)
 {
 	//Start GalilConnector thread
+	shuttingDown_ = false;
 	thread.start();
+}
+
+void GalilConnector::shutdownConnector()
+{
+	shuttingDown_ = true;
+	thread.exitWait();
+}
+
+GalilConnector::~GalilConnector()
+{
+	shutdownConnector();
 }
 
 //GalilConnector thread
@@ -40,27 +52,30 @@ GalilConnector::GalilConnector(void)
 void GalilConnector::run(void)
 {
 	unsigned i;
-	int shuttingDown = 0;
 	//Check to see what controllers need disconnect/connect
-	while (true)
+	while ( true )
 		{
 		//Loop through stored GalilControllers
-		for (i=0;i<pCntrlList_.size();i++)
+		if (shuttingDown_)
 			{
-			//Ask GalilController instance to check need for disconnect/connect
-			//And do it if needed.
-			pCntrlList_[i]->connectManager();
-			//Check shuttingDown flag
-			shuttingDown |= pCntrlList_[i]->shuttingDown_;
+			for (i=0;i<pCntrlList_.size();i++)
+				{
+				pCntrlList_[i]->shutdownController();
+				pCntrlList_[i]->disconnect();
+				delete pCntrlList_[i];
+				}
+			pCntrlList_.clear();
+			break; // exit outer while loop
 			}
-
-		//Kill loop as IOC is shuttingDown
-		if (shuttingDown)
+		else
 			{
-			//printf("GalilConnector shutting down\n");
-			break;
+			for (i=0;i<pCntrlList_.size();i++)
+				{
+				//Ask GalilController instance to check need for disconnect/connect
+				//And do it if needed.
+				pCntrlList_[i]->connectManager();
+				}
 			}
-
 		//1Hz Cycle for GalilConnector
 		epicsThreadSleep(1);
 		}

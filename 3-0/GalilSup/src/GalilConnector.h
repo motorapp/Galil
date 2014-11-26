@@ -24,8 +24,10 @@ public:
   void registerController(GalilController *cntrl);
   virtual void run();
   epicsThread thread;
+  ~GalilConnector();
 
 private:
+  bool shuttingDown_;
+  void shutdownConnector();
   vector<GalilController *> pCntrlList_;
 };
-

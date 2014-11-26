@@ -28,6 +28,7 @@ dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_profileMoveAxis.substitutions")
 # 1. Const char *portName 	- The name of the asyn port that will be created for this controller
 # 2. Const char *address 	- The address of the controller
 # 3. double updatePeriod	- The time in ms between datarecords 8ms minimum.  Async if controller + bus supports it, otherwise is polled/synchronous.
+#                       	- Specify negative updatePeriod < 0 to force synchronous tcp poll period.  Otherwise will try async udp mode first
 
 # Create a Galil controller
 GalilCreateController("Galil", "192.168.0.55", 8)
@@ -74,6 +75,7 @@ GalilCreateAxis("Galil","H",1,"",1)
 
 #Normal slit example
 GalilCreateCSAxes("Galil","I=(A+B)/2,J=B-A","A=I-J/2,B=I+J/2")
+GalilCreateCSAxes("Galil","K=(C+D)/2,L=C-D","C=K-L/2,D=K+L/2")
 
 #Example to lock slit motor B position, and move only A slit
 #GalilCreateCSAxes("Galil","I=(A+B)/2,J=B-A","A=B-J,B=B")

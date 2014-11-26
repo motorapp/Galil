@@ -160,6 +160,7 @@ private:
   double last_encoder_position_;	//main encoder register stored from previous poll.  Used to detect movement.
   int direction_;			//Movement direction
   bool inmotion_;			//Axis in motion status from controller
+  int stop_code_;			//Axis stop code from controller
   bool fwd_;				//Forward limit status
   bool rev_;				//Reverse limit status
   bool home_;				//Home switch raw status direct from data record
@@ -184,6 +185,7 @@ private:
   bool cancelHomeSent_;			//Cancel home process message sent to pollServices
 
 friend class GalilController;
+friend class GalilCSAxis;
 };
 
 #endif   // GalilAxis_H
