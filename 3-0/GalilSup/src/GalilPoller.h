@@ -23,7 +23,7 @@
 class GalilPoller: public epicsThreadRunable {
 public:
   GalilPoller(GalilController *cntrl);
-  void wakePoller(void);
+  void wakePoller(bool restart_async = true);
   void sleepPoller(bool connected = true);
   virtual void run();
   epicsThread thread;

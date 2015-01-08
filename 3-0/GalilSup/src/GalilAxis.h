@@ -127,6 +127,8 @@ public:
   asynStatus setDGain(double dGain);
   asynStatus setClosedLoop(bool closedLoop);
 
+  ~GalilAxis();
+
 private:
   GalilController *pC_;      		/**< Pointer to the asynMotorController to which this axis belongs.
                                 	*   Abbreviated because it is used very frequently */
@@ -145,7 +147,7 @@ private:
   double deferredVelocity_;		//Coordinate system velocity
   double deferredPosition_;		//Deferred move position
   bool deferredMove_;			//Has a deferred move been set
-  bool axisReady_;			//Has autosave restore completed
+  bool axisReady_;			//Have motor record fields been pushed into driver
 
   epicsTimeStamp begin_nowt_;		//Used to track length of time motor begin takes
   epicsTimeStamp begin_begint_;		//Used to track length of time motor begin takes

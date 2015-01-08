@@ -606,6 +606,7 @@ record(mbbi,"$(P):$(M)_AENCTYPE_STATUS")
 	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_AUX_ENCODER")
 }
 
+#Wrong limit protection
 record(bo,"$(P):$(M)_WLP_CMD")
 {
 	field(DESC, "wrong limit protect")

@@ -4,7 +4,7 @@
 # $Author: cliftm $
 #
 # Description:
-# Coordinate system axis kinematic variable template.
+# Kinematic variable template.
 #
 # These variables Q-X can be used in iocshell command GalilCreateCSAxes
 #
@@ -36,7 +36,7 @@ record(ao, "$(P):$(R)_SP") {
 	field(PREC, "$(PREC)")
 	field(DTYP, "asynFloat64")
 	field(PINI, "YES")
-	field(OUT,  "@asyn($(PORT),$(ADDR))COORDINATE_SYSTEM_VARIABLE")
+	field(OUT,  "@asyn($(PORT),$(ADDR))CSMOTOR_KINEMATIC_VARIABLE")
 }
 
 # end

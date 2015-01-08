@@ -118,6 +118,10 @@ GalilAxis::GalilAxis(class GalilController *pC, //Pointer to controller instance
   callParamCallbacks();
 }
 
+//GalilAxis destructor
+GalilAxis::~GalilAxis()
+{
+}
 /*--------------------------------------------------------------------------------*/
 /* Store settings, set defaults for motor */
 /*--------------------------------------------------------------------------------*/
@@ -448,7 +452,7 @@ asynStatus GalilAxis::move(double position, int relative, double minVelocity, do
 {
   static const char *functionName = "move";
   long accel;					//Acceleration/Deceleration when limit not active
-  char mesg[MAX_MESSAGE_LEN];			//Error mesg
+  char mesg[MAX_GALIL_STRING_SIZE];		//Error mesg
   bool pos_ok = false;				//Is the requested position ok
   double readback = motor_position_;		//For step motors controller uses motor_position_ for positioning
 
@@ -654,7 +658,7 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
 asynStatus GalilAxis::beginCheck(const char *functionName, double maxVelocity)
 {
   int wlp, wlpactive;			//Wrong limit protection.  When motor hits wrong limit
-  char mesg[MAX_MESSAGE_LEN];
+  char mesg[MAX_GALIL_STRING_SIZE];
 
   //Retrieve wrong limit protection setting
   pC_->getIntegerParam(axisNo_, pC_->GalilWrongLimitProtection_, &wlp);
@@ -1080,7 +1084,7 @@ void GalilAxis::setStatus(bool *moving)
 //May stop motor via pollServices thread
 void GalilAxis::checkEncoder(void)
 {
-   char message[MAX_MESSAGE_LEN];	//Safety stop message
+   char message[MAX_GALIL_STRING_SIZE];	//Safety stop message
    double estall_time;			//Allowed encoder stall time specified by user
    double pestall_time;			//Possible encoder stall has been happening for this many secs
 
@@ -1141,7 +1145,7 @@ void GalilAxis::checkEncoder(void)
 //May stop motor via pollServices thread
 void GalilAxis::wrongLimitProtection(void)
 {
-   char message[MAX_MESSAGE_LEN];	//Safety stop message
+   char message[MAX_GALIL_STRING_SIZE];	//Safety stop message
    int wlp;				//Wrong limit protection.  When motor hits wrong limit
 
    //Retrieve wrong limit protection setting
@@ -1465,7 +1469,7 @@ asynStatus GalilAxis::beginMotion(const char *caller)
 {
    double begin_time;	//Time taken for motion to begin
    static const char *functionName = "GalilAxis::beginMotion";
-   char mesg[MAX_MESSAGE_LEN];	//Controller error mesg if begin fail
+   char mesg[MAX_GALIL_STRING_SIZE];	//Controller error mesg if begin fail
 
    //Begin the move
    //Get time when attempt motor begin
@@ -1611,11 +1615,11 @@ skip:
 
 bool GalilAxis::motor_enabled(void)
 {
-    unsigned mask;				 //Mask used to check motor go/no go status
-    unsigned i, j;				 //General loop counters
+    unsigned mask;				//Mask used to check motor go/no go status
+    unsigned i, j;				//General loop counters
     struct Galilmotor_enables *motor_enables = NULL;  //Convenience pointer to GalilController motor_enables[digport]
-    unsigned binaryin;				 //binary in state
-    char mesg[MAX_MESSAGE_LEN];			//To inform user when disabled
+    unsigned binaryin;				//binary in state
+    char mesg[MAX_GALIL_STRING_SIZE];		//To inform user when disabled
 
     //Retrieve binary in data for 1st bank from ParamList (ie. bits 0-7)
     pC_->getUIntDigitalParam(0, pC_->GalilBinaryIn_ , &binaryin, 0xFF);

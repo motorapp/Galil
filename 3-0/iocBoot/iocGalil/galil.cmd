@@ -1,13 +1,16 @@
-#Load motor records
+#Load motor records for real and coordinate system (CS) motors
 dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_motors.substitutions")
 
-#Load extra features that have controller wide scope (eg.  Limit switch type, home switch type)
+#Load extra features that have controller wide scope (eg.  Limit switch type, home switch type, output compare, message consoles)
 dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_ctrl_extras.substitutions")
 
-#Load extra features for axis/motors (eg. Motor type, encoder type)
+#Load extra features for real axis/motors (eg. Motor type, encoder type)
 dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_motor_extras.substitutions")
 
-#Load coordinate system features
+#Load kinematics for CS axis/motors (eg. Forward and reverse kinematics, kinematic variables)
+dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_csmotor_kinematics.substitutions")
+
+#Load coordinate system features (eg. Coordinate system S and T status, motor list, segments processed, moving status)
 dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_coordinate_systems.substitutions")
 
 #Load digital IO databases
@@ -31,7 +34,7 @@ dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_profileMoveAxis.substitutions")
 #                       	- Specify negative updatePeriod < 0 to force synchronous tcp poll period.  Otherwise will try async udp mode first
 
 # Create a Galil controller
-GalilCreateController("Galil", "192.168.0.55", 8)
+GalilCreateController("Galil", "192.168.0.67", 8)
 
 # Create a Galil controller
 GalilCreateController("RIO", "192.168.0.101", 8)
@@ -54,34 +57,12 @@ GalilCreateAxis("Galil","F",1,"",1)
 GalilCreateAxis("Galil","G",1,"",1)
 GalilCreateAxis("Galil","H",1,"",1)
 
-# GalilCreateCSAxis command parameters are:
+# GalilCreateCSAxes command parameters are:
 #
 # 1. char *portName Asyn port for controller
-# 2. char *forward Comma separated list of forward kinematic transforms eg. I=(A+B)/2,J=B-A
-# 3. char *reverse Comma separated list of reverse kinematic transforms eg. A=I-J/2,B=I+J/2
-#
-#    Real axis are: A-H
-#    Coordinate axis are: I-P
-#    Variables are: Q-Z
-#    16 Args maximum per equation
-#
-#    Real, csaxis, and variables are allowed in forward transform equation
-#    Real, csaxis, and variables are allowed in reverse transform equation
-#
-# Create example coordinate system axis
-# 2Slit example using real motors A, and B
-# I = Slit centre coordinate system axis
-# J = Slit width coordinate system axis
 
-#Normal slit example
-GalilCreateCSAxes("Galil","I=(A+B)/2,J=B-A","A=I-J/2,B=I+J/2")
-GalilCreateCSAxes("Galil","K=(C+D)/2,L=C-D","C=K-L/2,D=K+L/2")
-
-#Example to lock slit motor B position, and move only A slit
-#GalilCreateCSAxes("Galil","I=(A+B)/2,J=B-A","A=B-J,B=B")
-
-#Example to swap slit blades using kinematic variable Z
-#GalilCreateCSAxes("Galil","I=(A+B)/2,J=(Z==0)?B-A:A-B","A=(Z==0)?I-J/2:I+J/2,B=(Z==0)?I+J/2:I-J/2")
+#Create all CS axes (ie. I-P axis)
+GalilCreateCSAxes("Galil")
 
 # GalilStartController command parameters are:
 #

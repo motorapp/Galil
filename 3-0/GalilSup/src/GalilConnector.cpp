@@ -51,19 +51,27 @@ GalilConnector::~GalilConnector()
 //Ask registered GalilControllers to check need for disconnect/connect
 void GalilConnector::run(void)
 {
-	unsigned i;
+	unsigned i;		//Looping
+        bool connected;		//Local determination of connected status
+
 	//Check to see what controllers need disconnect/connect
 	while ( true )
 		{
 		//Loop through stored GalilControllers
 		if (shuttingDown_)
 			{
+			//Put poller for all registered GalilControllers into sleep mode
 			for (i=0;i<pCntrlList_.size();i++)
 				{
-				pCntrlList_[i]->shutdownController();
-				pCntrlList_[i]->disconnect();
-				delete pCntrlList_[i];
+				connected = (pCntrlList_[i]->gco_ != NULL) ? true : false;
+				//Put this GalilController's poller in sleep mode
+				//Also disable the async records if connected
+				pCntrlList_[i]->poller_->sleepPoller(connected);
 				}
+			//Destroy all registered GalilControllers and associated poller instances
+			for (i=0;i<pCntrlList_.size();i++)
+				delete pCntrlList_[i];
+			//Empty the vector of GalilControllers
 			pCntrlList_.clear();
 			break; // exit outer while loop
 			}
@@ -75,9 +83,10 @@ void GalilConnector::run(void)
 				//And do it if needed.
 				pCntrlList_[i]->connectManager();
 				}
+			//1Hz Cycle for GalilConnector
+			if (!shuttingDown_)
+			   epicsThreadSleep(1);
 			}
-		//1Hz Cycle for GalilConnector
-		epicsThreadSleep(1);
 		}
 }
 
@@ -87,5 +96,3 @@ void GalilConnector::registerController(GalilController *pCntrl)
 	//Store GalilController instance
 	pCntrlList_.push_back(pCntrl);
 }
-
-

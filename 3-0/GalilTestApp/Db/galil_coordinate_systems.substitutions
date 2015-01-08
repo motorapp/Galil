@@ -29,39 +29,10 @@
 
 file "$(GALIL)/GalilSup/Db/galil_coordinate_system.template"
 { 
-   pattern { P,          R,    PORT,    ADDR,  SCAN }
+pattern { P,          R,    PORT,    ADDR,  SCAN         }
 
-	   { "DMC01",    "S",  "Galil", "0",   ".1 second"  }
-	   { "DMC01",    "T",  "Galil", "1",   ".1 second"  }
-}
-
-# Coordinate system variables
-#
-# P    - PV prefix
-# R    - Record Name
-# PORT - Asyn port name
-# ADDR - Hardware port to read
-# PREC - Precision
-#
-# Regardless of record name, addr 0-9 is mapped Q-Z in driver
-# These variables Q-Z can be used in GalilCreateCSAxes function called from iocShell
-
-file "$(GALIL)/GalilSup/Db/galil_coordinate_system_variables.template"
-{ 
-   pattern { P,           R,    PORT,    ADDR,  PREC }
-
-	   { "DMC01",     "Q",  "Galil", "0",   "5"  }
-	   { "DMC01",     "R",  "Galil", "1",   "5"  }
-	   { "DMC01",     "S",  "Galil", "2",   "5"  }
-	   { "DMC01",     "T",  "Galil", "3",   "5"  }
-	   { "DMC01",     "U",  "Galil", "4",   "5"  }
-	   { "DMC01",     "V",  "Galil", "5",   "5"  }
-	   { "DMC01",     "W",  "Galil", "6",   "5"  }
-	   { "DMC01",     "X",  "Galil", "7",   "5"  }
-           { "DMC01",     "Y",  "Galil", "8",   "5"  }
-	   { "DMC01",     "Z",  "Galil", "9",   "5"  }
-
+        { "DMC01",    "S",  "Galil", "0",   ".1 second"  }
+        { "DMC01",    "T",  "Galil", "1",   ".1 second"  }
 }
 
 # end
-

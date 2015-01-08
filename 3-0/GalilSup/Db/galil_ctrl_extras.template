@@ -72,6 +72,34 @@ record(bi,"$(P):HOMETYPE_STATUS")
    	field(INP,  "@asyn($(PORT),0)CONTROLLER_HOMETYPE")
 }
 
+record(bo,"$(P):LIMITTYPE_CMD")
+{
+	field(DESC,"Ctrl limit sw type")
+	field(DTYP, "asynInt32")
+	field(ZNAM,"NO")
+	field(ZSV, "NO_ALARM")
+	field(ONAM,"NC")
+	field(OSV, "NO_ALARM")
+	field(PINI,"YES")
+	field(VAL, "$(DEFAULT_LIMITTYPE)")
+	field(OUT, "@asyn($(PORT),0)CONTROLLER_LIMITTYPE")
+	field(FLNK,"$(P):LIMITTYPE_STATUS")
+}
+
+record(bo,"$(P):HOMETYPE_CMD")
+{
+	field(DESC,"Ctrl home sw type")
+	field(DTYP, "asynInt32")
+	field(ZNAM,"NO")
+	field(ZSV, "NO_ALARM")
+	field(ONAM,"NC")
+	field(OSV, "NO_ALARM")
+	field(PINI,"YES")
+	field(VAL, "$(DEFAULT_HOMETYPE)")
+	field(OUT, "@asyn($(PORT),0)CONTROLLER_HOMETYPE")
+	field(FLNK,"$(P):HOMETYPE_STATUS")
+}
+
 record(stringin,"$(P):ETHADDR_MON")
 {
 	field(DESC, "Ctrl Ethernet address")
@@ -182,36 +210,7 @@ record(bo,"$(P):COORDSYS_CMD")
 	field(FLNK, "$(P):COORDSYS_STATUS")
 }
 
-record(bo,"$(P):LIMITTYPE_CMD")
-{
-	field(DESC,"Ctrl limit sw type")
-	field(DTYP, "asynInt32")
-	field(ZNAM,"NO")
-	field(ZSV, "NO_ALARM")
-	field(ONAM,"NC")
-	field(OSV, "NO_ALARM")
-	field(PINI,"YES")
-	field(VAL, "$(DEFAULT_LIMITTYPE)")
-	field(OUT, "@asyn($(PORT),0)CONTROLLER_LIMITTYPE")
-	field(FLNK,"$(P):LIMITTYPE_STATUS")
-}
-
-record(bo,"$(P):HOMETYPE_CMD")
-{
-	field(DESC,"Ctrl home sw type")
-	field(DTYP, "asynInt32")
-	field(ZNAM,"NO")
-	field(ZSV, "NO_ALARM")
-	field(ONAM,"NC")
-	field(OSV, "NO_ALARM")
-	field(PINI,"YES")
-	field(VAL, "$(DEFAULT_HOMETYPE)")
-	field(OUT, "@asyn($(PORT),0)CONTROLLER_HOMETYPE")
-	field(FLNK,"$(P):HOMETYPE_STATUS")
-}
-
-# Output compare
-
+#Output compare records
 record(ai,"$(P):OC1START_MON")
 {
 	field(DESC, "Output compare1 start")
@@ -374,6 +373,7 @@ record(waveform,"$(P):OCMESSAGE_MON")
 	field(SCAN, "I/O Intr")
 }
 
+#Controller message records
 record(waveform,"$(P):ERROR_MON")
 {
 	field(SCAN, "I/O Intr")
@@ -384,6 +384,7 @@ record(waveform,"$(P):ERROR_MON")
 	field(INP,  "@asyn($(PORT),0)CONTROLLER_ERROR")
 }
 
+#Command console records
 record(stringout,"$(P):SEND_STR_CMD")
 {
 	field(DESC, "Send Any Command to Controller")

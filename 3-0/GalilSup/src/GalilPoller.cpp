@@ -17,8 +17,8 @@
 // 800 Blackburn Road, Clayton, Victoria 3168, Australia.
 //
 // Thread to acquire datarecord for a single GalilController
-// We write our own because epicsEventWaitWithTimeout in asynMotorController::asynMotorPoller calls sleep, we dont want that.
-// Needed better performance
+// We write our own because epicsEventWaitWithTimeout in asynMotorController::asynMotorPoller waits, we dont want that.
+// Instead either Async speed determines poller frequency or simple epicsThreadSleep in Sync mode
 
 #include <string.h>
 #include <iostream>  //cout
@@ -51,7 +51,6 @@ GalilPoller::GalilPoller(GalilController *cntrl)
 //Replaces asynMotorController::asynMotorPoller
 void GalilPoller::run(void)
 {
-  static const char *functionName = "GalilPoller::run";
   unsigned i;
   bool moving;
   asynMotorAxis *pAxis;
@@ -59,8 +58,8 @@ void GalilPoller::run(void)
   //Loop until shutdown
   while (true) 
 	{
-	//Dont poll in sleep mode
-	if (!pollerSleep_)
+	//Dont poll in sleep mode or when shutting down
+	if (!pollerSleep_ && !shutdownPoller_)
 		{
 		//Wake mode
 		//Poll only if connected
@@ -74,7 +73,7 @@ void GalilPoller::run(void)
 			//because analog/binary IO data are stored/organized in ParamList just same as axis data 
 			for (i=0; i<MAX_GALIL_AXES + MAX_GALIL_CSAXES; i++)
 				{
-                                if (i < MAX_GALIL_AXES)
+				if (i < MAX_GALIL_AXES)
 					{
 					//Retrieve GalilAxis instance i
 					pAxis = pCntrl_->getAxis(i);
@@ -105,7 +104,7 @@ void GalilPoller::run(void)
 		else	//Not connected.  Just sleep a little
 			epicsThreadSleep(.1);
 	  	}
-	else	
+	else if (pollerSleep_ && !shutdownPoller_)
 		{
 		//Sleep mode
 		//Inform blocking thread poller has now entered sleep mode
@@ -115,25 +114,20 @@ void GalilPoller::run(void)
 		}
 
 	//Kill loop as IOC is shuttingDown
-	if (shutdownPoller_)
-		{
-		//Tell controller to stop async data record
-		if (pCntrl_->async_records_ && pCntrl_->gco_ != NULL)
-			pCntrl_->gco_->recordsStart(0);
-		//Burn parameters on exit ensuring controller has correct settings at next power on
-		//This effects motor type, soft limits, limit configuration etc
-		//It does not effect the galil program on the controller
-		sprintf(pCntrl_->cmd_, "BN");
-		pCntrl_->writeReadController(functionName);
-		//Break from loop
+	if (shutdownPoller_)  //Break from loop
 		break;
-		}
-	}//while 
+	}//while
 }
 
 void GalilPoller::shutdownPoller()
 {
+	//Tell poller to shutdown
 	shutdownPoller_ = true;
+	//Pause
+	epicsThreadSleep(.01);
+	//Wake poller but do not restart async records
+        wakePoller(false);
+	//Wait till poller thread exits
 	thread.exitWait();
 }
 
@@ -153,13 +147,23 @@ void GalilPoller::sleepPoller(bool connected)
 		//Wait until GalilPoller is sleeping
 		epicsEventWait(pollerSleepEventId_);
 		//Tell controller to stop async record transmission
-		if (pCntrl_->async_records_ && connected)
-			pCntrl_->gco_->recordsStart(0);
+		if (pCntrl_->async_records_ && pCntrl_->gco_ != NULL && connected)
+			{
+			try 	{
+				pCntrl_->gco_->recordsStart(0);
+				}
+			catch (string e)
+				{
+				//Print explanation
+				cout << "Terminating async on poller sleep failed " << pCntrl_->model_ << " at " << pCntrl_->address_ << endl;
+				cout << e << endl;
+				}
+			}
 		}
 }
 
-//Wake poller and re-start async records if needed
-void GalilPoller::wakePoller(void)
+//Wake poller and re-start async records if desired
+void GalilPoller::wakePoller(bool restart_async)
 {
 	//Only if poller sleeping now
 	if (pollerSleep_)
@@ -168,9 +172,9 @@ void GalilPoller::wakePoller(void)
 		pollerSleep_ = false;
 		epicsEventSignal(pollerWakeEventId_);
 		//Tell controller to re-start async record transmission
-		if (pCntrl_->async_records_ && pCntrl_->gco_ != NULL)
+		if (pCntrl_->async_records_ && pCntrl_->gco_ != NULL && restart_async)
 			{
-			try {
+			try 	{
 				pCntrl_->gco_->recordsStart(pCntrl_->updatePeriod_);
 				}
 			catch (string e)

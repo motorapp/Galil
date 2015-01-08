@@ -46,6 +46,10 @@
 // 26/11/14 M.Clift CSAxis now uses dial coordinates for transforms so different resolutions can be used
 //                  Modified galil limits code to cope with CSAxis hitting limits
 //                  Modified CSAxis limit reporting logic
+// 08/01/15 M.Clift Enhanced kinematics so that transform equations can be changed via database
+//                  Real motors are now allowed in reverse transform equations
+//                  CS motors are now allowed in forward transform equations
+//                  Enhanced shutdown code to delete RAM used by kinematics
 
 #include <stdio.h>
 #include <math.h>
@@ -96,9 +100,6 @@ static bool libverPrinted = false;
 //Number of communication retries
 #define MAX_RETRIES 1
 #define ALLOWED_TIMEOUTS 3
-
-#define MAX_FILENAME_LEN 256
-#define MAX_MESSAGE_LEN 256
 
 //Convenience functions
 #ifndef MAX
@@ -156,8 +157,6 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilCoordSysMotorsStopString, asynParamInt32, &GalilCoordSysMotorsStop_);
   createParam(GalilCoordSysMotorsGoString, asynParamInt32, &GalilCoordSysMotorsGo_);
 
-  createParam(GalilCoordSysVarString, asynParamFloat64, &GalilCoordSysVar_);
-
   createParam(GalilProfileFileString, asynParamOctet, &GalilProfileFile_);
   createParam(GalilProfileMaxVelocityString, asynParamFloat64, &GalilProfileMaxVelocity_);
   createParam(GalilProfileMaxAccelerationString, asynParamFloat64, &GalilProfileMaxAcceleration_);
@@ -169,6 +168,17 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilOutputCompare1StartString, asynParamFloat64, &GalilOutputCompareStart_);
   createParam(GalilOutputCompare1IncrString, asynParamFloat64, &GalilOutputCompareIncr_);
   createParam(GalilOutputCompareMessageString, asynParamOctet, &GalilOutputCompareMessage_);
+
+  createParam(GalilCSMotorVariableString, asynParamFloat64, &GalilCSMotorVariable_);
+  createParam(GalilCSMotorForwardString, asynParamOctet, &GalilCSMotorForward_);
+  createParam(GalilCSMotorReverseAString, asynParamOctet, &GalilCSMotorReverseA_);
+  createParam(GalilCSMotorReverseBString, asynParamOctet, &GalilCSMotorReverseB_);
+  createParam(GalilCSMotorReverseCString, asynParamOctet, &GalilCSMotorReverseC_);
+  createParam(GalilCSMotorReverseDString, asynParamOctet, &GalilCSMotorReverseD_);
+  createParam(GalilCSMotorReverseEString, asynParamOctet, &GalilCSMotorReverseE_);
+  createParam(GalilCSMotorReverseFString, asynParamOctet, &GalilCSMotorReverseF_);
+  createParam(GalilCSMotorReverseGString, asynParamOctet, &GalilCSMotorReverseG_);
+  createParam(GalilCSMotorReverseHString, asynParamOctet, &GalilCSMotorReverseH_);
 
   createParam(GalilMotorStopGoString, asynParamInt32, &GalilMotorStopGo_);
 
@@ -348,17 +358,17 @@ void GalilController::connectManager(void)
   //disconnect/connect is required
   if (require_connect)
      {
-	 //Obtain mutex
-	 lock();
-	 //Wait until poller is in sleep mode
-	 //Also stop async records from controller
-	 poller_->sleepPoller(false);
-	 //Disconnect if needed, and then attempt connect
-	 connect();
-	 //Wake poller,
-	 poller_->wakePoller();
-	 unlock();
-	 }
+     //Obtain mutex
+     lock();
+     //Wait until poller is in sleep mode
+     //Assume not connected so cant stop async records
+     poller_->sleepPoller(false);
+     //Disconnect if needed, and then attempt connect
+     connect();
+     //Wake poller, and restart async if needed
+     poller_->wakePoller();
+     unlock();
+     }
 }
 
 //Disconnection/connection management
@@ -428,13 +438,52 @@ void GalilController::disconnect(void)
 
 void GalilController::shutdownController()
 {
+   unsigned i;
+   GalilAxis *pAxis;
+   GalilCSAxis *pCSAxis;
+   static const char *functionName = "shutdownController";
+
+   //Obtain the lock  
+   lock();
+
+   //Destroy the poller for this GalilController
    if (poller_ != NULL)
       {
       delete poller_;
       poller_ = NULL;
       }
-   // we do not delete gco_ here - it must be done from GalilConnector via a call to disconnect() 
-   // as it has to be executed from the correct thread (the one that first loaded Galil1.dll and made the connection)
+
+   //Free the memory where card code is stored
+   free(card_code_);
+
+   //Free any GalilAxis, and GalilCSAxis instances
+   for (i = 0; i < MAX_GALIL_AXES + MAX_GALIL_CSAXES; i++)
+      {
+      if (i < MAX_GALIL_AXES)
+         {
+         pAxis = getAxis(i);
+         if (pAxis)
+            delete pAxis;
+         }
+      else
+        {
+        pCSAxis = getCSAxis(i);
+        if (pCSAxis) 
+           delete pCSAxis;
+        }
+      }
+
+   //Burn parameters on exit ensuring controller has correct settings at next power on
+   //This effects motor type, soft limits, limit configuration etc
+   //It does not effect the galil program on the controller
+   sprintf(cmd_, "BN");
+   writeReadController(functionName);
+
+   //Disconnect from hardware
+   disconnect();
+
+   //Release the lock
+   unlock();
 }
 
 GalilController::~GalilController()
@@ -470,6 +519,11 @@ void GalilController::setParamDefaults(void)
 	setIntegerParam(i, GalilOutputCompareAxis_, 0);
   setStringParam(GalilSerialNum_, "");
   setStringParam(GalilEthAddr_, "");
+  //Default all forward kinematics to null strings
+  for (i = MAX_GALIL_CSAXES; i < MAX_GALIL_AXES + MAX_GALIL_CSAXES; i++)
+     setStringParam(i, GalilCSMotorForward_, "");
+  //Default controller error message to null string
+  setStringParam(0, GalilCtrlError_, "");
 }
 
 // extract the controller ethernet address from the output of the galil TH command
@@ -717,7 +771,7 @@ bool GalilController::motorsMoving(char *axes)
 asynStatus GalilController::setOutputCompare(int oc)
 {
   static const char *functionName = "setOutputCompare";
-  char message[MAX_MESSAGE_LEN];	//Output compare message
+  char message[MAX_GALIL_STRING_SIZE];	//Output compare message
   int ueip;				//mr ueip field
   int ocaxis;				//Output compare axis from paramList
   int axis;				//Axis number derived from output compare axis in paramList
@@ -862,12 +916,12 @@ asynStatus GalilController::buildLinearProfile()
   int i, j;			        //Loop counters
   int zm_count;				//Zero segment move counter
   int num_motors;			//Number of motors in trajectory
-  char message[MAX_MESSAGE_LEN];	//Profile build message
+  char message[MAX_GALIL_STRING_SIZE];	//Profile build message
   int useAxis[MAX_GALIL_AXES];		//Use axis flag for profile moves
   int moveMode[MAX_GALIL_AXES];		//Move mode absolute or relative
-  char moves[MAX_MESSAGE_LEN];		//Segment move command assembled for controller
+  char moves[MAX_GALIL_STRING_SIZE];	//Segment move command assembled for controller
   char axes[MAX_GALIL_AXES];		//Motors involved in profile move
-  char startp[MAX_MESSAGE_LEN];		//Profile start positions written to file
+  char startp[MAX_GALIL_STRING_SIZE];	//Profile start positions written to file
   char fileName[MAX_FILENAME_LEN];	//Filename to write profile data to
   FILE *profFile;			//File handle for above file
   bool buildOK=true;			//Was the trajectory built successfully
@@ -1115,7 +1169,7 @@ asynStatus GalilController::buildLinearProfile()
 asynStatus GalilController::buildProfile()
 {
   int status;				//asynStatus
-  char message[MAX_MESSAGE_LEN];	//Profile build message
+  char message[MAX_GALIL_STRING_SIZE];	//Profile build message
   static const char *functionName = "buildProfile";
 
   asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW,
@@ -1309,7 +1363,7 @@ asynStatus GalilController::motorsToProfileStartPosition(FILE *profFile, char *a
   double startp[MAX_GALIL_AXES];	//Motor start positions from file
   double accl, velo, mres;		//Required mr attributes
   double velocity, acceleration;	//Used to move motors to start
-  char message[MAX_MESSAGE_LEN];	//Profile execute message
+  char message[MAX_GALIL_STRING_SIZE];	//Profile execute message
   double readback;			//Readback controller is using
   int status = asynSuccess;
 
@@ -1377,7 +1431,7 @@ asynStatus GalilController::motorsToProfileStartPosition(FILE *profFile, char *a
 asynStatus GalilController::startLinearProfileCoordsys(int coordsys, char coordName, const char *axes)
 {
   static const char *functionName = "startProfileCoordsys";
-  char message[MAX_MESSAGE_LEN];	//Profile execute message
+  char message[MAX_GALIL_STRING_SIZE];	//Profile execute message
   double begin_time;			//Time taken to begin
   int segprocessed = 0;			//Segments processed by the coordsys
 
@@ -1437,8 +1491,8 @@ asynStatus GalilController::runLinearProfile(FILE *profFile)
   static const char *functionName = "runLinearProfile";
   long maxAcceleration;			//Max acceleration for this controller
   int segsent;				//Segments loaded to controller so far
-  char moves[MAX_MESSAGE_LEN];		//Segment move command assembled for controller
-  char message[MAX_MESSAGE_LEN];	//Profile execute message
+  char moves[MAX_GALIL_STRING_SIZE];	//Segment move command assembled for controller
+  char message[MAX_GALIL_STRING_SIZE];	//Profile execute message
   char axes[MAX_GALIL_AXES];		//Motors involved in profile move
   int coordsys;				//Coordinate system S(0) or T(1)
   int coordName;			//Coordinate system S or T
@@ -1679,11 +1733,11 @@ asynStatus GalilController::runLinearProfile(FILE *profFile)
  * It needs to lock and unlock when it accesses class data. */ 
 asynStatus GalilController::runProfile()
 {
-  int status = asynError;		    //Execute status
+  int status = asynError;		//Execute status
   char fileName[MAX_FILENAME_LEN];	//Filename to read profile data from
-  char profType[MAX_MESSAGE_LEN];	//Segment move command assembled for controller
-  char message[MAX_MESSAGE_LEN];	//Profile run message
-  FILE *profFile;			        //File handle for above file
+  char profType[MAX_GALIL_STRING_SIZE];	//Segment move command assembled for controller
+  char message[MAX_GALIL_STRING_SIZE];	//Profile run message
+  FILE *profFile;			//File handle for above file
 
   //Retrieve required attributes from ParamList
   getStringParam(GalilProfileFile_, (int)sizeof(fileName), fileName);
@@ -1734,9 +1788,9 @@ asynStatus GalilController::processDeferredMovesInGroup(int coordsys, char *axes
   GalilAxis *pAxis;		//GalilAxis pointer
   char coordName;		//Coordinate system name
   int csmoving = 0;		//Coordinate system moving status
-  asynStatus status;	//Result
+  asynStatus status;		//Result
   unsigned index;		//looping
-  char mesg[MAX_MESSAGE_LEN];	//Controller error mesg if begin fail
+  char mesg[MAX_GALIL_STRING_SIZE];	//Controller error mesg if begin fail
   double begin_time;		//Time taken for motion to begin
 
   //Selected coordinate system name
@@ -1833,14 +1887,14 @@ asynStatus GalilController::processDeferredMovesInGroup(int coordsys, char *axes
 asynStatus GalilController::setDeferredMoves(bool deferMoves)
 {
   //const char *functionName = "GalilController::setDeferredMoves";
-  GalilAxis *pAxis;			     //GalilAxis pointer
-  asynStatus status = asynError; //Result
-  int coordsys;				     //Coordinate system looping
-  unsigned axis;			     //Axis looping
-  char axes[MAX_GALIL_AXES];	 //Constructed list of axis in the coordinate system
-  char moves[MAX_MESSAGE_LEN];	 //Constructed comma list of axis relative moves
-  double vectorAcceleration;	 //Coordinate system acceleration
-  double vectorVelocity;		 //Coordinate system velocity
+  GalilAxis *pAxis;			//GalilAxis pointer
+  asynStatus status = asynError;	//Result
+  int coordsys;				//Coordinate system looping
+  unsigned axis;			//Axis looping
+  char axes[MAX_GALIL_AXES];		//Constructed list of axis in the coordinate system
+  char moves[MAX_GALIL_STRING_SIZE];	//Constructed comma list of axis relative moves
+  double vectorAcceleration;		//Coordinate system acceleration
+  double vectorVelocity;		//Coordinate system velocity
 
   // If we are not ending deferred moves then return
   if (deferMoves || !movesDeferred_)
@@ -2224,6 +2278,7 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
   int addr=0;				        //Address requested
   asynStatus status;				//Used to work out communication_error_ status.  asynSuccess always returned
   GalilAxis *pAxis = getAxis(pasynUser);	//Retrieve the axis instance
+  GalilCSAxis *pCSAxis = getCSAxis(pasynUser);	//Retrieve the axis instance
   int hometype, limittype;			//The home, and limit switch type
   int mainencoder, auxencoder, encoder_setting; //Main, aux encoder setting
   bool reqd_comms;			        //Check for comms error only when function reqd comms
@@ -2236,14 +2291,22 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
   status = getAddress(pasynUser, &addr); 
   if (status != asynSuccess) return(status);
 
-  if (!pAxis) return asynError;
+  //Check axis instance the easy way since no RIO commands in writeInt32
+  if (addr < MAX_GALIL_AXES)
+     {
+     if (!pAxis) return asynError;
+     }
+  else
+     {
+     if (!pCSAxis) return asynError;
+     }
 
   //Most functions require comms
   reqd_comms = true;
    
   /* Set the parameter and readback in the parameter library.  This may be overwritten when we read back the
    * status at the end, but that's OK */
-  status = setIntegerParam(pAxis->axisNo_, function, value);
+  status = setIntegerParam(addr, function, value);
   
   if (function == GalilHomeType_ || function == GalilLimitType_)
   	{
@@ -2346,12 +2409,18 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 	}
   else if (function == GalilUseEncoder_)
 	{
-	sprintf(cmd_, "ueip%c=%d", pAxis->axisName_, value);
-	//Write setting to controller
-	status = writeReadController(functionName);
+	if (pAxis)
+		{
+		sprintf(cmd_, "ueip%c=%d", pAxis->axisName_, value);
+		//Write setting to controller
+		status = writeReadController(functionName);
+		}
 	//This is one of the last autosave restore items so flag
 	//Axis now ready for move commands
-	pAxis->axisReady_ = true;
+	if (pAxis)
+		pAxis->axisReady_ = true;	//Real motor
+	if (pCSAxis)
+		pCSAxis->axisReady_ = true;	//CS motor
 	}
   else if (function == GalilUseIndex_)
 	{
@@ -2414,9 +2483,9 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 	status = setOutputCompare(addr);
 	}
   else 
-  	{
-    /* Call base class method */
-    status = asynMotorController::writeInt32(pasynUser, value);
+	{
+	/* Call base class method */
+	status = asynMotorController::writeInt32(pasynUser, value);
 	reqd_comms = false;
   	}
 
@@ -2451,13 +2520,7 @@ asynStatus GalilController::writeFloat64(asynUser *pasynUser, epicsFloat64 value
   reqd_comms = true;
 
   /* Set the parameter and readback in the parameter library. */
-  if (function != GalilUserCmd_)
-     {
-     if (pAxis)
-  	    status = setDoubleParam(pAxis->axisNo_, function, value);	//DMC (digital motor controller) axis
-     else
-	    status = setDoubleParam(addr, function, value);		//Rio analog output when no axis are defined
-     }
+  status = setDoubleParam(addr, function, value);
      
   if (function == GalilStepSmooth_)
      {
@@ -2518,16 +2581,29 @@ asynStatus GalilController::writeFloat64(asynUser *pasynUser, epicsFloat64 value
 asynStatus GalilController::writeOctet(asynUser *pasynUser, const char*  value,  size_t  nChars,  size_t *  nActual)
 {
   int function = pasynUser->reason;		//Function requested
-  asynStatus status;				    //Used to work out communication_error_ status.  asynSuccess always returned
+  int status = asynSuccess;			//Used to work out communication_error_ status.  asynSuccess always returned
   const char *functionName = "GalilController::writeOctet";
-  bool reqd_comms;				        //Check for comms error only when function reqd comms
-  double aivalue;				        //Convert response to value
+  bool reqd_comms;				//Check for comms error only when function reqd comms
+  double aivalue;				//Convert response to value
+  unsigned i;					//looping
+  char mesg[MAX_GALIL_STRING_SIZE];		//Controller mesg
+  GalilCSAxis *pCSAxis;				//Pointer to CSAxis instance
+  int addr=0;					//Address requested
+
+  //Retrieve address
+  if (getAddress(pasynUser, &addr))
+     return asynError;
 
   std::string value_s(value, nChars);  // in case value is not NULL terminated
 
+  //Set value in paramlist
+  setStringParam(addr, function, value_s.c_str());
+  //Num of chars written to paramList
+  *nActual = nChars;
+
   //Most functions require comms
   reqd_comms = true;
-	
+
   /* Set the parameter and readback in the parameter library. */
   if (function == GalilUserOctet_)
      {			
@@ -2540,8 +2616,6 @@ asynStatus GalilController::writeOctet(asynUser *pasynUser, const char*  value, 
         //ai monitor
         aivalue = atof(resp_);
         setDoubleParam(0, GalilUserOctetVal_, aivalue);
-        //Num of chars written to controller
-        *nActual = nChars;
         }
      else
         {
@@ -2549,6 +2623,27 @@ asynStatus GalilController::writeOctet(asynUser *pasynUser, const char*  value, 
         setStringParam(GalilUserOctet_, "<error>");
         *nActual = 0;
         }
+     }
+  else if (function >= GalilCSMotorForward_ && function <= GalilCSMotorReverseH_)
+     {
+     //User has entered a new kinematic transform equation
+     //We MUST loop through all the cs axis
+     for (i = MAX_GALIL_AXES; i < MAX_GALIL_CSAXES + MAX_GALIL_AXES; i++)
+        {
+        //Retrieve the cs axis instance
+        pCSAxis = getCSAxis(i);
+        if (!pCSAxis) continue;
+        //Parse the transforms and place results in GalilCSAxis instance(s)
+        status |= pCSAxis->parseTransforms();
+        }
+     //Tell user when success
+     //Dont provide message during startup
+     if (pCSAxis)
+        if (!status && pCSAxis->axisReady_)
+           {
+           sprintf(mesg, "Kinematics changed successfully");
+           setCtrlError(mesg);
+           }
      }
   else
      {
@@ -2558,7 +2653,7 @@ asynStatus GalilController::writeOctet(asynUser *pasynUser, const char*  value, 
      }
     
   //Flag comms error only if function reqd comms
-  check_comms(reqd_comms, status);
+  check_comms(reqd_comms, (asynStatus)status);
 
   //Always return success. Dont need more error mesgs
   return asynSuccess;
@@ -2570,8 +2665,8 @@ void GalilController::processUnsolicitedMesgs(void)
 {
    char *charstr;		//The current token
    GalilAxis *pAxis;	 	//GalilAxis
-   char rawbuf[MAX_MESSAGE_LEN * 8];//Unsolicited message(s) buffer
-   char mesg[MAX_MESSAGE_LEN];	//An individual message
+   char rawbuf[MAX_GALIL_STRING_SIZE * MAX_GALIL_AXES];//Unsolicited message(s) buffer
+   char mesg[MAX_GALIL_STRING_SIZE];	//An individual message
    char axisName;		//Axis number message is for
    int value;			//The value contained in the message
    char *tokSave = NULL;	//Remaining tokens
@@ -2633,12 +2728,12 @@ void GalilController::processUnsolicitedMesgs(void)
 void GalilController::getStatus(void)
 {
    const char *functionName="GalilController::getStatus";
-   char src[MAX_GALIL_STRING_SIZE]="\0";    //data source to retrieve
-   int addr;				    //addr or byte of binary IO
-   int coordsys;			    //Coordinate system currently selected
-   int profstate;			    //Profile running state
-   double paramDouble;			//For passing asynFloat64 to ParamList
-   unsigned paramUDig;		    //For passing UInt32Digital to ParamList
+   char src[MAX_GALIL_STRING_SIZE]="\0";	//data source to retrieve
+   int addr;					//addr or byte of binary IO
+   int coordsys;				//Coordinate system currently selected
+   int profstate;				//Profile running state
+   double paramDouble;				//For passing asynFloat64 to ParamList
+   unsigned paramUDig;				//For passing UInt32Digital to ParamList
   
    //If data record query success in GalilController::acquireDataRecord
    if (recstatus_ == asynSuccess)
@@ -2703,16 +2798,16 @@ void GalilController::getStatus(void)
 				sprintf(src, "_CS%c", (addr) ? 'T' : 'S');
 				setIntegerParam(addr, GalilCoordSysSegments_, (int)gco_->sourceValue(recdata_, src));
 
-				//Coordinate system stopping status
-				sprintf(src, "ST%c", (addr) ? 'T' : 'S');
-				coordSysStopping_[addr] = (bool)gco_->sourceValue(recdata_, src);
-
 				//Update profile current point in ParamList
 				if ((addr == coordsys) && (profstate))
 					{
 					//Update profile current point in ParamList
 					setIntegerParam(0, profileCurrentPoint_, (int)gco_->sourceValue(recdata_, src));
 					}
+
+				//Coordinate system stopping status
+				sprintf(src, "ST%c", (addr) ? 'T' : 'S');
+				coordSysStopping_[addr] = (gco_->sourceValue(recdata_, src) > 0) ? true : false;
 				}
 			}
 		}
@@ -3462,161 +3557,6 @@ asynStatus GalilController::read_codefile_part(const char *code_file, MAC_HANDLE
 	return asynSuccess;
 }
 
-/** Find kinematic variables Q-X and substitute them for variable in range A-P for sCalcPerform
-  * \param[in] axes    	   - List of real axis 
-  * \param[in] csaxes	   - List of coordinate system axis
-  * \param[in] equation    - List kinematic transform equations we search through
-  * \param[in] variables   - List variables found in the equation
-  * \param[in] substitutes - List substitutes that replaced the variables
-  */
-asynStatus GalilController::findVariableSubstitutes(char *axes, char *csaxes, char **equations, char **variables, char **substitutes)
-
-{
-  unsigned i, j, k, l;			//Looping/indexing
-  bool findarg;				//Do we need to find an arg position for this variable, or have we done so already
-  unsigned arg_status[SCALCARGS];	//sCalcPerform argument used status
-  char *equation;			//The kinematic equation we are processing.  For convenience
-  char *vars;				//The kinematic equation variables
-  char *subs;				//The kine
-
-  //Sanity check
-  if (strlen(axes) != strlen(csaxes))
-	{
-	printf("Problem with kinetmatic expression.  CSAxis count should equal real axis count\n");
-	return asynError;
-	}
-
-  //Scan through axes list
-  for (i = 0; i < strlen(axes); i++)
-	{
-	//Assign conveniance variables
-	equation = equations[i];
-	vars = variables[i];
-	subs = substitutes[i];
-	//Initialize variables and substitutes
-	strcpy(vars, "");
-	strcpy(subs, "");
-
-  	//Default sCalcPerform arg status.  No args used
-	for (j = 0; j < SCALCARGS; j++)
-		arg_status[j] = false;
-
-	//Flag args for all specified axis as used
-	for (j = 0; j < strlen(axes); j++)
-		arg_status[axes[j] - AASCII] = true;
-
-	//Flag args for all specified csaxis as used
-	for (j = 0; j < strlen(csaxes); j++)
-		arg_status[csaxes[j] - AASCII] = true;
-
-	k = 0;
-  	//Now find variables in range Q-Z, and substitute them for variable in range A-P
-  	for (j = 0; j < strlen(equation); j++)
-		{
-		if ((toupper(equation[j]) >= 'Q' && toupper(equation[j]) <= 'Z' && !isalpha(equation[j+1]) && !j) ||
-	    	(j && toupper(equation[j]) >= 'Q' && toupper(equation[j]) <= 'Z' && !isalpha(equation[j+1]) && !isalpha(equation[j-1])))
-			{
-			findarg = true;
-			//Check if we have found an arg position for this variable already
-			for (l = 0; l < strlen(vars); l++)
-				if (vars[l] == toupper(equation[j]))
-					{
-					findarg = false;
-					break;
-					}
-
-			if (findarg)
-				{
-				//We need to find an argument position
-				//Store the found variable
-				vars[k] = toupper(equation[j]);
-				vars[k + 1] = '\0'; 
-				//Find free argument position
-				for (l = 0; l < SCALCARGS; l++)
-					{
-					if (!arg_status[l])
-						{
-						//Found free arg position, use it
-						arg_status[l] = true;
-						//Calculate letter A-P which corresponds to this arg position
-						subs[k] = l + AASCII;
-						subs[k+1] = '\0';
-						break;
-						}
-					//Did we find a free arg position for this kinematic variable ?
-					if (l == SCALCARGS)
-						{
-						printf("Problem with kinetmatic expression.  Cannot find free argument position for all arguments\n");
-						return asynError;
-						}
-					}
-				//Substitute the variable
-				equation[j] = subs[k];
-				k++;
-				}
-			else
-				{
-				//Substitute the variable
-				equation[j] = subs[k];
-				}
-			}
-		}
-	}
-
-  return asynSuccess;
-}
-
-/** Break a comma separated list of kinematic transform equations in raw form 
-  * forward 
-  *   I=(A+B)/2,J=B-A
-  * reverse
-  *   A=I-J/2,B=I+J/2
-  * into an axes list, and corresponding tranform list and return them in axes, and equations
-  *
-  * \param[in] raw    	   - Raw comma separated list of transform equations   
-  * \param[in] axes        - List of axes extracted from raw
-  * \param[in] equations   - List of equations extracted from raw for the axes
-  * \param[in] variables   - List of kinematic variables Q-Z found in each equation
-  * \param[in] substitutes - List of substitutes variables in range A-P used in actual calc in place of variables Q-Z
-  */
-asynStatus GalilController::breakupTransform(char *raw, char *axes, char **equations)
-{
-  char *charstr;			//The current token
-  char *tokSave = NULL;			//Remaining tokens
-  int status;				//Result
-  bool expectAxis = true;		//Token to expect next is axis, or equation
-  unsigned i = 0, j = 0;		//For counting number of axis, and equations respectively
-
-  status = asynSuccess;
-
-  //Break raw transform up into tokens
-  charstr = epicsStrtok_r(raw, "=", &tokSave);
-  while (charstr != NULL)
-	{
-        if (expectAxis)
-		{
-		//Token is an axis name
-		axes[i] = toupper(charstr[0]);
-		//Increment axis count
-		i++;
-		//Keep parsing the same string
-		charstr = epicsStrtok_r(NULL, ",", &tokSave);
-		}
-	else
-		{
-		//Token is a kinematic transform equation
-		strcpy(equations[j], charstr);
-		//Increment equation count
-		j++;
-		//Keep parsing the same string
-		charstr = epicsStrtok_r(NULL, "=", &tokSave);
-		}
-	//Toggle expectAxis
-	expectAxis = (expectAxis) ? false : true;
-	}
-   return (asynStatus)status;
-}
-
 asynStatus GalilController::drvUserCreate(asynUser *pasynUser, const char* drvInfo, const char** pptypeName, size_t* psize)
 {
    //const char *functionName = "drvUserCreate";
@@ -3678,8 +3618,8 @@ asynStatus GalilController::drvUserDestroy(asynUser *pasynUser)
   */
 void GalilController::setCtrlError(const char* mesg)
 {
-	std::cout << mesg << std::endl;
-	setStringParam(0, GalilCtrlError_, mesg);
+   std::cout << mesg << std::endl;
+   setStringParam(0, GalilCtrlError_, mesg);
 }
 
 //IocShell functions
@@ -3735,25 +3675,12 @@ extern "C" asynStatus GalilCreateAxis(const char *portName,        	/*specify wh
 /** Creates multiple GalilCSAxis objects.  Coordinate system axis
   * Configuration command, called directly or from iocsh
   * \param[in] portName          The name of the asyn port that has already been created for this driver
-  * \param[in] forward           Comma separated list of forward kinematic expressions eg. I=(A+B)/2,J=B-A
-  * \param[in] reverse           Comma separated list of reverse kinematic expressions eg. A=I-J/2,B=I+J/2
   */
-extern "C" asynStatus GalilCreateCSAxes(const char *portName,     //specify which controller by port name
-				        char *forward,		  //Comma separated list of forward kinematic expressions eg. I=(A+B)/2,J=B-A
-				        char *reverse)		  //Comma separated list of reverse kinematic expressions eg. A=I-J/2,B=I+J/2
+extern "C" asynStatus GalilCreateCSAxes(const char *portName)
 {
   GalilController *pC;			//The GalilController
   GalilCSAxis *pAxis;			//Galil coordinate system axis
-  char *fwd[MAX_GALIL_CSAXES];		//Forward transforms for coordinate system axis as specified in the forward transform
-  char *rev[MAX_GALIL_AXES];		//Reverse transforms for the individual real axis as specified in the reverse transform
-  char *csaxes = NULL;			//List of coordinate system axis as specified in the forward transform
-  char *axes = NULL;			//List of real axis involved as specified in the reverse transform
-  char *fwdvars[MAX_GALIL_VARS];	//List of kinematic variables in range Q-Z for forward transform
-  char *revvars[MAX_GALIL_VARS];	//List of kinematic variables in range Q-Z for reverse transform
-  char *fwdsubs[MAX_GALIL_VARS]; 	//List of kinematic variable substitutes in range A-P for forward transform
-  char *revsubs[MAX_GALIL_VARS]; 	//List of kinematic variable substitutes in range A-P for reverse transform
-  unsigned i;				//For creating multiple GalilCSAxis coordinate system axis
-  int status;				//Result
+  unsigned i;				//looping
   static const char *functionName = "GalilCreateCSAxes";
 
   //Retrieve the asynPort specified
@@ -3765,80 +3692,15 @@ extern "C" asynStatus GalilCreateCSAxes(const char *portName,     //specify whic
     return asynError;
   }
 
-  //Make room for axes list
-  axes = (char *)calloc(MAX_GALIL_AXES, sizeof(char));
-
-  //Make room for coordinate system axes list
-  csaxes = (char *)calloc(MAX_GALIL_CSAXES, sizeof(char));
-
-  //Make room for forward transform variables list
-  for (i = 0; i < MAX_GALIL_VARS; i++)
-  	fwdvars[i] = (char *)calloc(MAX_MESSAGE_LEN, sizeof(char));
-
-  //Make room for reverse transform variables list
-  for (i = 0; i < MAX_GALIL_VARS; i++)
-  	revvars[i] = (char *)calloc(MAX_MESSAGE_LEN, sizeof(char));
-
-  //Make room for forward transform variable substitutes list
-  for (i = 0; i < MAX_GALIL_VARS; i++)
-  	fwdsubs[i] = (char *)calloc(MAX_MESSAGE_LEN, sizeof(char));
-
-  //Make room for reverse transform variable substitutes list
-  for (i = 0; i < MAX_GALIL_VARS; i++)
-  	revsubs[i] = (char *)calloc(MAX_MESSAGE_LEN, sizeof(char));
-
-  //Make room for individual forward transforms
-  for (i = 0; i < MAX_GALIL_CSAXES; i++)
-	fwd[i] = (char *)calloc(MAX_MESSAGE_LEN, sizeof(char));
-
-  //Make room for individual reverse transforms
-  for (i = 0; i < MAX_GALIL_AXES; i++)
-	rev[i] = (char *)calloc(MAX_MESSAGE_LEN, sizeof(char));
-
-  //break up the forward transforms
-  status = pC->breakupTransform(forward, csaxes, fwd);
-
-  //break up the reverse transforms
-  status |= pC->breakupTransform(reverse, axes, rev);
-
-  //Given the axes, and transforms, find and substitute variables in Q-Z range with variables in A-P range
-  //We do this because sCalcPerform only supports 16 arguments
-  status |= pC->findVariableSubstitutes(axes, csaxes, fwd, fwdvars, fwdsubs);
-  status |= pC->findVariableSubstitutes(axes, csaxes, rev, revvars, revsubs);
-
-  //Print results
-  //for (i = 0; i < strlen(axes); i++)
-	//{
-	//printf("i %d csaxes %c fwd %s vars %s subs %s\n", i, csaxes[i], fwd[i], fwdvars[i], fwdsubs[i]);
-	//printf("i %d axes %c rev %s vars %s subs %s\n", i, axes[i], rev[i], revvars[i], revsubs[i]);
-	//}
-
   pC->lock();
 
-  if (!status)
-	{
-	//Create the GalilCSAxis specified in the forward transform
-	for (i = 0; i < strlen(csaxes); i++)
-		pAxis = new GalilCSAxis(pC, csaxes[i], csaxes, fwd[i], fwdvars[i], fwdsubs[i], axes, rev, revvars, revsubs);
-	}
+  //Create all GalilCSAxis from I to P
+  for (i = 0; i < MAX_GALIL_AXES; i++)
+     pAxis = new GalilCSAxis(pC, i + IASCII);
 
   pAxis = NULL;
 
   pC->unlock();
-
-  //Free the ram we used to get started
-  free(csaxes);
-  free(axes);
-  for (i = 0; i < MAX_GALIL_CSAXES; i++)
-        free(fwd[i]);
-  for (i = 0; i < MAX_GALIL_AXES; i++)
-    {
-    free(rev[i]);
-    free(fwdvars[i]);
-    free(revvars[i]);
-    free(fwdsubs[i]);
-    free(revsubs[i]);
-    }
 
   return asynSuccess;
 }
@@ -3932,18 +3794,14 @@ static void GalilCreateAxisCallFunc(const iocshArgBuf *args)
 
 //GalilCreateVAxis iocsh function
 static const iocshArg GalilCreateCSAxesArg0 = {"Controller Port name", iocshArgString};
-static const iocshArg GalilCreateCSAxesArg1 = {"Forward transform", iocshArgString};
-static const iocshArg GalilCreateCSAxesArg2 = {"Reverse transform", iocshArgString};
 
-static const iocshArg * const GalilCreateCSAxesArgs[] =  {&GalilCreateCSAxesArg0,
-                                                          &GalilCreateCSAxesArg1,
-							  &GalilCreateCSAxesArg2};
+static const iocshArg * const GalilCreateCSAxesArgs[] =  {&GalilCreateCSAxesArg0};
 
-static const iocshFuncDef GalilCreateCSAxesDef = {"GalilCreateCSAxes", 3, GalilCreateCSAxesArgs};
+static const iocshFuncDef GalilCreateCSAxesDef = {"GalilCreateCSAxes", 1, GalilCreateCSAxesArgs};
 
 static void GalilCreateCSAxesCallFunc(const iocshArgBuf *args)
 {
-  GalilCreateCSAxes(args[0].sval, args[1].sval, args[2].sval);
+  GalilCreateCSAxes(args[0].sval);
 }
 
 //GalilCreateProfile iocsh function

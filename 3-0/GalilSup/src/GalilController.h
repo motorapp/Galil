@@ -20,12 +20,6 @@
 #ifndef GalilController_H
 #define GalilController_H
 
-#include "macLib.h"
-#include "GalilAxis.h"
-#include "GalilCSAxis.h"
-#include "GalilConnector.h"
-#include "GalilPoller.h"
-
 #if defined _WIN32 || _WIN64
 #define rint(x) floor((x)+0.5)
 #define lrint(x) floor((x)+0.5)
@@ -34,13 +28,14 @@
 
 #define BEGIN_TIMEOUT 2.0
 #define AASCII 65
+#define IASCII 73
 #define QASCII 81
 #define SCALCARGS 16
 #define MAX_GALIL_STRING_SIZE 256
 #define MAX_GALIL_AXES 8
 #define MAX_GALIL_VARS 10
 #define MAX_GALIL_CSAXES 8
-#define MAX_MESSAGE_LEN 256
+#define MAX_FILENAME_LEN 2048
 #define MAX_SEGMENTS 511
 #define COORDINATE_SYSTEMS 2
 #define ANALOG_PORTS 8
@@ -49,6 +44,12 @@
 #define LIMIT_CODE_LEN 80000
 #define INP_CODE_LEN 80000
 #define THREAD_CODE_LEN 80000
+
+#include "macLib.h"
+#include "GalilAxis.h"
+#include "GalilCSAxis.h"
+#include "GalilConnector.h"
+#include "GalilPoller.h"
 
 // drvInfo strings for extra parameters that the Galil controller supports
 #define GalilAddressString		"CONTROLLER_ADDRESS"
@@ -65,8 +66,6 @@
 #define GalilCoordSysMotorsStopString	"COORDINATE_SYSTEM_MOTORS_STOP"
 #define GalilCoordSysMotorsGoString	"COORDINATE_SYSTEM_MOTORS_GO"
 
-#define GalilCoordSysVarString		"COORDINATE_SYSTEM_VARIABLE"
-
 #define GalilProfileFileString		"GALIL_PROFILE_FILE"
 #define GalilProfileMaxVelocityString	"GALIL_PROFILE_MAX_VELOCITY"
 #define GalilProfileMaxAccelerationString	"GALIL_PROFILE_MAX_ACCELERATION"
@@ -78,6 +77,17 @@
 #define GalilOutputCompare1StartString	"OUTPUT_COMPARE_START"
 #define GalilOutputCompare1IncrString	"OUTPUT_COMPARE_INCR"
 #define GalilOutputCompareMessageString	"OUTPUT_COMPARE_MESSAGE"
+
+#define GalilCSMotorVariableString	"CSMOTOR_KINEMATIC_VARIABLE"
+#define GalilCSMotorForwardString	"CSMOTOR_FORWARD_TRANSFORM"
+#define GalilCSMotorReverseAString	"CSMOTOR_REVERSEA_TRANSFORM"
+#define GalilCSMotorReverseBString	"CSMOTOR_REVERSEB_TRANSFORM"
+#define GalilCSMotorReverseCString	"CSMOTOR_REVERSEC_TRANSFORM"
+#define GalilCSMotorReverseDString	"CSMOTOR_REVERSED_TRANSFORM"
+#define GalilCSMotorReverseEString	"CSMOTOR_REVERSEE_TRANSFORM"
+#define GalilCSMotorReverseFString	"CSMOTOR_REVERSEF_TRANSFORM"
+#define GalilCSMotorReverseGString	"CSMOTOR_REVERSEG_TRANSFORM"
+#define GalilCSMotorReverseHString	"CSMOTOR_REVERSEH_TRANSFORM"
 
 #define GalilMotorStopGoString		"MOTOR_STOPGO"
 #define GalilSSIConnectedString		"MOTOR_SSI_CONNECTED"
@@ -169,8 +179,6 @@ public:
   //Coordinate system axis
   GalilCSAxis* getCSAxis(asynUser *pasynUser);
   GalilCSAxis* getCSAxis(int axisNo);
-  asynStatus breakupTransform(char *raw, char *axes, char **equations);
-  asynStatus findVariableSubstitutes(char *axes, char *csaxes, char **equations, char **variables, char **substitutes);
 
   /* These are the methods that we override from asynPortDriver */
   asynStatus writeUInt32Digital(asynUser *pasynUser, epicsUInt32 value, epicsUInt32 mask);
@@ -234,7 +242,7 @@ protected:
   int GalilCoordSysSegments_;
   int GalilCoordSysMotorsStop_;
   int GalilCoordSysMotorsGo_;
-  int GalilCoordSysVar_;
+
   int GalilProfileFile_;
   int GalilProfileMaxVelocity_;
   int GalilProfileMaxAcceleration_;
@@ -246,6 +254,17 @@ protected:
   int GalilOutputCompareStart_;
   int GalilOutputCompareIncr_;
   int GalilOutputCompareMessage_;
+
+  int GalilCSMotorVariable_;
+  int GalilCSMotorForward_;
+  int GalilCSMotorReverseA_;
+  int GalilCSMotorReverseB_;
+  int GalilCSMotorReverseC_;
+  int GalilCSMotorReverseD_;
+  int GalilCSMotorReverseE_;
+  int GalilCSMotorReverseF_;
+  int GalilCSMotorReverseG_;
+  int GalilCSMotorReverseH_;
 
   int GalilMotorStopGo_;
   int GalilEStall_;
@@ -313,9 +332,9 @@ private:
   asynUser *pasynUserGalil_;
   Galil *gco_;				//Galil communication object (gco_).  From galil communication lib
   GalilPoller *poller_;			//GalilPoller to acquire a datarecord
-  char address_[256];			//address string
-  char model_[256];			//model string
-  char code_file_[2048];		//Code file(s) that user gave to GalilStartController
+  char address_[MAX_GALIL_STRING_SIZE];	//address string
+  char model_[MAX_GALIL_STRING_SIZE];	//model string
+  char code_file_[MAX_FILENAME_LEN];	//Code file(s) that user gave to GalilStartController
 
   int burn_program_;			//Burn program options that user gave to GalilStartController
 					
@@ -357,11 +376,12 @@ private:
   char resp_[MAX_GALIL_STRING_SIZE];    //Response from Galil controller
 
 					//Stores the motor enable disable interlock digital IO setup, only first 8 digital in ports supported
-  struct Galilmotor_enables motor_enables_[8];
+  struct Galilmotor_enables motor_enables_[MAX_GALIL_AXES];
 
   friend class GalilAxis;
   friend class GalilCSAxis;
   friend class GalilPoller;
+  friend class GalilConnector;
 };
 #define NUM_GALIL_PARAMS (&LAST_GALIL_PARAM - &FIRST_GALIL_PARAM + 1)
 #endif  // GalilController_H

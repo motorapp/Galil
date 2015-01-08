@@ -26,6 +26,7 @@
 #include <iostream>  //cout
 #include <sstream>   //ostringstream istringstream
 #include <typeinfo>  //std::bad_typeid
+#include <algorithm> //std::unique, std::distance
 
 using namespace std; //cout ostringstream vector string
 
@@ -50,15 +51,7 @@ extern "C" {
 /** Creates a new GalilCSAxis object.
   */
 GalilCSAxis::GalilCSAxis(class GalilController *pC, 	//The GalilController
-	     char axisname,				//The coordinate system axis name I-P
-	     char *csaxes,				//List of coordinate system axis
-             char *forward,				//Forward kinematic transform used to calculate the coordinate system axis position from real axis positions
-             char *fwdvars,				//Forward kinematic variables List of Q-X
-	     char *fwdsubs,				//Forward kinematic substitutes List of A-P
-             char *axes,				//List of real axis
-	     char **reverse,				//Reverse transforms to calculate each real axis position in the coordinate system
-	     char **revvars,				//Reverse kinematic variables List of Q-X
-	     char **revsubs)				//Reverse kinematic substitutes List of A-P
+	     char axisname)
   : asynMotorAxis(pC, (toupper(axisname) - AASCII)),
     pC_(pC)
 {
@@ -67,34 +60,66 @@ GalilCSAxis::GalilCSAxis(class GalilController *pC, 	//The GalilController
   //Store axis name
   axisName_ = (char)(toupper(axisname));
 
+  //List of real motors related to this CS motor as extracted from this CS Motor transform equation
+  //Real motor equations are reverse kinematic equations
+  revaxes_ = (char *)calloc(MAX_GALIL_AXES, sizeof(char));
+
+  //List of CS motors related to this CS motor as extracted from the reverse kinematic equations
+  //CS motor equations are forward kinematic equations
+  fwdaxes_ = (char *)calloc(MAX_GALIL_AXES, sizeof(char));
+
+  //forward kinematic transform used to calculate the CS motor position from real motor positions
+  forward_ = (char *)calloc(MAX_GALIL_STRING_SIZE, sizeof(char));
+
+  //Forward kinematic variables List of Q-Z
+  fwdvars_ = (char *)calloc(MAX_GALIL_AXES, sizeof(char));
+
+  //Forward kinematic substitutes List of A-P
+  fwdsubs_ = (char *)calloc(MAX_GALIL_AXES, sizeof(char));
+
+  //Reverse transforms for the real axis
+  reverse_ = (char **)calloc(MAX_GALIL_AXES, sizeof(char*));
+  //Reverse transforms variables
+  revvars_ = (char **)calloc(MAX_GALIL_AXES, sizeof(char*));
+  //Reverse transforms substitutes
+  revsubs_ = (char **)calloc(MAX_GALIL_AXES, sizeof(char*));
+
+  for (i = 0; i < MAX_GALIL_AXES; i++)
+     {
+     //Reverse transforms for the real axis
+     reverse_[i] = (char *)calloc(MAX_GALIL_STRING_SIZE, sizeof(char));
+     //Reverse transforms variables
+     revvars_[i] = (char *)calloc(MAX_GALIL_STRING_SIZE, sizeof(char));
+     //Reverse transforms substitutes
+     revsubs_[i] = (char *)calloc(MAX_GALIL_STRING_SIZE, sizeof(char));
+     }
+
   //set defaults
   setDefaults();
-  //Store list of real axis
-  raxes_ = epicsStrDup(axes);
-  //Store list of coordinate system axis
-  csaxes_ = epicsStrDup(csaxes);
-  //Store forward kinematic transform for this coordinate system axis
-  forward_ = epicsStrDup(forward);
-  //Store forward kinematic variables
-  fwdvars_ = epicsStrDup(fwdvars);
-  //Store forward kinematic substitutes
-  fwdsubs_ = epicsStrDup(fwdsubs);
-  //Store reverse transforms for the real axis
-  reverse_ = (char **)calloc(MAX_GALIL_AXES, sizeof(char));
-  //Store reverse transforms variables
-  revvars_ = (char **)calloc(MAX_GALIL_AXES, sizeof(char));
-  //Store reverse transforms substitutes
-  revsubs_ = (char **)calloc(MAX_GALIL_AXES, sizeof(char));
+}
 
-  for (i = 0; i < strlen(raxes_); i++)
-	{
-	//Store reverse transforms for the real axis
-	reverse_[i] = epicsStrDup(reverse[i]);
-	//Store reverse transforms variables
-	revvars_[i] = epicsStrDup(revvars[i]);
-	//Store reverse transforms substitutes
-	revsubs_[i] = epicsStrDup(revsubs[i]);
-	}
+//GalilAxis destructor
+GalilCSAxis::~GalilCSAxis()
+{
+   unsigned i;
+
+   //Free the ram we used for kinematics
+   free(revaxes_);
+   free(fwdaxes_);
+   free(forward_);
+   free(fwdvars_);
+   free(fwdsubs_);
+
+   for (i = 0; i < MAX_GALIL_AXES; i++)
+      {
+      free(reverse_[i]);
+      free(revvars_[i]);
+      free(revsubs_[i]);
+      }
+
+   free(reverse_);
+   free(revvars_);
+   free(revsubs_);
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -104,15 +129,18 @@ GalilCSAxis::GalilCSAxis(class GalilController *pC, 	//The GalilController
 asynStatus GalilCSAxis::setDefaults(void)
 {
   //const char *functionName = "GalilCSAxis::setDefaults";
+  unsigned i;
 
   //Set encoder stall flag to false
   setIntegerParam(pC_->GalilEStall_, 0);
   //Store axis in ParamList
   setIntegerParam(pC_->GalilAxis_, axisNo_);
-  // We assume motor with encoder
+  //We assume motor with encoder
   setIntegerParam(pC_->motorStatusGainSupport_, 1);
   setIntegerParam(pC_->motorStatusHasEncoder_, 1);
-  callParamCallbacks();
+  //Default all reverse kinematics to null strings
+  for (i = 0; i < MAX_GALIL_AXES; i++)
+     pC_->setStringParam(axisNo_, pC_->GalilCSMotorReverseA_ + i, "");
 
   //Give default readback values for positions, movement direction
   motor_position_ = 0;
@@ -124,6 +152,9 @@ asynStatus GalilCSAxis::setDefaults(void)
   stop_onlimit_ = false;
   //A move has not been started by this cs axis
   move_started_ = false;
+  //Axis not ready until necessary motor record fields have been pushed into driver
+  //So we use "use encoder if present" UEIP field to set axisReady_ to true
+  axisReady_ = false;
 
   return asynSuccess;
 }
@@ -140,7 +171,7 @@ asynStatus GalilCSAxis::move(double position, int relative, double minVelocity, 
   //static const char *functionName = "GalilCSAxis::move";
   unsigned i;
   double nmotor_positions[MAX_GALIL_AXES];	//New motor position targets for real axis
-  GalilAxis *pAxis;				//Real GalilAxis
+  GalilAxis *pAxis;				//Real motor
   int status = asynError;
 
   //Clear stop on limit before move
@@ -161,14 +192,14 @@ asynStatus GalilCSAxis::move(double position, int relative, double minVelocity, 
 	{
 	//Now set controller deferred move flag
 	pC_->setDeferredMoves(true);
-
-	for (i = 0; i < strlen(raxes_); i++)
+        epicsThreadSleep(.001);
+	
+	for (i = 0; i < strlen(revaxes_); i++)
 		{
-		//Retrieve the GalilAxis real axis
-		pAxis = pC_->getAxis(raxes_[i] - AASCII);
+		//Retrieve the axis
+                pAxis = pC_->getAxis(revaxes_[i] - AASCII);
 		if (!pAxis) continue;
-
-		//Move the motors
+		//Move the motor
 		pAxis->move(nmotor_positions[i], relative, minVelocity, maxVelocity, acceleration);
 		}
 
@@ -265,6 +296,260 @@ int GalilCSAxis::selectFreeCoordinateSystem(void)
   return coordsys;
 }
 
+/** Contruct axis list from given transform equation
+  * \param[in] equation - Kinematic transform equation
+  * \param[out] axes - List of axes found in the transform equation
+  */
+asynStatus GalilCSAxis::obtainAxisList(char axis, char *equation, char *axes)
+{
+   unsigned i;				//Looping
+   size_t found;			//Used to search axes string
+   string axes_s = "";			//std::string axes list will be constructed
+   bool forward = (axis >= 'I' && axis <='P') ? true : false;	//Transform direction forward or reverse
+   char first = (forward) ? 'I' : 'A';	//Axis range that is not allowed
+   char last = (forward) ? 'P' : 'H';	//Axis range that is not allowed
+   char mesg[MAX_GALIL_STRING_SIZE];	//Controller error mesg
+   
+   //Construct list of axis found in equation
+   for (i = 0; i < strlen(equation); i++)
+      {
+      equation[i] = toupper(equation[i]);
+      //Create list of axis found in equation
+      if ((equation[i] >= 'A' && equation[i] <= 'P' && !isalpha(equation[i+1]) && !i) ||
+         (i && equation[i] >= 'A' && equation[i] <= 'P' && !isalpha(equation[i+1]) && !isalpha(equation[i-1])))
+         {
+         //Ensure no CS motors in forward equations, and no real motors in reverse equations
+         if ((equation[i] >= first && equation[i] <= last && !isalpha(equation[i+1]) && !i) ||
+             (i && equation[i] >= first && equation[i] <= last && !isalpha(equation[i+1]) && !isalpha(equation[i-1])))
+            {
+            if (axisReady_)
+               {
+               //CS motors were found in forward transform, or real motors found in reverse transform
+               //reverseTransform and forwardTransform methods will not function in this case
+               sprintf(mesg, "%c transform substition failed", axis);
+               pC_->setCtrlError(mesg);
+               return asynError;
+               }
+            }
+
+         //Use std::string to avoid adding axis multiple times
+         found = axes_s.find(equation[i]);
+         //Add axis to list if hasnt been added already
+         if (found == string::npos)
+            {
+            //Store the axis in the list
+            axes_s.push_back(equation[i]);
+            }
+         }//Axis list
+      }
+   //Sort the axes list
+   sort(axes_s.begin(), axes_s.end());
+   //Remove any duplicates
+   axes_s.erase(std::unique(axes_s.begin(), axes_s.end()), axes_s.end());
+   //Copy into axes
+   strcpy(axes, axes_s.c_str());
+
+   return asynSuccess;
+}
+
+/** For reverseTransform and forwardTransform methods to work properly
+  * Reverse transform equations must only contain CS motors, and 
+  * Forward transform equations must only contain Real motors.
+  * Perform string substitution on provided equation to satisfy above rules
+  * \param[in] axis    	    - Axis that the provided kinematic equation relates to (ie. axis=equation)
+  * \param[in/out] equation - Kinematic transform equation
+  */
+asynStatus GalilCSAxis::substituteTransforms(char axis, char *equation)
+{
+  unsigned i, j;						//Looping
+  bool forward = (axis >= 'I' && axis <='P') ? true : false;	//Transform direction forward or reverse
+  string equation_s = equation;					//For string substitution
+  char subst_transform[MAX_GALIL_STRING_SIZE];			//The substitute transform		
+  char first = (forward) ? 'I' : 'A';				//Axis we substitute for complete transform
+  char last = (forward) ? 'P' : 'H';				//Axis we substitute for complete transform
+  char mesg[MAX_GALIL_STRING_SIZE];				//Controller error mesg
+
+  //Scan through transform equation
+  for (j = 0; j < MAX_GALIL_CSAXES + 1; j++)
+     for (i = 0; i < strlen(equation); i++)
+        {
+        equation[i] = toupper(equation[i]);
+        if ((equation[i] >= first && equation[i] <= last && !isalpha(equation[i+1]) && !i) ||
+            (i && equation[i] >= first && equation[i] <= last && !isalpha(equation[i+1]) && !isalpha(equation[i-1])))
+           {
+           //Found a motor we want to substitute with a complete transform
+           //Retrieve the substitute transform
+           if (forward)
+              pC_->getStringParam(equation[i] - AASCII, pC_->GalilCSMotorForward_ , MAX_GALIL_STRING_SIZE, subst_transform);
+           else
+              pC_->getStringParam(axisNo_, pC_->GalilCSMotorReverseA_ + equation[i] - AASCII, MAX_GALIL_STRING_SIZE, subst_transform);
+
+           //Substitute motor letter with complete transform
+           equation_s.replace(i,i+1, subst_transform);
+           strcpy(equation, equation_s.c_str());
+           //If we keep finding things to substitute by this time there are either
+           //Too many CS motors in forward equations or too many real motors in reverse equations 
+           if ((j == MAX_GALIL_CSAXES) && axisReady_)
+              {
+              sprintf(mesg, "%c transform has too many substitutes", axis);
+              pC_->setCtrlError(mesg);
+              return asynError;
+              }
+           }
+        }
+
+  return asynSuccess;
+}
+
+/** Find kinematic variables Q-X and substitute them for variable in range A-P for sCalcPerform
+  * \param[in] axis    	    - Axis that provided kinematic equation relates to (ie. axis=equation)
+  * \param[in] equation     - Kinematic transform equation
+  * \param[in] axes   	    - List of axis found in the equation
+  * \param[out] variables   - List variables found in the equation
+  * \param[out] substitutes - List substitutes that replaced the variables
+  */
+asynStatus GalilCSAxis::substituteVariables(char axis, char *equation, char *axes, char *vars, char *subs)
+{
+   unsigned arg_status[SCALCARGS];	//sCalcPerform argument used status
+   unsigned i, j, k;			//Looping/indexing
+   bool findarg;			//Do we need to find an arg position for this variable, or have we done so already
+   char mesg[MAX_GALIL_STRING_SIZE];	//Controller error mesg
+
+   //Default variable list
+   strcpy(vars, "");
+
+   //Default substitution list
+   strcpy(subs, "");
+
+   //Default sCalcPerform arg status.  No args used
+   for (i = 0; i < SCALCARGS; i++)
+      arg_status[i] = false;
+
+   //Flag arg for motors in axes list as used
+   for (i = 0; i < strlen(axes); i++)
+      arg_status[axes[i] - AASCII] = true;
+
+   //Flag arg for specified axis as used
+   arg_status[axis - AASCII] = true;
+
+   k = 0;
+   //Now find variables in range Q-Z, and substitute them for variable in range A-P
+   for (i = 0; i < strlen(equation); i++)
+      {
+      //Variable substitution
+      if ((equation[i] >= 'Q' && equation[i] <= 'Z' && !isalpha(equation[i+1]) && !i) ||
+         (i && equation[i] >= 'Q' && equation[i] <= 'Z' && !isalpha(equation[i+1]) && !isalpha(equation[i-1])))
+         {
+         findarg = true;
+         //Check if we have found an arg position for this variable already
+         for (j = 0; j < strlen(vars); j++)
+            if (vars[j] == equation[i])
+               {
+               findarg = false;
+               break;
+               }
+
+         if (findarg)
+            {
+            //We need to find an argument position
+            //Store the found variable
+            vars[k] = equation[i];
+            vars[k + 1] = '\0';
+            //Find free argument position
+            for (j = 0; j < SCALCARGS; j++)
+               {
+               if (!arg_status[j])
+                  {
+                  //Found free arg position, use it
+                  arg_status[j] = true;
+                  //Calculate letter A-P which corresponds to this arg position
+                  subs[k] = j + AASCII;
+                  subs[k+1] = '\0';
+                  break;
+                  }
+		//Did we find a free arg position for this kinematic variable ?
+		if (j == SCALCARGS)
+		   {
+                   sprintf(mesg, "%c simplify kinematic equation", axis);
+                   pC_->setCtrlError(mesg);
+                   return asynError;
+                   }
+                }
+             //Substitute the variable
+             equation[i] = subs[k];
+             k++;
+             }
+         else
+             {
+             //Substitute the variable
+             equation[i] = subs[k];
+             }
+         }//Variable substition
+      }
+
+   return asynSuccess;
+}
+
+/** Parse a kinematic transform equation.  Used to parse kinematic equation into GalilCSAxis instance
+  * \param[in] axis    	    - Axis that provided kinematic equation relates to (ie. axis=equation)
+  * \param[in/out] equation - Kinematic transform equation
+  * \param[out] axes   	    - List of axis found in the equation
+  * \param[out] variables   - List variables found in the equation
+  * \param[out] substitutes - List substitutes that replaced the variables
+  */
+asynStatus GalilCSAxis::parseTransform(char axis, char *equation, char *axes, char *vars, char *subs)
+{  
+   int status;
+
+   //Only CS motors appear in reverse equations
+   //Only Real motors appear in forward equations
+   //Apply substitution to ensure this is true or fail
+   status = substituteTransforms(axis, equation);
+   //Create axes list from transform equation
+   status |= obtainAxisList(axis, equation, axes);
+   //Replace variables in range Q-X with variables in range A-P for sCalcPerform
+   status |= substituteVariables(axis, equation, axes, vars, subs);
+  
+   return asynStatus(status);
+}
+
+//Parse the kinematic equations and load into GalilCSAxis instance
+asynStatus GalilCSAxis::parseTransforms(void)
+{
+  unsigned i;
+  int status;
+  string fwdaxes_s = "";
+
+  //Flag kinematic error not yet reported
+  kinematic_error_reported_ = false;
+
+  //Retrieve forward kinematic equation for this cs axis (eg. I=(A+B)/2)
+  status = pC_->getStringParam(axisNo_, pC_->GalilCSMotorForward_ , MAX_GALIL_STRING_SIZE, forward_);
+  //Parse forward transform into GalilCSAxis instance
+  if (strcmp(forward_, ""))
+     status |= parseTransform(axisName_, forward_, revaxes_, fwdvars_, fwdsubs_);
+ 
+  //Retrieve reverse kinematic equations for axes found in forward transform retrieved above
+  for (i = 0; i < strlen(revaxes_); i++)
+     {
+     //Retrieve reverse transform for axis specified in revaxes_
+     status |= pC_->getStringParam(axisNo_, pC_->GalilCSMotorReverseA_ + revaxes_[i] - AASCII, MAX_GALIL_STRING_SIZE, reverse_[i]);
+     //Parse reverse transform into GalilCSAxis instance
+     if (strcmp(reverse_[i], ""))
+        status |= parseTransform(revaxes_[i], reverse_[i], fwdaxes_, revvars_[i], revsubs_[i]);
+     //Concat axis list found in last reverse transform
+     fwdaxes_s += fwdaxes_;
+     //Sort the axes list
+     sort(fwdaxes_s.begin(), fwdaxes_s.end());
+     //Remove any duplicates
+     fwdaxes_s.erase(std::unique(fwdaxes_s.begin(), fwdaxes_s.end()), fwdaxes_s.end());
+     //Copy into fwdaxes_
+     strcpy(fwdaxes_, fwdaxes_s.c_str());
+     }
+
+  return asynStatus(status);
+}
+
 /* Given axis list, retrieve readbacks and pack into margs (motor position) and eargs (encoder position)
  * \param[in] axes - Axis list
  * \param[in] margs - Motor position related arguments
@@ -314,33 +599,32 @@ int GalilCSAxis::reverseTransform(double nposition, double nmotor_positions[])
   unsigned i, j;
   int status = asynSuccess;
 
-  //Pack args for csaxes
-  status |= packKinematicArgs(csaxes_, margs, eargs);
+  //Pack args for forward axes
+  status |= packKinematicArgs(fwdaxes_, margs, eargs);
+
+  //Pack args for reverse axes
+  status |= packKinematicArgs(revaxes_, margs, eargs);
 
   //Retrieve needed motor record parameters
   status |= pC_->getDoubleParam(axisName_ - AASCII, pC_->motorResolution_, &mres);
-
   //Substitute new motor position received for this csaxis, instead of using readback
   //Also convert position into dial coordinates
   margs[axisName_ - AASCII] = nposition * mres;
 
-  //Pack args for real axes
-  status |= packKinematicArgs(raxes_, margs, eargs);
-
-  for (i = 0; i < strlen(raxes_); i++)
+  for (i = 0; i < strlen(revaxes_); i++)
 	{
 	//Get variable values specified
 	//and pack them in margs for the reverse transform calculation
 	for (j = 0; j < strlen(revvars_[i]); j++)
 		{
 		//Get the variable values. Q-Z variables stored in addr 0-9
-		status |= pC_->getDoubleParam(revvars_[i][j] - QASCII, pC_->GalilCoordSysVar_, &mpos);
+		status |= pC_->getDoubleParam(revvars_[i][j] - QASCII, pC_->GalilCSMotorVariable_, &mpos);
 		//Pack variable positions for motor calc
 		if (!status)
 			margs[revsubs_[i][j] - AASCII] = mpos;
 		}
 	//Retrieve needed motor record parameters
-	status |= pC_->getDoubleParam(raxes_[i] - AASCII, pC_->motorResolution_, &mres);
+	status |= pC_->getDoubleParam(revaxes_[i] - AASCII, pC_->motorResolution_, &mres);
 
 	if (!status)
 		{
@@ -361,23 +645,23 @@ int GalilCSAxis::forwardTransform(void)
   unsigned i;
   double margs[SCALCARGS];	//Motor positions used in the forward transform
   double eargs[SCALCARGS];	//Encoder positions used in the forward transform
-  double mpos, epos;		//Real axis motor and encoder position in steps/counts
+  double mpos, epos;		//Motor and encoder position in steps/counts
   double mres, eres;		//Motor record mres, and eres
   int status = asynSuccess;	//Asyn paramList return code
 
-  //Pack args for real axes
-  status |= packKinematicArgs(raxes_, margs, eargs);
+  //Pack args for reverse axes
+  status |= packKinematicArgs(revaxes_, margs, eargs);
 
-  //Pack args for csaxes
-  status |= packKinematicArgs(csaxes_, margs, eargs);
+  //Pack args for forward axes
+  status |= packKinematicArgs(fwdaxes_, margs, eargs);
 
   //Get variable values specified
   //and pack them in margs, eargs for the forward transform calculation
   for (i = 0; i < strlen(fwdvars_); i++)
 	{
 	//Get the variable values. Q-Z variables stored in addr 0-9
-	status |= pC_->getDoubleParam(fwdvars_[i] - QASCII, pC_->GalilCoordSysVar_, &epos);
-	status |= pC_->getDoubleParam(fwdvars_[i] - QASCII, pC_->GalilCoordSysVar_, &mpos);
+	status |= pC_->getDoubleParam(fwdvars_[i] - QASCII, pC_->GalilCSMotorVariable_, &epos);
+	status |= pC_->getDoubleParam(fwdvars_[i] - QASCII, pC_->GalilCSMotorVariable_, &mpos);
 	//Pack variable positions for motor calc
 	if (!status)
 		margs[fwdsubs_[i] - AASCII] = mpos;
@@ -406,22 +690,33 @@ int GalilCSAxis::forwardTransform(void)
 }
 
 //Perform kinematic calculations
+//Evaluate expression, return result
 asynStatus GalilCSAxis::doCalc(const char *expr, double args[], double *result) {
-    /* Evaluate expression, return result */
-    unsigned char rpn[512];	//Expression is converted to reverse polish notation 
-    short err;
+   
+   unsigned char rpn[512];		//Expression is converted to reverse polish notation 
+   short err;
+   bool error = false;			//Error status
+   char mesg[MAX_GALIL_STRING_SIZE];	//Controller error mesg
     
-    *result = 0.0;
+   *result = 0.0;
 
-    //We use sCalcPostfix and sCalcPerform because it can handle upto 16 args
-    if (sCalcPostfix(expr, rpn, &err)) {
-	printf("sCalcPostfix error in expression %s \n", expr);
-	return asynError;
-    } else 
-	if (sCalcPerform(args, SCALCARGS, NULL, 0, result, NULL, 0, rpn) && finite(*result)) {
-	    printf("calcPerform: error evaluating '%s'", expr);
-	    return asynError;
-    }
+   //For empty expressions
+   if (!strcmp(expr, ""))
+      return asynSuccess;
+
+   //We use sCalcPostfix and sCalcPerform because it can handle upto 16 args
+   if (sCalcPostfix(expr, rpn, &err))
+      error = true;
+   else if (sCalcPerform(args, SCALCARGS, NULL, 0, result, NULL, 0, rpn) && finite(*result))
+      error = true;
+
+   if (error && !kinematic_error_reported_)
+      {
+      sprintf(mesg, "%c Cannot evaluate expression %s", axisName_, expr);
+      pC_->setCtrlError(mesg);
+      kinematic_error_reported_ = true;
+      return asynError;
+      }
 
     return asynSuccess;
 }
@@ -469,25 +764,25 @@ asynStatus GalilCSAxis::poll(bool *moving)
    else if (motor_position_ < last_motor_position_)
 	direction_ = 0;
 
-   //Get real axis limits, and work out what to propagate to the cs axis
+   //Get axis limits, and work out what to propagate to the cs axis
    //Also propagate ANY encoder slip/stall status, and move status to cs axis
-   for (i = 0; i < strlen(raxes_); i++)
+   for (i = 0; i < strlen(revaxes_); i++)
 	{
-	//Retrieve the GalilAxis real axis
-	pAxis = pC_->getAxis(raxes_[i] - AASCII);
+	//Retrieve the axis
+	pAxis = pC_->getAxis(revaxes_[i] - AASCII);
 	if (!pAxis) continue;
 	//Check if real motor stopping on limit only if this cs axis started a move
 	if ((pAxis->stop_code_ == 2 && move_started_) || (pAxis->stop_code_ == 3 && move_started_))
 		stop_onlimit_ = true;
 	//Retrieve moving status
-	status = pC_->getIntegerParam(raxes_[i] - AASCII, pC_->motorStatusMoving_, &rmoving);
+	status = pC_->getIntegerParam(revaxes_[i] - AASCII, pC_->motorStatusMoving_, &rmoving);
 	//Or moving status from all real axis to derive cs moving status
 	csmoving |= rmoving;
 	//Retrieve limit status
-	status |= pC_->getIntegerParam(raxes_[i] - AASCII, pC_->motorStatusLowLimit_, &rev);
-	status |= pC_->getIntegerParam(raxes_[i] - AASCII, pC_->motorStatusHighLimit_, &fwd);
+	status |= pC_->getIntegerParam(revaxes_[i] - AASCII, pC_->motorStatusLowLimit_, &rev);
+	status |= pC_->getIntegerParam(revaxes_[i] - AASCII, pC_->motorStatusHighLimit_, &fwd);
 	//Retrieve stall/following error status
-	status |= pC_->getIntegerParam(raxes_[i] - AASCII, pC_->motorStatusSlip_, &slipstall);
+	status |= pC_->getIntegerParam(revaxes_[i] - AASCII, pC_->motorStatusSlip_, &slipstall);
 	//Or slipstall from all real axis to derive cs slipstall status
 	csslipstall |= slipstall;
 	if (!status)
