@@ -32,7 +32,7 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
         <h3>
-<a name="welcome" class="anchor" href="#welcome"><span class="octicon octicon-link"></span></a>Welcome</h3>
+<a id="welcome" class="anchor" href="#welcome" aria-hidden="true"><span class="octicon octicon-link"></span></a>Welcome</h3>
 
 <p>This software branch was sent to Galil for their own separate development on 20/11/2013.  The EPICS driver advertised and  supported by Galil should now be considered a separate branch and it's origins are from this software.  </p>
 
@@ -42,19 +42,25 @@
 
 <p>A) Asyn model 3 architecture<br>
 B) Motor record support<br>
-C) Analog and Digital IO<br>
-D) Output TTL pulses for closed-loop motor delta distance  (ie. output compare)<br>
-E) Time based profile motion (Trajectories)<br>
-F) Coordinate system axes (eg. Slit width)<br>
-G) Deferred moves facility<br>
-H) Coordinated motion for up to 8 motors<br>
-I) Sophisticated connection management<br>
-J) Fast update rates 8ms<br>
-K) Example MEDM screens<br>
-L) Example IOC<br>
-M) Autosave request files<br>
-N) RIO PLC supported<br>
-O) Intended to replace Galil EPICS 1-5 driver  </p>
+C) Motor record PREM/POST function is supported<br>
+D) Analog and Digital IO<br>
+E) Output TTL pulses for closed-loop motor delta distance  (ie. output compare)<br>
+F) Time based profile motion (Trajectories)<br>
+G) Coordinate system axes (eg. Slit width)<br>
+H) Kinematics adjustable via database puts<br>
+I) Deferred moves facility<br>
+J) True coordinated motion for up to 8 motors<br>
+K) Auto motor power On/Off with adjustable delays<br>
+L) Sophisticated Galil code generator, no need to program low level<br>
+M) Ability to construct low level code from templates<br>
+N) User definable control/monitor functions with full record support<br>
+O) Sophisticated connection management<br>
+P) Fast update rates 8ms<br>
+Q) Example MEDM screens<br>
+R) Example IOC<br>
+S) Autosave request files<br>
+T) RIO PLC supported<br>
+U) Intended to replace Galil EPICS 1-5 driver  </p>
 
 <p>The driver is for linux runlevel 5, or windows.  </p>
 
