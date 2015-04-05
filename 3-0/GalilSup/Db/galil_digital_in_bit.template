@@ -1,6 +1,6 @@
-# $File: //ASP/Dev/SBS/4_Controls/4_3_Network_Infrastructure/4_3_1_Comms_Common_Services/sw/device_drivers/Galil/1-5/galilSup/Db/galil_digital_in_bits.template $
-# $Revision: #1 $
-# $DateTime: 2012/03/19 12:39:43 $
+# $File: //ASP/Dev/SBS/4_Controls/4_3_Network_Infrastructure/4_3_1_Comms_Common_Services/sw/device_drivers/Galil/3-0/GalilSup/Db/galil_digital_in_bit.template $
+# $Revision: #2 $
+# $DateTime: 2015/03/30 12:39:35 $
 # $Author: cliftm $
 #
 # This library is free software; you can redistribute it and/or
@@ -28,14 +28,20 @@
 # BYTE - Hardware byte to read
 # MASK - Mask for this bit
 # SCAN - Scan period
+# ZNAM - Zero state name
+# ONAM - One stage name
+# ZSV -  Zero severity
+# OSV -  One severity
 
 record(bi,"$(P):$(R)_STATUS")
 {
         field(DTYP, "asynUInt32Digital")
         field(INP,  "@asynMask($(PORT) $(BYTE) $(MASK))BINARY_IN")
         field(SCAN, "I/O Intr")
-        field(ZNAM, "Low")
-        field(ONAM, "High")
+        field(ZNAM, "$(ZNAM)")
+        field(ONAM, "$(ONAM)")
+        field(ZSV,  "$(ZSV)")
+        field(OSV,  "$(OSV)")
 }
 
 # end

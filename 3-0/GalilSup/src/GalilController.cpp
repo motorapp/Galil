@@ -50,6 +50,11 @@
 //                  Real motors are now allowed in reverse transform equations
 //                  CS motors are now allowed in forward transform equations
 //                  Enhanced shutdown code to delete RAM used by kinematics
+// 05/04/15 M.Clift Added ability to actuate motor brake using digital output
+//                  Added state names and alarm severity to digital template/substitutions
+//                  Fixed problem with CS motor setpoint at startup
+//                  Fixed problem with CS motor using AutoOff delay at move start.  It now uses AutoOn delay at move start
+//                  Fixed problem with config synApps build directory
 
 #include <stdio.h>
 #include <math.h>
@@ -214,6 +219,11 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilAutoOnOffString, asynParamInt32, &GalilAutoOnOff_);
   createParam(GalilAutoOnDelayString, asynParamFloat64, &GalilAutoOnDelay_);
   createParam(GalilAutoOffDelayString, asynParamFloat64, &GalilAutoOffDelay_);
+
+  createParam(GalilAutoBrakeString, asynParamInt32, &GalilAutoBrake_);
+  createParam(GalilAutoBrakeOnDelayString, asynParamFloat64, &GalilAutoBrakeOnDelay_);
+  createParam(GalilBrakePortString, asynParamInt32, &GalilBrakePort_);
+  createParam(GalilBrakeString, asynParamInt32, &GalilBrake_);
 
   createParam(GalilMainEncoderString, asynParamInt32, &GalilMainEncoder_);
   createParam(GalilAuxEncoderString, asynParamInt32, &GalilAuxEncoder_);
@@ -1274,11 +1284,11 @@ void GalilController::executePrem(const char *axes)
       }
 }
 
-//Execute motor auto on for motor list
+//Execute motor auto on and brake off for motor list
 //Obtain lock before calling
-void GalilController::executeAutoOn(const char *axes)
+void GalilController::executeAutoOnBrakeOff(const char *axes)
 {
-   static const char *functionName = "executeAutoOn";
+   static const char *functionName = "executeAutoOnBrakeOff";
    int i;			//Looping
    int autoonoff;		//Auto on/off setting
    int motoroff;		//Motor off status
@@ -1286,7 +1296,10 @@ void GalilController::executeAutoOn(const char *axes)
    GalilAxis *pAxis;		//GalilAxis
    double ondelay;		//GalilAxis auto on delay
    double largest_ondelay = 0.0;//Largest auto on delay in motor list
-
+   int autobrake;		//Brake auto disable/enable setting
+   int brakeoff;		//Motor brake off status
+   int brakeport;		//Brake digital out port
+   bool workdone = false;	//Did work to turn a motor on, or brake off
 
    //Iterate thru motor list and execute AutoOn for each axis
    for (i = 0; i < (int)strlen(axes); i++)
@@ -1295,11 +1308,20 @@ void GalilController::executeAutoOn(const char *axes)
       axisNo = axes[i] - AASCII;
       //Retrieve axis instance
       pAxis = getAxis(axisNo);
-      //Execute AutoOn for this axis
+      //Execute AutoOnBrakeOff for this axis
       if (pAxis)
          {
          //Retrieve Auto power on/off feature status
          getIntegerParam(pAxis->axisNo_, GalilAutoOnOff_, &autoonoff);
+         //Retrieve Auto brake on/off feature status
+         getIntegerParam(pAxis->axisNo_, GalilAutoBrake_, &autobrake);
+         //Retrieve brake digital output port
+         getIntegerParam(pAxis->axisNo_, GalilBrakePort_, &brakeport);
+         //Retrieve axis auto on delay
+         getDoubleParam(pAxis->axisNo_, GalilAutoOnDelay_, &ondelay);
+         //Take note of largest on delay found in axes list
+         if (ondelay > largest_ondelay)
+            largest_ondelay = ondelay;
          //Query motor off status direct from controller
          sprintf(cmd_, "MG _MO%c\n", pAxis->axisName_);
          writeReadController(functionName);
@@ -1307,31 +1329,41 @@ void GalilController::executeAutoOn(const char *axes)
          //Case where auto on delay greater than auto off delay
          //Block auto off function
          pAxis->autooffAllowed_ = false;
+         //Execute auto motor on if feature enabled
          if (motoroff && autoonoff)
             {
-            //Retrieve axis auto on delay
-            getDoubleParam(pAxis->axisNo_, GalilAutoOffDelay_, &ondelay);
-            //Take note of largest on delay found in axes list
-            if (ondelay > largest_ondelay)
-               largest_ondelay = ondelay;
-            //Turn on this axis
-            pAxis->setClosedLoop(true);
+            pAxis->setClosedLoop(true);	//Turn on this axis
+            workdone = true;
+            }
+
+         //Query brake status direct from controller
+         sprintf(cmd_, "MG @OUT[%d]\n", brakeport);
+         writeReadController(functionName);
+         brakeoff = atoi(resp_);
+         //Execute auto brake off if feature enabled
+         if (!brakeoff && autobrake)
+            {
+            pAxis->setBrake(false);	//brake off command
+            workdone = true;
             }
          }
       }
 
    //Wait the longest auto on time found in list
-   if (largest_ondelay > 0.035)
+   if (workdone)
       {
-      //Safe to unlock for ondelay now all axis have autooffAllowed_ = false;
-      unlock();
-      //Wait auto on delay
-      epicsThreadSleep(largest_ondelay);
-      //Get the lock
-      lock();
-      }
-   else
-      epicsThreadSleep(largest_ondelay);
+      if (largest_ondelay > 0.035)
+         {
+         //Safe to unlock for ondelay now all axis have autooffAllowed_ = false;
+         unlock();
+         //Wait auto on delay
+         epicsThreadSleep(largest_ondelay);
+         //Get the lock
+         lock();
+         }
+      else
+         epicsThreadSleep(largest_ondelay);
+     }
 
   //Allow auto off again now we have lock again
   for (i = 0; i < (int)strlen(axes); i++)
@@ -1435,8 +1467,8 @@ asynStatus GalilController::startLinearProfileCoordsys(int coordsys, char coordN
   double begin_time;			//Time taken to begin
   int segprocessed = 0;			//Segments processed by the coordsys
 
-  //Execute motor auto on function
-  executeAutoOn(axes);
+  //Execute motor auto on and brake off function
+  executeAutoOnBrakeOff(axes);
 
   //Execute motor record prem
   executePrem(axes);
@@ -1833,8 +1865,8 @@ asynStatus GalilController::processDeferredMovesInGroup(int coordsys, char *axes
   sprintf(cmd_, "LE");
   writeReadController(functionName);
 
-  //Execute motor auto on function
-  executeAutoOn(axes);
+  //Execute motor auto on and brake off function
+  executeAutoOnBrakeOff(axes);
 
   //Execute motor record prem
   executePrem(axes);
@@ -2248,9 +2280,9 @@ asynStatus GalilController::writeUInt32Digital(asynUser *pasynUser, epicsUInt32 
 				obwpa = 8; 	//Binary out records for RIO support 8 bits per addr
 			//Set or clear bit as required
 			if (value == mask)
-				sprintf(cmd_, "SB %d\n", (addr * obwpa) + i);
+				sprintf(cmd_, "SB %d", (addr * obwpa) + i);
 			else
-				sprintf(cmd_, "CB %d\n", (addr * obwpa) + i);
+				sprintf(cmd_, "CB %d", (addr * obwpa) + i);
 			//Write setting to controller
 			writeReadController(functionName);
 			//We found the correct bit, so break from loop
@@ -2350,6 +2382,20 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 		status = pAxis->setClosedLoop(false);
 	//printf("GalilMotorOn_ cmd:%s value=%d\n", cmd_, value);
 	}
+  else if (function == GalilBrake_)
+	{
+	if (value)
+		{
+		status = pAxis->setBrake(true);
+		pAxis->brakeInit_ = true;
+		}
+	else
+		{
+		status = pAxis->setBrake(false);
+		pAxis->brakeInit_ = false;
+		}
+	//printf("GalilBrake_ cmd:%s value=%d\n", cmd_, value);
+	}
   else if (function == GalilMotorType_)
 	{
 	float newmtr;
@@ -2415,10 +2461,15 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 		//Write setting to controller
 		status = writeReadController(functionName);
 		}
-	//This is one of the last autosave restore items so flag
+	//This is one of the last items pushed into driver at startup so flag
 	//Axis now ready for move commands
 	if (pAxis)
+		{
 		pAxis->axisReady_ = true;	//Real motor
+		//Restore brake cmd state
+		if (addr < MAX_GALIL_AXES)
+			pAxis->restoreBrake();
+		}
 	if (pCSAxis)
 		pCSAxis->axisReady_ = true;	//CS motor
 	}
@@ -3082,7 +3133,9 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
 		{
 		//Put, and wait until poller is in sleep mode
 		//Also stop async records from controller
-		poller_->sleepPoller();			
+		poller_->sleepPoller();
+		//Increase timeout whilst manipulating controller code
+		gco_->timeout_ms = 3000;
 		/*Upload code currently in controller for comparison to generated/user code */
 		try	{
 			uc = gco_->programUpload();
@@ -3107,6 +3160,8 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
 
 		//Remove the \r characters
 		dc.erase (std::remove(dc.begin(), dc.end(), '\r'), dc.end());
+		//Remove final \n character.  In preparation for gclib api
+		//dc.erase(dc.length()-1);
 
 		/*If code we wish to download differs from controller current code then download the new code*/
 		if (dc.compare(uc) != 0 && dc.compare("") != 0)
@@ -3257,6 +3312,8 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
 				errlogPrintf("Code started successfully on model %s, address %s\n",model_, address_);
 			}
 
+		//Decrease timeout now finished manipulating controller code
+		gco_->timeout_ms = 500;
 		//Wake poller, and re-start async records if needed
 		poller_->wakePoller();
 

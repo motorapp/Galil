@@ -115,6 +115,10 @@
 #define GalilAutoOnOffString		"MOTOR_AUTO_ONOFF"
 #define GalilAutoOnDelayString		"MOTOR_AUTO_ONDELAY"
 #define GalilAutoOffDelayString		"MOTOR_AUTO_OFFDELAY"
+#define GalilAutoBrakeString		"MOTOR_AUTO_BRAKE"
+#define GalilAutoBrakeOnDelayString     "MOTOR_AUTO_BRAKEONDELAY"
+#define GalilBrakePortString		"MOTOR_BRAKEPORT"
+#define GalilBrakeString		"MOTOR_BRAKE"
 
 #define GalilMainEncoderString		"MOTOR_MAIN_ENCODER"
 #define GalilAuxEncoderString		"MOTOR_AUX_ENCODER"
@@ -218,8 +222,8 @@ public:
   asynStatus motorsToProfileStartPosition(FILE *profFile, char *axes, bool move);
   //Execute motor record prem function for motor list
   void executePrem(const char *axes);
-  //Execute motor power auto on
-  void executeAutoOn(const char *axes);
+  //Execute auto motor power on, and brake off 
+  void executeAutoOnBrakeOff(const char *axes);
   void processUnsolicitedMesgs(void);
   static std::string extractEthAddr(const char* str);
   void setCtrlError(const char* mesg);
@@ -291,6 +295,10 @@ protected:
   int GalilAutoOnOff_;
   int GalilAutoOnDelay_;
   int GalilAutoOffDelay_;
+  int GalilAutoBrake_;
+  int GalilAutoBrakeOnDelay_;
+  int GalilBrakePort_;
+  int GalilBrake_;
 
   int GalilMainEncoder_;
   int GalilAuxEncoder_;

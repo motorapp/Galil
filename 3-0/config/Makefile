@@ -1,8 +1,8 @@
 #FILENAME:	Makefile
 #USAGE:		Top Makefile
-#Version:	$Revision: #2 $
+#Version:	$Revision: #3 $
 #Modified By:	$Author: cliftm $
-#Last Modified:	$Date: 2012/03/20 $
+#Last Modified:	$Date: 2015/02/26 $
 #NOTES- The "DIRS" order is based on compile time dependencies.
 #     - The user must modify SUPPORT and EPICS_BASE for local configuration.
 #     - To support multiple configurations, use multiple config* directories
@@ -12,8 +12,8 @@
 #	another configuration, then the	DIRS line for that support module
 #       must be commented out (i.e, must begin with a '#').
 
-include MASTER_RELEASE
-MASTER_FILES = MASTER_RELEASE
+include GALILRELEASE
+MASTER_FILES = GALILRELEASE
 
 include CONFIG
 include $(EPICS_BASE)/config/CONFIG_COMMON
@@ -50,7 +50,6 @@ RELEASE_FILES += $(BUSY)/configure/RELEASE
 
 ################### 4th Tier Modules #####################
 
-RELEASE_FILES += $(GALIL)/configure/RELEASE
 
 ################### 5th Tier Modules #####################
 
@@ -69,3 +68,4 @@ all install clean rebuild inc depends build uninstall release:
 ACTIONS += uninstall distclean cvsclean realuninstall
 
 include RULES_DIRS
+

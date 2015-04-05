@@ -680,6 +680,8 @@ record(ao,"$(P):$(M)_ONDELAY_SP")
 	field(PREC, "$(PREC)")
 	field(EGU,  "Secs")
 	field(VAL,  ".2")
+	field(DRVH, "3")
+	field(DRVL, ".001")
 	field(PINI, "YES")
 	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_AUTO_ONDELAY")
 	field(FLNK, "$(P):$(M)_ONDELAY_MON")
@@ -703,9 +705,100 @@ record(ao,"$(P):$(M)_OFFDELAY_SP")
 	field(PREC, "$(PREC)")
 	field(EGU,  "Secs")
 	field(VAL,  ".2")
+	field(DRVH, "3")
+	field(DRVL, ".001")
 	field(PINI, "YES")
 	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_AUTO_OFFDELAY")
 	field(FLNK, "$(P):$(M)_OFFDELAY_MON")
+}
+
+#Motor brake manual control
+record(bo,"$(P):$(M)_BRAKE_CMD")
+{
+	field(DESC, "mtr brake")
+	field(DTYP, "asynInt32")
+	field(PINI, "YES")
+	field(ZNAM, "Off")
+	field(ONAM, "On")
+	field(VAL,  "0")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_BRAKE")
+}
+
+record(bi,"$(P):$(M)_BRAKE_STATUS")
+{
+	field(DESC, "mtr brake")
+	field(DTYP, "asynInt32")
+	field(SCAN, "I/O Intr")
+	field(ZNAM, "Off")
+  	field(ONAM, "On")
+   	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_BRAKE")
+}
+
+#Motor auto brake between moves
+record(bo,"$(P):$(M)_AUTOBRAKE_CMD")
+{
+	field(DESC, "mtr auto brake")
+	field(PINI, "YES")
+	field(DTYP, "asynInt32")
+	field(ZNAM, "Off")
+	field(ONAM, "On")
+	field(VAL,  "0")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_AUTO_BRAKE")
+	field(FLNK, "$(P):$(M)_AUTOBRAKE_STATUS")
+}
+
+record(bi,"$(P):$(M)_AUTOBRAKE_STATUS")
+{
+	field(DESC, "mtr auto brake")
+	field(DTYP, "asynInt32")
+	field(SCAN, "$(SCAN)")
+	field(ZNAM, "Off")
+  	field(ONAM, "On")
+   	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_AUTO_BRAKE")
+}
+
+#Motor auto brake port
+record(ai,"$(P):$(M)_BRAKEPORT_MON")
+{
+	field(DESC, "mtr brake digport")
+	field(DTYP, "asynInt32")
+	field(SCAN, "$(SCAN)")
+	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_BRAKEPORT")
+}
+
+record(ao,"$(P):$(M)_BRAKEPORT_SP")
+{
+	field(DESC, "mtr brake digport")
+	field(DTYP, "asynInt32")
+	field(PINI, "YES")
+	field(DRVH, "16")
+	field(DRVL, "-1")
+	field(VAL,  "-1")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_BRAKEPORT")
+	field(FLNK, "$(P):$(M)_BRAKEPORT_MON")
+}
+
+#Motor auto brake on delay
+record(ai,"$(P):$(M)_BRAKEONDELAY_MON")
+{
+	field(DESC, "mtr brake on delay")
+	field(DTYP, "asynFloat64")
+	field(SCAN, "$(SCAN)")
+	field(PREC, "$(PREC)")
+	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_AUTO_BRAKEONDELAY")
+}
+
+record(ao,"$(P):$(M)_BRAKEONDELAY_SP")
+{
+	field(DESC, "mtr brake on delay")
+	field(DTYP, "asynFloat64")
+	field(PINI, "YES")
+	field(PREC, "$(PREC)")
+	field(VAL,  ".2")
+	field(DRVH, "3")
+	field(DRVL, ".001")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_AUTO_BRAKEONDELAY")
+	field(FLNK, "$(P):$(M)_BRAKEONDELAY_MON")
 }
 
 record(bi,"$(P):$(M)_ON_STATUS")

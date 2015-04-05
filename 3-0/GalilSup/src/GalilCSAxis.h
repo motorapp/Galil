@@ -72,6 +72,7 @@ private:
                                 	*   Abbreviated because it is used very frequently */
   char axisName_;			//The axis letter I-P
   bool axisReady_;			//Have motor record fields been pushed into driver
+  bool lastaxisReady_;			//Show CS axis as moving until after axis ready so initial setpoint in mr matches the readback
   char *fwdaxes_;			//List of CS motors whose transforms should be treated as forward transforms
   char *forward_;			//forward kinematic transform used to calculate the coordinate system (cs) motor position
   char *fwdvars_;			//Forward kinematic variables List of Q-Z

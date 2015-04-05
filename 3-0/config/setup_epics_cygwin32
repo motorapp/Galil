@@ -1,3 +1,0 @@
-export PATH="/usr/bin/:/usr/local/bin:/usr/X11R6/bin/:/corvette/usr/local/epics/base/bin/cygwin-x86:/corvette/usr/local/epics/extensions_devel/bin/cygwin-x86"
-export EPICS_HOST_ARCH=cygwin-x86
-export HOST_ARCH=cygwin-x86

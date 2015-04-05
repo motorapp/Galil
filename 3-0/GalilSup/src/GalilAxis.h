@@ -34,6 +34,7 @@ static const int MOTOR_POST = 1;
 static const int MOTOR_OFF = 2;
 static const int MOTOR_HOMED = 3;
 static const int MOTOR_CANCEL_HOME = 4;
+static const int MOTOR_BRAKE_ON = 5;
 
 class GalilAxis : public asynMotorAxis
 {
@@ -69,47 +70,57 @@ public:
 		       int digitalaway,
 		       char axis_dighome_code[]);
 
-   //Generate axis home routine
-   void gen_homecode(char c, char axis_thread_code[]);
+  //Generate axis home routine
+  void gen_homecode(char c, char axis_thread_code[]);
    
-   //Is the motor in an enabled/go state with current digital IO status
-   bool motor_enabled(void);
-   //Check SSI reading against disconnect value
-   void set_ssi_connectflag(void);
-   //Set SSI setting on controller
-   asynStatus set_ssi(void);
-   //Get SSI setting from controller
-   asynStatus get_ssi(int function, epicsInt32 *value);
-   //Set limdc parameter on controller
-   asynStatus setLimitDecel(double velocity);
-   //Extract axis data from GalilController data record
-   asynStatus getStatus(void);
-   //Set poller status variables bassed on GalilController data record info
-   void setStatus(bool *moving);
-   //Verify encoder operation whilst moving for safety
-   void checkEncoder(void);
-   //Stop motor if wrong limit activated and wrongLimitProtection is enabled
-   void wrongLimitProtection(void);
-   //Sets time motor has been stopped for in GalilAxis::stopped_time_
-   void setStopTime(void);
-   //Reset homing if stopped_time_ great than
-   void checkHoming(void);
-   //Service slow and infrequent requests from poll thread to write to the controller
-   //We do this in a separate thread so the poll thread is not slowed
-   //Also poll thread doesnt have a lock and is not allowed to call writeReadController
-   void pollServices(void);
-   //Execute motor record prem function
-   void executePrem(void);
-   //Execute motor power auto on
-   void executeAutoOn(void);
-   //Execute motor record post function
-   void executePost(void);
-   //Execute motor power auto off
-   void executeAutoOff(void);
-   //Check velocity and wlp protection
-   asynStatus beginCheck(const char *functionName, double maxVelocity);
-   //Begin motor motion
-   asynStatus beginMotion(const char *caller);
+  //Is the motor in an enabled/go state with current digital IO status
+  bool motor_enabled(void);
+  //Check SSI reading against disconnect value
+  void set_ssi_connectflag(void);
+  //Set SSI setting on controller
+  asynStatus set_ssi(void);
+  //Get SSI setting from controller
+  asynStatus get_ssi(int function, epicsInt32 *value);
+  //Set limdc parameter on controller
+  asynStatus setLimitDecel(double velocity);
+  //Extract axis data from GalilController data record
+  asynStatus getStatus(void);
+  //Set poller status variables bassed on GalilController data record info
+  void setStatus(bool *moving);
+  //Verify encoder operation whilst moving for safety
+  void checkEncoder(void);
+  //Stop motor if wrong limit activated and wrongLimitProtection is enabled
+  void wrongLimitProtection(void);
+  //Sets time motor has been stopped for in GalilAxis::stopped_time_
+  void setStopTime(void);
+  //Reset homing if stopped_time_ great than
+  void checkHoming(void);
+  //Service slow and infrequent requests from poll thread to write to the controller
+  //We do this in a separate thread so the poll thread is not slowed
+  //Also poll thread doesnt have a lock and is not allowed to call writeReadController
+  void pollServices(void);
+  //Execute motor record prem function
+  void executePrem(void);
+  //Execute auto motor power on
+  bool executeAutoOn(void);
+  //Execute auto motor brake off
+  bool executeAutoBrakeOff(void);
+  //Execute the auto on delay
+  void executeAutoOnDelay(void);
+  //Execute auto motor brake on
+  void executeAutoBrakeOn(void);
+  //Execute motor record post function
+  void executePost(void);
+  //Execute auto motor power off
+  void executeAutoOff(void);
+  //Check velocity and wlp protection
+  asynStatus beginCheck(const char *functionName, double maxVelocity);
+  //Begin motor motion
+  asynStatus beginMotion(const char *caller);
+  //Set axis brake state
+  asynStatus setBrake(bool enable);
+  //Restore the motor brake status after axisReady_
+  asynStatus restoreBrake(void);
 
   /* These are the methods we override from the base class */
   asynStatus move(double position, int relative, double minVelocity, double maxVelocity, double acceleration);
@@ -180,8 +191,9 @@ private:
   bool postSent_;			//Has post mesg been sent to pollServices thread after motor stop
   bool autooffSent_;			//Has motor auto off mesg been sent to pollServices thread after motor stop
   bool postExecuted_;			//Has pollServices executed post
-  bool autooffExecuted_;		//Has pollServices executed the autooff
-  bool autooffAllowed_;			//Block autoOff if autoOn has released lock for on delay
+  bool autooffAllowed_;			//Block autoOff and auto brake on if autoOn has released lock for on delay
+  bool autobrakeonSent_;		//Auto brake on message sent to pollServices
+  bool brakeInit_;			//Brake initial state
   bool homedSent_;			//Homed message sent to pollServices
   bool homedExecuted_;			//Homed message has been executed by pollServices
   bool cancelHomeSent_;			//Cancel home process message sent to pollServices

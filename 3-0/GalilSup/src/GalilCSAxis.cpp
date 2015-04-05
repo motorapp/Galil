@@ -144,6 +144,7 @@ asynStatus GalilCSAxis::setDefaults(void)
 
   //Give default readback values for positions, movement direction
   motor_position_ = 0;
+  last_motor_position_ = 0;
   encoder_position_ = 0;
   direction_ = 1;
   //This coordinate system axis is not actually using coordinate system S or T right now
@@ -154,7 +155,7 @@ asynStatus GalilCSAxis::setDefaults(void)
   move_started_ = false;
   //Axis not ready until necessary motor record fields have been pushed into driver
   //So we use "use encoder if present" UEIP field to set axisReady_ to true
-  axisReady_ = false;
+  lastaxisReady_ = axisReady_ = false;
 
   return asynSuccess;
 }
@@ -755,7 +756,8 @@ asynStatus GalilCSAxis::poll(bool *moving)
 
    //Perform forward kinematic transform using real axis readback data, variable values, and
    //store results in GalilCSAxis, or asyn ParamList
-   status = forwardTransform();
+   if (axisReady_)
+       status = forwardTransform();
    if (status) goto skip;
 
    //Determine cs axis movement direction
@@ -813,6 +815,15 @@ asynStatus GalilCSAxis::poll(bool *moving)
    //Save motor position and done status for next poll cycle
    last_motor_position_ = motor_position_;
    last_done_ = done;
+
+   //Show axis as moving until 1 cycle after axis ready
+   //This is done so correct setpoint is given in motor record at startup
+   if (!lastaxisReady_)
+      {
+      *moving = true;
+      done = false;
+      }
+   lastaxisReady_ = axisReady_;
 
 skip:
     //Set status

@@ -3,7 +3,7 @@
 ==============================================================================
 Edit the following for your site:
 
-MASTER_RELEASE - Specify module paths.
+GALILRELEASE - Specify module paths.
         After modifying this file,
                 gnumake release
         to propagate changes to all module RELEASE files.

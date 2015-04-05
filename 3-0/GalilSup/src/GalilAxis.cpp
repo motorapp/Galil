@@ -174,7 +174,10 @@ asynStatus GalilAxis::setDefaults(int limit_as_home, char *enables_string, int s
 	homedExecuted_ = homedSent_ = false;
 
 	//Motor power auto on/off mesg not sent to pollServices thread yet
-	autooffExecuted_ = autooffSent_ = false;
+	autooffSent_ = false;
+
+	//Motor brake auto on mesg not sent to pollServices thread yet
+	autobrakeonSent_ = false;
 
 	//AutoOn delay not in progress so autooff allowed
 	autooffAllowed_ = true;
@@ -455,6 +458,7 @@ asynStatus GalilAxis::move(double position, int relative, double minVelocity, do
   char mesg[MAX_GALIL_STRING_SIZE];		//Error mesg
   bool pos_ok = false;				//Is the requested position ok
   double readback = motor_position_;		//For step motors controller uses motor_position_ for positioning
+  bool autoOn = false;				//Did auto on do any work?
 
   //Check velocity and wlp protection
   if (beginCheck(functionName, maxVelocity))
@@ -532,8 +536,11 @@ asynStatus GalilAxis::move(double position, int relative, double minVelocity, do
 			return asynSuccess;  //Nothing to do 
 			}
 
-		//Execute motor auto on function
-		executeAutoOn();
+		//Execute motor auto on and brake off function
+		autoOn = executeAutoOn();
+		autoOn |= executeAutoBrakeOff();
+		if (autoOn)
+			executeAutoOnDelay();
 
 		//Execute motor record prem command
 		executePrem();
@@ -566,6 +573,7 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
   double distance;
   long accel;			//Acceleration/Deceleration when limit not active
   int ssiinput;			//SSI encoder register
+  bool autoOn = false;		//Did auto on do any work?
 
   pC_->getIntegerParam(pC_->GalilSSIInput_, &ssiinput);
 
@@ -631,8 +639,11 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
 	sprintf(pC_->cmd_, "AC%c=%ld;DC%c=%ld", axisName_, accel, axisName_, accel);
 	pC_->writeReadController(functionName);
 
-	//Execute motor auto on function
-	executeAutoOn();
+	//Execute motor auto on and brake off function
+	autoOn = executeAutoOn();
+	autoOn |= executeAutoBrakeOff();
+	if (autoOn)
+		executeAutoOnDelay();
 
 	//Execute motor record prem command
 	executePrem();
@@ -666,7 +677,7 @@ asynStatus GalilAxis::beginCheck(const char *functionName, double maxVelocity)
 
   if (!axisReady_)
 	{
-	sprintf(mesg, "%s failed, autosave still restoring axis %c", functionName, axisName_);
+	sprintf(mesg, "%s failed, axis still initializing %c", functionName, axisName_);
 	//Set controller error mesg monitor
 	pC_->setCtrlError(mesg);
 	return asynError;  //Nothing to do 
@@ -703,6 +714,7 @@ asynStatus GalilAxis::moveVelocity(double minVelocity, double maxVelocity, doubl
 {
   static const char *functionName = "moveVelocity";
   long accel;
+  bool autoOn = false;	//Did auto on do any work?
 
   //Check velocity and wlp protection
   if (beginCheck(functionName, maxVelocity))
@@ -728,8 +740,11 @@ asynStatus GalilAxis::moveVelocity(double minVelocity, double maxVelocity, doubl
 	sprintf(pC_->cmd_, "JG%c=%.0lf\n", axisName_, maxVelocity);
 	pC_->writeReadController(functionName);
 
-	//Execute motor auto on function
-	executeAutoOn();
+	//Execute motor auto on and brake off function
+	autoOn = executeAutoOn();
+	autoOn |= executeAutoBrakeOff();
+	if (autoOn)
+		executeAutoOnDelay();
 
 	//Execute motor record prem command
 	executePrem();
@@ -949,9 +964,53 @@ asynStatus GalilAxis::setClosedLoop(bool closedLoop)
 	sprintf(pC_->cmd_, "SH%c", axisName_);
   else
 	sprintf(pC_->cmd_, "MO%c", axisName_);
+
   //Write setting to controller
   status = pC_->writeReadController(functionName);
 
+  return status;
+}
+
+/** Set the motor brake status. 
+  * \param[in] enable true = brake, false = release brake. */
+asynStatus GalilAxis::setBrake(bool enable)
+{
+  const char *functionName = "GalilAxis::setBrake";
+  asynStatus status = asynSuccess;
+  int digport;
+  //Retrieve the digital port used to actuate this axis brake
+  status = pC_->getIntegerParam(axisNo_, pC_->GalilBrakePort_, &digport);
+  //Enable or disable motor brake
+  if (axisReady_ && digport >= 0 && !status)
+     {
+     if (!enable)
+        sprintf(pC_->cmd_, "SB %d", digport);
+     else
+        sprintf(pC_->cmd_, "CB %d", digport);
+     //Write setting to controller
+     status = pC_->writeReadController(functionName);
+     }
+  return status;
+}
+
+//Restore the motor brake status after axisReady_
+asynStatus GalilAxis::restoreBrake(void)
+{
+  const char *functionName = "GalilAxis::restoreBrake";
+  asynStatus status = asynSuccess;
+  int digport;
+  //Retrieve the digital port used to actuate this axis brake
+  status = pC_->getIntegerParam(axisNo_, pC_->GalilBrakePort_, &digport);
+  //Enable or disable motor brake
+  if (digport >= 0 && !status)
+     {
+     if (!brakeInit_)
+        sprintf(pC_->cmd_, "SB %d", digport);
+     else
+        sprintf(pC_->cmd_, "CB %d", digport);
+     //Write setting to controller
+     status = pC_->writeReadController(functionName);
+     }
   return status;
 }
 
@@ -961,10 +1020,13 @@ asynStatus GalilAxis::setClosedLoop(bool closedLoop)
 asynStatus GalilAxis::getStatus(void)
 {
    const char *functionName="GalilAxis::getStatus";
-   char src[MAX_GALIL_STRING_SIZE]="\0";    //data source to retrieve
-   int offonerror, motoron;                 //paramList items to update
-   int connected;                           //paramList items to update
-   double error;                            //paramList items to update  
+   char src[MAX_GALIL_STRING_SIZE]="\0";	//data source to retrieve
+   int offonerror, motoron;		//paramList items to update
+   int connected;				//paramList items to update
+   double error;				//paramList items to update
+   unsigned digport;			//paramList items to update.  Used for brake status
+   unsigned mask;				//Mask used to calc brake port status
+   int brakeport;				//Brake port for this axis
 
    //If data record query success in GalilController::acquireDataRecord
    if (pC_->recstatus_ == asynSuccess)
@@ -1020,6 +1082,16 @@ asynStatus GalilAxis::getStatus(void)
 			sprintf(src, "_TE%c", axisName_);
 			error = pC_->gco_->sourceValue(pC_->recdata_, src);
 			setDoubleParam(pC_->GalilError_, error);
+			//Brake port status
+			strcpy(src, "_OP0");
+			digport = (unsigned)pC_->gco_->sourceValue(pC_->recdata_, src);
+			//Retrieve the brake port used for this axis
+			pC_->getIntegerParam(axisNo_, pC_->GalilBrakePort_, &brakeport);
+			mask = (unsigned)(pow(2.0, (double)(brakeport - 1)));
+			digport = digport & mask;
+			//Calculate brake status
+			digport = (digport == mask) ? 0 : 1;
+			pC_->setIntegerParam(axisNo_, pC_->GalilBrake_, digport);
 			}
 		}
 	catch (string e) 
@@ -1075,7 +1147,9 @@ void GalilAxis::setStatus(bool *moving)
       //Motor record post not sent as motor is moving
       postExecuted_ = postSent_ = false;
       //Motor auto off not yet sent as motor is moving
-      autooffExecuted_ = autooffSent_ = false;
+      autooffSent_ = false;
+      //Motor brake auto on mesg not sent as motor is moving
+      autobrakeonSent_ = false;
       }
 }
 
@@ -1287,13 +1361,13 @@ void GalilAxis::pollServices(void)
                             postExecuted_ = true;
                             }
                          break;
-        case MOTOR_OFF:  //Block auto off if again inmotion_ or auto on delay active
+        case MOTOR_OFF:  //Block auto motor off if again inmotion_ or auto on delay active
                          if (!inmotion_ && autooffAllowed_)
-                            {
-                            //Execute the motor off command
-                            setClosedLoop(false);
-                            autooffExecuted_ = true;
-                            }
+                            setClosedLoop(false);	//Execute the motor off command
+                         break;
+        case MOTOR_BRAKE_ON://Block auto brake on if again inmotion_ or auto on delay active
+                         if (!inmotion_ && autooffAllowed_)
+                            setBrake(true);	//Execute the brake on command
                          break;
         case MOTOR_HOMED://Retrieve needed params
                          status = pC_->getDoubleParam(axisNo_, pC_->GalilJogAfterHomeValue_, &jahv);
@@ -1384,47 +1458,94 @@ void GalilAxis::executePrem(void)
      }
 }
 
-//Execute motor auto power on
+//Execute auto motor power on
 //Caller requires lock
-void GalilAxis::executeAutoOn(void)
+bool GalilAxis::executeAutoOn(void)
 {
   static const char *functionName = "GalilAxis::executeAutoOn";
   int autoonoff;	//Motor power auto on/off setting
-  double ondelay;	//Motor power on delay
   int motoroff;		//Motor amplifier off status
 
+  //Retrieve brake attributes from ParamList
   //Execute Auto power on if activated
   pC_->getIntegerParam(axisNo_, pC_->GalilAutoOnOff_, &autoonoff);
-  //Query motor off status direct from controller
-  sprintf(pC_->cmd_, "MG _MO%c\n", axisName_);
-  pC_->writeReadController(functionName);
-  motoroff = atoi(pC_->resp_);
+  
   //Execute motor auto on if feature is enabled and motor is off
-  if (autoonoff && motoroff)
+  if (autoonoff)
      {
-     //motor on command
-     setClosedLoop(true);
-     //Wait user specified time after turning motor on
-     pC_->getDoubleParam(axisNo_, pC_->GalilAutoOnDelay_, &ondelay);
-     if (ondelay >= 0.035)
+     //Query motor off status direct from controller
+     sprintf(pC_->cmd_, "MG _MO%c\n", axisName_);
+     pC_->writeReadController(functionName);
+     motoroff = atoi(pC_->resp_);
+     if (motoroff) //motor on command
         {
-        //AutoOn delay long enough to justify releasing lock to other threads
-        //Case where autoon delay greater than autooff delay.  Dont wont motor turning off
-        //Whilst still waiting AutoOn delay
-        //Block autooff whilst lock released for AutoOn delay
-        autooffAllowed_ = false;
-        pC_->unlock();
-        epicsThreadSleep(ondelay);
-        pC_->lock();
-        //Reset stop timer for auto off
-        stop_begint_ = stop_nowt_;
-        autooffSent_ = false;
-        //Autooff now allowed as we have lock now anyway
-        autooffAllowed_ = true;
+        setClosedLoop(true);
+        return true;  //Did some work
         }
-     else //AutoOn delay too short to bother releasing lock to other threads
-        epicsThreadSleep(ondelay);
      }
+  //Did no work
+  return false;
+}
+
+//Execute auto brake off
+//Caller requires lock
+bool GalilAxis::executeAutoBrakeOff(void)
+{
+  static const char *functionName = "GalilAxis::executeAutoBrakeOff";
+  int autobrake;	//Brake auto disable/enable setting
+  int brakeport;	//Brake digital out port
+  int brakeoff;		//Motor brake off status
+
+  //Retrieve brake attributes from ParamList
+  //Auto brake setting
+  pC_->getIntegerParam(axisNo_, pC_->GalilAutoBrake_, &autobrake);
+  //Retrieve brake digital out port
+  pC_->getIntegerParam(axisNo_, pC_->GalilBrakePort_, &brakeport);
+
+  //Execute motor auto brake if feature is enabled and brake is on
+  if (autobrake)
+     {
+     //Query brake status direct from controller
+     sprintf(pC_->cmd_, "MG @OUT[%d]\n", brakeport);
+     pC_->writeReadController(functionName);
+     brakeoff = atoi(pC_->resp_);
+     if (!brakeoff)
+        {
+        //brake off command
+        setBrake(false);
+        return true;
+        }
+     }
+  //Did no work
+  return false;
+}
+
+void GalilAxis::executeAutoOnDelay(void)
+{
+  double ondelay;	//Motor power on delay
+
+  //Retrieve AutoOn delay from ParamList
+  pC_->getDoubleParam(axisNo_, pC_->GalilAutoOnDelay_, &ondelay);
+
+  //Wait required on delay if AutoOn did some work
+  if (ondelay >= 0.035)
+     {
+     //AutoOn delay long enough to justify releasing lock to other threads
+     //Case where autoon delay greater than autooff delay.  Dont wont motor turning off or brake turning on
+     //Whilst still waiting AutoOn delay
+     //Block autooff whilst lock released for AutoOn delay
+     autooffAllowed_ = false;
+     pC_->unlock();
+     epicsThreadSleep(ondelay);
+     pC_->lock();
+     //Reset stop timer for auto off
+     stop_begint_ = stop_nowt_;
+     autooffSent_ = false;
+     //Autooff now allowed as we have lock now anyway
+     autooffAllowed_ = true;
+     }
+  else //AutoOn delay too short to bother releasing lock to other threads
+     epicsThreadSleep(ondelay);
 }
 
 //Send motor record post mesg to pollServices thread
@@ -1460,6 +1581,28 @@ void GalilAxis::executeAutoOff(void)
         //Send the motor off command
         pollRequest_.send((void*)&MOTOR_OFF, sizeof(int));
         autooffSent_ = true;
+        }
+}
+
+//Send auto brake on mesg to pollServices thread
+//Called by poll thread without lock
+void GalilAxis::executeAutoBrakeOn(void)
+{
+  int autobrake;	//Brake auto disable/enable setting
+  double ondelay;	//Brake auto on delay in seconds
+ 
+  //Retrieve brake attributes from ParamList
+  //Auto brake setting
+  pC_->getIntegerParam(axisNo_, pC_->GalilAutoBrake_, &autobrake);
+
+  //Execute auto brake off if activated
+  if ((pC_->getIntegerParam(axisNo_, pC_->GalilAutoBrake_, &autobrake) == asynSuccess) &&
+      (pC_->getDoubleParam(axisNo_, pC_->GalilAutoBrakeOnDelay_, &ondelay) == asynSuccess))
+     if (autobrake && autooffAllowed_ && !homing_ && !homedSent_ && !autobrakeonSent_ && stopped_time_ >= ondelay)
+        {
+        //Send the brake on command
+        pollRequest_.send((void*)&MOTOR_BRAKE_ON, sizeof(int));
+        autobrakeonSent_ = true;
         }
 }
 
@@ -1541,7 +1684,10 @@ asynStatus GalilAxis::poll(bool *moving)
    //Execute motor record post if stopped and not homing
    executePost();
 
-   //Execute motor auto power on/off function if stopped, not homing and no new moving comming
+   //Execute auto brake on function if stopped, not homing and no new move comming
+   executeAutoBrakeOn();
+
+   //Execute motor auto power off function if stopped, not homing and no new move comming
    executeAutoOff();
 
    //check for stalled encoders, whilst we are moving

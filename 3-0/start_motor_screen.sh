@@ -1,9 +1,9 @@
 #!/bin/bash
 
 #From config/MASTER_RELEASE extract paths to modules that provide medm screens
-export motorpath=`grep "MOTOR" config/MASTER_RELEASE | cut -d'=' -f2`
-export sscanpath=`grep "SSCAN" config/MASTER_RELEASE | cut -d'=' -f2`
-export galilpath=`grep "GALIL" config/MASTER_RELEASE | cut -d'=' -f2`
+export motorpath=`grep "MOTOR" config/GALILRELEASE | cut -d'=' -f2`
+export sscanpath=`grep "SSCAN" config/GALILRELEASE | cut -d'=' -f2`
+export galilpath=`grep "GALIL" config/GALILRELEASE | cut -d'=' -f2`
 
 #From module top, add offset path to medm screens
 export motorpath=$motorpath/motorApp/op/adl

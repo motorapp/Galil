@@ -81,6 +81,7 @@ use Fcntl;
 
 $mitera = 0;
 $ritera = 0;
+$count = 0;
 $supporttop = shift;
 $epics_base = shift;
 $master_macro{"EPICS_BASE"} = $epics_base;
@@ -95,16 +96,17 @@ while (@ARGV)
 {
     $_ = $ARGV[0];
     shift @ARGV;
-    if (/_RELEASE$/)
+    if ($count == 0)
     {
 	$master_files[$mitera] = $_;
 	$mitera++;
     }
-    else
+    if ($count > 0)
     {
 	$release_files[$ritera] = $_;
 	$ritera++;
     }
+    $count = $count + 1;
 }
 
 
