@@ -21,7 +21,6 @@
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
-#include <Galil.h>
 #include <iostream>  //cout
 #include <sstream>   //ostringstream istringstream
 #include <typeinfo>  //std::bad_typeid
@@ -301,8 +300,6 @@ void GalilAxis::gen_limitcode(char c,			 //GalilAxis::axisName_ used very often
 			      char axis_thread_code[],
 			      char axis_limit_code[])
 {
-	const char *functionName = "GalilAxis::gen_limitcode";
-	
 	//Setup the LIMSWI interrupt routine. The Galil Code Below, is called once per limit activate on ANY axis **
 	//Determine axis that requires stop based on stop code and moving status
 	//Use user desired deceleration, stop motor, then put deceleration back to that for normal moves
@@ -313,8 +310,8 @@ void GalilAxis::gen_limitcode(char c,			 //GalilAxis::axisName_ used very often
 		sprintf(axis_limit_code,"%sDC%c=oldecel%c;VDS=ocds;VDT=ocdt;ENDIF\n",axis_limit_code,c,c);
  	
 	/*provide sensible default for limdc (limit deceleration) value*/
-	sprintf(pC_->cmd_, "limdc%c=67107840\n", c);
-	pC_->writeReadController(functionName);
+	sprintf(pC_->cmd_, "limdc%c=67107840", c);
+	pC_->sync_writeReadController();
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -323,8 +320,6 @@ void GalilAxis::gen_limitcode(char c,			 //GalilAxis::axisName_ used very often
 void GalilAxis::gen_homecode(char c,			//GalilAxis::axisName_ used very often
 			     char axis_thread_code[])
 {
-	const char *functionName = "gen_limitcode";
-
 	sprintf(axis_thread_code,"%sIF ((home%c=1))\n",axis_thread_code,c);
 	
 	//Setup home code
@@ -370,16 +365,16 @@ void GalilAxis::gen_homecode(char c,			//GalilAxis::axisName_ used very often
 	
 	//Initialize home related parameters on controller
 	//initialise home variable for this axis, set to not homming just yet.  Set to homming only when doing a home
-	sprintf(pC_->cmd_, "home%c=0\n", c);
-	pC_->writeReadController(functionName);
+	sprintf(pC_->cmd_, "home%c=0", c);
+	pC_->sync_writeReadController();
 
 	//Ensure homed variable is defined on controller
-	sprintf(pC_->cmd_, "homed%c=?\n", c);
-	if (pC_->writeReadController(functionName) != asynSuccess)
+	sprintf(pC_->cmd_, "homed%c=?", c);
+	if (pC_->sync_writeReadController() != asynSuccess)
 		{
 		//Controller doesnt know homed variable.  Give it initial value only in this case
-		sprintf(pC_->cmd_, "homed%c=0\n", c);
-		pC_->writeReadController(functionName);
+		sprintf(pC_->cmd_, "homed%c=0", c);
+		pC_->sync_writeReadController();
 		}
 	else
 		{
@@ -397,15 +392,15 @@ void GalilAxis::gen_homecode(char c,			//GalilAxis::axisName_ used very often
 	
 	//Initialize home switch active value*/
 	sprintf(pC_->cmd_, "hswact%c=0", c);
-	pC_->writeReadController(functionName);
+	pC_->sync_writeReadController();
 	
 	//Initialize home switch inactive value*/
 	sprintf(pC_->cmd_, "hswiact%c=1", c);
-	pC_->writeReadController(functionName);
+	pC_->sync_writeReadController();
 
 	/*initialise home jogoff variable*/
-	sprintf(pC_->cmd_, "hjog%c=0\n", c);
-	pC_->writeReadController(functionName);
+	sprintf(pC_->cmd_, "hjog%c=0", c);
+	pC_->sync_writeReadController();
 	
 	//Add code that counts cpu cycles through thread 0
 	if (axisName_ == 'A')
@@ -413,8 +408,8 @@ void GalilAxis::gen_homecode(char c,			//GalilAxis::axisName_ used very often
 		sprintf(axis_thread_code,"%scounter=counter+1\n",axis_thread_code);
 
 		//initialise counter variable
-		sprintf(pC_->cmd_, "counter=0\n");
-		pC_->writeReadController(functionName);
+		sprintf(pC_->cmd_, "counter=0");
+		pC_->sync_writeReadController();
 		}
 }
 
@@ -422,7 +417,6 @@ void GalilAxis::gen_homecode(char c,			//GalilAxis::axisName_ used very often
   * \param[in] velocity Units=steps/sec.*/
 asynStatus GalilAxis::setLimitDecel(double velocity)
 {
-   static const char *functionName = "GalilAxis::setLimitDecel";
    double mres;			//MotorRecord mres
    double egu_after_limit;	//Egu after limit parameter
    double distance;	//Used for kinematic calcs
@@ -439,8 +433,8 @@ asynStatus GalilAxis::setLimitDecel(double velocity)
    deccel = (velocity * velocity)/((distance/mres) * 2.0);
    //Find closest hardware setting
    decceleration = (long)(lrint(deccel/1024.0) * 1024);
-   sprintf(pC_->cmd_, "limdc%c=%ld\n", axisName_, decceleration);
-   status = pC_->writeReadController(functionName);
+   sprintf(pC_->cmd_, "limdc%c=%ld", axisName_, decceleration);
+   status = 	pC_->sync_writeReadController();
    return status;
 }
 
@@ -454,11 +448,9 @@ asynStatus GalilAxis::setLimitDecel(double velocity)
 asynStatus GalilAxis::move(double position, int relative, double minVelocity, double maxVelocity, double acceleration)
 {
   static const char *functionName = "move";
-  long accel;					//Acceleration/Deceleration when limit not active
   char mesg[MAX_GALIL_STRING_SIZE];		//Error mesg
   bool pos_ok = false;				//Is the requested position ok
   double readback = motor_position_;		//For step motors controller uses motor_position_ for positioning
-  bool autoOn = false;				//Did auto on do any work?
 
   //Check velocity and wlp protection
   if (beginCheck(functionName, maxVelocity))
@@ -470,11 +462,8 @@ asynStatus GalilAxis::move(double position, int relative, double minVelocity, do
   
   //Ensure home flag is 0
   sprintf(pC_->cmd_, "home%c=0", axisName_);
-  pC_->writeReadController(functionName);
+  pC_->sync_writeReadController();
   homing_ = false;
-		
-  //recalculate limit deceleration given velo/slew velocity
-  setLimitDecel(maxVelocity);
 
   //Are moves to be deferred ?
   if (pC_->movesDeferred_ != 0)
@@ -495,12 +484,7 @@ asynStatus GalilAxis::move(double position, int relative, double minVelocity, do
  		{
 		//Set speed
 		sprintf(pC_->cmd_, "SP%c=%.0lf", axisName_, maxVelocity);
-		pC_->writeReadController(functionName);
-
-		//Set acceleration and deceleration for when limit not active
-		accel = (long)lrint(acceleration/1024.0) * 1024;
-		sprintf(pC_->cmd_, "AC%c=%ld;DC%c=%ld", axisName_, accel, axisName_, accel);
-		pC_->writeReadController(functionName);
+		pC_->sync_writeReadController();
 
 		//Set absolute or relative move
 		if (relative) 
@@ -511,7 +495,7 @@ asynStatus GalilAxis::move(double position, int relative, double minVelocity, do
 				pos_ok = true;
 				//Set the relative move
 				sprintf(pC_->cmd_, "PR%c=%.0lf", axisName_, position);
-				pC_->writeReadController(functionName);
+				pC_->sync_writeReadController();
 				}
 			}
 		else   
@@ -522,7 +506,7 @@ asynStatus GalilAxis::move(double position, int relative, double minVelocity, do
 				pos_ok = true;
 				//Set the absolute move
 				sprintf(pC_->cmd_, "PA%c=%.0lf", axisName_, position);
-				pC_->writeReadController(functionName);
+				pC_->sync_writeReadController();
 				}
 			}
 
@@ -536,17 +520,8 @@ asynStatus GalilAxis::move(double position, int relative, double minVelocity, do
 			return asynSuccess;  //Nothing to do 
 			}
 
-		//Execute motor auto on and brake off function
-		autoOn = executeAutoOn();
-		autoOn |= executeAutoBrakeOff();
-		if (autoOn)
-			executeAutoOnDelay();
-
-		//Execute motor record prem command
-		executePrem();
-
 		//Begin the move
-		beginMotion(functionName);
+		beginMotion(functionName, acceleration, maxVelocity);
 		}
 	}
 
@@ -571,9 +546,7 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
   double egu_after_limit;
   double deccel;
   double distance;
-  long accel;			//Acceleration/Deceleration when limit not active
   int ssiinput;			//SSI encoder register
-  bool autoOn = false;		//Did auto on do any work?
 
   pC_->getIntegerParam(pC_->GalilSSIInput_, &ssiinput);
 
@@ -601,19 +574,19 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
 	deccel = (maxVelocity * maxVelocity)/((distance/mres) * 2.0);
 	//Find closest hardware setting
 	hjgdc = (long)(lrint(deccel/1024.0) * 1024);
-	sprintf(pC_->cmd_, "hjgdc%c=%ld\n", axisName_, hjgdc);
-	pC_->writeReadController(functionName);
+	sprintf(pC_->cmd_, "hjgdc%c=%ld", axisName_, hjgdc);
+	pC_->sync_writeReadController();
 
 	//Calculate home jog off speed to use hvel
         hjgsp = maxVelocity * home_direction;
 
 	//Home jog off speed
 	sprintf(pC_->cmd_, "hjgsp%c=%.0lf\n", axisName_, hjgsp);
-	pC_->writeReadController(functionName);
+	pC_->sync_writeReadController();
 
 	//Set Homed status to false
 	sprintf(pC_->cmd_, "homed%c=0\n", axisName_);
-	pC_->writeReadController(functionName);
+	pC_->sync_writeReadController();
 
 	//Set homed status for this axis
 	setIntegerParam(pC_->GalilHomed_, 0);
@@ -629,35 +602,18 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
 	hvel = maxVelocity * home_direction * -1;
 			
 	sprintf(pC_->cmd_, "JG%c=%.0lf", axisName_, hvel);
-	pC_->writeReadController(functionName);
-
-	//recalculate limit deceleration given hvel (instead of velo) and allowed steps after home/limit activation
-	setLimitDecel(hvel);	
-
-	//Set acceleration and deceleration for when limit not active
-	accel = (long)lrint(acceleration/1024.0) * 1024;
-	sprintf(pC_->cmd_, "AC%c=%ld;DC%c=%ld", axisName_, accel, axisName_, accel);
-	pC_->writeReadController(functionName);
-
-	//Execute motor auto on and brake off function
-	autoOn = executeAutoOn();
-	autoOn |= executeAutoBrakeOff();
-	if (autoOn)
-		executeAutoOnDelay();
-
-	//Execute motor record prem command
-	executePrem();
+	pC_->sync_writeReadController();
 
         //Begin the move
-	if (!beginMotion(functionName))
+	if (!beginMotion(functionName, acceleration, hvel))
 		{
 		homing_ = true;  //Start was successful
                 cancelHomeSent_ = false;  //Homing has not been cancelled yet
 		//tell controller which axis we are doing a home on
 		//We do this last so home algorithm doesn't cancel home jog in incase motor
 		//is sitting on opposite limit to which we are homing
-		sprintf(pC_->cmd_, "home%c=1\n", axisName_);
-		pC_->writeReadController(functionName);
+		sprintf(pC_->cmd_, "home%c=1", axisName_);
+		pC_->sync_writeReadController();
 		}
 	}
 
@@ -713,8 +669,6 @@ asynStatus GalilAxis::beginCheck(const char *functionName, double maxVelocity)
 asynStatus GalilAxis::moveVelocity(double minVelocity, double maxVelocity, double acceleration)
 {
   static const char *functionName = "moveVelocity";
-  long accel;
-  bool autoOn = false;	//Did auto on do any work?
 
   //Check velocity and wlp protection
   if (beginCheck(functionName, maxVelocity))
@@ -725,32 +679,15 @@ asynStatus GalilAxis::moveVelocity(double minVelocity, double maxVelocity, doubl
   	{
 	//Ensure home flag is 0
 	sprintf(pC_->cmd_, "home%c=0", axisName_);
-	pC_->writeReadController(functionName);
+	pC_->sync_writeReadController();
 	homing_ = false;
-
-	//Set acceleration and deceleration
-	accel = (long)lrint(acceleration/1024.0) * 1024;
-	sprintf(pC_->cmd_, "AC%c=%ld;DC%c=%ld", axisName_, accel, axisName_, accel);
-	pC_->writeReadController(functionName);
-
-	//recalculate limit deceleration given velo/slew velocity
-	setLimitDecel(maxVelocity);
-		  
+  
 	//Give jog speed and direction
-	sprintf(pC_->cmd_, "JG%c=%.0lf\n", axisName_, maxVelocity);
-	pC_->writeReadController(functionName);
-
-	//Execute motor auto on and brake off function
-	autoOn = executeAutoOn();
-	autoOn |= executeAutoBrakeOff();
-	if (autoOn)
-		executeAutoOnDelay();
-
-	//Execute motor record prem command
-	executePrem();
-					
+	sprintf(pC_->cmd_, "JG%c=%.0lf", axisName_, maxVelocity);
+	pC_->sync_writeReadController();
+				
 	//Begin the move
-	beginMotion(functionName);
+	beginMotion(functionName, acceleration, maxVelocity);
 	}
    
   //Always return success. Dont need more error mesgs
@@ -762,20 +699,18 @@ asynStatus GalilAxis::moveVelocity(double minVelocity, double maxVelocity, doubl
   * \param[in] acceleration The acceleration value. Units=steps/sec/sec. */
 asynStatus GalilAxis::stop(double acceleration)
 {
-  static const char *functionName = "GalilAxis::stop";
-
   //cancel any home operations that may be underway
-  sprintf(pC_->cmd_, "home%c=0\n", axisName_);
-  pC_->writeReadController(functionName);
+  sprintf(pC_->cmd_, "home%c=0", axisName_);
+  pC_->sync_writeReadController();
   homing_ = false;
 
   //cancel any home switch jog off operations that may be underway
-  sprintf(pC_->cmd_, "hjog%c=0\n", axisName_);
-  pC_->writeReadController(functionName);
+  sprintf(pC_->cmd_, "hjog%c=0", axisName_);
+  pC_->sync_writeReadController();
 
   //Stop the axis
-  sprintf(pC_->cmd_, "ST%c\n", axisName_);
-  pC_->writeReadController(functionName);
+  sprintf(pC_->cmd_, "ST%c", axisName_);
+  pC_->sync_writeReadController();
 
   /* Clear defer move flag for this axis. */
   deferredMove_ = false;
@@ -788,14 +723,13 @@ asynStatus GalilAxis::stop(double acceleration)
   * \param[in] position The new absolute motor position that should be set in the hardware. Units=steps.*/
 asynStatus GalilAxis::setPosition(double position)
 {
-  const char *functionName = "GalilAxis::setPosition";
   double mres, eres;				//MotorRecord mres, and eres
   double enc_pos;				//Calculated encoder position
   int motor;
 
   //Retrieve motor setting direct from controller rather than ParamList as IocInit may be in progress
   sprintf(pC_->cmd_, "MT%c=?", axisName_);
-  pC_->writeReadController(functionName);
+  pC_->sync_writeReadController();
   motor = atoi(pC_->resp_);
 
   //Calculate encoder counts, from provided motor position
@@ -817,7 +751,7 @@ asynStatus GalilAxis::setPosition(double position)
 	sprintf(pC_->cmd_, "DE%c=%.0lf", axisName_, position);  //Servo motor, use aux register for step count
   else
 	sprintf(pC_->cmd_, "DP%c=%.0lf", axisName_, position);  //Stepper motor, aux register for step count
-  pC_->writeReadController(functionName);
+  pC_->sync_writeReadController();
   
   //Set encoder position
   setEncoderPosition(enc_pos);
@@ -830,13 +764,12 @@ asynStatus GalilAxis::setPosition(double position)
   * \param[in] position The new absolute encoder position that should be set in the hardware. Units=steps.*/
 asynStatus GalilAxis::setEncoderPosition(double position)
 {
-  const char *functionName = "GalilAxis::setEncoderPosition";
   asynStatus status;
   int motor;
 
   //Retrieve motor setting direct from controller rather than ParamList as IocInit may be in progress
   sprintf(pC_->cmd_, "MT%c=?", axisName_);
-  pC_->writeReadController(functionName);
+  pC_->sync_writeReadController();
   motor = atoi(pC_->resp_);
 
   //output encoder counts to main encoder register on controller
@@ -846,18 +779,15 @@ asynStatus GalilAxis::setEncoderPosition(double position)
   else
 	sprintf(pC_->cmd_, "DE%c=%.0lf", axisName_, position);   //Stepper motor, encoder is main register
 
-  status = pC_->writeReadController(functionName);
+  status = pC_->sync_writeReadController();
 
-  //Always return success. Dont need more error mesgs
-  return asynSuccess;
+  return status;
 }
 
 /** Set the motor encoder ratio. 
   * \param[in] ratio The new encoder ratio */
 asynStatus GalilAxis::setEncoderRatio(double ratio)
 {
-  //const char *functionName = "GalilAxis::setEncoderRatio";
-
   //setEncoder is called during IocInit/Autosave for position restore, and when user changes 
   //eres, mres, ueip or position is changed
   //Store the ratio in GalilAxis instance
@@ -871,12 +801,11 @@ asynStatus GalilAxis::setEncoderRatio(double ratio)
   * \param[in] highLimit The new high limit position that should be set in the hardware. Units=steps.*/
 asynStatus GalilAxis::setHighLimit(double highLimit)
 {
-  const char *functionName = "GalilAxis::setHighLimit";
   //this gets called at init for every mR
   //Assemble Galil Set High Limit, forward limit in Galil language
   highLimit_ = (highLimit > 2147483647.0) ? 2147483647.0 : highLimit; 
   sprintf(pC_->cmd_, "FL%c=%lf", axisName_, highLimit_);
-  pC_->writeReadController(functionName);
+  pC_->sync_writeReadController();
 
   //Always return success. Dont need more error mesgs
   return asynSuccess;
@@ -886,12 +815,11 @@ asynStatus GalilAxis::setHighLimit(double highLimit)
   * \param[in] lowLimit The new low limit position that should be set in the hardware. Units=steps.*/
 asynStatus GalilAxis::setLowLimit(double lowLimit)
 {
-  const char *functionName = "GalilAxis::setLowLimit";
   //this gets called at init for every mR
   //Assemble Galil Set High Limit, forward limit in Galil language
   lowLimit_ = (lowLimit < -2147483648.0) ? -2147483648.0 : lowLimit;
   sprintf(pC_->cmd_, "BL%c=%lf", axisName_, lowLimit_);
-  pC_->writeReadController(functionName);
+  pC_->sync_writeReadController();
 
   //Always return success. Dont need more error mesgs
   return asynSuccess;
@@ -902,14 +830,13 @@ asynStatus GalilAxis::setLowLimit(double lowLimit)
   * \param[in] pGain The new proportional gain. */
 asynStatus GalilAxis::setPGain(double pGain)
 {
-  const char *functionName = "GalilAxis::setPGain";
   //Parse pGain value
   pGain = fabs(pGain);
   pGain = pGain * KPMAX;
   pGain = (pGain > KPMAX) ? KPMAX : pGain;
   //Assemble KP command
   sprintf(pC_->cmd_, "KP%c=%lf",axisName_, pGain);
-  pC_->writeReadController(functionName);
+  pC_->sync_writeReadController();
   
   //Always return success. Dont need more error mesgs
   return asynSuccess;
@@ -919,7 +846,6 @@ asynStatus GalilAxis::setPGain(double pGain)
   * \param[in] iGain The new integral gain. */
 asynStatus GalilAxis::setIGain(double iGain)
 {
-  const char *functionName = "GalilAxis::setIGain";
   double kimax;					//Maximum integral gain depends on controller model 
   //Model 21X3 has different kimax from 41x3, and 40x0
   kimax = (pC_->model_[3] == '2') ? 2047.992 : 255.999;
@@ -929,7 +855,7 @@ asynStatus GalilAxis::setIGain(double iGain)
   iGain = (iGain > kimax) ? kimax : iGain;
   //Assemble KI command
   sprintf(pC_->cmd_, "KI%c=%lf",axisName_, iGain);
-  pC_->writeReadController(functionName);
+  pC_->sync_writeReadController();
 
   //Always return success. Dont need more error mesgs
   return asynSuccess;
@@ -939,14 +865,13 @@ asynStatus GalilAxis::setIGain(double iGain)
   * \param[in] dGain The new derivative gain. */
 asynStatus GalilAxis::setDGain(double dGain)
 {
-  const char *functionName = "GalilAxis::setDGain";
   //Parse dGain value
   dGain = fabs(dGain);
   dGain = dGain * KDMAX;
   dGain = (dGain > KDMAX) ? KDMAX : dGain;
   //Assemble KD command
   sprintf(pC_->cmd_, "KD%c=%lf",axisName_, dGain);
-  pC_->writeReadController(functionName);
+  pC_->sync_writeReadController();
 
   //Always return success. Dont need more error mesgs
   return asynSuccess;
@@ -956,7 +881,6 @@ asynStatus GalilAxis::setDGain(double dGain)
   * \param[in] closedLoop true = close loop, false = open loop. */
 asynStatus GalilAxis::setClosedLoop(bool closedLoop)
 {
-  const char *functionName = "GalilAxis::setClosedLoop";
   asynStatus status;
 
   //Enable or disable motor amplifier
@@ -966,7 +890,7 @@ asynStatus GalilAxis::setClosedLoop(bool closedLoop)
 	sprintf(pC_->cmd_, "MO%c", axisName_);
 
   //Write setting to controller
-  status = pC_->writeReadController(functionName);
+  status = pC_->sync_writeReadController();
 
   return status;
 }
@@ -975,20 +899,19 @@ asynStatus GalilAxis::setClosedLoop(bool closedLoop)
   * \param[in] enable true = brake, false = release brake. */
 asynStatus GalilAxis::setBrake(bool enable)
 {
-  const char *functionName = "GalilAxis::setBrake";
   asynStatus status = asynSuccess;
-  int digport;
+  int brakeport;
   //Retrieve the digital port used to actuate this axis brake
-  status = pC_->getIntegerParam(axisNo_, pC_->GalilBrakePort_, &digport);
+  status = pC_->getIntegerParam(axisNo_, pC_->GalilBrakePort_, &brakeport);
   //Enable or disable motor brake
-  if (axisReady_ && digport >= 0 && !status)
+  if (axisReady_ && brakeport >= 0 && !status)
      {
      if (!enable)
-        sprintf(pC_->cmd_, "SB %d", digport);
+        sprintf(pC_->cmd_, "SB %d", brakeport);
      else
-        sprintf(pC_->cmd_, "CB %d", digport);
+        sprintf(pC_->cmd_, "CB %d", brakeport);
      //Write setting to controller
-     status = pC_->writeReadController(functionName);
+     status = pC_->sync_writeReadController();
      }
   return status;
 }
@@ -996,7 +919,6 @@ asynStatus GalilAxis::setBrake(bool enable)
 //Restore the motor brake status after axisReady_
 asynStatus GalilAxis::restoreBrake(void)
 {
-  const char *functionName = "GalilAxis::restoreBrake";
   asynStatus status = asynSuccess;
   int digport;
   //Retrieve the digital port used to actuate this axis brake
@@ -1009,7 +931,7 @@ asynStatus GalilAxis::restoreBrake(void)
      else
         sprintf(pC_->cmd_, "CB %d", digport);
      //Write setting to controller
-     status = pC_->writeReadController(functionName);
+     status = pC_->sync_writeReadController();
      }
   return status;
 }
@@ -1019,91 +941,80 @@ asynStatus GalilAxis::restoreBrake(void)
 //Return status of GalilController data record acquisition
 asynStatus GalilAxis::getStatus(void)
 {
-   const char *functionName="GalilAxis::getStatus";
    char src[MAX_GALIL_STRING_SIZE]="\0";	//data source to retrieve
-   int offonerror, motoron;		//paramList items to update
+   int offonerror, motoron;			//paramList items to update
    int connected;				//paramList items to update
    double error;				//paramList items to update
-   unsigned digport;			//paramList items to update.  Used for brake status
+   unsigned digport = 0;			//paramList items to update.  Used for brake status
    unsigned mask;				//Mask used to calc brake port status
    int brakeport;				//Brake port for this axis
 
    //If data record query success in GalilController::acquireDataRecord
    if (pC_->recstatus_ == asynSuccess)
 	{
-	try	{
-		//extract relevant axis data from GalilController data-record, store in GalilAxis
-		//If connected, then proceed
-		if (pC_->gco_ != NULL)
-			{
-			//aux encoder data
-			sprintf(src, "_TD%c", axisName_);
-			motor_position_ = pC_->gco_->sourceValue(pC_->recdata_, src);
-			//main encoder data
-			sprintf(src, "_TP%c", axisName_);
-			encoder_position_ = pC_->gco_->sourceValue(pC_->recdata_, src);
-
-			//moving status
-			sprintf(src, "_BG%c", axisName_);
-			inmotion_ = (bool)(pC_->gco_->sourceValue(pC_->recdata_, src) == 1) ? 1 : 0;
-			//Stop code
-			sprintf(src, "_SC%c", axisName_);
-			stop_code_ = (int)pC_->gco_->sourceValue(pC_->recdata_, src);
-
-			//reverse limit
-			sprintf(src, "_LR%c", axisName_);
-			rev_ = (bool)(pC_->gco_->sourceValue(pC_->recdata_, src) == 1) ? 0 : 1;
-			//forward limit
-			sprintf(src, "_LF%c", axisName_);
-			fwd_ = (bool)(pC_->gco_->sourceValue(pC_->recdata_, src) == 1) ? 0 : 1;
-			//home switch
-			sprintf(src, "_HM%c", axisName_);
-			home_ = (bool)(pC_->gco_->sourceValue(pC_->recdata_, src) == 1) ? 0 : 1;
-			//direction
-			sprintf(src, "JG%c-", axisName_);
-			direction_ = (bool)(pC_->gco_->sourceValue(pC_->recdata_, src) == 1) ? 0 : 1;
-
-			//extract relevant axis data from GalilController record, store in asynParamList
-			//motor connected status
-			connected = (rev_ && fwd_) ? 0 : 1;
-			setIntegerParam(pC_->GalilMotorConnected_, connected);
-			//Off on error
-			sprintf(src, "_OE%c", axisName_);
-			offonerror = (int)pC_->gco_->sourceValue(pC_->recdata_, src);
-			setIntegerParam(pC_->GalilOffOnError_, offonerror);
-			//Motor on
-			sprintf(src, "_MO%c", axisName_);
-			motoron = (pC_->gco_->sourceValue(pC_->recdata_, src) == 1) ? 0 : 1;
-			//Set motorRecord status
-			setIntegerParam(pC_->motorStatusPowerOn_, motoron);
-			//Set galil motor on status
-			setIntegerParam(pC_->GalilMotorOn_, motoron);
-			//Motor error
-			sprintf(src, "_TE%c", axisName_);
-			error = pC_->gco_->sourceValue(pC_->recdata_, src);
-			setDoubleParam(pC_->GalilError_, error);
-			//Brake port status
-			strcpy(src, "_OP0");
-			digport = (unsigned)pC_->gco_->sourceValue(pC_->recdata_, src);
-			//Retrieve the brake port used for this axis
-			pC_->getIntegerParam(axisNo_, pC_->GalilBrakePort_, &brakeport);
-			mask = (unsigned)(pow(2.0, (double)(brakeport - 1)));
-			digport = digport & mask;
-			//Calculate brake status
-			digport = (digport == mask) ? 0 : 1;
-			pC_->setIntegerParam(axisNo_, pC_->GalilBrake_, digport);
-			}
-		}
-	catch (string e) 
+	//extract relevant axis data from GalilController data-record, store in GalilAxis
+	//If connected, then proceed
+	if (pC_->connected_)
 		{
-		//Print exception mesg
-		cout << functionName << ":" << e;
-		}
-	//Forgiveness is cheap
-	//Allows us to poll without lock
-	catch (const std::bad_typeid& e)
-		{
-		cout << "Caught bad_typeid GalilAxis::getStatus" << e.what() << endl;
+		//aux encoder data
+		sprintf(src, "_TD%c", axisName_);
+		motor_position_ = pC_->sourceValue(pC_->recdata_, src);
+		//main encoder data
+		sprintf(src, "_TP%c", axisName_);
+		encoder_position_ = pC_->sourceValue(pC_->recdata_, src);
+
+		//moving status
+		sprintf(src, "_BG%c", axisName_);
+		inmotion_ = (bool)(pC_->sourceValue(pC_->recdata_, src) == 1) ? 1 : 0;
+		//Stop code
+		sprintf(src, "_SC%c", axisName_);
+		stop_code_ = (int)pC_->sourceValue(pC_->recdata_, src);
+
+		//reverse limit
+		sprintf(src, "_LR%c", axisName_);
+		rev_ = (bool)(pC_->sourceValue(pC_->recdata_, src) == 1) ? 0 : 1;
+		//forward limit
+		sprintf(src, "_LF%c", axisName_);
+		fwd_ = (bool)(pC_->sourceValue(pC_->recdata_, src) == 1) ? 0 : 1;
+		//home switch
+		sprintf(src, "_HM%c", axisName_);
+		home_ = (bool)(pC_->sourceValue(pC_->recdata_, src) == 1) ? 0 : 1;
+		//direction
+		sprintf(src, "JG%c-", axisName_);
+		direction_ = (bool)(pC_->sourceValue(pC_->recdata_, src) == 1) ? 0 : 1;
+
+		//extract relevant axis data from GalilController record, store in asynParamList
+		//motor connected status
+		connected = (rev_ && fwd_) ? 0 : 1;
+		setIntegerParam(pC_->GalilMotorConnected_, connected);
+		//Off on error
+		sprintf(src, "_OE%c", axisName_);
+		offonerror = (int)pC_->sourceValue(pC_->recdata_, src);
+		setIntegerParam(pC_->GalilOffOnError_, offonerror);
+		//Motor on
+		sprintf(src, "_MO%c", axisName_);
+		motoron = (pC_->sourceValue(pC_->recdata_, src) == 1) ? 0 : 1;
+		//Set motorRecord status
+		setIntegerParam(pC_->motorStatusPowerOn_, motoron);
+		//Set galil motor on status
+		setIntegerParam(pC_->GalilMotorOn_, motoron);
+		//Motor error
+		sprintf(src, "_TE%c", axisName_);
+		error = pC_->sourceValue(pC_->recdata_, src);
+		setDoubleParam(pC_->GalilError_, error);
+		//Brake port status
+		strcpy(src, "_OP0");
+		digport = (unsigned)pC_->sourceValue(pC_->recdata_, src);
+		//Retrieve the brake port used for this axis
+		pC_->getIntegerParam(axisNo_, pC_->GalilBrakePort_, &brakeport);
+                if (brakeport >= 0)
+                   {
+		   mask = (unsigned)(pow(2.0, (double)(brakeport - 1)));
+		   digport = digport & mask;
+		   //Calculate brake status
+		   digport = (digport == mask) ? 0 : 1;
+                   }
+		pC_->setIntegerParam(axisNo_, pC_->GalilBrake_, digport);
 		}
 	}
   return pC_->recstatus_;
@@ -1316,7 +1227,6 @@ static void pollServicesThreadC(void *pPvt)
 //We do this in a separate thread so the poll thread is not slowed, and poll thread doesnt have a lock
 void GalilAxis::pollServices(void)
 {
-  static const char *functionName = "GalilAxis::pollServices";
   char post[MAX_GALIL_STRING_SIZE];	//Motor record post field
   int request = -1; 			//Real service numbers start at 0
   int jah;				//Jog after home feature status
@@ -1357,7 +1267,7 @@ void GalilAxis::pollServices(void)
                             //Copy post field into cmd 
                             strcpy(pC_->cmd_, post);
                             //Write command to controller
-                            pC_->writeReadController(functionName);
+                            pC_->sync_writeReadController();
                             postExecuted_ = true;
                             }
                          break;
@@ -1399,13 +1309,13 @@ void GalilAxis::pollServices(void)
                                mrhmval = 0.0;
                                }
                             //Program motor position register
-                            sprintf(pC_->cmd_, "DP%c=%.0lf\n", axisName_, mrhmval);
-                            pC_->writeReadController(functionName);
+                            sprintf(pC_->cmd_, "DP%c=%.0lf", axisName_, mrhmval);
+                            pC_->sync_writeReadController();
                             //Program encoder position register
                             if (ueip)
                                {
-                               sprintf(pC_->cmd_, "DE%c=%.0lf\n", axisName_, enhmval);
-                               pC_->writeReadController(functionName);
+                               sprintf(pC_->cmd_, "DE%c=%.0lf", axisName_, enhmval);
+                               pC_->sync_writeReadController();
                                }
                             //Give ample time for position register updates to complete
                             epicsThreadSleep(.2);
@@ -1443,7 +1353,6 @@ void GalilAxis::pollServices(void)
 //Caller requires lock
 void GalilAxis::executePrem(void)
 {
-  static const char *functionName = "GalilAxis::executePrem";
   char prem[MAX_GALIL_STRING_SIZE];		//Motor record prem field
 
   if (pC_->getStringParam(axisNo_, pC_->GalilPrem_, (int)sizeof(prem), prem) == asynSuccess)
@@ -1453,7 +1362,7 @@ void GalilAxis::executePrem(void)
         //Copy prem to cmd
         strcpy(pC_->cmd_, prem);
         //Execute the prem string
-        pC_->writeReadController(functionName);
+        pC_->sync_writeReadController();
         }
      }
 }
@@ -1462,7 +1371,6 @@ void GalilAxis::executePrem(void)
 //Caller requires lock
 bool GalilAxis::executeAutoOn(void)
 {
-  static const char *functionName = "GalilAxis::executeAutoOn";
   int autoonoff;	//Motor power auto on/off setting
   int motoroff;		//Motor amplifier off status
 
@@ -1474,8 +1382,8 @@ bool GalilAxis::executeAutoOn(void)
   if (autoonoff)
      {
      //Query motor off status direct from controller
-     sprintf(pC_->cmd_, "MG _MO%c\n", axisName_);
-     pC_->writeReadController(functionName);
+     sprintf(pC_->cmd_, "MG _MO%c", axisName_);
+     pC_->sync_writeReadController();
      motoroff = atoi(pC_->resp_);
      if (motoroff) //motor on command
         {
@@ -1491,7 +1399,6 @@ bool GalilAxis::executeAutoOn(void)
 //Caller requires lock
 bool GalilAxis::executeAutoBrakeOff(void)
 {
-  static const char *functionName = "GalilAxis::executeAutoBrakeOff";
   int autobrake;	//Brake auto disable/enable setting
   int brakeport;	//Brake digital out port
   int brakeoff;		//Motor brake off status
@@ -1503,11 +1410,11 @@ bool GalilAxis::executeAutoBrakeOff(void)
   pC_->getIntegerParam(axisNo_, pC_->GalilBrakePort_, &brakeport);
 
   //Execute motor auto brake if feature is enabled and brake is on
-  if (autobrake)
+  if (autobrake && brakeport >= 0)
      {
      //Query brake status direct from controller
-     sprintf(pC_->cmd_, "MG @OUT[%d]\n", brakeport);
-     pC_->writeReadController(functionName);
+     sprintf(pC_->cmd_, "MG @OUT[%d]", brakeport);
+     pC_->sync_writeReadController();
      brakeoff = atoi(pC_->resp_);
      if (!brakeoff)
         {
@@ -1608,18 +1515,39 @@ void GalilAxis::executeAutoBrakeOn(void)
 
 //Starts motion, and delay until it begins or timeout happens
 //Called by move, moveVelocity, home
-asynStatus GalilAxis::beginMotion(const char *caller)
+asynStatus GalilAxis::beginMotion(const char *caller, double acceleration, double maxVelocity)
 {
    double begin_time;	//Time taken for motion to begin
-   static const char *functionName = "GalilAxis::beginMotion";
    char mesg[MAX_GALIL_STRING_SIZE];	//Controller error mesg if begin fail
+   bool fail = false;			//Fail flag
+   long accel;				//Acceleration
+   bool autoOn = false;			//Did auto on do any work?
+
+   //Set acceleration and deceleration
+   accel = (long)lrint(acceleration/1024.0) * 1024;
+   sprintf(pC_->cmd_, "AC%c=%ld;DC%c=%ld", axisName_, accel, axisName_, accel);
+   pC_->sync_writeReadController();
+
+   //recalculate limit deceleration given velo/slew velocity
+   setLimitDecel(maxVelocity);
+
+   //Execute motor auto on and brake off function
+   autoOn = executeAutoOn();
+   autoOn |= executeAutoBrakeOff();
+   if (autoOn)
+      executeAutoOnDelay();
+
+   //Execute motor record prem command
+   executePrem();
 
    //Begin the move
    //Get time when attempt motor begin
    epicsTimeGetCurrent(&begin_begint_);
    sprintf(pC_->cmd_, "BG%c", axisName_);
-   if (pC_->writeReadController(functionName) == asynSuccess)
+   if (pC_->sync_writeReadController() == asynSuccess)
       {
+      //Give sync poller change to get lock
+      pC_->unlock();
       while (!inmotion_) //Allow time for motion to begin
          {
          epicsThreadSleep(.001);
@@ -1628,15 +1556,22 @@ asynStatus GalilAxis::beginMotion(const char *caller)
          begin_time = epicsTimeDiffInSeconds(&begin_nowt_, &begin_begint_);
          if (begin_time > BEGIN_TIMEOUT)
             {
-            sprintf(mesg, "%s begin failure axis %c", caller, axisName_);
-            //Set controller error mesg monitor
-            pC_->setCtrlError(mesg);
-            return asynError;
+            fail = true;  //Time is up, give up
+            break;
             }
          }
+      pC_->lock();
       }
    else
-      return asynError; //Controller complained at begin.
+      fail = true;  //Controller complained at begin.
+
+   if (fail)
+      {
+      sprintf(mesg, "%s begin failure axis %c", caller, axisName_);
+      //Set controller error mesg monitor
+      pC_->setCtrlError(mesg);
+      return asynError;
+      }
 
    //Success
    return asynSuccess;
@@ -1880,14 +1815,13 @@ void GalilAxis::set_ssi_connectflag(void)
 
 asynStatus GalilAxis::get_ssi(int function, epicsInt32 *value)
 {
-	static const char *functionName = "GalilAxis::get_ssi";
 	asynStatus status;				 //Comms status
 	int ssiinput, ssitotalbits, ssisingleturnbits;   //Local copy of ssi parameters
         int ssierrbits, ssitimecode, ssidataform;	 //Local copy of ssi parameters
 	//Construct query
-	sprintf(pC_->cmd_, "SI%c=?\n", axisName_);
+	sprintf(pC_->cmd_, "SI%c=?", axisName_);
 	//Write query to controller
-	if ((status = pC_->writeReadController(functionName)) == asynSuccess)
+	if ((status = pC_->sync_writeReadController()) == asynSuccess)
 		{
 		//Convert response to integers
 		sscanf(pC_->resp_, "%d, %d, %d, %d, %d, %d\n",&ssiinput, &ssitotalbits, &ssisingleturnbits, &ssierrbits, &ssitimecode, &ssidataform);
@@ -1918,7 +1852,6 @@ asynStatus GalilAxis::get_ssi(int function, epicsInt32 *value)
 
 asynStatus GalilAxis::set_ssi(void)
 {
-	static const char *functionName = "GalilAxis::set_ssi";
 	int ssiinput, ssitotalbits, ssisingleturnbits;   //Local copy of ssi parameters
         int ssierrbits, ssitimecode, ssidataform;	 //Local copy of ssi parameters
 	asynStatus status;				 //Comms status
@@ -1965,7 +1898,7 @@ asynStatus GalilAxis::set_ssi(void)
 	//Update ssi setting on controller
 	sprintf(pC_->cmd_, "SI%c=%d,%d,%d,%d<%d>%d", axisName_, ssiinput, ssitotalbits, ssisingleturnbits, ssierrbits, ssitimecode, ssidataform);
 	//Write setting to controller
-	status = pC_->writeReadController(functionName);
+	status = pC_->sync_writeReadController();
 	
 	return status;
 }

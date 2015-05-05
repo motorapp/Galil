@@ -14,17 +14,14 @@ LIBRARY_IOC += GalilSupport
 # install devMotorSoft.dbd into <top>/dbd
 DBD += GalilSupport.dbd
 
+#Require C++ 2011 standard compatibility
+USR_CXXFLAGS_Linux += -std=c++11
+
 # For sCalcPostfix.h
 USR_INCLUDES += -I$(CALC)/calcApp/src
 
 # The following are compiled and added to the Support library
 GalilSupport_SRCS += GalilController.cpp GalilAxis.cpp GalilCSAxis.cpp GalilConnector.cpp GalilPoller.cpp
-
-# Galil communications library from their website
-GalilSupport_SYS_LIBS_Linux += Galil
-# Galil1.dll is delay loaded/imported on Windows
-GalilSupport_SYS_LIBS_WIN32 += Galil1 delayimp
-GalilSupport_LDFLAGS_WIN32 += /DELAYLOAD:galil1.dll
 
 GalilSupport_LIBS += asyn motor calc sscan autosave busy
 GalilSupport_LIBS += $(EPICS_BASE_IOC_LIBS)

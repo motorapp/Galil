@@ -26,12 +26,17 @@
 #define finite(x) _finite(x)
 #endif /* _WIN32/_WIN64 */
 
-#define BEGIN_TIMEOUT 2.0
+#define BEGIN_TIMEOUT 2.5
 #define AASCII 65
 #define IASCII 73
 #define QASCII 81
 #define SCALCARGS 16
+//Number of communication retries
+#define MAX_RETRIES 1
+#define ALLOWED_TIMEOUTS 3
+#define MAX_GALIL_UNSOLICTED_SIZE 13
 #define MAX_GALIL_STRING_SIZE 256
+#define MAX_GALIL_DATAREC_SIZE 512
 #define MAX_GALIL_AXES 8
 #define MAX_GALIL_VARS 10
 #define MAX_GALIL_CSAXES 8
@@ -44,12 +49,17 @@
 #define LIMIT_CODE_LEN 80000
 #define INP_CODE_LEN 80000
 #define THREAD_CODE_LEN 80000
+#define CODE_LENGTH 80000
 
 #include "macLib.h"
 #include "GalilAxis.h"
 #include "GalilCSAxis.h"
 #include "GalilConnector.h"
 #include "GalilPoller.h"
+#include "epicsMessageQueue.h"
+
+#include <unordered_map> //used for data record features
+#include <vector>
 
 // drvInfo strings for extra parameters that the Galil controller supports
 #define GalilAddressString		"CONTROLLER_ADDRESS"
@@ -160,9 +170,39 @@ struct Galilmotor_enables {
 	char disablestates[MAX_GALIL_AXES];
 };
 
+struct Source //each data record source key (e.g. "_RPA") maps to one of these, each of which describes the position and width of the variable within the binary data record
+{
+	int byte; //byte offset within binary data record
+	std::string type; //"SB", "UB", "SW", "UW", "SL", "UL".  Specifies width within binary data record and signed/unsigned.
+	int bit; //-1 if not bit field (e.g. RPA).  >= 0 if bit field (e.g. _MOA)
+	std::string units; //e.g. "counts"
+	std::string description; //e.g. "analog input 1"
+	double scale; //e.g. 32768, scale factor:  most sources are 1 except TV, TT, @AN, @AO etc.
+	double offset; //needed for analog inputs and outputs
+
+	Source(int byte = 0, std::string type = "Ux", int bit = -1, std::string units = "", std::string description = "", double scale = 1, double offset = 0) :
+		byte(byte), type(type), bit(bit), units(units), description(description), scale(scale), offset(offset)
+	{ /*ctor just initializes values*/ }
+};
+
 class GalilController : public asynMotorController {
 public:
+  //These variables need to be accessible from static callbacks
+  epicsEventId connectEvent_;		//Connection event
+  int connected_;			//Is the synchronous communication socket connected according to asyn.  Async UDP is connectionless
+
+  //Class constructor
   GalilController(const char *portName, const char *address, double updatePeriod);
+
+  asynStatus async_writeReadController(const char *output, char *input, size_t maxChars, size_t *nread, double timeout);
+  asynStatus async_writeReadController(void);
+
+  asynStatus sync_writeReadController(const char *output, char *input, size_t maxChars, size_t *nread, double timeout);
+  asynStatus sync_writeReadController(void);
+
+  asynStatus sendUnsolicitedMessage(char *mesg);
+  asynStatus programUpload(string *prog);
+  asynStatus programDownload(string prog);
   
   /* These are the methods that we override from asynMotorController */
   asynStatus poll(void);
@@ -197,11 +237,11 @@ public:
 
   /* These are the methods that are new to this class */
   void GalilStartController(char *code_file, int eeprom_write, int display_code, unsigned thread_mask);
-  void connectManager(void);
   void connect(void);
   void disconnect(void);
   void connected(void);
-  asynStatus acquireDataRecord(string cmd);
+  void acquireDataRecord(string cmd);
+  asynStatus readDataRecord(asynUser *pasynUser, char *input, int bytesize);
   void getStatus(void);
   void setParamDefaults(void);
   void gen_card_codeend(void);
@@ -209,7 +249,6 @@ public:
   void write_gen_codefile(const char* suffix);
   asynStatus read_codefile(const char *code_file);
   asynStatus read_codefile_part(const char *code_file, MAC_HANDLE* mac_handle);
-  asynStatus writeReadController(const char *caller);
   void check_comms(bool reqd_comms, asynStatus status);
   asynStatus get_integer(int function, epicsInt32 *value, int axisNo);
   asynStatus get_double(int function, epicsFloat64 *value, int axisNo);
@@ -227,6 +266,20 @@ public:
   void processUnsolicitedMesgs(void);
   static std::string extractEthAddr(const char* str);
   void setCtrlError(const char* mesg);
+
+  void InitializeDataRecord(void);
+  double sourceValue(const std::vector<char>& record, const std::string& source);
+  void Init30010(bool dmc31010);
+  void Init4000(int axes);
+  void Init2103(int axes);
+  void InitRio(bool rio3);
+  void InitRio3_24Ex(void);
+  void InitRioSer(bool rio3);
+  void aq_analog(int byte, int input_num);
+  string ax(string prefix, int axis, string suffix);
+  void input_bits(int byte, int num);
+  void output_bits(int byte, int num);
+  void dq_analog(int byte, int input_num);
 
   /* Deferred moves functions.*/
   asynStatus processDeferredMovesInGroup(int coordsys, char *axes, char *moves, double acceleration, double velocity);
@@ -337,9 +390,15 @@ protected:
   #define LAST_GALIL_PARAM GalilCommunicationError_
 
 private:
-  asynUser *pasynUserGalil_;
-  Galil *gco_;				//Galil communication object (gco_).  From galil communication lib
+
+  std::unordered_map<std::string, Source> map; //data structure for data record
+
+  char cmd_[MAX_GALIL_STRING_SIZE];	//holds the assembled Galil cmd string
+  char resp_[MAX_GALIL_DATAREC_SIZE];	//Response from Galil controller
+
   GalilPoller *poller_;			//GalilPoller to acquire a datarecord
+  GalilConnector *connector_;		//GalilConnector to manage connection status flags
+
   char address_[MAX_GALIL_STRING_SIZE];	//address string
   char model_[MAX_GALIL_STRING_SIZE];	//model string
   char code_file_[MAX_FILENAME_LEN];	//Code file(s) that user gave to GalilStartController
@@ -352,9 +411,6 @@ private:
   double updatePeriod_;			//Period between data records in ms
   bool async_records_;			//Are the data records obtained async(DR), or sync (QR)
   bool try_async_;			//Should we even try async udp (DR) before going to synchronous tcp (QR) mode
-
-  epicsTimeStamp pollnowt_;		//Used for debugging, and tracking overall poll performance
-  epicsTimeStamp polllastt_;		//Used for debugging, and tracking overall poll performance
 
   epicsTimeStamp begin_nowt_;		//Used to track length of time motor begin takes
   epicsTimeStamp begin_begint_;		//Used to track length of time motor begin takes
@@ -380,11 +436,24 @@ private:
   char *card_code_;			//All code generated for the controller.  This is the buffer actually sent to controller
   char *user_code_;			//Code supplied by user for the controller.  This is copied to card_code_ above if all goes well
 
-  char cmd_[MAX_GALIL_STRING_SIZE];     //holds the assembled Galil cmd string
-  char resp_[MAX_GALIL_STRING_SIZE];    //Response from Galil controller
+  char asynccmd_[MAX_GALIL_STRING_SIZE];	//holds the assembled Galil cmd string
+  char asyncresp_[MAX_GALIL_DATAREC_SIZE];	//For asynchronous messages including datarecord
 
-					//Stores the motor enable disable interlock digital IO setup, only first 8 digital in ports supported
-  struct Galilmotor_enables motor_enables_[MAX_GALIL_AXES];
+  int timeout_;				//Timeout for communications
+  int controller_number_;		//The controller number as counted in GalilCreateController
+  epicsMessageQueue unsolicitedQueue_;	//Unsolicted messages recieved are placed here initially
+  
+  char syncPort_[MAX_GALIL_STRING_SIZE];	//The name of the asynPort created for synchronous communication with controller
+  char asyncPort_[MAX_GALIL_STRING_SIZE];	//The name of the asynPort created for asynchronous communication with controller
+  char udpHandle_;				//Handle on controller used for udp
+  char syncHandle_;				//Handle on controller used for synchronous communication (ie. tcp or serial)
+  unsigned datarecsize_;			//Calculated size of controller datarecord based on response from QZ command
+  asynUser *pasynUserSyncGalil_;		//Asyn user for synchronous communication
+  asynCommon *pasynCommon_;			//asynCommon interface for synchronous communication
+  void *pcommonPvt_;				//asynCommon drvPvt for synchronous communication
+  asynUser *pasynUserAsyncGalil_;		//Asyn user for asynchronous communication
+
+  struct Galilmotor_enables motor_enables_[MAX_GALIL_AXES];//Stores the motor enable disable interlock digital IO setup, only first 8 digital in ports supported
 
   friend class GalilAxis;
   friend class GalilCSAxis;

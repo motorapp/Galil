@@ -16,18 +16,17 @@
 // mark.clift@synchrotron.org.au
 // 800 Blackburn Road, Clayton, Victoria 3168, Australia.
 //
-// Single thread to manage disconnect/connect for all registered GalilController(s)
+// Thread to manage disconnect/connect for a GalilController
 
 class GalilConnector: public epicsThreadRunable {
 public:
-  GalilConnector(void);
-  void registerController(GalilController *cntrl);
+  GalilConnector(class GalilController *pcntrl);
   virtual void run();
   epicsThread thread;
   ~GalilConnector();
 
 private:
   bool shuttingDown_;
-  void shutdownConnector();
-  vector<GalilController *> pCntrlList_;
+  class GalilController *pC_;
 };
+

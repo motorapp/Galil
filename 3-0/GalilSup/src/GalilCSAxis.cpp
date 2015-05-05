@@ -22,7 +22,6 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
-#include <Galil.h>
 #include <iostream>  //cout
 #include <sstream>   //ostringstream istringstream
 #include <typeinfo>  //std::bad_typeid
@@ -238,13 +237,11 @@ asynStatus GalilCSAxis::moveVelocity(double minVelocity, double maxVelocity, dou
   * \param[in] acceleration The acceleration value. Units=steps/sec/sec. */
 asynStatus GalilCSAxis::stop(double acceleration)
 {
-  static const char *functionName = "GalilCSAxis::stop";
-
   //Stop the coordinate system S or T that this coordinate axis started
   if (coordsys_ == 0 || coordsys_ == 1) 
 	{
-        sprintf(pC_->cmd_, "ST %c\n", (coordsys_ == 0) ? 'S' : 'T');
-        pC_->writeReadController(functionName);
+        sprintf(pC_->cmd_, "ST %c", (coordsys_ == 0) ? 'S' : 'T');
+        pC_->sync_writeReadController();
 	}
 
   //Always return success. Dont need more error mesgs
@@ -255,7 +252,6 @@ asynStatus GalilCSAxis::stop(double acceleration)
   */
 int GalilCSAxis::selectFreeCoordinateSystem(void)
 {
-  static const char *functionName = "GalilCSAxis::selectFreeCoordinateSystem";
   int coordsys;
   int profileExecuteStatus;
   int moving;
@@ -285,7 +281,7 @@ int GalilCSAxis::selectFreeCoordinateSystem(void)
 		//Other coordinate system was free, use it
 		sprintf(pC_->cmd_, "CA %c", (coordsys == 0) ? 'S' : 'T');
 		//Write setting to controller
-		status = pC_->writeReadController(functionName);
+		status = pC_->sync_writeReadController();
 		//Proceed if coordsys change ok
 		if (status)
 			return -1;
@@ -698,6 +694,7 @@ asynStatus GalilCSAxis::doCalc(const char *expr, double args[], double *result) 
    short err;
    bool error = false;			//Error status
    char mesg[MAX_GALIL_STRING_SIZE];	//Controller error mesg
+   int precision = 6;			//Hard code precision for now
     
    *result = 0.0;
 
@@ -708,7 +705,7 @@ asynStatus GalilCSAxis::doCalc(const char *expr, double args[], double *result) 
    //We use sCalcPostfix and sCalcPerform because it can handle upto 16 args
    if (sCalcPostfix(expr, rpn, &err))
       error = true;
-   else if (sCalcPerform(args, SCALCARGS, NULL, 0, result, NULL, 0, rpn) && finite(*result))
+   else if (sCalcPerform(args, SCALCARGS, NULL, 0, result, NULL, 0, rpn, precision) && finite(*result))
       error = true;
 
    if (error && !kinematic_error_reported_)

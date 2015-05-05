@@ -116,7 +116,7 @@ public:
   //Check velocity and wlp protection
   asynStatus beginCheck(const char *functionName, double maxVelocity);
   //Begin motor motion
-  asynStatus beginMotion(const char *caller);
+  asynStatus beginMotion(const char *caller, double acceleration, double maxVelocity);
   //Set axis brake state
   asynStatus setBrake(bool enable);
   //Restore the motor brake status after axisReady_
