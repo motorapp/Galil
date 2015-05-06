@@ -2784,12 +2784,13 @@ void GalilController::processUnsolicitedMesgs(void)
       pAxis = getAxis(axisName - AASCII);
       if (charstr != NULL && pAxis)
          {
-         value = atoi(charstr);
-         //Process known messages
-
+         //Process known request messages
          //Motor homed message
-         if (!abs(strcmp(mesg, "homed")))
+         if (!abs(strcmp(request, "homed")))
             {
+            //Extract value
+            charstr = epicsStrtok_r(NULL, " \r\n", &tokSave);
+            value = atoi(charstr);
             //Send homed message to pollServices only if homed%c=1
             if (value)
                {
@@ -2808,7 +2809,7 @@ void GalilController::processUnsolicitedMesgs(void)
             }
 
          //Motor homing status message
-         if (!abs(strcmp(mesg, "home")))
+         if (!abs(strcmp(request, "home")))
             pAxis->homing_ = false;
          }
       }
