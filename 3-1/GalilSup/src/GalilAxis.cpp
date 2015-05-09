@@ -271,11 +271,8 @@ void GalilAxis::initialize_codegen(char axis_thread_code[],
 	//Insert code to start motor thread that will be constucted
 	//thread 0 (motor A) is auto starting
 	if (axisName_ != 'A')
-		sprintf(pC_->card_code_,"%sXQ #THREAD%c,%d;",pC_->card_code_, axisName_, axisNo_);
+		sprintf(pC_->card_code_,"%sXQ #THREAD%c,%d\n",pC_->card_code_, axisName_, axisNo_);
 
-        //Insert code to send axis homed status at startup using unsolicited mesg
-        sprintf(pC_->card_code_,"%sMG \"homed%c\",homed%c\n",pC_->card_code_, axisName_, axisName_);
-	
 	//Insert label for motor thread we are constructing	
 	sprintf(axis_thread_code,"%s#THREAD%c\n",axis_thread_code, axisName_);
 
@@ -303,7 +300,7 @@ void GalilAxis::gen_limitcode(char c,			 //GalilAxis::axisName_ used very often
 	//Setup the LIMSWI interrupt routine. The Galil Code Below, is called once per limit activate on ANY axis **
 	//Determine axis that requires stop based on stop code and moving status
 	//Use user desired deceleration, stop motor, then put deceleration back to that for normal moves
-	sprintf(axis_limit_code,"%sIF (((_SC%c=2) | (_SC%c=3)) & (_BG%c=1))\noldecel%c=_DC%c;ocds=_VDS;ocdt=_VDT;VDS=limdc%c;VDT=limdc%c;DC%c=limdc%c;WT2;ST%c\n",axis_limit_code,c,c,c,c,c,c,c,c,c,c);
+	sprintf(axis_limit_code,"%sIF (((_SC%c=2) | (_SC%c=3)) & (_BG%c=1))\noldecel%c=_DC%c;ocds=_VDS;ocdt=_VDT;DC%c=limdc%c;VDS=limdc%c;VDT=limdc%c;ST%c\n",axis_limit_code,c,c,c,c,c,c,c,c,c,c);
         if (!limit_as_home_)	//Hitting limit when homing to home switch is a fail, cancel home process
 		sprintf(axis_limit_code,"%sDC%c=oldecel%c;VDS=ocds;VDT=ocdt;home%c=0;MG \"home%c\",home%c;ENDIF\n",axis_limit_code,c,c,c,c,c);
 	else			//Hitting limit when homing to limit switch is normal
@@ -406,7 +403,7 @@ void GalilAxis::gen_homecode(char c,			//GalilAxis::axisName_ used very often
 	if (axisName_ == 'A')
 		{
 		sprintf(axis_thread_code,"%scounter=counter+1\n",axis_thread_code);
-
+		
 		//initialise counter variable
 		sprintf(pC_->cmd_, "counter=0");
 		pC_->sync_writeReadController();
@@ -419,9 +416,10 @@ asynStatus GalilAxis::setLimitDecel(double velocity)
 {
    double mres;			//MotorRecord mres
    double egu_after_limit;	//Egu after limit parameter
-   double distance;	//Used for kinematic calcs
+   double distance;		//Used for kinematic calcs
    long decceleration;		//limits decel final value
    double deccel;		//double version of above
+   long maxAcceleration;	//Max acceleration/decceleration for this model
    asynStatus status;		//Comms status
 
    //Retrieve required values from paramList
@@ -433,8 +431,13 @@ asynStatus GalilAxis::setLimitDecel(double velocity)
    deccel = (velocity * velocity)/((distance/mres) * 2.0);
    //Find closest hardware setting
    decceleration = (long)(lrint(deccel/1024.0) * 1024);
+   //Ensure decceleration is within maximum for this model
+   maxAcceleration = 67107840;
+   if (pC_->model_[0] == 'D' && pC_->model_[3] == '4')
+	maxAcceleration = 1073740800;
+   decceleration = (decceleration > maxAcceleration) ? maxAcceleration : decceleration;
    sprintf(pC_->cmd_, "limdc%c=%ld", axisName_, decceleration);
-   status = 	pC_->sync_writeReadController();
+   status = pC_->sync_writeReadController();
    return status;
 }
 
@@ -451,6 +454,7 @@ asynStatus GalilAxis::move(double position, int relative, double minVelocity, do
   char mesg[MAX_GALIL_STRING_SIZE];		//Error mesg
   bool pos_ok = false;				//Is the requested position ok
   double readback = motor_position_;		//For step motors controller uses motor_position_ for positioning
+  asynStatus status = asynError;
 
   //Check velocity and wlp protection
   if (beginCheck(functionName, maxVelocity))
@@ -475,6 +479,7 @@ asynStatus GalilAxis::move(double position, int relative, double minVelocity, do
 	deferredVelocity_ = maxVelocity;
 	deferredAcceleration_ = acceleration;
 	deferredMove_ = true;
+	return asynSuccess;
 	}
   else
 	{
@@ -521,12 +526,12 @@ asynStatus GalilAxis::move(double position, int relative, double minVelocity, do
 			}
 
 		//Begin the move
-		beginMotion(functionName, acceleration, maxVelocity);
+		status = beginMotion(functionName, acceleration, maxVelocity);
 		}
 	}
 
   //Always return success. Dont need more error mesgs
-  return asynSuccess;
+  return status;
 }
 
 /** Move the motor to the home position.
@@ -969,7 +974,7 @@ asynStatus GalilAxis::getStatus(void)
 		//Stop code
 		sprintf(src, "_SC%c", axisName_);
 		stop_code_ = (int)pC_->sourceValue(pC_->recdata_, src);
-
+                 
 		//reverse limit
 		sprintf(src, "_LR%c", axisName_);
 		rev_ = (bool)(pC_->sourceValue(pC_->recdata_, src) == 1) ? 0 : 1;

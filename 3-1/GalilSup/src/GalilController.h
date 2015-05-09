@@ -241,7 +241,7 @@ public:
   void disconnect(void);
   void connected(void);
   void acquireDataRecord(string cmd);
-  asynStatus readDataRecord(asynUser *pasynUser, char *input, int bytesize);
+  asynStatus readDataRecord(asynUser *pasynUser, char *input, unsigned bytesize);
   void getStatus(void);
   void setParamDefaults(void);
   void gen_card_codeend(void);
@@ -405,7 +405,6 @@ private:
 
   int burn_program_;			//Burn program options that user gave to GalilStartController
 					
-  bool connect_fail_reported_;		//Has initial connection failure been reported to iocShell
   int consecutive_timeouts_;		//Used for connection management
   bool code_assembled_;			//Has code for the GalilController hardware been assembled (ie. is card_code_ all set to send)
   double updatePeriod_;			//Period between data records in ms

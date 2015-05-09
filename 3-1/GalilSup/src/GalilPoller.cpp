@@ -122,9 +122,9 @@ void GalilPoller::run(void)
                       {
                       //Adjust sleep time according to time_taken last poll cycle
                       sleep_time = pC_->updatePeriod_/1000.0 - time_taken;
-                      sleep_time = (sleep_time < 0.0000) ? 0.0 : sleep_time; 
-                      if (sleep_time > 0.0000)
-                          epicsThreadSleep(sleep_time);
+                      //Must sleep in synchronous mode to release lock for other threads
+                      sleep_time = (sleep_time < 0.0000) ? 0.0000 : sleep_time; 
+                      epicsThreadSleep(sleep_time);
                       }
                    }
                 else //Not connected so sleep a little
@@ -147,16 +147,16 @@ void GalilPoller::run(void)
 
 void GalilPoller::shutdownPoller()
 {
-        //Send poller to sleep, so we know where the thread is
-        sleepPoller();
-	//Tell poller to shutdown
-	shutdownPoller_ = true;
-	//Pause
-	epicsThreadSleep(.01);
-        //Wake poller and send it to shutdown
-        wakePoller(false);
-	//Wait till poller thread exits
-	thread.exitWait();
+   //Send poller to sleep, so we know where the thread is
+   sleepPoller();
+   //Tell poller to shutdown
+   shutdownPoller_ = true;
+   //Pause
+   epicsThreadSleep(.01);
+   //Wake poller and send it to shutdown
+   wakePoller(false);
+   //Wait till poller thread exits
+   thread.exitWait();
 }
 
 GalilPoller::~GalilPoller()
@@ -178,10 +178,10 @@ void GalilPoller::sleepPoller(void)
 		//Tell controller to stop async record transmission
 		if (pC_->async_records_ && pC_->connected_)
 			{
-                        pC_->lock();
-                        strcpy(pC_->cmd_, "DR 0");
-                        pC_->sync_writeReadController();
-                        pC_->unlock();
+			pC_->lock();
+			strcpy(pC_->cmd_, "DR 0");
+			pC_->sync_writeReadController();
+			pC_->unlock();
 			}
 		}
 }
@@ -198,8 +198,8 @@ void GalilPoller::wakePoller(bool restart_async)
 		//Tell controller to re-start async record transmission
 		if (pC_->async_records_ && pC_->connected_ && restart_async)
 			{
-                        sprintf(pC_->cmd_, "DR %.0f, %d", pC_->updatePeriod_, pC_->udpHandle_ - AASCII);
-                        pC_->sync_writeReadController();
+			sprintf(pC_->cmd_, "DR %.0f, %d", pC_->updatePeriod_, pC_->udpHandle_ - AASCII);
+			pC_->sync_writeReadController();
 			}
 		}
 }

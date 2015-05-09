@@ -62,9 +62,8 @@ GalilConnector::~GalilConnector()
 //We maintain our own connected_ flag outside of asyn
 void GalilConnector::run(void)
 {
-        int sync_status;
-        int async_status = asynSuccess;
-        char term[] ={(char)0x8d,(char)0x8a};	//Terminator for unsolicted messages
+	int sync_status;
+	int async_status = asynSuccess;
 
 	//Check if Galil actually responds to query
 	while ( true )
@@ -75,46 +74,46 @@ void GalilConnector::run(void)
 			break; // exit outer while loop
 		else
 			{
-                        pC_->lock();
+			pC_->lock();
 			//Check GalilController for response
-                        //Test synchronous communication
-                        //Query controller for synchronous connection handle
+			//Test synchronous communication
+			//Query controller for synchronous connection handle
 			strcpy(pC_->cmd_, "WH");
 			sync_status = pC_->sync_writeReadController();
-                        if (!sync_status)
-                          pC_->syncHandle_ = pC_->resp_[2];	//Store the handle controller used for sync
-                        //Check asynchronous communication
-                        if (pC_->try_async_)
-                           {
-                           //Need to change terminator for handle discovery query on udp connection
-                           pasynOctetSyncIO->setInputEos(pC_->pasynUserAsyncGalil_, "\r\n", 2);
-                           //Retrieve controller connection handle used for async udp
-                           strcpy(pC_->asynccmd_, "WH");
-                           async_status = pC_->async_writeReadController();
-                           //Change terminator back to that required for receiving unsolicted messages
-                           pasynOctetSyncIO->setInputEos(pC_->pasynUserAsyncGalil_, term, 2);
+			if (!sync_status)
+				pC_->syncHandle_ = pC_->resp_[2];	//Store the handle controller used for sync
+			//Check asynchronous communication
+			if (pC_->try_async_)
+				{
+				//Need to change terminator for handle discovery query on udp connection
+				pasynOctetSyncIO->setInputEos(pC_->pasynUserAsyncGalil_, "\r", 1);
+				//Retrieve controller connection handle used for async udp
+				strcpy(pC_->asynccmd_, "WH");
+				async_status = pC_->async_writeReadController();
+				//Change terminator back to that required for receiving unsolicted messages
+				pasynOctetSyncIO->setInputEos(pC_->pasynUserAsyncGalil_, "", 0);
 
-                           if (!async_status)
-                              {
-                              pC_->udpHandle_ = pC_->asyncresp_[2];	//Store the handle controller used for udp
-                              pC_->async_records_ = true;	//Udp connection is responsive to query
-                              }
-                           else
-                              pC_->async_records_ = false;	//Error when querying udp handle
-                           }
-                        //Work out what to do
+				if (!async_status)
+					{
+					pC_->udpHandle_ = pC_->asyncresp_[2];	//Store the handle controller used for udp
+					pC_->async_records_ = true;	//Udp connection is responsive to query
+					}
+				else
+					pC_->async_records_ = false;	//Error when querying udp handle
+				}
+			//Work out what to do
 			if (!sync_status && !async_status)	//Response received
 				pC_->connected();//Do whats required for GalilController once connection established
 			else
 				{
 				//No response
-                                //Keep sync and asyn flags in same state
+				//Keep sync and asyn flags in same state
 				pC_->connected_ = false;
 				pC_->setIntegerParam(0, pC_->GalilCommunicationError_, 1);
 				//Continue to force disconnect until device responds
 				pC_->disconnect();
 				}
-                        pC_->unlock();
+			pC_->unlock();
 			}
 		}
 }
