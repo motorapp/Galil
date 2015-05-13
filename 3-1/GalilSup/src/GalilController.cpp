@@ -4000,7 +4000,6 @@ void GalilController::InitializeDataRecord(void)
 
 double GalilController::sourceValue(const std::vector<char>& record, const std::string& source)
 {
-
 	try
 	{
 		const Source& s = map.at(source); //use at() function so silent insert does not occur if bad source string is used.
@@ -4008,16 +4007,16 @@ double GalilController::sourceValue(const std::vector<char>& record, const std::
 		if (s.type[0] == 'U')  //unsigned
 			switch (s.type[1])
 		{
-			case 'B':  return_value = *(unsigned char*)(&record[0] + s.byte);  break;
-			case 'W':  return_value = *(unsigned short*)(&record[0] + s.byte);  break;
-			case 'L':  return_value = *(unsigned int*)(&record[0] + s.byte);  break;
+			case 'B':  return_value = *(unsigned char*)(&record[s.byte]);  break;
+			case 'W':  return_value = *(unsigned short*)(&record[s.byte]);  break;
+			case 'L':  return_value = *(unsigned int*)(&record[s.byte]);  break;
 		}
 		else //s.type[0] == 'S'  //signed
 			switch (s.type[1])
 		{
-			case 'B':  return_value = *(char*)(&record[0] + s.byte);  break;
-			case 'W':  return_value = *(short*)(&record[0] + s.byte);  break;
-			case 'L':  return_value = *(int*)(&record[0] + s.byte);  break;
+			case 'B':  return_value = *(char*)(&record[s.byte]);  break;
+			case 'W':  return_value = *(short*)(&record[s.byte]);  break;
+			case 'L':  return_value = *(int*)(&record[s.byte]);  break;
 		}
 
 		if (s.bit >= 0) //this is a bit field
@@ -4031,10 +4030,8 @@ double GalilController::sourceValue(const std::vector<char>& record, const std::
 	}
 	catch (const std::out_of_range& e) //bad source
 	{
-		//cout << "bad source: " << source << endl;
 		return 0.0;
 	}
-
 }
 
 void GalilController::Init30010(bool dmc31010)
@@ -4509,6 +4506,7 @@ void GalilController::InitRio(bool rio3)
 
 	int status;
 	bool aqdq = false;
+	bool dqaq = false;
 
 	//0-3 Header is ignored in GCL
 
@@ -4521,16 +4519,21 @@ void GalilController::InitRio(bool rio3)
 	map["IN"] = Source(7, "UB", 2, "Boolean", "IN waiting for user input");
 	map["XQ"] = Source(7, "UB", 7, "Boolean", "Program running");
 
+	//look for progammable analog I/O
 	strcpy(cmd_, "ID");
 	status = sync_writeReadController();
 	if (!status)
 		{
-                string resp = resp_;
-		aqdq = (resp.find("(AQ)") != string::npos); //progammable analog I/O
-                }
+		string resp = resp_;
+		//look for progammable analog outputs
+		dqaq = (resp.find("(DQ)") != string::npos);
+		//look for progammable analog inputs
+		aqdq = (resp.find("(AQ)") != string::npos);
+		}
 
-	if (aqdq)
+	if (dqaq)
 	{
+		//Programmable outputs found
 		dq_analog(8, 0);
 		dq_analog(10, 1);
 		dq_analog(12, 2);
@@ -4552,9 +4555,9 @@ void GalilController::InitRio(bool rio3)
 		map["@AO[7]"] = Source(22, "UW", -1, "V", "Analog output 7", 13107.2, 0);
 	}
 
-
 	if (aqdq)
 	{
+		//Programmable inputs found
 		aq_analog(24, 0);
 		aq_analog(26, 1);
 		aq_analog(28, 2);
@@ -4661,6 +4664,7 @@ void GalilController::aq_analog(int byte, int input_num)
   double divisor; //for dividing ADC counts to calc volts
   int val;
   int status;
+  char map_address[100];
 
   //Query analog setting
   sprintf(cmd_, "MG{Z10.0}_AQ%d", input_num);
@@ -4676,7 +4680,8 @@ void GalilController::aq_analog(int byte, int input_num)
 	case 2: case -2:  default: //AQ 2 is the default value
 		          divisor = 32768.0 / 10;  type = "SW";  break;   // -10 to 10 V   -32768 to 32767
 	}
-     map["@AN[" + to_string((long double)input_num + 1) + "]"] = Source(byte, type, -1, "V", "Analog input " + to_string((long double)input_num), divisor);
+     sprintf(map_address, "@AN[%d]", input_num);
+     map[map_address] = Source(byte, type, -1, "V", "Analog input " + to_string((long double)input_num), divisor);
      }
 }
 
@@ -4720,9 +4725,11 @@ void GalilController::dq_analog(int byte, int input_num)
 	//When analog voltage decoding depends upon DQ setting.
 	string type; //for interpreting analog as signed/unsigned
 	double divisor; //for dividing ADC counts to calc volts
+	double offset = 0.0;	//Offset for converting to volts
 	int val;
-        int status;
-
+	int status;
+	char map_address[100];
+  
 	sprintf(cmd_, "MG{Z10.0}_DQ%d", input_num);
 	status = sync_writeReadController();
 	//don't add analog if error on AQ
@@ -4731,13 +4738,14 @@ void GalilController::dq_analog(int byte, int input_num)
 	val = atoi(resp_);
 	switch (val)
 		{
-		case 3: divisor = 32768.0 / 5;   type = "SW";  break;   //  -5 to 5  V   -32768 to 32767
+		case 3: divisor = 32768.0 / 5;   type = "UW";  offset = -5.0; break;   //  -5 to 5  V   -32768 to 32767
 		case 1: divisor = 65536.0 / 5;   type = "UW";  break;   //   0 to 5  V        0 to 65535
 		case 2: divisor = 65536.0 / 10;  type = "UW";  break;   //   0 to 10 V        0 to 65535
 		case 4: default: //DQ 4 is the default value
-			divisor = 32768.0 / 10;  type = "SW";  break;   // -10 to 10 V   -32768 to 32767
+			divisor = 32768.0 / 10;  type = "UW";  offset = -10.0; break;   // -10 to 10 V   -32768 to 32767
 		}
-	map["@AO[" + to_string((long double)input_num + 1) + "]"] = Source(byte, type, -1, "V", "Analog output " + to_string((long double)input_num), divisor);
+	sprintf(map_address, "@AO[%d]", input_num);
+	map[map_address] = Source(byte, type, -1, "V", "Analog output " + to_string((long double)input_num), divisor, offset);
 	}
 }
 
