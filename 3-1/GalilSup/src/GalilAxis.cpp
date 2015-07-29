@@ -950,6 +950,8 @@ asynStatus GalilAxis::getStatus(void)
    int offonerror, motoron;			//paramList items to update
    int connected;				//paramList items to update
    double error;				//paramList items to update
+   double velocity;				//paramList items to update
+   double eres;					//Motor encoder resolution
    unsigned digport = 0;			//paramList items to update.  Used for brake status
    unsigned mask;				//Mask used to calc brake port status
    int brakeport;				//Brake port for this axis
@@ -1007,6 +1009,12 @@ asynStatus GalilAxis::getStatus(void)
 		sprintf(src, "_TE%c", axisName_);
 		error = pC_->sourceValue(pC_->recdata_, src);
 		setDoubleParam(pC_->GalilError_, error);
+		//Servo motor velocity
+		sprintf(src, "_TV%c", axisName_);
+		velocity = pC_->sourceValue(pC_->recdata_, src);
+		setDoubleParam(pC_->GalilMotorVelocityRAW_, velocity);
+		pC_->getDoubleParam(axisNo_, pC_->GalilEncoderResolution_, &eres);
+		setDoubleParam(pC_->GalilMotorVelocityEGU_, velocity * eres);
 		//Brake port status
 		strcpy(src, "_OP0");
 		digport = (unsigned)pC_->sourceValue(pC_->recdata_, src);

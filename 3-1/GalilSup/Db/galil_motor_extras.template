@@ -425,6 +425,24 @@ record(ai,"$(P):$(M)_ERR_MON")
 	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_ERR")
 }
 
+record(ai,"$(P):$(M)_VELOCITYRAW_MON")
+{
+	field(DESC, "servo velocity raw")
+	field(EGU,  "cts")
+	field(DTYP, "asynFloat64")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_VELOCITY_RAW")
+}
+
+record(ai,"$(P):$(M)_VELOCITYEGU_MON")
+{
+	field(DESC, "servo velocity egu")
+	field(EGU,  "$(EGU)")
+	field(DTYP, "asynFloat64")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_VELOCITY_EGU")
+}
+
 record(mbbo,"$(P):$(M)_OFFONERR_CMD")
 {
 	field(DESC, "error limit")

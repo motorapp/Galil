@@ -276,6 +276,8 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilErrorString, asynParamFloat64, &GalilError_);
   createParam(GalilOffOnErrorString, asynParamInt32, &GalilOffOnError_);
   createParam(GalilAxisString, asynParamInt32, &GalilAxis_);
+  createParam(GalilMotorVelocityEGUString, asynParamFloat64, &GalilMotorVelocityEGU_);
+  createParam(GalilMotorVelocityRAWString, asynParamFloat64, &GalilMotorVelocityRAW_);
 
   createParam(GalilUserCmdString, asynParamFloat64, &GalilUserCmd_);
   createParam(GalilUserOctetString, asynParamOctet, &GalilUserOctet_);

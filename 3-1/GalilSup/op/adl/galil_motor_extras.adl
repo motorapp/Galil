@@ -1,14 +1,14 @@
 
 file {
-	name="/home/ics/git/Galil-3-0/3-0/GalilSup/op/adl/galil_motor_extras.adl"
+	name="/home/ics/git/Galil-3-0/3-1/GalilSup/op/adl/galil_motor_extras.adl"
 	version=030105
 }
 display {
 	object {
-		x=732
-		y=221
+		x=130
+		y=51
 		width=425
-		height=542
+		height=575
 	}
 	clr=14
 	bclr=4
@@ -545,542 +545,130 @@ text {
 	limits {
 	}
 }
+text {
+	object {
+		x=12
+		y=287
+		width=69
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Motor brake"
+}
+"choice button" {
+	object {
+		x=155
+		y=284
+		width=112
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_BRAKE_CMD"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+"text update" {
+	object {
+		x=309
+		y=287
+		width=81
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_BRAKE_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
 composite {
 	object {
 		x=12
-		y=284
+		y=302
 		width=378
-		height=255
+		height=21
 	}
 	"composite name"=""
 	children {
 		text {
 			object {
 				x=12
-				y=287
+				y=305
 				width=69
 				height=18
 			}
 			"basic attribute" {
 				clr=14
 			}
-			textix="Motor brake"
+			textix="Motor brake on/off port"
 		}
-		"choice button" {
+		"text entry" {
 			object {
 				x=155
-				y=284
-				width=112
-				height=18
-			}
-			control {
-				chan="$(P)$(M)_BRAKE_CMD"
-				clr=14
-				bclr=51
-			}
-			stacking="column"
-		}
-		"text update" {
-			object {
-				x=309
-				y=287
-				width=81
-				height=18
-			}
-			monitor {
-				chan="$(P)$(M)_BRAKE_STATUS"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		composite {
-			object {
-				x=12
 				y=302
-				width=378
-				height=21
+				width=112
+				height=18
 			}
-			"composite name"=""
-			children {
-				text {
-					object {
-						x=12
-						y=305
-						width=69
-						height=18
-					}
-					"basic attribute" {
-						clr=14
-					}
-					textix="Motor brake on/off port"
-				}
-				"text entry" {
-					object {
-						x=155
-						y=302
-						width=112
-						height=18
-					}
-					control {
-						chan="$(P)$(M)_BRAKEPORT_SP"
-						clr=14
-						bclr=51
-					}
-					limits {
-					}
-				}
-				"text update" {
-					object {
-						x=309
-						y=305
-						width=81
-						height=18
-					}
-					monitor {
-						chan="$(P)$(M)_BRAKEPORT_MON"
-						clr=54
-						bclr=4
-					}
-					limits {
-					}
-				}
+			control {
+				chan="$(P)$(M)_BRAKEPORT_SP"
+				clr=14
+				bclr=51
+			}
+			limits {
 			}
 		}
-		composite {
+		"text update" {
+			object {
+				x=309
+				y=305
+				width=81
+				height=18
+			}
+			monitor {
+				chan="$(P)$(M)_BRAKEPORT_MON"
+				clr=54
+				bclr=4
+			}
+			limits {
+			}
+		}
+	}
+}
+composite {
+	object {
+		x=12
+		y=320
+		width=378
+		height=21
+	}
+	"composite name"=""
+	children {
+		text {
 			object {
 				x=12
+				y=323
+				width=69
+				height=18
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="Motor brake auto on/off"
+		}
+		"choice button" {
+			object {
+				x=155
 				y=320
-				width=378
-				height=21
-			}
-			"composite name"=""
-			children {
-				text {
-					object {
-						x=12
-						y=323
-						width=69
-						height=18
-					}
-					"basic attribute" {
-						clr=14
-					}
-					textix="Motor brake auto on/off"
-				}
-				"choice button" {
-					object {
-						x=155
-						y=320
-						width=112
-						height=18
-					}
-					control {
-						chan="$(P)$(M)_AUTOBRAKE_CMD"
-						clr=14
-						bclr=51
-					}
-					stacking="column"
-				}
-				"text update" {
-					object {
-						x=309
-						y=323
-						width=81
-						height=18
-					}
-					monitor {
-						chan="$(P)$(M)_AUTOBRAKE_STATUS"
-						clr=54
-						bclr=4
-					}
-					limits {
-					}
-				}
-			}
-		}
-		text {
-			object {
-				x=12
-				y=359
-				width=97
-				height=18
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Error (cts)"
-		}
-		"text entry" {
-			object {
-				x=155
-				y=338
 				width=112
 				height=18
 			}
 			control {
-				chan="$(P)$(M)_ERRLIMIT_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		text {
-			object {
-				x=12
-				y=342
-				width=100
-				height=18
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Error limit (cts)"
-		}
-		"text update" {
-			object {
-				x=309
-				y=343
-				width=58
-				height=18
-			}
-			monitor {
-				chan="$(P)$(M)_ERRLIMIT_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=309
-				y=361
-				width=58
-				height=18
-			}
-			monitor {
-				chan="$(P)$(M)_ERR_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		text {
-			object {
-				x=12
-				y=376
-				width=69
-				height=18
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Encoder stall"
-		}
-		"text update" {
-			object {
-				x=309
-				y=378
-				width=81
-				height=18
-			}
-			monitor {
-				chan="$(P)$(M)_ESTALL_STATUS"
-				clr=54
-				bclr=4
-			}
-			clrmod="alarm"
-			limits {
-			}
-		}
-		text {
-			object {
-				x=12
-				y=431
-				width=89
-				height=18
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Step smooth factor"
-		}
-		"text entry" {
-			object {
-				x=155
-				y=430
-				width=112
-				height=18
-			}
-			control {
-				chan="$(P)$(M)_STEPSMOOTH_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		"text entry" {
-			object {
-				x=155
-				y=412
-				width=112
-				height=18
-			}
-			control {
-				chan="$(P)$(M)_EDEL_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=309
-				y=413
-				width=81
-				height=18
-			}
-			monitor {
-				chan="$(P)$(M)_EDEL_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=309
-				y=431
-				width=58
-				height=18
-			}
-			monitor {
-				chan="$(P)$(M)_STEPSMOOTH_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		text {
-			object {
-				x=12
-				y=396
-				width=69
-				height=18
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Encoder stall time (s)"
-		}
-		"text entry" {
-			object {
-				x=156
-				y=394
-				width=112
-				height=18
-			}
-			control {
-				chan="$(P)$(M)_ESTALLTIME_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=309
-				y=395
-				width=81
-				height=18
-			}
-			monitor {
-				chan="$(P)$(M)_ESTALLTIME_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		text {
-			object {
-				x=12
-				y=414
-				width=97
-				height=18
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Encoder dead band (EGU)"
-		}
-		"text entry" {
-			object {
-				x=155
-				y=465
-				width=112
-				height=18
-			}
-			control {
-				chan="$(P)$(M)_HOMEVAL_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		text {
-			object {
-				x=12
-				y=449
-				width=69
-				height=18
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="EGU after limit"
-		}
-		"text entry" {
-			object {
-				x=155
-				y=448
-				width=112
-				height=18
-			}
-			control {
-				chan="$(P)$(M)_EGUAFTLIMIT_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=309
-				y=467
-				width=81
-				height=18
-			}
-			monitor {
-				chan="$(P)$(M)_HOMEVAL_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=309
-				y=449
-				width=81
-				height=18
-			}
-			monitor {
-				chan="$(P)$(M)_EGUAFTLIMIT_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		text {
-			object {
-				x=12
-				y=467
-				width=69
-				height=18
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Home value (EGU)"
-		}
-		"choice button" {
-			object {
-				x=155
-				y=483
-				width=112
-				height=18
-			}
-			control {
-				chan="$(P)$(M)_UINDEX_CMD"
-				clr=14
-				bclr=51
-			}
-			stacking="column"
-		}
-		text {
-			object {
-				x=12
-				y=485
-				width=69
-				height=18
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Use index when homing"
-		}
-		"text entry" {
-			object {
-				x=155
-				y=519
-				width=112
-				height=18
-			}
-			control {
-				chan="$(P)$(M)_JAHV_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		text {
-			object {
-				x=12
-				y=503
-				width=69
-				height=18
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Jog after home"
-		}
-		text {
-			object {
-				x=12
-				y=521
-				width=69
-				height=18
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Jog after home to (EGU)"
-		}
-		"choice button" {
-			object {
-				x=155
-				y=501
-				width=112
-				height=18
-			}
-			control {
-				chan="$(P)$(M)_JAH_CMD"
+				chan="$(P)$(M)_AUTOBRAKE_CMD"
 				clr=14
 				bclr=51
 			}
@@ -1089,48 +677,449 @@ composite {
 		"text update" {
 			object {
 				x=309
-				y=485
+				y=323
 				width=81
 				height=18
 			}
 			monitor {
-				chan="$(P)$(M)_UINDEX_STATUS"
+				chan="$(P)$(M)_AUTOBRAKE_STATUS"
 				clr=54
 				bclr=4
 			}
 			limits {
 			}
 		}
-		"text update" {
-			object {
-				x=309
-				y=503
-				width=81
-				height=18
-			}
-			monitor {
-				chan="$(P)$(M)_JAH_STATUS"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=309
-				y=520
-				width=81
-				height=18
-			}
-			monitor {
-				chan="$(P)$(M)_JAHV_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
+	}
+}
+text {
+	object {
+		x=12
+		y=359
+		width=97
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Error (cts)"
+}
+"text entry" {
+	object {
+		x=155
+		y=338
+		width=112
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_ERRLIMIT_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=12
+		y=342
+		width=100
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Error limit (cts)"
+}
+"text update" {
+	object {
+		x=309
+		y=343
+		width=58
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_ERRLIMIT_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=309
+		y=361
+		width=58
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_ERR_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=12
+		y=376
+		width=69
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Encoder stall"
+}
+"text update" {
+	object {
+		x=309
+		y=378
+		width=81
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_ESTALL_STATUS"
+		clr=54
+		bclr=4
+	}
+	clrmod="alarm"
+	limits {
+	}
+}
+text {
+	object {
+		x=12
+		y=431
+		width=89
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Step smooth factor"
+}
+"text entry" {
+	object {
+		x=155
+		y=430
+		width=112
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_STEPSMOOTH_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text entry" {
+	object {
+		x=155
+		y=412
+		width=112
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_EDEL_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=309
+		y=413
+		width=81
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_EDEL_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=309
+		y=431
+		width=58
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_STEPSMOOTH_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=12
+		y=396
+		width=69
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Encoder stall time (s)"
+}
+"text entry" {
+	object {
+		x=156
+		y=394
+		width=112
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_ESTALLTIME_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=309
+		y=395
+		width=81
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_ESTALLTIME_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=12
+		y=414
+		width=97
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Encoder dead band (EGU)"
+}
+"text entry" {
+	object {
+		x=155
+		y=465
+		width=112
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_HOMEVAL_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=12
+		y=449
+		width=69
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="EGU after limit"
+}
+"text entry" {
+	object {
+		x=155
+		y=448
+		width=112
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_EGUAFTLIMIT_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=309
+		y=467
+		width=81
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_HOMEVAL_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=309
+		y=449
+		width=81
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_EGUAFTLIMIT_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=12
+		y=467
+		width=69
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Home value (EGU)"
+}
+"choice button" {
+	object {
+		x=155
+		y=483
+		width=112
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_UINDEX_CMD"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+text {
+	object {
+		x=12
+		y=485
+		width=69
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Use index when homing"
+}
+"text entry" {
+	object {
+		x=155
+		y=519
+		width=112
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_JAHV_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=12
+		y=503
+		width=69
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Jog after home"
+}
+text {
+	object {
+		x=12
+		y=521
+		width=69
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Jog after home to (EGU)"
+}
+"choice button" {
+	object {
+		x=155
+		y=501
+		width=112
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_JAH_CMD"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+"text update" {
+	object {
+		x=309
+		y=485
+		width=81
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_UINDEX_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=309
+		y=503
+		width=81
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_JAH_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=309
+		y=520
+		width=81
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_JAHV_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
 	}
 }
 composite {
@@ -1222,6 +1211,60 @@ text {
 	}
 	monitor {
 		chan="$(P)$(M)_BRAKEONDELAY_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=12
+		y=539
+		width=69
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Servo velocity (cts/s)"
+}
+text {
+	object {
+		x=12
+		y=557
+		width=69
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Servo velocity (EGU/s)"
+}
+"text update" {
+	object {
+		x=309
+		y=555
+		width=81
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_VELOCITYEGU_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=309
+		y=538
+		width=81
+		height=18
+	}
+	monitor {
+		chan="$(P)$(M)_VELOCITYRAW_MON"
 		clr=54
 		bclr=4
 	}

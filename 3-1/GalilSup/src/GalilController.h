@@ -154,6 +154,8 @@
 #define GalilErrorString		"MOTOR_ERR"
 #define GalilOffOnErrorString		"MOTOR_OOE"
 #define GalilAxisString			"MOTOR_AXIS"
+#define GalilMotorVelocityEGUString  	"MOTOR_VELOCITY_EGU"
+#define GalilMotorVelocityRAWString  	"MOTOR_VELOCITY_RAW"
 
 #define GalilUserCmdString		"USER_CMD"
 #define GalilUserOctetString		"USER_OCTET"
@@ -378,6 +380,8 @@ protected:
   int GalilError_;
   int GalilOffOnError_;
   int GalilAxis_;
+  int GalilMotorVelocityEGU_;
+  int GalilMotorVelocityRAW_;
   int GalilUserCmd_;
   int GalilUserOctet_;
   int GalilUserOctetVal_;
