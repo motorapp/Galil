@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>EFrame</class>
+ <widget class="QEFrame" name="EFrame">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>442</width>
+    <height>427</height>
+   </rect>
+  </property>
+  <property name="sizeIncrement">
+   <size>
+    <width>1</width>
+    <height>1</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>EFrame</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout" stretch="1,9">
+     <property name="spacing">
+      <number>1</number>
+     </property>
+     <item>
+      <widget class="QEFormGrid" name="qeformgrid_2">
+       <property name="uiFile">
+        <string>galil_profileMoveAxisHeading.ui</string>
+       </property>
+       <property name="number">
+        <number>1</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QEFormGrid" name="qeformgrid">
+       <property name="uiFile">
+        <string>galil_profileMoveAxisDetails.ui</string>
+       </property>
+       <property name="number">
+        <number>8</number>
+       </property>
+       <property name="rowNumberWidth">
+        <number>1</number>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QEFormGrid</class>
+   <extends>QEFrame</extends>
+   <header>QEFormGrid.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QEFrame</class>
+   <extends>QFrame</extends>
+   <header>QEFrame.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

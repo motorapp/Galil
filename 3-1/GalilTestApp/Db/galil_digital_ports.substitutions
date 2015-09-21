@@ -114,6 +114,15 @@ pattern {P,      R,          PORT,  BYTE,  MASK,     ZNAM,  ONAM,  ZSV,        O
 	{RIO01,  Galil1Bi6,  RIO,   1,     0x000040, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
 	{RIO01,  Galil1Bi7,  RIO,   1,     0x000080, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
 
+	{RIO01,  Galil2Bi0,  RIO,   2,     0x000001, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{RIO01,  Galil2Bi1,  RIO,   2,     0x000002, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{RIO01,  Galil2Bi2,  RIO,   2,     0x000004, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{RIO01,  Galil2Bi3,  RIO,   2,     0x000008, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{RIO01,  Galil2Bi4,  RIO,   2,     0x000010, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{RIO01,  Galil2Bi5,  RIO,   2,     0x000020, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{RIO01,  Galil2Bi6,  RIO,   2,     0x000040, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{RIO01,  Galil2Bi7,  RIO,   2,     0x000080, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+
 }
 
 # P    - PV prefix
@@ -231,6 +240,15 @@ pattern {P,      R,           PORT,  WORD,  MASK,     ZNAM,  ONAM,  ZSV,        
 	{RIO01,  Galil0Bo13,  RIO,   1,     0x000020, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
 	{RIO01,  Galil0Bo14,  RIO,   1,     0x000040, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
 	{RIO01,  Galil0Bo15,  RIO,   1,     0x000080, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+
+	{RIO01,  Galil1Bo0,   RIO,   2,     0x000001, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{RIO01,  Galil1Bo1,   RIO,   2,     0x000002, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{RIO01,  Galil1Bo2,   RIO,   2,     0x000004, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{RIO01,  Galil1Bo3,   RIO,   2,     0x000008, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{RIO01,  Galil1Bo4,   RIO,   2,     0x000010, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{RIO01,  Galil1Bo5,   RIO,   2,     0x000020, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{RIO01,  Galil1Bo6,   RIO,   2,     0x000040, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{RIO01,  Galil1Bo7,   RIO,   2,     0x000080, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
 
 }
 

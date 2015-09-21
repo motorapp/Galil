@@ -203,6 +203,7 @@ public:
   asynStatus sync_writeReadController(void);
 
   asynStatus sendUnsolicitedMessage(char *mesg);
+  bool my_isascii(int c);
   asynStatus programUpload(string *prog);
   asynStatus programDownload(string prog);
   

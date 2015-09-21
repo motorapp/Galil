@@ -37,7 +37,7 @@ dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_profileMoveAxis.substitutions")
 GalilCreateController("Galil", "192.168.0.67", 8)
 
 # Create a Galil controller
-GalilCreateController("RIO", "192.168.0.101", 8)
+GalilCreateController("RIO", "192.168.0.5", 8)
 
 # GalilCreateAxis command parameters are:
 #

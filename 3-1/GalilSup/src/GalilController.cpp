@@ -2948,7 +2948,7 @@ asynStatus GalilController::sendUnsolicitedMessage(char *mesg)
      //Decode the mesg
      mesg[i] = (unsigned char)mesg[i] - 128;
      //Make sure the result is ascii
-     if (!isascii((int)mesg[i]))
+     if (!my_isascii((int)mesg[i]))
         unsolicited_ok = 0;
      }
   if (unsolicited_ok)
@@ -2964,6 +2964,15 @@ asynStatus GalilController::sendUnsolicitedMessage(char *mesg)
      }
   //Fail
   return asynError;
+}
+
+//Below function supplied for Cygwin, MingGw
+bool GalilController::my_isascii(int c)
+{
+   if (c == 10 || c == 13 || (c >= 32 && c <= 126))
+      return true;
+   else
+      return false;
 }
 
 asynStatus GalilController::readDataRecord(asynUser *pasynUser, char *input, unsigned bytesize)
@@ -3506,10 +3515,10 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
 
 		/*Upload code currently in controller to see whats there now*/              
 		status = programUpload(&uc);
-                if (!status)   //Remove the \r characters - \r\n is returned by galil controller
-                   uc.erase (std::remove(uc.begin(), uc.end(), '\r'), uc.end());
+		if (!status)   //Remove the \r characters - \r\n is returned by galil controller
+			uc.erase (std::remove(uc.begin(), uc.end(), '\r'), uc.end());
 		else
-		   printf("\nError uploading code model %s, address %s\n",model_, address_);
+			printf("\nError uploading code model %s, address %s\n",model_, address_);
 
 		//Start thread 0 if upload reveals code exists on controller
 		//Its assumed that thread 0 starts any other required threads on controller
@@ -3522,13 +3531,13 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
 			epicsThreadSleep(1);
 			
 			//Check threads on controller
-			if (thread_mask != 0) // is we gave a mask, only check for these threads
+			if (thread_mask != 0) //user specified a thread mask, only check for these threads
 				{
 				for (i=0; i<32; ++i)
 					{
 					if ( (thread_mask & (1 << i)) != 0 )
 						{
-					        /*check that code is running*/
+						/*check that code is running*/
 						sprintf(cmd_, "MG _XQ%d", i);
 						if (sync_writeReadController() == asynSuccess)
 							{
@@ -4038,6 +4047,8 @@ double GalilController::sourceValue(const std::vector<char>& record, const std::
 
 void GalilController::Init30010(bool dmc31010)
 {
+	char map_address[MAX_GALIL_STRING_SIZE];
+	char description[MAX_GALIL_STRING_SIZE];
 	//0-3 Header is ignored in GCL
 
 	map["TIME"] = Source(4, "UW", -1, "samples", "Sample counter");
@@ -4147,7 +4158,11 @@ void GalilController::Init30010(bool dmc31010)
 	if (dmc31010)
 		aq_analog(base, i + 1);
 	else
-		map["@AN[" + to_string((long double)i + 1) + "]"] = Source(base, "UW", -1, "V", "Analog input " + to_string((long double)i + 1), 13107.2);
+		{
+		sprintf(map_address, "@AN[%d]", i + 1);
+		sprintf(description, "Analog input %d", i + 1);
+		map[map_address] = Source(base, "UW", -1, "V", description, 13107.2);
+		}
 
 	base += 2; //68
 
@@ -4666,7 +4681,8 @@ void GalilController::aq_analog(int byte, int input_num)
   double divisor; //for dividing ADC counts to calc volts
   int val;
   int status;
-  char map_address[100];
+  char map_address[MAX_GALIL_STRING_SIZE];
+  char description[MAX_GALIL_STRING_SIZE];
 
   //Query analog setting
   sprintf(cmd_, "MG{Z10.0}_AQ%d", input_num);
@@ -4683,7 +4699,8 @@ void GalilController::aq_analog(int byte, int input_num)
 		          divisor = 32768.0 / 10;  type = "SW";  break;   // -10 to 10 V   -32768 to 32767
 	}
      sprintf(map_address, "@AN[%d]", input_num);
-     map[map_address] = Source(byte, type, -1, "V", "Analog input " + to_string((long double)input_num), divisor);
+     sprintf(description, "Analog input %d", input_num);
+     map[map_address] = Source(byte, type, -1, "V", description, divisor);
      }
 }
 
@@ -4695,13 +4712,15 @@ string GalilController::ax(string prefix, int axis, string suffix)
 void GalilController::input_bits(int byte, int num)
 {
 	stringstream ss;
+	char description[MAX_GALIL_STRING_SIZE];
 
 	for (int i = 0; i < 8; i++)
 	{
 		ss << "@IN[";
 		ss << setw(2) << setfill('0') << right << num;
 		ss << "]";
-		map[ss.str()] = Source(byte, "UB", i, "Boolean", "Digital input " + to_string((long double)num));
+		sprintf(description, "Digital input %d", num);
+		map[ss.str()] = Source(byte, "UB", i, "Boolean", description);
 		ss.str("");
 		num++;
 	}
@@ -4710,13 +4729,15 @@ void GalilController::input_bits(int byte, int num)
 void GalilController::output_bits(int byte, int num)
 {
 	stringstream ss;
+	char description[MAX_GALIL_STRING_SIZE];
 
 	for (int i = 0; i < 8; i++)
 	{
 		ss << "@OUT[";
 		ss << setw(2) << setfill('0') << right << num;
 		ss << "]";
-		map[ss.str()] = Source(byte, "UB", i, "Boolean", "Digital output " + to_string((long double)num));
+		sprintf(description, "Digital output %d", num);
+		map[ss.str()] = Source(byte, "UB", i, "Boolean", description);
 		ss.str("");
 		num++;
 	}
@@ -4730,7 +4751,8 @@ void GalilController::dq_analog(int byte, int input_num)
 	double offset = 0.0;	//Offset for converting to volts
 	int val;
 	int status;
-	char map_address[100];
+	char map_address[MAX_GALIL_STRING_SIZE];
+	char description[MAX_GALIL_STRING_SIZE];
   
 	sprintf(cmd_, "MG{Z10.0}_DQ%d", input_num);
 	status = sync_writeReadController();
@@ -4747,7 +4769,8 @@ void GalilController::dq_analog(int byte, int input_num)
 			divisor = 32768.0 / 10;  type = "UW";  offset = -10.0; break;   // -10 to 10 V   -32768 to 32767
 		}
 	sprintf(map_address, "@AO[%d]", input_num);
-	map[map_address] = Source(byte, type, -1, "V", "Analog output " + to_string((long double)input_num), divisor, offset);
+	sprintf(description, "Analog output %d", input_num);
+	map[map_address] = Source(byte, type, -1, "V", description, divisor, offset);
 	}
 }
 

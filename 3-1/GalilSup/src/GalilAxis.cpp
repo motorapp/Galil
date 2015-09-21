@@ -136,7 +136,7 @@ asynStatus GalilAxis::setDefaults(int limit_as_home, char *enables_string, int s
 	switch_type_ = (switch_type > 0) ? 1 : 0;
 
 	//Store motor enable/disable string
-	enables_string_ = (char *)calloc(strlen(enables_string), sizeof(char));
+	enables_string_ = (char *)calloc(strlen(enables_string) + 1, sizeof(char));
 	strcpy(enables_string_, enables_string);
         
 	//Invert ssi flag

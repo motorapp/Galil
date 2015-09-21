@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>EFrame</class>
+ <widget class="QEFrame" name="EFrame">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>835</width>
+    <height>763</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>100</width>
+    <height>100</height>
+   </size>
+  </property>
+  <property name="sizeIncrement">
+   <size>
+    <width>1</width>
+    <height>1</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Analog and Digital I/O</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>Analog</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_6">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,3">
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_5">
+           <item>
+            <widget class="QLabel" name="label_3">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Analog Inputs</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QEFormGrid" name="qeformgrid">
+             <property name="uiFile">
+              <string>galil_ctrl_analog_in.ui</string>
+             </property>
+             <property name="variableSubstitutions" stdset="0">
+              <string/>
+             </property>
+             <property name="number">
+              <number>8</number>
+             </property>
+             <property name="slotStrings">
+              <stringlist/>
+             </property>
+             <property name="rowNumberOffset" stdset="0">
+              <number>0</number>
+             </property>
+             <property name="rowNumberWidth">
+              <number>1</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_2">
+           <item>
+            <widget class="QLabel" name="label_2">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Analog Outputs</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QEFormGrid" name="qeformgrid_2">
+             <property name="uiFile">
+              <string>galil_ctrl_analog_out.ui</string>
+             </property>
+             <property name="number">
+              <number>8</number>
+             </property>
+             <property name="rowNumberOffset" stdset="0">
+              <number>0</number>
+             </property>
+             <property name="rowNumberWidth">
+              <number>1</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_2">
+      <attribute name="title">
+       <string>Digital</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_3" stretch="1,10,10,10,1,20,10">
+         <item>
+          <widget class="QLabel" name="label_4">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Inputs</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QEForm" name="qeform_2">
+           <property name="minimumSize">
+            <size>
+             <width>300</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="uiFile" stdset="0">
+            <string>galil_ctrl_digital_in.ui</string>
+           </property>
+           <property name="variableSubstitutions" stdset="0">
+            <string>BYTE=0</string>
+           </property>
+           <property name="resizeContents">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QEForm" name="qeform_3">
+           <property name="minimumSize">
+            <size>
+             <width>300</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="uiFile" stdset="0">
+            <string>galil_ctrl_digital_in.ui</string>
+           </property>
+           <property name="variableSubstitutions" stdset="0">
+            <string>BYTE=1</string>
+           </property>
+           <property name="resizeContents">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QEForm" name="qeform_4">
+           <property name="minimumSize">
+            <size>
+             <width>300</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="uiFile" stdset="0">
+            <string>galil_ctrl_digital_in.ui</string>
+           </property>
+           <property name="variableSubstitutions" stdset="0">
+            <string>BYTE=2</string>
+           </property>
+           <property name="resizeContents">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_5">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Outputs</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QEForm" name="qeform_5">
+           <property name="minimumSize">
+            <size>
+             <width>300</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="uiFile" stdset="0">
+            <string>galil_ctrl_digital_out.ui</string>
+           </property>
+           <property name="variableSubstitutions" stdset="0">
+            <string>WORD=0</string>
+           </property>
+           <property name="resizeContents">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QEForm" name="qeform">
+           <property name="minimumSize">
+            <size>
+             <width>300</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="uiFile" stdset="0">
+            <string>galil_ctrl_digital_out_8bit.ui</string>
+           </property>
+           <property name="variableSubstitutions" stdset="0">
+            <string>WORD=1</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QEForm</class>
+   <extends>QWidget</extends>
+   <header>QEForm.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QEFormGrid</class>
+   <extends>QEFrame</extends>
+   <header>QEFormGrid.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QEFrame</class>
+   <extends>QFrame</extends>
+   <header>QEFrame.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

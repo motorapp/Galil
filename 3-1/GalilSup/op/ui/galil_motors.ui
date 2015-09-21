@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>EFrame</class>
+ <widget class="QEFrame" name="EFrame">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>968</width>
+    <height>552</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Motor control</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>1</number>
+   </property>
+   <property name="margin">
+    <number>1</number>
+   </property>
+   <item>
+    <widget class="QEFormGrid" name="qeformgrid">
+     <property name="uiFile">
+      <string>galil_motor_basic.ui</string>
+     </property>
+     <property name="number">
+      <number>16</number>
+     </property>
+     <property name="columns">
+      <number>4</number>
+     </property>
+     <property name="gridOrder">
+      <enum>QEFormGrid::ColMajor</enum>
+     </property>
+     <property name="slotNumberWidth">
+      <number>1</number>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QEFormGrid</class>
+   <extends>QEFrame</extends>
+   <header>QEFormGrid.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QEFrame</class>
+   <extends>QFrame</extends>
+   <header>QEFrame.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
