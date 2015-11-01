@@ -346,53 +346,59 @@ record(mbbo,"$(P):$(M)_SSIINPUT_CMD")
 	field(TWVL, "2")
 	field(VAL,  "0")
 	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_SSIINPUT")
+	field(FLNK, "$(P):$(M)_SSIINPUT_STATUS")
 }
 
 record(ao,"$(P):$(M)_SSITOTBITS_SP")
 {
-	field(DESC,"ssi total bits")
-	field(PINI,"YES")
-	field(DTYP,"asynInt32")
-	field(VAL, "25")
-	field(OUT, "@asyn($(PORT),$(ADDR))MOTOR_SSITOTBITS")
+	field(DESC, "ssi total bits")
+	field(PINI, "YES")
+	field(DTYP, "asynInt32")
+	field(VAL,  "25")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_SSITOTBITS")
+	field(FLNK, "$(P):$(M)_SSITOTBITS_MON")
 }
 
 record(ao,"$(P):$(M)_SSISINGLETBITS_SP")
 {
-	field(DESC,"ssi single turn bits")
-	field(PINI,"YES")
-	field(DTYP,"asynInt32")
-	field(VAL, "13")
-	field(OUT, "@asyn($(PORT),$(ADDR))MOTOR_SSISINGLETBITS")
+	field(DESC, "ssi single turn bits")
+	field(PINI, "YES")
+	field(DTYP, "asynInt32")
+	field(VAL,  "13")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_SSISINGLETBITS")
+	field(FLNK, "$(P):$(M)_SSISINGLETBITS_MON")
 }
 
 record(ao,"$(P):$(M)_SSIERRBITS_SP")
 {
-	field(DESC,"ssi err bits")
-	field(PINI,"YES")
-	field(DTYP,"asynInt32")
-	field(VAL, "0")
-	field(OUT, "@asyn($(PORT),$(ADDR))MOTOR_SSIERRBITS")
+	field(DESC, "ssi err bits")
+	field(PINI, "YES")
+	field(DTYP, "asynInt32")
+	field(VAL,  "0")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_SSIERRBITS")
+	field(FLNK, "$(P):$(M)_SSIERRBITS_MON")
 }
 
 record(ao,"$(P):$(M)_SSITIME_SP")
 {
-	field(DESC,"ssi timecode")
-	field(PINI,"YES")
-	field(DTYP,"asynInt32")
-	field(VAL, "13")
-	field(OUT, "@asyn($(PORT),$(ADDR))MOTOR_SSITIME")
+	field(DESC, "ssi timecode")
+	field(PINI, "YES")
+	field(DTYP, "asynInt32")
+	field(VAL,  "13")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_SSITIME")
+	field(FLNK, "$(P):$(M)_SSITIME_MON")
 }
 
 record(bo,"$(P):$(M)_SSIDATA_CMD")
 {
-	field(DESC,"ssi dataform")
-	field(PINI,"YES")
-	field(DTYP,"asynInt32")
-	field(ONAM,"Gray")
-	field(ZNAM,"Binary")
-	field(VAL, "0")
-	field(OUT, "@asyn($(PORT),$(ADDR))MOTOR_SSIDATA")
+	field(DESC, "ssi dataform")
+	field(PINI, "YES")
+	field(DTYP, "asynInt32")
+	field(ONAM, "Gray")
+	field(ZNAM, "Binary")
+	field(VAL,  "0")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_SSIDATA")
+	field(FLNK, "$(P):$(M)_SSIDATA_STATUS")
 }
 
 record(ao,"$(P):$(M)_ERRLIMIT_SP")

@@ -32,9 +32,8 @@
 #define QASCII 81
 #define SCALCARGS 16
 //Number of communication retries
-#define MAX_RETRIES 1
-#define ALLOWED_TIMEOUTS 3
-#define MAX_GALIL_UNSOLICTED_SIZE 13
+#define ALLOWED_TIMEOUTS 2
+#define MAX_GALIL_UNSOLICTED_SIZE 29
 #define MAX_GALIL_STRING_SIZE 256
 #define MAX_GALIL_DATAREC_SIZE 512
 #define MAX_GALIL_AXES 8
@@ -406,6 +405,7 @@ private:
 
   char address_[MAX_GALIL_STRING_SIZE];	//address string
   char model_[MAX_GALIL_STRING_SIZE];	//model string
+  bool rio_;				//Is controller a RIO
   char code_file_[MAX_FILENAME_LEN];	//Code file(s) that user gave to GalilStartController
 
   int burn_program_;			//Burn program options that user gave to GalilStartController

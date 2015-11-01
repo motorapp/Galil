@@ -29,16 +29,19 @@ file "$(GALIL)/GalilSup/Db/galil_analog_in.template"
 { 
    pattern { P,           R,          PORT,    ADDR,  PREC }
 
-	   { "DMC01",    "GalilAi0",  "Galil", "0",   "3"  }
-	   { "DMC01",    "GalilAi1",  "Galil", "1",   "3"  }
-	   { "DMC01",    "GalilAi2",  "Galil", "2",   "3"  }
-	   { "DMC01",    "GalilAi3",  "Galil", "3",   "3"  }
-	   { "DMC01",    "GalilAi4",  "Galil", "4",   "3"  }
-	   { "DMC01",    "GalilAi5",  "Galil", "5",   "3"  }
-	   { "DMC01",    "GalilAi6",  "Galil", "6",   "3"  }
-	   { "DMC01",    "GalilAi7",  "Galil", "7",   "3"  }
+#DMC Ports numbered 0 to 7 at database layer for GUI.
+#DMC Ports numbered 1 to 8 on controller hardware
+	   { "DMC01",    "GalilAi0",  "Galil", "1",   "3"  }
+	   { "DMC01",    "GalilAi1",  "Galil", "2",   "3"  }
+	   { "DMC01",    "GalilAi2",  "Galil", "3",   "3"  }
+	   { "DMC01",    "GalilAi3",  "Galil", "4",   "3"  }
+	   { "DMC01",    "GalilAi4",  "Galil", "5",   "3"  }
+	   { "DMC01",    "GalilAi5",  "Galil", "6",   "3"  }
+	   { "DMC01",    "GalilAi6",  "Galil", "7",   "3"  }
+	   { "DMC01",    "GalilAi7",  "Galil", "8",   "3"  }
 
-           { "RIO01",    "GalilAi0",  "RIO",   "0",   "3"  }
+#RIO Ports numbered 0 to 7 on controller hardware
+	   { "RIO01",    "GalilAi0",  "RIO",   "0",   "3"  }
 	   { "RIO01",    "GalilAi1",  "RIO",   "1",   "3"  }
 	   { "RIO01",    "GalilAi2",  "RIO",   "2",   "3"  }
 	   { "RIO01",    "GalilAi3",  "RIO",   "3",   "3"  }
@@ -52,16 +55,19 @@ file "$(GALIL)/GalilSup/Db/galil_analog_out.template"
 { 
    pattern { P,          R,           PORT,    ADDR,  PREC,  LOPR,  HOPR }
 
-           { "DMC01",    "GalilAo0",  "Galil", "0",   "3",   "-10", "10" }
-	   { "DMC01",    "GalilAo1",  "Galil", "1",   "3",   "-10", "10" }
-	   { "DMC01",    "GalilAo2",  "Galil", "2",   "3",   "-10", "10" }
-	   { "DMC01",    "GalilAo3",  "Galil", "3",   "3",   "-10", "10" }
-	   { "DMC01",    "GalilAo4",  "Galil", "4",   "3",   "-10", "10" }
-	   { "DMC01",    "GalilAo5",  "Galil", "5",   "3",   "-10", "10" }
-	   { "DMC01",    "GalilAo6",  "Galil", "6",   "3",   "-10", "10" }
-	   { "DMC01",    "GalilAo7",  "Galil", "7",   "3",   "-10", "10" }
+#DMC Ports numbered 0 to 7 at database layer for GUI.
+#DMC Ports numbered 1 to 8 on controller hardware
+	   { "DMC01",    "GalilAo0",  "Galil", "1",   "3",   "-10", "10" }
+	   { "DMC01",    "GalilAo1",  "Galil", "2",   "3",   "-10", "10" }
+	   { "DMC01",    "GalilAo2",  "Galil", "3",   "3",   "-10", "10" }
+	   { "DMC01",    "GalilAo3",  "Galil", "4",   "3",   "-10", "10" }
+	   { "DMC01",    "GalilAo4",  "Galil", "5",   "3",   "-10", "10" }
+	   { "DMC01",    "GalilAo5",  "Galil", "6",   "3",   "-10", "10" }
+	   { "DMC01",    "GalilAo6",  "Galil", "7",   "3",   "-10", "10" }
+	   { "DMC01",    "GalilAo7",  "Galil", "8",   "3",   "-10", "10" }
 
-           { "RIO01",    "GalilAo0",  "RIO",   "0",   "3",   "-10", "10" }
+#RIO Ports numbered 0 to 7 on controller hardware
+	   { "RIO01",    "GalilAo0",  "RIO",   "0",   "3",   "-10", "10" }
 	   { "RIO01",    "GalilAo1",  "RIO",   "1",   "3",   "-10", "10" }
 	   { "RIO01",    "GalilAo2",  "RIO",   "2",   "3",   "-10", "10" }
 	   { "RIO01",    "GalilAo3",  "RIO",   "3",   "3",   "-10", "10" }

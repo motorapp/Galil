@@ -1086,7 +1086,7 @@ void GalilAxis::checkEncoder(void)
    double estall_time;			//Allowed encoder stall time specified by user
    double pestall_time;			//Possible encoder stall has been happening for this many secs
 
-   if ((ueip_ && !done_ && (!encoderMove_ || !encDirOk_)))
+   if ((ueip_ && !done_ && !deferredMove_ && (!encoderMove_ || !encDirOk_)))
       {
       //Record time when possible stall was first detected
       if (!pestall_detected_)

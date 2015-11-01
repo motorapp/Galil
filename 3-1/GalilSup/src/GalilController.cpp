@@ -58,7 +58,15 @@
 // 05/05/15 M.Clift, D.J.Roberts, T.Miller Galil Motion Control
 //                  Added source code for data record decoding
 //                  Replaced gcl communications with Asyn communications, and removed all gcl references
-
+// 30/10/15 M.Clift
+//                  Fixed encoder stall when using deferred moves
+//                  Fixed SSI capability detection on 4xxx controllers
+//                  Fixed analog numbering for DMC controllers
+//                  Fixed threading issue in poller caused by motorStatusUpdate
+//                  Fixed mixed open and closed loop motor in CSAxis
+//                  Fixed command console
+//                  Fixed coordsys selection problem in deferred moves
+//                  CSaxis can now be used in deferred moves
 
 #include <stdio.h>
 #include <math.h>
@@ -610,6 +618,8 @@ void GalilController::connected(void)
   strcpy(model_, resp_);
   //Pass model string to ParamList
   setStringParam(GalilModel_, model_);
+  //Determine if controller is dmc or rio
+  rio_ = (strncmp(model_, "RIO",3) == 0) ? true : false;
 
   //Give connect message
   sprintf(mesg, "Connected to %s at %s", model_, address_);
@@ -632,16 +642,17 @@ void GalilController::connected(void)
   numAxesMax_ = atoi(resp_);
 
   //adjust numAxesMax_ when model is RIO.
-  numAxesMax_ = (strncmp(model_, "RIO",3) == 0)? 0 : numAxesMax_;
+  numAxesMax_ = (rio_)? 0 : numAxesMax_;
+
   //Determine if controller is SSI capable
-  if (strstr(model_, "SI") == NULL)
-     setIntegerParam(GalilSSICapable_, 0);
-  else
+  if (strstr(model_, "SSI") != NULL || strstr(model_, "SER") != NULL)
      setIntegerParam(GalilSSICapable_, 1);
+  else
+     setIntegerParam(GalilSSICapable_, 0);
 	
   //Determine number of threads supported
   //RIO
-  numThreads_ = (strncmp(model_,"RIO",3) == 0)? 4 : numThreads_;
+  numThreads_ = (rio_)? 4 : numThreads_;
   //DMC4 range
   if ((model_[0] == 'D' && model_[3] == '4'))
      numThreads_ = 8;
@@ -696,11 +707,6 @@ void GalilController::connected(void)
   //No timeout errors
   consecutive_timeouts_ = 0;
 
-  //Flag connected as true
-  connected_ = true;
-  setIntegerParam(0, GalilCommunicationError_, 0);
-  callParamCallbacks();
-
   //Has code for the GalilController been assembled
   if (code_assembled_)
      {
@@ -719,8 +725,16 @@ void GalilController::connected(void)
      sprintf(cmd_, "DR %.0f, %d", updatePeriod_, udpHandle_ - AASCII);
      status = sync_writeReadController();
      if (status)
+        {
         async_records_ = false; //Something went wrong
+        setCtrlError("Asynchronous UDP failed, switching to TCP synchronous");
+        }
      }
+
+  //Flag connected as true
+  connected_ = true;
+  setIntegerParam(0, GalilCommunicationError_, 0);
+  callParamCallbacks();
 }
 
 /** Reports on status of the driver
@@ -1873,6 +1887,10 @@ asynStatus GalilController::processDeferredMovesInGroup(int coordsys, char *axes
   //Selected coordinate system name
   coordName = (coordsys == 0 ) ? 'S' : 'T';
 
+  //Set the specified coordsys on controller
+  sprintf(cmd_, "CA %c", coordName);
+  sync_writeReadController();
+
   //Clear any segments in the coordsys buffer
   sprintf(cmd_, "CS %c", coordName);
   sync_writeReadController();
@@ -1924,11 +1942,11 @@ asynStatus GalilController::processDeferredMovesInGroup(int coordsys, char *axes
   if (!status)
      {
      //Started without error.  Pause till cs is moving
-     //Give sync poller change to get lock
+     //Give sync poller chance to get lock
      unlock();
      while (!csmoving)
         {
-        epicsThreadSleep(.001);
+        epicsThreadSleep(.02);
         epicsTimeGetCurrent(&begin_nowt_);
         //Calculate time begin has taken so far
         begin_time = epicsTimeDiffInSeconds(&begin_nowt_, &begin_begint_);
@@ -1982,6 +2000,8 @@ asynStatus GalilController::setDeferredMoves(bool deferMoves)
   char moves[MAX_GALIL_STRING_SIZE];	//Constructed comma list of axis relative moves
   double vectorAcceleration;		//Coordinate system acceleration
   double vectorVelocity;		//Coordinate system velocity
+  bool start_ok[COORDINATE_SYSTEMS];	//Did the coordinate system start
+  asynStatus status = asynError;	//Return status.  Success if any coordsys starts
 
   // If we are not ending deferred moves then return
   if (deferMoves || !movesDeferred_)
@@ -1997,6 +2017,8 @@ asynStatus GalilController::setDeferredMoves(bool deferMoves)
   //Loop through coordinate systems, looking for work to perform
   for (coordsys = 0; coordsys < COORDINATE_SYSTEMS; coordsys++) 
 	{
+	//Default start_ok status
+	start_ok[coordsys] = true; 
 	//No work found yet in this coordsys
 	strcpy(axes, "");
 	strcpy(moves, "");
@@ -2036,15 +2058,21 @@ asynStatus GalilController::setDeferredMoves(bool deferMoves)
 		vectorVelocity = lrint(vectorVelocity/2.0) * 2;
 		vectorAcceleration = lrint(vectorAcceleration/1024.0) * 1024;
 		//Start the move
-		processDeferredMovesInGroup(coordsys, axes, moves, vectorAcceleration, vectorVelocity);
+		if (processDeferredMovesInGroup(coordsys, axes, moves, vectorAcceleration, vectorVelocity))
+			start_ok[coordsys] = false;
 		}
+	else	//No work found in this coordsys
+		start_ok[coordsys] = false;
+
+	//If any coordsys started, return success
+	if (start_ok[coordsys])
+		status = asynSuccess;
 	}
 
   //Deferred moves have been started
   movesDeferred_ = false;
-  
-  //Always return success. Dont need more error mesgs
-  return asynSuccess;
+
+  return status;
 }
 
 /** Sets GalilCommunicationError_ param when comms problem occurs
@@ -2310,8 +2338,9 @@ asynStatus GalilController::writeUInt32Digital(asynUser *pasynUser, epicsUInt32 
     if (function == GalilBinaryOut_)
   	{
 	//Ensure record mask is within range
-	maxmask = strncmp(model_,"RIO",3) != 0 ? 0x8000 : 0x80;
-	if (mask > maxmask)
+	maxmask = (rio_) ? 0x80 : 0x8000;
+
+	if (mask > maxmask && strcmp("Unknown", model_))
 		{
 		printf("%s model %s mask too high @ > %x addr %d mask %x\n", functionName, model_, maxmask, addr, mask);
 		return asynSuccess;
@@ -2323,13 +2352,13 @@ asynStatus GalilController::writeUInt32Digital(asynUser *pasynUser, epicsUInt32 
 		if (pow(2.0,i) == mask)
 			{
 			//Bit numbering is different on DMC compared to RIO controllers
-			if (strncmp(model_,"RIO",3) != 0)
+			if (!rio_)
 				{
 				obwpa = 16;	//Binary out records for DMC support 16 bits per addr
 				i++;		//First bit on motor controllers is bit 1
 				}
 			else
-				obwpa = 8; 	//Binary out records for RIO support 8 bits per addr
+				obwpa = 8;	//Binary out records for RIO support 8 bits per addr
 			//Set or clear bit as required
 			if (value == mask)
 				sprintf(cmd_, "SB %d", (addr * obwpa) + i);
@@ -2371,6 +2400,11 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
   double eres, mres;				//mr eres, and mres
   float oldmotor;				//Motor type before changing it.  Use Galil numbering
   unsigned i;					//Looping
+
+  //GalilPoller is designed to be a constant and fast poller
+  //So we dont honour motorUpdateStatus as it will cause threading issues
+  if (function == motorUpdateStatus_)
+	return asynSuccess;
 
   status = getAddress(pasynUser, &addr); 
   if (status != asynSuccess) return(status);
@@ -2538,8 +2572,8 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
   else if (function >= GalilSSIInput_ && function <= GalilSSIData_)
 	{
 	int ssicapable;	//Local copy of GalilSSICapable_
-	//Retrieve GalilSSICapable_ from ParamList
-	getIntegerParam(pAxis->axisNo_, GalilSSICapable_, &ssicapable);
+	//Retrieve GalilSSICapable_ param
+	getIntegerParam(GalilSSICapable_, &ssicapable);
 	
 	//Only if controller is SSI capable
 	if (ssicapable)
@@ -2687,7 +2721,6 @@ asynStatus GalilController::writeOctet(asynUser *pasynUser, const char*  value, 
 {
   int function = pasynUser->reason;		//Function requested
   int status = asynSuccess;			//Used to work out communication_error_ status.  asynSuccess always returned
-  bool reqd_comms;				//Check for comms error only when function reqd comms
   double aivalue;				//Convert response to value
   unsigned i;					//looping
   char mesg[MAX_GALIL_STRING_SIZE];		//Controller mesg
@@ -2705,12 +2738,10 @@ asynStatus GalilController::writeOctet(asynUser *pasynUser, const char*  value, 
   //Num of chars written to paramList
   *nActual = nChars;
 
-  //Most functions require comms
-  reqd_comms = true;
-
   /* Set the parameter and readback in the parameter library. */
   if (function == GalilUserOctet_)
-     {			
+     {
+     //Send the command	
      epicsSnprintf(cmd_, sizeof(cmd_), "%s", value_s.c_str());
      if ( (status = sync_writeReadController()) == asynSuccess )
         {
@@ -2724,8 +2755,7 @@ asynStatus GalilController::writeOctet(asynUser *pasynUser, const char*  value, 
      else
         {
         //Set readback value = response from controller
-        setStringParam(GalilUserOctet_, "<error>");
-        *nActual = 0;
+        setStringParam(GalilUserOctet_, "error");
         }
      }
   else if (function >= GalilCSMotorForward_ && function <= GalilCSMotorReverseH_)
@@ -2753,11 +2783,10 @@ asynStatus GalilController::writeOctet(asynUser *pasynUser, const char*  value, 
      {
      /* Call base class method */
      status = asynMotorController::writeOctet(pasynUser, value,  nChars, nActual);
-     reqd_comms = false;
      }
-    
-  //Flag comms error only if function reqd comms
-  check_comms(reqd_comms, (asynStatus)status);
+
+  //Update params
+  callParamCallbacks();
 
   //Always return success. Dont need more error mesgs
   return asynSuccess;
@@ -2839,7 +2868,8 @@ void GalilController::processUnsolicitedMesgs(void)
 void GalilController::getStatus(void)
 {
    char src[MAX_GALIL_STRING_SIZE]="\0";	//data source to retrieve
-   int addr;					//addr or byte of binary IO
+   int addr;					//addr or byte of IO
+   int start, end;				//start, and end of analog numbering for this controller
    int coordsys;				//Coordinate system currently selected
    int profstate;				//Profile running state
    double paramDouble;				//For passing asynFloat64 to ParamList
@@ -2872,8 +2902,11 @@ void GalilController::getStatus(void)
 		//Example showing forced callbacks even if no value change
 		//setUIntDigitalParam(addr, GalilBinaryOutRBV_, paramUDig, 0xFFFF, 0xFFFF );
 		}
-	//Analog ports on rio
-	for (addr=0;addr<ANALOG_PORTS;addr++)
+	//Analog ports
+	//Port numbering is different on DMC compared to RIO controllers
+	start = (rio_) ? 0 : 1;
+        end = ANALOG_PORTS + start;
+	for (addr = start;addr < end;addr++)
 		{
 		//Analog inputs
 		sprintf(src, "@AN[%d]", addr);
@@ -2969,7 +3002,8 @@ asynStatus GalilController::sendUnsolicitedMessage(char *mesg)
 //Below function supplied for Cygwin, MingGw
 bool GalilController::my_isascii(int c)
 {
-   if (c == 10 || c == 13 || (c >= 32 && c <= 126))
+   if (c == 10 || c == 13 || (c >= 48 && c <= 57) || (c >= 65 && c <= 90) ||
+       (c >= 97 && c <= 122) || c == 32 || c == 46)
       return true;
    else
       return false;
@@ -2988,16 +3022,19 @@ asynStatus GalilController::readDataRecord(asynUser *pasynUser, char *input, uns
   char previous = 0;	//Byte read in previous cycle
   unsigned char value;	//Used for type conversion
   unsigned i = 0, j = 0;//Counters for data record bytes, and unsolicited bytes
- 
+
   while (!done)
      {
      //Read a byte
      status = pasynOctetSyncIO->read(pasynUser, buf, 1, timeout_, &nread, &eomReason);
      if (!status && eomReason == ASYN_EOM_CNT && nread == 1)
         {
-        value = (unsigned char)buf[0] - 0x80;
-        if ((buf[0] & 0x80) == 0x80 && (isalnum((int)value) || isspace((int)value) || ispunct((int)value)))
+        value = (unsigned char)(buf[0] - 0x80);
+        if (((buf[0] & 0x80) == 0x80) && (my_isascii((int)value)))
            {
+           //Check for overrun
+           if (j > MAX_GALIL_DATAREC_SIZE - 2)
+                return asynError;//No unsolicited message should be this long return error
            //Copy unsolicited byte into mesg buffer
            mesg[j++] = buf[0];
            mesg[j] = '\0';
@@ -3035,7 +3072,7 @@ asynStatus GalilController::readDataRecord(asynUser *pasynUser, char *input, uns
      }
 
   //Send unsolicited mesg to queue
-  if (j != 0)  
+  if (j != 0)
      sendUnsolicitedMessage(mesg);
 
   return status;
@@ -3083,7 +3120,7 @@ void GalilController::acquireDataRecord(string cmd)
      consecutive_timeouts_++;
 
   //Force disconnect if any errors
-  if (consecutive_timeouts_ > 2)
+  if (consecutive_timeouts_ > ALLOWED_TIMEOUTS)
      disconnect();
 
   //If no errors, copy the data
@@ -3368,7 +3405,7 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
 		{
 		//Assemble the code generated by GalilAxis, if we havent already
 		//Assemble code for motor controllers only, not rio
-		if (strncmp(model_,"RIO",3) != 0)
+		if (!rio_)
 			{
 			/*First add termination code to end of code generated for this card*/
 			gen_card_codeend();
@@ -3567,7 +3604,7 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
 					}
 				}
 		
-			if (start_ok == 0 && strncmp(model_, "RIO", 3) != 0)
+			if (start_ok == 0 && !rio_)
 				{
 				/*stop all motors on the crashed controller*/
 				sprintf(cmd_, "AB 1");

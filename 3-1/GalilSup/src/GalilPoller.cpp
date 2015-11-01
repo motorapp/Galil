@@ -84,7 +84,7 @@ void GalilPoller::run(void)
 
                    //if (time_taken > 0.02)
                    //	{
-                   //	printf("%s GalilPoller %2.4lfs\n", pC_->model_, time_taken);
+                   //   printf("%s GalilPoller %2.4lfs\n", pC_->model_, time_taken);
                    //	}
 
                    //Update the GalilAxis status, using datarecord from GalilController
@@ -123,8 +123,9 @@ void GalilPoller::run(void)
                       //Adjust sleep time according to time_taken last poll cycle
                       sleep_time = pC_->updatePeriod_/1000.0 - time_taken;
                       //Must sleep in synchronous mode to release lock for other threads
-                      sleep_time = (sleep_time < 0.0000) ? 0.0000 : sleep_time; 
-                      epicsThreadSleep(sleep_time);
+                      sleep_time = (sleep_time < 0.000) ? 0.001 : sleep_time;
+                      if (sleep_time >= 0.001)
+                         epicsThreadSleep(sleep_time);
                       }
                    }
                 else //Not connected so sleep a little

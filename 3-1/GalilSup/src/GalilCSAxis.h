@@ -45,8 +45,8 @@ public:
   asynStatus parseTransforms(void);
   //Calculate an expression with the given arguments
   asynStatus doCalc(const char *expr, double args[], double *result);
-  //Get relevant data for kinematic transform, and pack into margs and eargs
-  asynStatus packKinematicArgs(char *axes, double margs[], double eargs[]);
+  //Get motor readbacks for kinematic transform, and pack into mrargs (motor readback args)
+  asynStatus packReadbackArgs(char *axes, double mrargs[]);
   //Peform forward kinematic transform using real axis readback data, and store results in GalilCSAxis
   int forwardTransform(void);
   //Peform reverse kinematic transform using coordinate system axis readback data, and new position from user

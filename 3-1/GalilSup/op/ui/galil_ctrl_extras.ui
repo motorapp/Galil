@@ -1295,8 +1295,26 @@
           <property name="variable" stdset="0">
            <string>$(DMC)SEND_STR_MON</string>
           </property>
+          <property name="useDbPrecision">
+           <bool>false</bool>
+          </property>
+          <property name="leadingZero">
+           <bool>false</bool>
+          </property>
+          <property name="trailingZeros">
+           <bool>false</bool>
+          </property>
+          <property name="addUnits">
+           <bool>false</bool>
+          </property>
+          <property name="format" stdset="0">
+           <enum>QELabel::Default</enum>
+          </property>
+          <property name="arrayAction" stdset="0">
+           <enum>QELabel::Ascii</enum>
+          </property>
           <property name="text">
-           <string>Response</string>
+           <string>.</string>
           </property>
          </widget>
         </item>

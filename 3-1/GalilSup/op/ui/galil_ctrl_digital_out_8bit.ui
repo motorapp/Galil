@@ -231,6 +231,20 @@
              <property name="numberOfBits">
               <number>1</number>
              </property>
+             <property name="onColour">
+              <color>
+               <red>0</red>
+               <green>136</green>
+               <blue>0</blue>
+              </color>
+             </property>
+             <property name="offColour">
+              <color>
+               <red>159</red>
+               <green>0</green>
+               <blue>0</blue>
+              </color>
+             </property>
              <property name="variable" stdset="0">
               <string>$(P)Galil$(WORD)Bo0_STATUS</string>
              </property>
@@ -384,6 +398,20 @@
              <property name="numberOfBits">
               <number>1</number>
              </property>
+             <property name="onColour">
+              <color>
+               <red>0</red>
+               <green>136</green>
+               <blue>0</blue>
+              </color>
+             </property>
+             <property name="offColour">
+              <color>
+               <red>159</red>
+               <green>0</green>
+               <blue>0</blue>
+              </color>
+             </property>
              <property name="variable" stdset="0">
               <string>$(P)Galil$(WORD)Bo1_STATUS</string>
              </property>
@@ -533,6 +561,20 @@
              </property>
              <property name="numberOfBits">
               <number>1</number>
+             </property>
+             <property name="onColour">
+              <color>
+               <red>0</red>
+               <green>136</green>
+               <blue>0</blue>
+              </color>
+             </property>
+             <property name="offColour">
+              <color>
+               <red>159</red>
+               <green>0</green>
+               <blue>0</blue>
+              </color>
              </property>
              <property name="variable" stdset="0">
               <string>$(P)Galil$(WORD)Bo2_STATUS</string>
@@ -684,6 +726,20 @@
              <property name="numberOfBits">
               <number>1</number>
              </property>
+             <property name="onColour">
+              <color>
+               <red>0</red>
+               <green>136</green>
+               <blue>0</blue>
+              </color>
+             </property>
+             <property name="offColour">
+              <color>
+               <red>159</red>
+               <green>0</green>
+               <blue>0</blue>
+              </color>
+             </property>
              <property name="variable" stdset="0">
               <string>$(P)Galil$(WORD)Bo3_STATUS</string>
              </property>
@@ -830,6 +886,20 @@
              </property>
              <property name="numberOfBits">
               <number>1</number>
+             </property>
+             <property name="onColour">
+              <color>
+               <red>0</red>
+               <green>136</green>
+               <blue>0</blue>
+              </color>
+             </property>
+             <property name="offColour">
+              <color>
+               <red>159</red>
+               <green>0</green>
+               <blue>0</blue>
+              </color>
              </property>
              <property name="variable" stdset="0">
               <string>$(P)Galil$(WORD)Bo4_STATUS</string>
@@ -978,6 +1048,20 @@
              <property name="numberOfBits">
               <number>1</number>
              </property>
+             <property name="onColour">
+              <color>
+               <red>0</red>
+               <green>136</green>
+               <blue>0</blue>
+              </color>
+             </property>
+             <property name="offColour">
+              <color>
+               <red>159</red>
+               <green>0</green>
+               <blue>0</blue>
+              </color>
+             </property>
              <property name="variable" stdset="0">
               <string>$(P)Galil$(WORD)Bo5_STATUS</string>
              </property>
@@ -1124,6 +1208,20 @@
              </property>
              <property name="numberOfBits">
               <number>1</number>
+             </property>
+             <property name="onColour">
+              <color>
+               <red>0</red>
+               <green>136</green>
+               <blue>0</blue>
+              </color>
+             </property>
+             <property name="offColour">
+              <color>
+               <red>159</red>
+               <green>0</green>
+               <blue>0</blue>
+              </color>
              </property>
              <property name="variable" stdset="0">
               <string>$(P)Galil$(WORD)Bo6_STATUS</string>
@@ -1294,6 +1392,20 @@
              </property>
              <property name="numberOfBits">
               <number>1</number>
+             </property>
+             <property name="onColour">
+              <color>
+               <red>0</red>
+               <green>136</green>
+               <blue>0</blue>
+              </color>
+             </property>
+             <property name="offColour">
+              <color>
+               <red>159</red>
+               <green>0</green>
+               <blue>0</blue>
+              </color>
              </property>
              <property name="variable" stdset="0">
               <string>$(P)Galil$(WORD)Bo7_STATUS</string>

@@ -30,14 +30,14 @@ dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_profileMoveAxis.substitutions")
 #
 # 1. Const char *portName 	- The name of the asyn port that will be created for this controller
 # 2. Const char *address 	- The address of the controller
-# 3. double updatePeriod	- The time in ms between datarecords 8ms minimum.  Async if controller + bus supports it, otherwise is polled/synchronous.
+# 3. double updatePeriod	- The time in ms between datarecords 2ms minimum.  Async if controller + bus supports it, otherwise is polled/synchronous.
 #                       	- Specify negative updatePeriod < 0 to force synchronous tcp poll period.  Otherwise will try async udp mode first
 
 # Create a Galil controller
-GalilCreateController("Galil", "192.168.0.67", 8)
+GalilCreateController("Galil", "192.168.0.44", 8)
 
 # Create a Galil controller
-GalilCreateController("RIO", "192.168.0.5", 8)
+GalilCreateController("RIO", "192.168.0.51", 2)
 
 # GalilCreateAxis command parameters are:
 #
