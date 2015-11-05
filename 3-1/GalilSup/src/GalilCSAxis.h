@@ -51,7 +51,7 @@ public:
   int forwardTransform(void);
   //Peform reverse kinematic transform using coordinate system axis readback data, and new position from user
   //for this coordinate system axis, then calculate real motor positions
-  int reverseTransform(double nposition, double nmotor_positions[]);
+  int reverseTransform(double nposition, char *csaxes, double ncsaxis_positions[], double nmotor_positions[]);
   //Selects a free coordinate system S or T and returns coordsys number, or -1 if none free
   int selectFreeCoordinateSystem(void);
 
@@ -90,6 +90,11 @@ private:
   double encoder_position_;		//main encoder register
   double last_motor_position_;		//aux encoder or step count register stored from previous poll
   int direction_;			//Direction of cs axis
+  int deferredCoordsys_;		//Coordinate system 0 (S) or 1 (T)
+  double deferredAcceleration_;		//Coordinate system acceleration
+  double deferredVelocity_;		//Coordinate system velocity
+  double deferredPosition_;		//Deferred move position
+  bool deferredMove_;			//Has a deferred move been set
  
 friend class GalilController;
 };

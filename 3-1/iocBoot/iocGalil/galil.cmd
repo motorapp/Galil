@@ -34,7 +34,7 @@ dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_profileMoveAxis.substitutions")
 #                       	- Specify negative updatePeriod < 0 to force synchronous tcp poll period.  Otherwise will try async udp mode first
 
 # Create a Galil controller
-GalilCreateController("Galil", "192.168.0.44", 8)
+GalilCreateController("Galil", "192.168.0.67", 8)
 
 # Create a Galil controller
 GalilCreateController("RIO", "192.168.0.51", 2)

@@ -169,50 +169,94 @@ asynStatus GalilCSAxis::setDefaults(void)
 asynStatus GalilCSAxis::move(double position, int relative, double minVelocity, double maxVelocity, double acceleration)
 {
   //static const char *functionName = "GalilCSAxis::move";
-  unsigned i;
+  GalilCSAxis *pCSAxis;				//Pointer to GalilCSAxis instance
+  unsigned i;					//Looping
   double nmotor_positions[MAX_GALIL_AXES];	//New motor position targets for real axis
-  GalilAxis *pAxis;				//Real motor
+  double ncs_positions[MAX_GALIL_AXES];		//New motor position targets for related csaxis
+  char csaxes[MAX_GALIL_CSAXES] = {0};		//Related CSAxis list with new targets
+  GalilAxis *pAxis;				//Pointer to GalilAxis instance
   int status = asynError;
-  bool movesDeferred = pC_->movesDeferred_;	//Take local copy of deferred moves setting at start
 
   //Clear stop on limit before move
   stop_onlimit_ = false;
 
-  //Perform reverse transform and get new motor positions
-  status = reverseTransform(position, nmotor_positions);
+  //Are moves to be deferred ?
+  if (pC_->movesDeferred_ != 0)
+	{
+	//Store required parameters for deferred move in GalilCSAxis
+	deferredPosition_ = position;
+	pC_->getIntegerParam(0, pC_->GalilCoordSys_, &deferredCoordsys_);
+	deferredVelocity_ = maxVelocity;
+	deferredAcceleration_ = acceleration;
+	deferredMove_ = true;
+	move_started_ = true;
 
-  //Select a free coordinate system
-  if (!movesDeferred)
-     if ((coordsys_ = selectFreeCoordinateSystem()) == -1)
-	return asynError;
+	//Scan for other CSAxis that have a new position setpoint too
+	for (i = 0; i < strlen(fwdaxes_); i++)
+		{
+		//Retrieve the related CSAxis instance
+		pCSAxis = pC_->getCSAxis(fwdaxes_[i] - AASCII);
+		if (pCSAxis)
+			{
+			//See if retrieved CSAxis instance has a new position setpoint
+			if (pCSAxis->deferredCoordsys_ == deferredCoordsys_ && pCSAxis->deferredMove_)
+				{
+				//Another related CSAxis has a new position setpoint too, store it
+				ncs_positions[i] = pCSAxis->deferredPosition_;
+				//Store name of related CSAxis which has new setpoint too 
+				csaxes[i] = pCSAxis->axisName_;
+				csaxes[i+1] = '\0';
+				}
+			}
+		}
 
-  //Do the coordinate system axis move, using deferredMoves facility in GalilController
-  if (!status)
-     {
-     //Set controller deferred move flag, if not set already
-     if (!movesDeferred)
-        {
-	pC_->setDeferredMoves(true);
-	epicsThreadSleep(.001);
-	}
+	//Perform reverse transform and get new motor positions
+	status = reverseTransform(position, csaxes, ncs_positions, nmotor_positions);
 
-     //Write the motor setpoints, but dont move
-     for (i = 0; i < strlen(revaxes_); i++)
-        {
-        //Retrieve the axis
-        pAxis = pC_->getAxis(revaxes_[i] - AASCII);
-        if (!pAxis) continue;
-        //Write motor set point, but dont start motion
-        pAxis->move(nmotor_positions[i], relative, minVelocity, maxVelocity, acceleration);
-        }
-
-      //Clear controller deferred move flag, and start motion
-      if (!movesDeferred)
-         pC_->setDeferredMoves(false);
+	//Write the motor setpoints, but dont move
+	for (i = 0; i < strlen(revaxes_); i++)
+		{
+		//Retrieve the axis
+		pAxis = pC_->getAxis(revaxes_[i] - AASCII);
+		if (!pAxis) continue;
+		//Write motor set point, but dont start motion
+		pAxis->move(nmotor_positions[i], relative, minVelocity, maxVelocity, acceleration);
+		}
 	
-      //A move has been started by this cs axis
-      move_started_ = true;
-      }
+	return asynSuccess;
+	}
+  else
+	{
+	//Moves are not deferred
+
+	//Perform reverse transform and get new motor positions
+	status = reverseTransform(position, (char *)"", ncs_positions, nmotor_positions);
+
+	//Select a free coordinate system
+	if ((coordsys_ = selectFreeCoordinateSystem()) == -1)
+		return asynError;
+
+	//Do the coordinate system axis move, using deferredMoves facility in GalilController
+	if (!status)
+		{
+		//Set controller deferred move flag
+		pC_->setDeferredMoves(true);
+		epicsThreadSleep(.001);
+		}
+
+	//Write the motor setpoints, but dont move
+	for (i = 0; i < strlen(revaxes_); i++)
+		{
+		//Retrieve the axis
+		pAxis = pC_->getAxis(revaxes_[i] - AASCII);
+		if (!pAxis) continue;
+		//Write motor set point, but dont start motion
+		pAxis->move(nmotor_positions[i], relative, minVelocity, maxVelocity, acceleration);
+		}
+
+	//Clear controller deferred move flag, and start motion
+	move_started_ = (!pC_->setDeferredMoves(false) ? true : false);
+	}
 
   //Return status
   return asynSuccess;
@@ -586,12 +630,14 @@ asynStatus GalilCSAxis::packReadbackArgs(char *axes, double mrargs[])
   return (asynStatus)status;
 }
 
-/* Peform reverse kinematic transform using coordinate system axis readback data, and new position from user
+/* Perform reverse kinematic transform using coordinate system axis readback data, and new position from user
  * for this coordinate system axis
  * And calculate real motor positions
- * \param[in] nposition - New motor position for this coordinate system axis Units=Steps
+ * \param[in] nposition - New motor position for this CSaxis Units=Steps
+ * \param[in] csaxes - List of related csaxis which also have new position setpoints
+ * \param[in] ncsaxis_positions - The new position setpoints for the related CSAxis
  * \param[out] nmotor_positions - Calculated motor positions for the real axis Units=Steps*/
-int GalilCSAxis::reverseTransform(double nposition, double nmotor_positions[])
+int GalilCSAxis::reverseTransform(double nposition, char *csaxes, double ncsaxis_positions[], double nmotor_positions[])
 {
   double mres, eres;		//Motor record mres, eres
   int ueip;			//Motor record use encoder if present setting
@@ -605,6 +651,18 @@ int GalilCSAxis::reverseTransform(double nposition, double nmotor_positions[])
 
   //Pack position readback args for forward axes
   status |= packReadbackArgs(fwdaxes_, mrargs);
+
+  //Add other csaxis position setpoints to mrargs if supplied
+  for (i = 0; i < strlen(csaxes); i++)
+     {
+     //Retrieve needed motor record parameters
+     status |= pC_->getDoubleParam(csaxes[i] - AASCII, pC_->motorResolution_, &mres);
+     status |= pC_->getDoubleParam(csaxes[i] - AASCII, pC_->GalilEncoderResolution_, &eres);
+     status |= pC_->getIntegerParam(csaxes[i] - AASCII, pC_->GalilUseEncoder_, &ueip);
+     //Substitute new position received for these csaxis, instead of using readback
+     //Convert new position from steps into egu dial coordinates
+     mrargs[csaxes[i] - AASCII] = (ueip) ? (ncsaxis_positions[i] * eres) : (ncsaxis_positions[i] * mres);
+     }
 
   //Retrieve needed motor record parameters
   status |= pC_->getDoubleParam(axisName_ - AASCII, pC_->motorResolution_, &mres);
@@ -777,7 +835,7 @@ asynStatus GalilCSAxis::poll(bool *moving)
 	//Retrieve moving status
 	status = pC_->getIntegerParam(revaxes_[i] - AASCII, pC_->motorStatusMoving_, &rmoving);
 	//Or moving status from all real axis to derive cs moving status
-	csmoving |= rmoving;
+	csmoving |= ((rmoving && !pAxis->deferredMove_) || deferredMove_);
 	//Retrieve stall/following error status
 	status |= pC_->getIntegerParam(revaxes_[i] - AASCII, pC_->motorStatusSlip_, &slipstall);
 	//Or slipstall from all real axis to derive cs slipstall status

@@ -453,7 +453,7 @@ asynStatus GalilAxis::move(double position, int relative, double minVelocity, do
   static const char *functionName = "move";
   char mesg[MAX_GALIL_STRING_SIZE];		//Error mesg
   bool pos_ok = false;				//Is the requested position ok
-  double readback = motor_position_;		//For step motors controller uses motor_position_ for positioning
+  double readback = motor_position_;		//Controller uses motor_position_ for positioning
   asynStatus status = asynError;
 
   //Check velocity and wlp protection

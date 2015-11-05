@@ -67,6 +67,9 @@
 //                  Fixed command console
 //                  Fixed coordsys selection problem in deferred moves
 //                  CSaxis can now be used in deferred moves
+// 3/11/15 M.Clift
+//                  Reverse transform now allows multiple new position setpoints at the same time
+//                  Deferred move now allows multiple related CSAxis to be moved at the same time
 
 #include <stdio.h>
 #include <math.h>
@@ -1994,6 +1997,7 @@ asynStatus GalilController::setDeferredMoves(bool deferMoves)
 {
   //const char *functionName = "GalilController::setDeferredMoves";
   GalilAxis *pAxis;			//GalilAxis pointer
+  GalilCSAxis *pCSAxis;			//GalilCSAxis pointer
   int coordsys;				//Coordinate system looping
   unsigned axis;			//Axis looping
   char axes[MAX_GALIL_AXES];		//Constructed list of axis in the coordinate system
@@ -2001,14 +2005,15 @@ asynStatus GalilController::setDeferredMoves(bool deferMoves)
   double vectorAcceleration;		//Coordinate system acceleration
   double vectorVelocity;		//Coordinate system velocity
   bool start_ok[COORDINATE_SYSTEMS];	//Did the coordinate system start
+  bool work_found = false;		//Was any work found
   asynStatus status = asynError;	//Return status.  Success if any coordsys starts
 
   // If we are not ending deferred moves then return
   if (deferMoves || !movesDeferred_)
-	{
-	movesDeferred_ = true;
-	return asynSuccess;
-  	}
+     {
+     movesDeferred_ = true;
+     return asynSuccess;
+     }
 
   //We are ending deferred moves.  So process them
   asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, 
@@ -2016,61 +2021,75 @@ asynStatus GalilController::setDeferredMoves(bool deferMoves)
 
   //Loop through coordinate systems, looking for work to perform
   for (coordsys = 0; coordsys < COORDINATE_SYSTEMS; coordsys++) 
-	{
-	//Default start_ok status
-	start_ok[coordsys] = true; 
-	//No work found yet in this coordsys
-	strcpy(axes, "");
-	strcpy(moves, "");
-	//velocity for this segment
-	vectorVelocity = 0.0;
-	vectorAcceleration = 0.0;
-	//Loop through the axis looking for deferredMoves in this coordsys
-	for (axis = 0; axis < MAX_GALIL_AXES; axis++)
-		{
-		pAxis = getAxis(axis);
-		if (pAxis)
-			if (pAxis->deferredCoordsys_ == coordsys && pAxis->deferredMove_)
-				{
-				//Deferred move found
-				//Store axis in coordinate system axes list
-				sprintf(axes, "%s%c", axes, pAxis->axisName_);
-				//Store axis relative move
-				sprintf(moves, "%s%.0lf", moves, pAxis->deferredPosition_);
-				//Add this motors' contribution to vector acceleration for this segment
-				vectorAcceleration += pow(pAxis->deferredAcceleration_, 2);
-				//Add this motors' contribution to vector velocity for this segment
-				vectorVelocity += pow(pAxis->deferredVelocity_, 2);
-				}
-		if (axis < MAX_GALIL_AXES - 1)
-			{
-			//Add axis relative move separator character ',' as needed
-			sprintf(moves,  "%s,", moves);
-			}
-		}
-	//If at least one axis was found with a deferred move in this coordinate system
-	//then process coordsys
-	if (strcmp(axes, ""))
-		{
-		//Calculate final vectorVelocity and vectorAcceleration
-		vectorVelocity = sqrt(vectorVelocity);
-		vectorAcceleration = sqrt(vectorAcceleration);
-		vectorVelocity = lrint(vectorVelocity/2.0) * 2;
-		vectorAcceleration = lrint(vectorAcceleration/1024.0) * 1024;
-		//Start the move
-		if (processDeferredMovesInGroup(coordsys, axes, moves, vectorAcceleration, vectorVelocity))
-			start_ok[coordsys] = false;
-		}
-	else	//No work found in this coordsys
-		start_ok[coordsys] = false;
+     {
+     //Default start_ok status
+     start_ok[coordsys] = true;
+     //No work found yet in this coordsys
+     strcpy(axes, "");
+     strcpy(moves, "");
+     //velocity for this segment
+     vectorVelocity = 0.0;
+     vectorAcceleration = 0.0;
 
-	//If any coordsys started, return success
-	if (start_ok[coordsys])
-		status = asynSuccess;
-	}
+     //Loop through the axis looking for deferredMoves in this coordsys
+     for (axis = 0; axis < MAX_GALIL_AXES; axis++)
+        {
+        pAxis = getAxis(axis);
+        if (pAxis)
+           if (pAxis->deferredCoordsys_ == coordsys && pAxis->deferredMove_)
+              {
+              //Deferred move found
+              //Store axis in coordinate system axes list
+              sprintf(axes, "%s%c", axes, pAxis->axisName_);
+              //Store axis relative move
+              sprintf(moves, "%s%.0lf", moves, pAxis->deferredPosition_);
+              //Add this motors' contribution to vector acceleration for this segment
+              vectorAcceleration += pow(pAxis->deferredAcceleration_, 2);
+              //Add this motors' contribution to vector velocity for this segment
+              vectorVelocity += pow(pAxis->deferredVelocity_, 2);
+              }
+        //Add axis relative move separator character ',' as needed
+        if (axis < MAX_GALIL_AXES - 1)
+           sprintf(moves,  "%s,", moves);
+        }
+
+     //If at least one axis was found with a deferred move in this coordinate system
+     //then process coordsys
+     if (strcmp(axes, ""))
+        {
+        //Calculate final vectorVelocity and vectorAcceleration
+        vectorVelocity = sqrt(vectorVelocity);
+        vectorAcceleration = sqrt(vectorAcceleration);
+        vectorVelocity = lrint(vectorVelocity/2.0) * 2;
+        vectorAcceleration = lrint(vectorAcceleration/1024.0) * 1024;
+        //Flag that we found something to do
+        work_found = true;
+        //Start the move
+        if (processDeferredMovesInGroup(coordsys, axes, moves, vectorAcceleration, vectorVelocity))
+           start_ok[coordsys] = false;
+        }
+    else	//No work found in this coordsys
+        start_ok[coordsys] = false;
+
+    //If any coordsys started, return success
+    if (start_ok[coordsys])
+       status = asynSuccess;
+    }
+
+  //All deferred moves have started.  Unset deferredMove flag on all CSAxis
+  for (axis = MAX_GALIL_AXES; axis < MAX_GALIL_AXES + MAX_GALIL_CSAXES; axis++)
+     {
+     pCSAxis = getCSAxis(axis);
+     if (pCSAxis)
+        pCSAxis->deferredMove_ = false;
+     }
 
   //Deferred moves have been started
   movesDeferred_ = false;
+
+  //Inform user if no moves were found
+  if (!work_found)
+     setCtrlError("setDeferredMoves: No moves were queued");
 
   return status;
 }
