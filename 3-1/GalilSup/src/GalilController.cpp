@@ -70,6 +70,11 @@
 // 3/11/15 M.Clift
 //                  Reverse transform now allows multiple new position setpoints at the same time
 //                  Deferred move now allows multiple related CSAxis to be moved at the same time
+// 9/11/15 M.Clift
+//                  Removed encoder deadband from motor extras
+//                  Added motor record retry deadband
+//                  Improved messaging for profile moves
+
 
 #include <stdio.h>
 #include <math.h>
@@ -225,7 +230,6 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilEncoderStallTimeString, asynParamFloat64, &GalilEStallTime_);
 
   createParam(GalilStepSmoothString, asynParamFloat64, &GalilStepSmooth_);
-  createParam(GalilEncoderDeadBString, asynParamFloat64, &GalilEncoderDeadB_);
   createParam(GalilMotorTypeString, asynParamInt32, &GalilMotorType_);
   createParam(GalilModelString, asynParamOctet, &GalilModel_);
 
@@ -261,6 +265,7 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilMainEncoderString, asynParamInt32, &GalilMainEncoder_);
   createParam(GalilAuxEncoderString, asynParamInt32, &GalilAuxEncoder_);
   createParam(GalilMotorAcclString, asynParamFloat64, &GalilMotorAccl_);
+  createParam(GalilMotorRdbdString, asynParamFloat64, &GalilMotorRdbd_);
   createParam(GalilMotorVeloString, asynParamFloat64, &GalilMotorVelo_);
   createParam(GalilMotorVmaxString, asynParamFloat64, &GalilMotorVmax_);
 
@@ -813,7 +818,7 @@ GalilCSAxis* GalilController::getCSAxis(int axisNo)
 /** Returns true if any motor in the provided list is moving
   * \param[in] Motor list
   */
-bool GalilController::motorsMoving(char *axes)
+bool GalilController::anyMotorMoving(char *axes)
 {
   int moving = 0;	//Moving status
   int axisNo;		//Axis number
@@ -830,6 +835,95 @@ bool GalilController::motorsMoving(char *axes)
 
   //None of the motors were moving
   return false;
+}
+
+/** Returns true if all motors in the provided list are moving
+  * \param[in] Motor list
+  */
+bool GalilController::allMotorsMoving(char *axes)
+{
+  int moving = 0;	//Moving status
+  int axisNo;		//Axis number
+  int j;		//Looping
+
+  //Look through motor list, if any not moving return false
+  for (j = 0; j < (int)strlen(axes); j++)
+	{
+	//Determine axis number
+	axisNo = axes[j] - AASCII;
+	getIntegerParam(axisNo, motorStatusMoving_, &moving);
+	if (!moving) return false;
+	}
+
+  //All the motors were moving
+  return true;
+}
+
+/** Returns true if motors are moving or stopped at start position without limit
+  * Returns false a single motor has stopped out of position, or with limit
+  * \param[in] - Motor list
+  * \param[in] - Requested start positions Units=Steps
+  */
+bool GalilController::motorsAtStart(char *axes, double startp[])
+{
+  char message[MAX_GALIL_STRING_SIZE];	//Profile execute message
+  bool atStart = true;	//Are all motors in axes list moving or stopped without limit
+  int moveMode;		//Move mode absolute or relative
+  int moving;		//Axis moving status
+  int fwd, rev;		//Axis fwd, rev limit status
+  int axisNo;		//Axis number
+  int ueip;		//Motor record ueip
+  double mtr_pos;	//Motor position
+  double enc_pos;	//Encoder position
+  double position;	//Axis position in egu
+  double target;	//Desired start position in egu
+  double eres, mres;	//Encoder, and motor resolution
+  double rdbd;		//Motor record retry deadband
+  int j;		//Looping
+
+  //Wait an update period so that readbacks are more settled
+  epicsThreadSleep(updatePeriod_/1000.0);
+
+  //Look through motor list
+  for (j = 0; j < (int)strlen(axes); j++)
+	{
+	//Determine axis number
+	axisNo = axes[j] - AASCII;
+	//Retrieve GalilProfileMoveMode_ from ParamList
+	getIntegerParam(axisNo, GalilProfileMoveMode_, &moveMode);
+	//If moveMode = Relative skip the axis
+	if (!moveMode) continue;
+	//Retrieve needed parameters
+	getIntegerParam(axisNo, motorStatusMoving_, &moving);
+	getIntegerParam(axisNo, motorStatusLowLimit_, &rev);
+	getIntegerParam(axisNo, motorStatusHighLimit_, &fwd);
+	getIntegerParam(axisNo, GalilUseEncoder_, &ueip);
+	getDoubleParam(axisNo, motorResolution_, &mres);
+	getDoubleParam(axisNo, GalilEncoderResolution_, &eres);
+	getDoubleParam(axisNo, GalilMotorRdbd_, &rdbd);
+	getDoubleParam(axisNo, motorPosition_, &mtr_pos);
+	getDoubleParam(axisNo, motorEncoderPosition_, &enc_pos);
+	//Calculate motor position in egu
+	position = (ueip) ? (enc_pos * eres) : (mtr_pos * mres);
+	//Calculate the desired start position target in egu
+	target = (ueip) ? (startp[axisNo] * eres) : (startp[axisNo] * mres);
+	//Determine result
+	if ((!moving && (position < target - rdbd || position > target + rdbd)) || (rev || fwd)) 
+		{
+		atStart = false; 
+		break;
+		}
+	}
+
+  if (!atStart)
+	{
+	//Store message in paramList
+	sprintf(message, "Profile motor %c did not reach start position within retry deadband", axisNo + AASCII);
+	setStringParam(profileExecuteMessage_, message);
+	}
+
+  //Motors were all at profile start position
+  return atStart;
 }
 
 /** setOutputCompare function.  For turning output compare on/off
@@ -1441,13 +1535,12 @@ void GalilController::executeAutoOnBrakeOff(const char *axes)
 
 /* For profile moves.  Convenience function to move motors to start or stop them moving to start
 */
-asynStatus GalilController::motorsToProfileStartPosition(FILE *profFile, char *axes, bool move = true)
+asynStatus GalilController::motorsToProfileStartPosition(FILE *profFile, char *axes, double startp[], bool move = true)
 {
   GalilAxis *pAxis;			//GalilAxis
   int j;				//Axis looping
   int axisNo;				//Axis number
   int moveMode[MAX_GALIL_AXES];  	//Move mode absolute or relative
-  double startp[MAX_GALIL_AXES];	//Motor start positions from file
   double accl, velo, mres;		//Required mr attributes
   double velocity, acceleration;	//Used to move motors to start
   char message[MAX_GALIL_STRING_SIZE];	//Profile execute message
@@ -1471,7 +1564,7 @@ asynStatus GalilController::motorsToProfileStartPosition(FILE *profFile, char *a
 	getIntegerParam(axisNo, GalilProfileMoveMode_, &moveMode[axisNo]);
 	if (move) //Read profile start positions from file
 		fscanf(profFile, "%lf,", &startp[axisNo]);
-	//If moveMode = Absolute
+	//If moveMode = Relative skip move to start
 	if (!moveMode[axisNo]) continue;
 	//Retrieve axis instance
 	pAxis = getAxis(axisNo);
@@ -1493,13 +1586,15 @@ asynStatus GalilController::motorsToProfileStartPosition(FILE *profFile, char *a
 		if (startp[axisNo] != readback)
 			status = pAxis->move(startp[axisNo], 0, 0, velocity, acceleration);
 		}
-	else      //Stop motor moving to start
-		status = pAxis->stop(acceleration);
+	else    //Stop motor moving to start
+		pAxis->stop(acceleration);
 	if (status)
 		{
 		//Store message in paramList
-		strcpy(message, "Move motors to start failed...");
+		sprintf(message, "Failed to move profile motor %c toward start position", pAxis->axisName_);
 		setStringParam(profileExecuteMessage_, message);
+		//break from the loop
+		break;
 		}
 	}
 
@@ -1582,12 +1677,14 @@ asynStatus GalilController::runLinearProfile(FILE *profFile)
   int coordsys;				//Coordinate system S(0) or T(1)
   int coordName;			//Coordinate system S or T
   bool profStarted = false;		//Has profile execution started
+  bool atStart = false;			//Have the motors arrived at the start position
   int segprocessed;			//Segments processed by coordsys
-  int moving;				//Moving status of coordinate system
+  int csmoving;				//Moving status of coordinate system
   int retval;				//Return value from file read
   bool bufferNext = true;		//Controller ready to buffer next segment
   GalilAxis *pAxis;			//GalilAxis
   unsigned index;			//looping
+  double startp[MAX_GALIL_AXES];	//Motor start positions from file
   asynStatus status;			//Error status
 
   //Retrieve currently selected coordinate system 
@@ -1646,8 +1743,8 @@ asynStatus GalilController::runLinearProfile(FILE *profFile)
   sprintf(cmd_, "LM %s", axes);
   sync_writeReadController();
 
-  //Move motors to start position
-  status = motorsToProfileStartPosition(profFile, axes);
+  //Move motors to start position, and return start position values here
+  status = motorsToProfileStartPosition(profFile, axes, startp);
 
   unlock();
 
@@ -1661,15 +1758,13 @@ asynStatus GalilController::runLinearProfile(FILE *profFile)
 	//Process segment if didnt hit EOF
 	if (retval != EOF)
 		{
-		//Set bufferNext true for this loop
-		bufferNext = true;
 		//Segments processed
 		getIntegerParam(coordsys, GalilCoordSysSegments_, &segprocessed);
 		//Coordsys moving status
-		getIntegerParam(coordsys, GalilCoordSysMoving_, &moving);
+		getIntegerParam(coordsys, GalilCoordSysMoving_, &csmoving);
 
 		//Case where profile has started, but then stopped
-		if (profStarted && !moving)
+		if ((profStarted && !csmoving))
 			{
 			unlock();
 			//Give other threads a chance to get the lock
@@ -1677,31 +1772,16 @@ asynStatus GalilController::runLinearProfile(FILE *profFile)
 			break;	//break from loop
 			}
 
-		//Check buffer, and abort status
-		if ((segsent - segprocessed) >= MAX_SEGMENTS && !status && !profileAbort_)
+		//Check if motors arrived at start position
+		if (!profStarted && !atStart)
 			{
-			//Segment buffer is full, and user has not pressed abort
-
-			//Slow frequency of loop	
-			//Give time for motors to arrive at start, or
-			//Give time for controller to process a segment
-			if ((motorsMoving(axes) && !profStarted) || profStarted)
+			//Abort if motor stopped and not at start position, or limit
+			if (!allMotorsMoving(axes))
+				status = motorsAtStart(axes, startp) ? asynSuccess : asynError;
+			if (!anyMotorMoving(axes))
 				{
-				unlock();
-				epicsThreadSleep(.01);
-				bufferNext = false;
-				lock();
-				}
-
-			//Case where motors were moving to start position, and now complete, profile is not started.
-			if (!profStarted && !motorsMoving(axes) && !status && !profileAbort_)
-				{
-				//Start the profile
-				status = startLinearProfileCoordsys(coordsys, coordName, axes);
-				profStarted = (status) ? false : true;
-				//Buffer next if started ok
-				if (!status)
-					bufferNext = true;
+				status = motorsAtStart(axes, startp) ? asynSuccess : asynError;
+				atStart = (status) ? false : true;
 				}
 			}
 
@@ -1736,6 +1816,36 @@ asynStatus GalilController::runLinearProfile(FILE *profFile)
 			//break loop
 			status = asynError;
 			}
+
+		//Default bufferNext true before checking buffer
+		bufferNext = true;
+		//Check buffer, and abort status
+		if ((segsent - segprocessed) >= MAX_SEGMENTS && !status && !profileAbort_)
+			{
+			//Segment buffer is full, and user has not pressed abort
+
+			//Dont buffer next segment	
+			//Give time for motors to arrive at start, or
+			//Give time for controller to process a segment
+			if ((anyMotorMoving(axes) && !profStarted) || profStarted)
+				{
+				unlock();
+				epicsThreadSleep(.01);
+				bufferNext = false;
+				lock();
+				}
+
+			//Case where motors were moving to start position, and now complete, profile is not started.
+			if (!profStarted && atStart && !status && !profileAbort_)
+				{
+				//Start the profile
+				status = startLinearProfileCoordsys(coordsys, coordName, axes);
+				profStarted = (status) ? false : true;
+				//Buffer next if started ok
+				if (!status)
+					bufferNext = true;
+				}
+			}
 		}
 
 	unlock();
@@ -1751,38 +1861,39 @@ asynStatus GalilController::runLinearProfile(FILE *profFile)
   sync_writeReadController();
 
   //Check if motors still moving to start position
-  if (!profStarted && motorsMoving(axes) && !status && !profileAbort_)
+  if (!profStarted && !status && !profileAbort_)
 	{
 	//Pause till motors stop
-	while (motorsMoving(axes))
+	while (anyMotorMoving(axes))
 		{
 		unlock();
 		epicsThreadSleep(.01);
 		lock();
 		}
+	
+	//Start short profiles that fit entirely in the controller buffer <= MAX_SEGMENTS
+	//If motors at start position, begin profile
+	if (motorsAtStart(axes, startp))
+		{
+		status = startLinearProfileCoordsys(coordsys, coordName, axes);
+		profStarted = (status) ? false : true;
+		}
 	}
-
-  //Start short profiles that fit entirely in the controller buffer <= MAX_SEGMENTS
-  if (!profStarted && !motorsMoving(axes) && !status && !profileAbort_)
-  	{
-	status = startLinearProfileCoordsys(coordsys, coordName, axes);
-	profStarted = (status) ? false : true;
-	}
-
-  //User aborted while motors still moving to start
-  if (profileAbort_ && !profStarted && motorsMoving(axes))
-  	status = motorsToProfileStartPosition(profFile, axes, false);  //Stop motors moving to start position
+ 
+  //Profile not started, and motors still moving, stop them
+  if (!profStarted && anyMotorMoving(axes))
+  	motorsToProfileStartPosition(profFile, axes, startp, false);  //Stop motors moving to start position
 
   //Finish up
   if (!status)
 	{
 	if (profStarted)
 		{
-		moving = 1;
+		csmoving = 1;
 		//Loop until coordinate system stops
-		while (moving)
+		while (csmoving)
 			{
-			getIntegerParam(coordsys, GalilCoordSysMoving_, &moving);
+			getIntegerParam(coordsys, GalilCoordSysMoving_, &csmoving);
 			//Restrict loop frequency
 			unlock();
 			epicsThreadSleep(.01);

@@ -49,6 +49,9 @@
 #define INP_CODE_LEN 80000
 #define THREAD_CODE_LEN 80000
 #define CODE_LENGTH 80000
+//Stop codes
+#define MOTOR_STOP_FWD 2
+#define MOTOR_STOP_REV 3
 
 #include "macLib.h"
 #include "GalilAxis.h"
@@ -103,7 +106,6 @@
 #define GalilEncoderStallString		"MOTOR_ENCODER_STALL"
 #define GalilEncoderStallTimeString	"MOTOR_ENCODER_STALL_TIME"
 #define GalilStepSmoothString		"MOTOR_STEPSMOOTH"
-#define GalilEncoderDeadBString		"MOTOR_EDEL"
 #define GalilMotorTypeString		"MOTOR_TYPE"
 #define GalilMotorOnString		"MOTOR_ONOFF"
 #define GalilMotorConnectedString	"MOTOR_MCONN"
@@ -133,6 +135,7 @@
 #define GalilAuxEncoderString		"MOTOR_AUX_ENCODER"
 
 #define GalilMotorAcclString		"MOTOR_ACCL"
+#define GalilMotorRdbdString		"MOTOR_RDBD"
 #define GalilMotorVeloString		"MOTOR_VELO"
 #define GalilMotorVmaxString		"MOTOR_VMAX"
 #define GalilAnalogInString		"ANALOG_IN"
@@ -258,9 +261,11 @@ public:
   asynStatus setOutputCompare(int oc);
   asynStatus runProfile();
   asynStatus runLinearProfile(FILE *profFile);
-  bool motorsMoving(char *axes);
+  bool anyMotorMoving(char *axes);
+  bool allMotorsMoving(char *axes);
+  bool motorsAtStart(char *axes, double startp[]);
   asynStatus startLinearProfileCoordsys(int coordsys, char coordName, const char *axes);
-  asynStatus motorsToProfileStartPosition(FILE *profFile, char *axes, bool move);
+  asynStatus motorsToProfileStartPosition(FILE *profFile, char *axes, double startp[], bool move);
   //Execute motor record prem function for motor list
   void executePrem(const char *axes);
   //Execute auto motor power on, and brake off 
@@ -329,7 +334,6 @@ protected:
   int GalilEStall_;
   int GalilEStallTime_;
   int GalilStepSmooth_;
-  int GalilEncoderDeadB_;
   int GalilModel_;
   int GalilMotorType_;
   int GalilMotorOn_;
@@ -358,6 +362,7 @@ protected:
   int GalilMainEncoder_;
   int GalilAuxEncoder_;
   int GalilMotorAccl_;
+  int GalilMotorRdbd_;
   int GalilMotorVelo_;
   int GalilMotorVmax_;
   int GalilAnalogIn_;

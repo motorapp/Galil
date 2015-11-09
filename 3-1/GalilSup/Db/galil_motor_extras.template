@@ -114,29 +114,6 @@ record(ao,"$(P):$(M)_STEPSMOOTH_SP")
 	field(FLNK,"$(P):$(M)_STEPSMOOTH_MON")
 }
 
-record(ai,"$(P):$(M)_EDEL_MON")
-{
-	field(DESC,"Encoder deadband")
-	field(PINI,"YES")
-	field(EGU, "$(EGU)")
-	field(DTYP,"asynFloat64")
-	field(SCAN,"$(SCAN)")
-	field(PREC,"$(PREC)")
-	field(INP, "@asyn($(PORT),$(ADDR))MOTOR_EDEL")
-}
-
-record(ao,"$(P):$(M)_EDEL_SP")
-{
-	field(DESC,"encoder deadb")
-	field(DTYP,"asynFloat64")
-	field(EGU, "$(EGU)")
-	field(PREC,"$(PREC)")
-	field(VAL, ".001")
-	field(PINI, "YES")
-	field(OUT, "@asyn($(PORT),$(ADDR))MOTOR_EDEL")
-	field(FLNK,"$(P):$(M)_EDEL_MON")
-}
-
 record(bi,"$(P):$(M)_MCONN_STATUS")
 {
 	field(DESC, "Connect stat")

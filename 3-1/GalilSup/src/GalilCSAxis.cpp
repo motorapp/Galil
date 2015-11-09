@@ -863,7 +863,7 @@ asynStatus GalilCSAxis::poll(bool *moving)
 	pAxis = pC_->getAxis(revaxes_[i] - AASCII);
 	if (!pAxis) continue;
 	//Check if real motor stopping on limit only if this cs axis started a move
-	if ((pAxis->stop_code_ == 2 && move_started_) || (pAxis->stop_code_ == 3 && move_started_))
+	if ((pAxis->stop_code_ == MOTOR_STOP_FWD && move_started_) || (pAxis->stop_code_ == MOTOR_STOP_REV && move_started_))
 		stop_onlimit_ = true;
 	//Don't report limits if a real axis in csaxis is moving independently
 	stop_onlimit_ = (*moving && !move_started_) ? false : stop_onlimit_;

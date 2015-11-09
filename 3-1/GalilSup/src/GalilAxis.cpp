@@ -1037,23 +1037,19 @@ asynStatus GalilAxis::getStatus(void)
 //Called by poll
 void GalilAxis::setStatus(bool *moving)
 {
-  double eres, edel;		//motorRecord eres, and GalilEncoderDeadB_ (edel) Param
   int encoder_direction;	//Determined encoder move direction
 
   //Encoder move status
   encoderMove_ = false;
   if (ueip_)
      {
-     //Retrieve needed parameters
-     pC_->getDoubleParam(axisNo_, pC_->GalilEncoderResolution_, &eres);
-     pC_->getDoubleParam(axisNo_, pC_->GalilEncoderDeadB_, &edel);
      //Check encoder move
-     if (last_encoder_position_ > (encoder_position_ + (edel/eres)))
+     if (last_encoder_position_ > encoder_position_)
         {
         encoder_direction = 0;
         encoderMove_ = true;
         }
-     if (last_encoder_position_ < (encoder_position_ - (edel/eres)))
+     if (last_encoder_position_ < encoder_position_)
         {
         encoder_direction = 1;
         encoderMove_ = true;
@@ -1064,7 +1060,7 @@ void GalilAxis::setStatus(bool *moving)
 
    //Determine move status
    //Motors with deferred moves pending set to status moving
-   if (inmotion_ || encoderMove_ || deferredMove_)
+   if (inmotion_ || deferredMove_)
       {
       *moving = true;		//set flag for moving
       done_ = 0;
@@ -1180,8 +1176,9 @@ void GalilAxis::wrongLimitProtection(void)
 //Returns time motor has been stopped for
 void GalilAxis::setStopTime(void)
 {   
-   //Default stopped time
-   stopped_time_ = 0.0;
+   //Reset stopped time if moving
+   if (!done_)
+      stopped_time_ = 0.0;
 
    if (done_ && !last_done_)
       {
