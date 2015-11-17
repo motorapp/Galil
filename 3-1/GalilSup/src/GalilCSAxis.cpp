@@ -207,9 +207,9 @@ asynStatus GalilCSAxis::checkMotorVelocities(double npos[], double nvel[])
 	//Calculate this motors actual velocity
 	vel = (incmove[i]/vectorDistance) * vectorVelocity;
 	vel = (ueip) ? vel * eres : vel * mres;
-	if (vel > vmax)
+	if (abs(vel) > abs(vmax))
 		{
-		sprintf(mesg, "Move failed, axis %c velocity %lf > VMAX %lf\n", revaxes_[i], vel, vmax);
+		sprintf(mesg, "Move failed, axis %c velocity %lf > VMAX %lf\n", revaxes_[i], abs(vel), abs(vmax));
 		pC_->setCtrlError(mesg);  
 		return asynError;
 		}
