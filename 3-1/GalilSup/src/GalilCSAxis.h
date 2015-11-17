@@ -23,6 +23,15 @@
 #include "asynMotorController.h"
 #include "asynMotorAxis.h"
 
+//Related CSAxis may have new setpoints too
+struct CSTargets 
+	{
+        double ncspos[MAX_GALIL_AXES];		//The new position setpoints for the related CSAxis Units=Steps
+        double ncsvel[MAX_GALIL_AXES];		//The velocity required for the related CSAxis Units=Steps/s
+        double ncsaccel[MAX_GALIL_AXES];	//The acceleration required for the related CSAxis Units=Steps/s/s
+        char csaxes[MAX_GALIL_CSAXES] = {0};	//List of related csaxis that also have new position setpoints
+	};
+
 class GalilCSAxis : public asynMotorAxis
 {
 public:
@@ -49,11 +58,12 @@ public:
   asynStatus packReadbackArgs(char *axes, double mrargs[]);
   //Peform forward kinematic transform using real axis readback data, and store results in GalilCSAxis
   int forwardTransform(void);
-  //Peform reverse kinematic transform using coordinate system axis readback data, and new position from user
-  //for this coordinate system axis, then calculate real motor positions
-  int reverseTransform(double nposition, char *csaxes, double ncsaxis_positions[], double nmotor_positions[]);
+  //Perform reverse coordinate and velocity transform
+  int reverseTransform(double pos, double vel, double accel, CSTargets *targets, double npos[], double nvel[], double naccel[]);
   //Selects a free coordinate system S or T and returns coordsys number, or -1 if none free
   int selectFreeCoordinateSystem(void);
+  //Uses vector mathematics to check requested real motor velocities
+  asynStatus checkMotorVelocities(double npos[], double nvel[]);
 
   /* These are the methods we override from the base class */
   asynStatus move(double position, int relative, double min_velocity, double max_velocity, double acceleration);

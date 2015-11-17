@@ -636,6 +636,9 @@ asynStatus GalilAxis::beginCheck(const char *functionName, double maxVelocity)
   pC_->getIntegerParam(axisNo_, pC_->GalilWrongLimitProtection_, &wlp);
   pC_->getIntegerParam(axisNo_, pC_->GalilWrongLimitProtectionActive_, &wlpactive);
 
+  //Clear controller messages
+  pC_->setCtrlError("");
+
   if (!axisReady_)
 	{
 	sprintf(mesg, "%s failed, axis still initializing %c", functionName, axisName_);

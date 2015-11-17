@@ -74,7 +74,9 @@
 //                  Removed encoder deadband from motor extras
 //                  Added motor record retry deadband
 //                  Improved messaging for profile moves
-
+// 17/11/15 M.Clift 
+//                  Add velocity, acceleration transforms to CSAxis
+//                  Add velocity checking to CSAxis
 
 #include <stdio.h>
 #include <math.h>
@@ -4109,7 +4111,8 @@ asynStatus GalilController::drvUserDestroy(asynUser *pasynUser)
   */
 void GalilController::setCtrlError(const char* mesg)
 {
-   std::cout << mesg << std::endl;
+   if (mesg[0] != '\0')
+      std::cout << mesg << std::endl;
    setStringParam(0, GalilCtrlError_, mesg);
 }
 
