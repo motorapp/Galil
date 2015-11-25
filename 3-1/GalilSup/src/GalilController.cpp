@@ -2180,8 +2180,14 @@ asynStatus GalilController::executeSyncStartOnlyDeferredMove(char *axes)
   const char *functionName = "executeSyncStartOnlyDeferredMoves";
   GalilAxis *pAxis;			//GalilAxis instance
   char mesg[MAX_GALIL_STRING_SIZE];	//Controller mesg
-  unsigned i;				//Looping
+  double begin_time;			//Time taken to begin
+  bool fail = false;			//Fail flag
+  unsigned i;					//Looping
   asynStatus status;			//Return status
+
+  //Retrieve 1st motor GalilAxis instance
+  pAxis = getAxis(axes[0] - AASCII);
+  if (!pAxis) return asynError;
 
   //Execute motor auto on and brake off function
   executeAutoOnBrakeOff(axes);
@@ -2193,9 +2199,27 @@ asynStatus GalilController::executeSyncStartOnlyDeferredMove(char *axes)
   //Get time when attempt motor begin
   epicsTimeGetCurrent(&begin_begint_);
   sprintf(cmd_, "BG %s", axes);
-  //Since we are not called by motorRecord, this is always a 0x8000 external move to motorRecord
-  //For this reason, there is no need to wait for motion to begin, just write the begin command and carry on
-  if (sync_writeReadController() != asynSuccess)
+  if (sync_writeReadController() == asynSuccess)
+     {
+     unlock();
+     while (!pAxis->inmotion_) //Pause until 1st motor listed begins moving
+        {
+        epicsThreadSleep(.001);
+        epicsTimeGetCurrent(&begin_nowt_);
+        //Calculate time begin has taken so far
+        begin_time = epicsTimeDiffInSeconds(&begin_nowt_, &begin_begint_);
+        if (begin_time > BEGIN_TIMEOUT)
+           {
+           fail = true;
+           break;  //Timeout, give up
+           }
+        }
+     lock();
+     }
+  else  //Controller gave error at begin
+     fail = true;
+
+  if (fail)
      {
      sprintf(mesg, "%s begin failure", functionName);
      //Set controller error mesg monitor
