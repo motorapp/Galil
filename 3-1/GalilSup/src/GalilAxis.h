@@ -81,6 +81,8 @@ public:
   asynStatus set_ssi(void);
   //Get SSI setting from controller
   asynStatus get_ssi(int function, epicsInt32 *value);
+  //Set acceleration and velocity
+  asynStatus setAccelVelocity(double acceleration, double velocity);
   //Set limdc parameter on controller
   asynStatus setLimitDecel(double velocity);
   //Extract axis data from GalilController data record
@@ -157,7 +159,9 @@ private:
   double deferredAcceleration_;		//Coordinate system acceleration
   double deferredVelocity_;		//Coordinate system velocity
   double deferredPosition_;		//Deferred move position
+  int deferredRelative_;		//Deferred move is relative or absolute
   bool deferredMove_;			//Has a deferred move been set
+  int deferredMode_;			//Sync start and stop, or sync start only
   bool axisReady_;			//Have motor record fields been pushed into driver
 
   epicsTimeStamp begin_nowt_;		//Used to track length of time motor begin takes

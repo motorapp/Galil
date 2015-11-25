@@ -51,6 +51,7 @@ grecord(motor,"$(P):$(M)")
 	field(DESC,"$(DESC)")
 	field(SCAN,"Passive")
 	field(FOFF,"1")
+	field(NTM, "$(NTM)")
 # PID gains
 	field(PCOF,"$(PCOF)")
 	field(ICOF,"$(ICOF)")

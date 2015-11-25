@@ -65,11 +65,12 @@
 
 // drvInfo strings for extra parameters that the Galil controller supports
 #define GalilAddressString		"CONTROLLER_ADDRESS"
+#define GalilModelString		"CONTROLLER_MODEL"
 #define GalilHomeTypeString		"CONTROLLER_HOMETYPE"
 #define GalilLimitTypeString		"CONTROLLER_LIMITTYPE"
 #define GalilCtrlErrorString		"CONTROLLER_ERROR"
 #define GalilCommunicationErrorString	"CONTROLLER_COMMERR"
-#define GalilModelString		"CONTROLLER_MODEL"
+#define GalilDeferredModeString		"CONTROLLER_DEFERRED_MODE"
 
 #define GalilCoordSysString		"COORDINATE_SYSTEM"
 #define GalilCoordSysMotorsString	"COORDINATE_SYSTEM_MOTORS"
@@ -289,7 +290,10 @@ public:
   void dq_analog(int byte, int input_num);
 
   /* Deferred moves functions.*/
-  asynStatus processDeferredMovesInGroup(int coordsys, char *axes, char *moves, double acceleration, double velocity);
+  asynStatus executeSyncStartStopDeferredMove(int coordsys, char *axes, char *moves, double acceleration, double velocity);
+  asynStatus executeSyncStartOnlyDeferredMove(char *axes);
+  asynStatus prepareSyncStartStopDeferredMoves(void);
+  asynStatus prepareSyncStartOnlyDeferredMoves(void);
 
   void shutdownController();
   ~GalilController();
@@ -297,9 +301,11 @@ public:
 protected:
   #define FIRST_GALIL_PARAM GalilAddress_
   int GalilAddress_;
+  int GalilModel_;
   int GalilHomeType_;
   int GalilLimitType_;
   int GalilCtrlError_;
+  int GalilDeferredMode_;
   int GalilCoordSys_;
   int GalilCoordSysMotors_;
   int GalilCoordSysMoving_;
@@ -334,7 +340,6 @@ protected:
   int GalilEStall_;
   int GalilEStallTime_;
   int GalilStepSmooth_;
-  int GalilModel_;
   int GalilMotorType_;
   int GalilMotorOn_;
   int GalilMotorConnected_;

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>446</width>
-    <height>553</height>
+    <width>456</width>
+    <height>580</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -60,7 +60,7 @@
        <number>5</number>
       </property>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="4,3">
         <item>
          <widget class="QLabel" name="label_3">
           <property name="sizePolicy">
@@ -111,7 +111,7 @@
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_6">
+       <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="4,3">
         <item>
          <widget class="QLabel" name="label_2">
           <property name="font">
@@ -156,7 +156,7 @@
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_7">
+       <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="4,3">
         <item>
          <widget class="QLabel" name="label_4">
           <property name="sizePolicy">
@@ -201,7 +201,7 @@
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_8">
+       <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="4,3">
         <item>
          <widget class="QLabel" name="label_5">
           <property name="sizePolicy">
@@ -309,7 +309,7 @@
           <number>5</number>
          </property>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,1,2">
+          <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="2,2,3">
            <property name="spacing">
             <number>1</number>
            </property>
@@ -389,7 +389,7 @@
           </layout>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,1,2">
+          <layout class="QHBoxLayout" name="horizontalLayout" stretch="2,2,3">
            <property name="spacing">
             <number>1</number>
            </property>
@@ -469,7 +469,7 @@
           </layout>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,1,2">
+          <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="2,2,3">
            <property name="spacing">
             <number>1</number>
            </property>
@@ -549,7 +549,87 @@
           </layout>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="1,1,2">
+          <layout class="QHBoxLayout" name="horizontalLayout_18" stretch="2,2,3">
+           <property name="spacing">
+            <number>1</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="label_14">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="sizeIncrement">
+              <size>
+               <width>1</width>
+               <height>1</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Abyssinica SIL</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>Deferred mode</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QEComboBox" name="qecombobox_5">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="font">
+              <font>
+               <family>Abyssinica SIL</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="variable" stdset="0">
+              <string>$(DMC)DEFER_MODE_CMD</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_11" stretch="1">
+             <property name="spacing">
+              <number>1</number>
+             </property>
+             <item>
+              <widget class="QELabel" name="qelabel_13">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Abyssinica SIL</family>
+                 <pointsize>9</pointsize>
+                </font>
+               </property>
+               <property name="variable" stdset="0">
+                <string>$(DMC)DEFER_MODE_STATUS</string>
+               </property>
+               <property name="text">
+                <string>Deferred mode</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="2,2,3">
            <property name="spacing">
             <number>1</number>
            </property>

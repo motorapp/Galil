@@ -159,7 +159,7 @@ asynStatus GalilCSAxis::setDefaults(void)
   return asynSuccess;
 }
 
-/** Use vector mathematics to check requested motor velocities
+/** Check requested motor velocities
   * \param[in] npos - After kinematics these are the requested motor positions Units=Steps
   * \param[in] nvel - After kinematics these are the requested  motor velocities Units=Steps/s */
 asynStatus GalilCSAxis::checkMotorVelocities(double npos[], double nvel[])
@@ -174,46 +174,76 @@ asynStatus GalilCSAxis::checkMotorVelocities(double npos[], double nvel[])
   double vectorDistance = 0;		//Computed vector distance
   double vel;				//Temp variable used to calculate real motor velocity
   double vmax;				//Motor record vmax
+  int deferredMode;			//Deferred moves mode
 
-  //Loop thru all real motors, calculate vector distance and velocity
-  for (i = 0; i < strlen(revaxes_); i++)
-  	{
-     	//Get the readbacks for the axis
-     	pC_->getDoubleParam(revaxes_[i] - AASCII, pC_->motorEncoderPosition_, &epos);
-     	pC_->getDoubleParam(revaxes_[i] - AASCII, pC_->motorPosition_, &mpos);
-     	//Retrieve needed motor record fields
-     	pC_->getIntegerParam(revaxes_[i] - AASCII, pC_->GalilUseEncoder_, &ueip);
-	//Calculate incremental move distance in steps
-	incmove[i] = (ueip) ? npos[i] - epos : npos[i] - mpos;
-	//Calculate vector distance
-	vectorDistance += pow(incmove[i], 2);
-	//Calculate vector velocity
-	vectorVelocity += pow(nvel[i], 2);
-	}
+  //Retrieve deferred moves mode
+  pC_->getIntegerParam(pC_->GalilDeferredMode_, &deferredMode);
 
-  //Calculate vector distance
-  vectorDistance = sqrt(vectorDistance);
-  //Calculate vector velocity
-  vectorVelocity = sqrt(vectorVelocity);
+  if (deferredMode)
+     {
+     //Sync start and stop uses linear mode
+     //Use vector mathematics to check requested motor velocities
+     //Loop thru all real motors, calculate vector distance and velocity
+     for (i = 0; i < strlen(revaxes_); i++)
+        {
+        //Get the readbacks for the axis
+        pC_->getDoubleParam(revaxes_[i] - AASCII, pC_->motorEncoderPosition_, &epos);
+        pC_->getDoubleParam(revaxes_[i] - AASCII, pC_->motorPosition_, &mpos);
+        //Retrieve needed motor record fields
+        pC_->getIntegerParam(revaxes_[i] - AASCII, pC_->GalilUseEncoder_, &ueip);
+        //Calculate incremental move distance in steps
+        incmove[i] = (ueip) ? npos[i] - epos : npos[i] - mpos;
+        //Calculate vector distance
+        vectorDistance += pow(incmove[i], 2);
+        //Calculate vector velocity
+        vectorVelocity += pow(nvel[i], 2);
+        }
 
-  //Calculate actual motor speeds as controller does
-  for (i = 0; i < strlen(revaxes_); i++)
-	{
-     	//Retrieve needed motor record fields
-     	pC_->getDoubleParam(revaxes_[i] - AASCII, pC_->GalilMotorVmax_, &vmax);
-     	pC_->getIntegerParam(revaxes_[i] - AASCII, pC_->GalilUseEncoder_, &ueip);
-     	pC_->getDoubleParam(revaxes_[i] - AASCII, pC_->motorResolution_, &mres);
-     	pC_->getDoubleParam(revaxes_[i] - AASCII, pC_->GalilEncoderResolution_, &eres);
-	//Calculate this motors actual velocity
-	vel = (incmove[i]/vectorDistance) * vectorVelocity;
-	vel = (ueip) ? vel * eres : vel * mres;
-	if (abs(vel) > abs(vmax))
-		{
-		sprintf(mesg, "Move failed, axis %c velocity %lf > VMAX %lf\n", revaxes_[i], abs(vel), abs(vmax));
-		pC_->setCtrlError(mesg);  
-		return asynError;
-		}
-	}
+     //Calculate vector distance
+     vectorDistance = sqrt(vectorDistance);
+     //Calculate vector velocity
+     vectorVelocity = sqrt(vectorVelocity);
+
+     //Calculate actual motor speeds as controller does in linear mode
+     for (i = 0; i < strlen(revaxes_); i++)
+        {
+        //Retrieve needed motor record fields
+        pC_->getDoubleParam(revaxes_[i] - AASCII, pC_->GalilMotorVmax_, &vmax);
+        pC_->getIntegerParam(revaxes_[i] - AASCII, pC_->GalilUseEncoder_, &ueip);
+        pC_->getDoubleParam(revaxes_[i] - AASCII, pC_->motorResolution_, &mres);
+        pC_->getDoubleParam(revaxes_[i] - AASCII, pC_->GalilEncoderResolution_, &eres);
+        //Calculate this motors actual velocity in egu
+        vel = (incmove[i]/vectorDistance) * vectorVelocity;
+        vel = (ueip) ? vel * eres : vel * mres;
+        if (lrint(fabs(vel)*1000.0)/1000.0 > lrint(fabs(vmax)*1000.0)/1000.0)
+           {
+           sprintf(mesg, "Move failed, axis %c velocity %lf > VMAX %lf\n", revaxes_[i], fabs(vel), fabs(vmax));
+           pC_->setCtrlError(mesg);
+           return asynError;
+           }
+        }
+    }
+  else
+    {
+    //Sync start only mode
+    //Loop thru all real motors and check velocity
+     for (i = 0; i < strlen(revaxes_); i++)
+        {
+        //Retrieve needed motor record fields
+        pC_->getDoubleParam(revaxes_[i] - AASCII, pC_->GalilMotorVmax_, &vmax);
+        pC_->getIntegerParam(revaxes_[i] - AASCII, pC_->GalilUseEncoder_, &ueip);
+        pC_->getDoubleParam(revaxes_[i] - AASCII, pC_->motorResolution_, &mres);
+        pC_->getDoubleParam(revaxes_[i] - AASCII, pC_->GalilEncoderResolution_, &eres);
+        //Calculate requested velocity in egu
+        vel = (ueip) ? nvel[i] * eres : nvel[i] * mres;
+        if (lrint(fabs(vel)*1000.0)/1000.0 > lrint(fabs(vmax)*1000.0)/1000.0)
+           {
+           sprintf(mesg, "Move failed, axis %c velocity %2.21lf > VMAX %2.21lf\n", revaxes_[i], fabs(vel), fabs(vmax));
+           pC_->setCtrlError(mesg);
+           return asynError;
+           }
+        }
+    }
 
   return asynSuccess;
 }
@@ -229,16 +259,22 @@ asynStatus GalilCSAxis::move(double position, int relative, double minVelocity, 
 {
   //static const char *functionName = "GalilCSAxis::move";
   GalilCSAxis *pCSAxis;			//Pointer to GalilCSAxis instance
-  unsigned i;				//Looping
+  unsigned i, j = 0;			//Looping, indexing
   double npos[MAX_GALIL_AXES];		//Real axis position targets
   double nvel[MAX_GALIL_AXES];		//Real axis velocity targets
   double naccel[MAX_GALIL_AXES];	//Real axis acceleration targets
   CSTargets targets;			//Addtional CSAxis targets
   GalilAxis *pAxis;			//Pointer to GalilAxis instance
+  int deferredMode;			//Deferred move mode
+  string axes = "";			//Construct a real axis list
   int status = asynError;
 
   //Clear stop on limit before move
   stop_onlimit_ = false;
+
+  //Retrieve deferred moves mode
+  pC_->getIntegerParam(pC_->GalilDeferredMode_, &deferredMode);
+  deferredMode_ = deferredMode;
 
   //Are moves to be deferred ?
   if (pC_->movesDeferred_ != 0)
@@ -248,6 +284,7 @@ asynStatus GalilCSAxis::move(double position, int relative, double minVelocity, 
 	pC_->getIntegerParam(0, pC_->GalilCoordSys_, &deferredCoordsys_);
 	deferredVelocity_ = maxVelocity;
 	deferredAcceleration_ = acceleration;
+	deferredRelative_ = relative;
 
 	//Scan for other CSAxis that have a new position setpoint too
 	for (i = 0; i < strlen(fwdaxes_); i++)
@@ -261,19 +298,18 @@ asynStatus GalilCSAxis::move(double position, int relative, double minVelocity, 
 				{
 				//Another related CSAxis has a new target also, store it
 				//Requested position
-				targets.ncspos[i] = pCSAxis->deferredPosition_;
+				targets.ncspos[j] = pCSAxis->deferredPosition_;
 				//Requested velocity
-				targets.ncsvel[i] = pCSAxis->deferredVelocity_;
+				targets.ncsvel[j] = pCSAxis->deferredVelocity_;
 				//Requested acceleration
-				targets.ncsaccel[i] = pCSAxis->deferredAcceleration_;
-				//Store name of related CSAxis that has new setpoint too 
-				targets.csaxes[i] = pCSAxis->axisName_;
-				targets.csaxes[i+1] = '\0';
+				targets.ncsaccel[j] = pCSAxis->deferredAcceleration_;
+		               //Store the axis in the list
+				targets.csaxes[j++] = pCSAxis->axisName_;
 				}
 			}
 		}
 
-	//Perform reverse transform and get new motor positions, velocities
+	//Perform reverse transform and get new axis (real) motor positions, velocities
 	status = reverseTransform(position, maxVelocity, acceleration, &targets, npos, nvel, naccel);
 
 	//Check requested motor velocities
@@ -299,7 +335,6 @@ asynStatus GalilCSAxis::move(double position, int relative, double minVelocity, 
   else
 	{
 	//Moves are not deferred
-
 	//Perform reverse transform and get new motor positions
 	status = reverseTransform(position, maxVelocity, acceleration, NULL, npos, nvel, naccel);
 
@@ -307,7 +342,8 @@ asynStatus GalilCSAxis::move(double position, int relative, double minVelocity, 
 	status |= checkMotorVelocities(npos, nvel);
 
 	//Select a free coordinate system
-	if ((coordsys_ = selectFreeCoordinateSystem()) == -1)
+	if (deferredMode && !status)
+	   if ((coordsys_ = selectFreeCoordinateSystem()) == -1)
 		status = asynError;
 
 	//Do the coordinate system axis move, using deferredMoves facility in GalilController
@@ -330,7 +366,8 @@ asynStatus GalilCSAxis::move(double position, int relative, double minVelocity, 
 			pAxis->move(npos[i], relative, minVelocity, nvel[i], naccel[i]);
 			}
 		//Clear controller deferred move flag, and start motion
-		move_started_ = (!pC_->setDeferredMoves(false) ? true : false);
+		pC_->setDeferredMoves(false);
+		move_started_ = true;
 		}
 	}
 
@@ -364,12 +401,21 @@ asynStatus GalilCSAxis::moveVelocity(double minVelocity, double maxVelocity, dou
   * \param[in] acceleration The acceleration value. Units=steps/sec/sec. */
 asynStatus GalilCSAxis::stop(double acceleration)
 {
-  //Stop the coordinate system S or T that this coordinate axis started
-  if (coordsys_ == 0 || coordsys_ == 1) 
-	{
+  if (deferredMode_)
+     {
+     //Stop the coordinate system S or T that this CSAxis started
+     if (coordsys_ == 0 || coordsys_ == 1)
+        {
         sprintf(pC_->cmd_, "ST %c", (coordsys_ == 0) ? 'S' : 'T');
         pC_->sync_writeReadController();
-	}
+        }
+     }
+  else
+     {
+     //Stop the real motors that this CSAxis started
+     sprintf(pC_->cmd_, "ST %s", revaxes_);
+     pC_->sync_writeReadController();
+     }
 
   //Always return success. Dont need more error mesgs
   return asynSuccess;
@@ -739,28 +785,28 @@ int GalilCSAxis::reverseTransform(double pos, double vel, double accel, CSTarget
      atargs[i] = 0;
      }
 
-  //Add other csaxis position, velocity, acceleration setpoints to args if supplied
+  //Add other CSAxis position, velocity, acceleration setpoints to args if supplied
   if (targets != NULL)
      for (i = 0; i < strlen(targets->csaxes); i++)
         {
-        //Retrieve needed motor record parameters
+        //Retrieve needed motor record parameters for related CSAxis
         status |= pC_->getDoubleParam(targets->csaxes[i] - AASCII, pC_->motorResolution_, &mres);
         status |= pC_->getDoubleParam(targets->csaxes[i] - AASCII, pC_->GalilEncoderResolution_, &eres);
         status |= pC_->getIntegerParam(targets->csaxes[i] - AASCII, pC_->GalilUseEncoder_, &ueip);
-        //Add velocities for csaxis in egu
+        //Add position for csaxis in egu
         ctargs[targets->csaxes[i] - AASCII] = (ueip) ? (targets->ncspos[i] * eres) : (targets->ncspos[i] * mres);
-        //Add velocities for csaxis in egu
+        //Add velocity for csaxis in egu
         vtargs[targets->csaxes[i] - AASCII] = (ueip) ? (targets->ncsvel[i] * eres) : (targets->ncsvel[i] * mres);
         //Add acceleration for csaxis in egu
         atargs[targets->csaxes[i] - AASCII] = (ueip) ? (targets->ncsaccel[i] * eres) : (targets->ncsaccel[i] * mres);
         }
 
-  //Retrieve needed motor record parameters
+  //Retrieve needed motor record parameters for this CSAxis
   status |= pC_->getDoubleParam(axisName_ - AASCII, pC_->motorResolution_, &mres);
   status |= pC_->getDoubleParam(axisName_ - AASCII, pC_->GalilEncoderResolution_, &eres);
   status |= pC_->getIntegerParam(axisName_ - AASCII, pC_->GalilUseEncoder_, &ueip);
 
-  //Substitute new motor position received for this csaxis, instead of using readback
+  //Substitute new motor position received for this CSAxis, instead of using readback
   //Convert new position from steps into egu dial coordinates
   ctargs[axisName_ - AASCII] = (ueip) ? (pos * eres) : (pos * mres);
   //Add CSAXis velocity in egu
@@ -794,7 +840,7 @@ int GalilCSAxis::reverseTransform(double pos, double vel, double accel, CSTarget
 		//given csaxis move velocity
 		status |= doCalc(reverse_[i], vtargs, &nvel[i]);
 		//Convert velocity value back into steps for move
-		nvel[i] = nvel[i]/mres;
+		nvel[i] = fabs(nvel[i]/mres);
 		//Perform reverse acceleration transform to derive the required real axis acceleration 
 		//given csaxis move acceleration
 		status |= doCalc(reverse_[i], atargs, &naccel[i]);

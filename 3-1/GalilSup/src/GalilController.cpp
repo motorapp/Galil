@@ -48,12 +48,12 @@
 //                  Modified CSAxis limit reporting logic
 // 08/01/15 M.Clift Enhanced kinematics so that transform equations can be changed via database
 //                  Real motors are now allowed in reverse transform equations
-//                  CS motors are now allowed in forward transform equations
+//                  CSAxis are now allowed in forward transform equations
 //                  Enhanced shutdown code to delete RAM used by kinematics
 // 05/04/15 M.Clift Added ability to actuate motor brake using digital output
 //                  Added state names and alarm severity to digital template/substitutions
-//                  Fixed problem with CS motor setpoint at startup
-//                  Fixed problem with CS motor using AutoOff delay at move start.  It now uses AutoOn delay at move start
+//                  Fixed problem with CSAxis setpoint at startup
+//                  Fixed problem with CSAxis using AutoOff delay at move start.  It now uses AutoOn delay at move start
 //                  Fixed problem with config synApps build directory
 // 05/05/15 M.Clift, D.J.Roberts, T.Miller Galil Motion Control
 //                  Added source code for data record decoding
@@ -77,6 +77,9 @@
 // 17/11/15 M.Clift 
 //                  Add velocity, acceleration transforms to CSAxis
 //                  Add velocity checking to CSAxis
+// 23/11/15 M.Clift 
+//                  Add deferredMode supporting Sync motor start only, and Sync motor start and stop
+//                  Fixed multiple related CSAxis deferred moves were being lost
 
 #include <stdio.h>
 #include <math.h>
@@ -191,9 +194,11 @@ GalilController::GalilController(const char *portName, const char *address, doub
 
   // Create controller-specific parameters
   createParam(GalilAddressString, asynParamOctet, &GalilAddress_);
+  createParam(GalilModelString, asynParamOctet, &GalilModel_);
   createParam(GalilHomeTypeString, asynParamInt32, &GalilHomeType_);
   createParam(GalilLimitTypeString, asynParamInt32, &GalilLimitType_);
   createParam(GalilCtrlErrorString, asynParamOctet, &GalilCtrlError_);
+  createParam(GalilDeferredModeString, asynParamInt32, &GalilDeferredMode_);
 
   createParam(GalilCoordSysString, asynParamInt32, &GalilCoordSys_);
   createParam(GalilCoordSysMotorsString, asynParamOctet, &GalilCoordSysMotors_);
@@ -233,7 +238,6 @@ GalilController::GalilController(const char *portName, const char *address, doub
 
   createParam(GalilStepSmoothString, asynParamFloat64, &GalilStepSmooth_);
   createParam(GalilMotorTypeString, asynParamInt32, &GalilMotorType_);
-  createParam(GalilModelString, asynParamOctet, &GalilModel_);
 
   createParam(GalilMotorOnString, asynParamInt32, &GalilMotorOn_);
   createParam(GalilMotorConnectedString, asynParamInt32, &GalilMotorConnected_);
@@ -1208,7 +1212,7 @@ asynStatus GalilController::buildLinearProfile()
 		getDoubleParam(j, motorResolution_, &mres);
 
 		//Check profile velocity less than mr vmax for this motor
-		if (fabs(velocity[j]) > maxAllowedVelocity[j])
+		if (fabs(velocity[j]) > fabs(maxAllowedVelocity[j]))
 			{
 			sprintf(message, "Seg %d: Velocity too high motor %c %2.2f > %2.2f, increase time, check profile", 
                                           i,  pAxis->axisName_, fabs(velocity[j]*mres), maxAllowedVelocity[j]*mres);
@@ -1577,7 +1581,7 @@ asynStatus GalilController::motorsToProfileStartPosition(FILE *profFile, char *a
 	getDoubleParam(axisNo, GalilMotorVelo_, &velo);
 	getDoubleParam(axisNo, motorResolution_, &mres);
 	//Calculate velocity and acceleration in steps
-	velocity = velo/mres;
+	velocity = fabs(velo/mres);
 	acceleration = velocity/accl;
 	if (move) //Move to first position in profile if moveMode = Absolute
 		{
@@ -1981,16 +1985,18 @@ asynStatus GalilController::runProfile()
 
 /**
  * Perform a deferred move (a coordinated group move) on all the axes in a group.
+ * Motor start and stop times are synchronized regardless of any kinematics
+ * Kinematics for position are obeyed.  Velocity, acceleration may not match kinematics to force synchronise stop time
  * @param coordsys - Coordinate system to use
  * @param axes - The list of axis/motors in the coordinate system (eg. "ABCD")
  * @param moves - The comma separated list of the relative moves for each axis/motor in the coordinate system (eg 1000,,-1000,1000)
- * @param acceleration - lowest acceleration amongst all motors in the specified coordsys
- * @param velocity - lowest velocity amongst all motors in the specified coordsys
+ * @param acceleration - The vector acceleration for the coordsys
+ * @param velocity - The vector velocity for the coordsys
  * @return motor driver status code.
  */
-asynStatus GalilController::processDeferredMovesInGroup(int coordsys, char *axes, char *moves, double acceleration, double velocity)
+asynStatus GalilController::executeSyncStartStopDeferredMove(int coordsys, char *axes, char *moves, double acceleration, double velocity)
 {
-  const char *functionName = "processDeferredMovesInGroup";
+  const char *functionName = "executeSyncStartStopDeferredMove";
   GalilAxis *pAxis;		//GalilAxis pointer
   char coordName;		//Coordinate system name
   int csmoving = 0;		//Coordinate system moving status
@@ -2062,7 +2068,7 @@ asynStatus GalilController::processDeferredMovesInGroup(int coordsys, char *axes
      unlock();
      while (!csmoving)
         {
-        epicsThreadSleep(.02);
+        epicsThreadSleep(.001);
         epicsTimeGetCurrent(&begin_nowt_);
         //Calculate time begin has taken so far
         begin_time = epicsTimeDiffInSeconds(&begin_nowt_, &begin_begint_);
@@ -2100,43 +2106,23 @@ asynStatus GalilController::processDeferredMovesInGroup(int coordsys, char *axes
   return status;
 }
 
-/**
- * Process deferred moves for a controller and groups.
- * This function calculates which unique groups in the controller
- * and passes the controller pointer and group name to processDeferredMovesInGroup.
- * @return motor driver status code.
- */
-asynStatus GalilController::setDeferredMoves(bool deferMoves)
+//Prepare Sync start and stop mode moves
+//Coordinates groups of motors
+//Both start and stop times of motors are synchronized
+//Uses linear mode to achieve these goals
+asynStatus GalilController::prepareSyncStartStopDeferredMoves(void)
 {
-  //const char *functionName = "GalilController::setDeferredMoves";
   GalilAxis *pAxis;			//GalilAxis pointer
-  GalilCSAxis *pCSAxis;			//GalilCSAxis pointer
   int coordsys;				//Coordinate system looping
   unsigned axis;			//Axis looping
   char axes[MAX_GALIL_AXES];		//Constructed list of axis in the coordinate system
   char moves[MAX_GALIL_STRING_SIZE];	//Constructed comma list of axis relative moves
   double vectorAcceleration;		//Coordinate system acceleration
   double vectorVelocity;		//Coordinate system velocity
-  bool start_ok[COORDINATE_SYSTEMS];	//Did the coordinate system start
-  bool work_found = false;		//Was any work found
-  asynStatus status = asynError;	//Return status.  Success if any coordsys starts
-
-  // If we are not ending deferred moves then return
-  if (deferMoves || !movesDeferred_)
-     {
-     movesDeferred_ = true;
-     return asynSuccess;
-     }
-
-  //We are ending deferred moves.  So process them
-  asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, 
-              "Processing deferred moves on Galil: %s\n", this->portName);
 
   //Loop through coordinate systems, looking for work to perform
   for (coordsys = 0; coordsys < COORDINATE_SYSTEMS; coordsys++) 
      {
-     //Default start_ok status
-     start_ok[coordsys] = true;
      //No work found yet in this coordsys
      strcpy(axes, "");
      strcpy(moves, "");
@@ -2149,7 +2135,7 @@ asynStatus GalilController::setDeferredMoves(bool deferMoves)
         {
         pAxis = getAxis(axis);
         if (pAxis)
-           if (pAxis->deferredCoordsys_ == coordsys && pAxis->deferredMove_)
+           if (pAxis->deferredCoordsys_ == coordsys && pAxis->deferredMove_ && pAxis->deferredMode_)
               {
               //Deferred move found
               //Store axis in coordinate system axes list
@@ -2175,19 +2161,134 @@ asynStatus GalilController::setDeferredMoves(bool deferMoves)
         vectorAcceleration = sqrt(vectorAcceleration);
         vectorVelocity = lrint(vectorVelocity/2.0) * 2;
         vectorAcceleration = lrint(vectorAcceleration/1024.0) * 1024;
-        //Flag that we found something to do
-        work_found = true;
         //Start the move
-        if (processDeferredMovesInGroup(coordsys, axes, moves, vectorAcceleration, vectorVelocity))
-           start_ok[coordsys] = false;
+        executeSyncStartStopDeferredMove(coordsys, axes, moves, vectorAcceleration, vectorVelocity);
         }
-    else	//No work found in this coordsys
-        start_ok[coordsys] = false;
-
-    //If any coordsys started, return success
-    if (start_ok[coordsys])
-       status = asynSuccess;
     }
+
+  return asynSuccess;
+}
+
+/**
+ * Perform a deferred move (a coordinated group move)
+ * Motor start times are synchronized
+ * @param [in] axes - The list of axis/motors in the move (eg. "ABCD")
+ * @return motor driver status code.
+ */
+asynStatus GalilController::executeSyncStartOnlyDeferredMove(char *axes)
+{
+  const char *functionName = "executeSyncStartOnlyDeferredMoves";
+  GalilAxis *pAxis;			//GalilAxis instance
+  char mesg[MAX_GALIL_STRING_SIZE];	//Controller mesg
+  unsigned i;				//Looping
+  asynStatus status;			//Return status
+
+  //Execute motor auto on and brake off function
+  executeAutoOnBrakeOff(axes);
+
+  //Execute motor record prem
+  executePrem(axes);
+
+  //Begin the move
+  //Get time when attempt motor begin
+  epicsTimeGetCurrent(&begin_begint_);
+  sprintf(cmd_, "BG %s", axes);
+  //Since we are not called by motorRecord, this is always a 0x8000 external move to motorRecord
+  //For this reason, there is no need to wait for motion to begin, just write the begin command and carry on
+  if (sync_writeReadController() != asynSuccess)
+     {
+     sprintf(mesg, "%s begin failure", functionName);
+     //Set controller error mesg monitor
+     setCtrlError(mesg);
+     status = asynError;
+     }
+
+  //Loop through the axes list for this move
+  //Turn off deferredMove_ for these axis as move has been started
+  for (i = 0; i < strlen(axes); i++)
+	{
+	//Retrieve axis specified in axes list
+	pAxis = getAxis(axes[i] - AASCII);
+	if (!pAxis) continue;
+	//Set flag
+	pAxis->deferredMove_ = false;
+	}
+
+  //Return status
+  return status;
+}
+
+//Sets up position, velocity, and accel for list of motors
+//Synchronize motor start times
+//Stop times maybe synchronized depending on kinematics
+//Kinematics are obeyed for position, velocity and acceleration
+asynStatus GalilController::prepareSyncStartOnlyDeferredMoves(void)
+{
+   GalilAxis *pAxis;			//GalilAxis instance
+   unsigned axis;			//Axis looping
+   char axes[MAX_GALIL_AXES] = {0};	//Constructed list of axis in the deferred move
+
+   //Loop through the axis looking for deferredMoves
+   for (axis = 0; axis < MAX_GALIL_AXES; axis++)
+      {
+      pAxis = getAxis(axis);
+      //Skip loop if !pAxis 
+      if (!pAxis) continue;
+      //Ensure motor is enabled
+      if (!pAxis->motor_enabled())
+         return asynError;
+      //Check axis for Sync motor start only deferred move
+      if (pAxis->deferredMove_ && !pAxis->deferredMode_)
+         {
+         //Deferred move found
+         //Store axis in list
+         sprintf(axes, "%s%c", axes, pAxis->axisName_);
+         //Set the acceleration and velocity for this axis
+         pAxis->setAccelVelocity(pAxis->deferredAcceleration_, pAxis->deferredVelocity_);
+         //Set limits decel given velocity
+         pAxis->setLimitDecel(pAxis->deferredVelocity_);
+         //Set position
+         if (pAxis->deferredRelative_)
+            sprintf(cmd_, "PR%c=%.0lf", pAxis->axisName_, pAxis->deferredPosition_);
+         else
+            sprintf(cmd_, "PA%c=%.0lf", pAxis->axisName_, pAxis->deferredPosition_);
+         sync_writeReadController();
+         }
+      }
+
+   //If at least one axis was found with a deferred move, then start it
+   if (strcmp(axes, ""))
+      executeSyncStartOnlyDeferredMove(axes);
+
+   return asynSuccess;
+}
+
+/**
+ * Process deferred moves for a controller
+ * @return motor driver status code.
+ */
+asynStatus GalilController::setDeferredMoves(bool deferMoves)
+{
+  //const char *functionName = "GalilController::setDeferredMoves";
+  GalilCSAxis *pCSAxis;		//GalilCSAxis pointer
+  unsigned axis;		//Axis looping
+
+  // If we are not ending deferred moves then return
+  if (deferMoves || !movesDeferred_)
+     {
+     movesDeferred_ = true;
+     return asynSuccess;
+     }
+
+  //We are ending deferred moves.  So process them
+  asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, 
+              "Processing deferred moves on Galil: %s\n", this->portName);
+
+  //Execute deferred moves
+  //Sync start and stop moves
+  prepareSyncStartStopDeferredMoves();
+  //Sync start only moves
+  prepareSyncStartOnlyDeferredMoves();
 
   //All deferred moves have started.  Unset deferredMove flag on all CSAxis
   for (axis = MAX_GALIL_AXES; axis < MAX_GALIL_AXES + MAX_GALIL_CSAXES; axis++)
@@ -2200,11 +2301,7 @@ asynStatus GalilController::setDeferredMoves(bool deferMoves)
   //Deferred moves have been started
   movesDeferred_ = false;
 
-  //Inform user if no moves were found
-  if (!work_found)
-     setCtrlError("setDeferredMoves: No moves were queued");
-
-  return status;
+  return asynSuccess;
 }
 
 /** Sets GalilCommunicationError_ param when comms problem occurs

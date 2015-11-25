@@ -104,7 +104,9 @@ private:
   double deferredAcceleration_;		//Coordinate system acceleration
   double deferredVelocity_;		//Coordinate system velocity
   double deferredPosition_;		//Deferred move position
+  int deferredRelative_;		//Deferred move is relative or absolute
   bool deferredMove_;			//Has a deferred move been set
+  int deferredMode_;			//Deferred mode.  Sync start only, sync start and stop
  
 friend class GalilController;
 };

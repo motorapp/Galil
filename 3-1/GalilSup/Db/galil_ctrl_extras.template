@@ -184,6 +184,33 @@ record(bo,"$(P):DEFER_CMD")
 	field(FLNK, "$(P):DEFER_STATUS")
 }
 
+#Defered move mode
+record(bi,"$(P):DEFER_MODE_STATUS")
+{
+	field(DESC, "Deferred move mode")
+	field(DTYP, "asynInt32")
+	field(PINI, "YES")
+	field(SCAN, "$(SCAN)")
+  	field(ZNAM, "Sync start only")
+  	field(ZSV,  "NO_ALARM")
+	field(ONAM, "Sync start/stop")
+   	field(OSV,  "NO_ALARM")
+   	field(INP,  "@asyn($(PORT),0)CONTROLLER_DEFERRED_MODE")
+}
+
+record(bo,"$(P):DEFER_MODE_CMD")
+{
+	field(DESC, "Deferred move mode")
+	field(DTYP, "asynInt32")
+	field(PINI, "YES")
+	field(ZNAM, "Sync start only")
+	field(ZSV,  "NO_ALARM")
+	field(ONAM, "Sync start/stop")
+	field(OSV,  "NO_ALARM")
+	field(OUT,  "@asyn($(PORT),0)CONTROLLER_DEFERRED_MODE")
+	field(FLNK, "$(P):DEFER_MODE_STATUS")
+}
+
 #Coordinate system
 record(bi,"$(P):COORDSYS_STATUS")
 {

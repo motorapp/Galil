@@ -410,6 +410,25 @@ void GalilAxis::gen_homecode(char c,			//GalilAxis::axisName_ used very often
 		}
 }
 
+/*  Sets acceleration and velocity for this axis
+  * \param[in] acceleration Units=steps/sec/sec.
+  * \param[in] velocity Units=steps/sec.*/
+asynStatus GalilAxis::setAccelVelocity(double acceleration, double velocity)
+{
+   double accel;
+   double vel;
+   int status;
+   //Set acceleration and deceleration
+   accel = (long)lrint(acceleration/1024.0) * 1024;
+   vel = (long)lrint(velocity/2.0) * 2;
+   sprintf(pC_->cmd_, "AC%c=%.0lf;DC%c=%.0lf", axisName_, accel, axisName_, accel);
+   status = pC_->sync_writeReadController();
+   //Set velocity
+   sprintf(pC_->cmd_, "SP%c=%.0lf", axisName_, vel);
+   status |= pC_->sync_writeReadController();
+   return (asynStatus)status;
+}
+
 /*  Sets deceleration used when limit is activated for this axis
   * \param[in] velocity Units=steps/sec.*/
 asynStatus GalilAxis::setLimitDecel(double velocity)
@@ -426,9 +445,9 @@ asynStatus GalilAxis::setLimitDecel(double velocity)
    pC_->getDoubleParam(axisNo_, pC_->motorResolution_, &mres);
    pC_->getDoubleParam(axisNo_, pC_->GalilAfterLimit_, &egu_after_limit);	
    //recalculate limit deceleration given velocity and allowed steps after home/limit activation
-   distance = (egu_after_limit < mres) ? mres : egu_after_limit; 
+   distance = (egu_after_limit < fabs(mres)) ? fabs(mres) : egu_after_limit; 
    //suvat equation for acceleration
-   deccel = (velocity * velocity)/((distance/mres) * 2.0);
+   deccel = fabs((velocity * velocity)/((distance/mres) * 2.0));
    //Find closest hardware setting
    decceleration = (long)(lrint(deccel/1024.0) * 1024);
    //Ensure decceleration is within maximum for this model
@@ -452,6 +471,7 @@ asynStatus GalilAxis::move(double position, int relative, double minVelocity, do
 {
   static const char *functionName = "move";
   char mesg[MAX_GALIL_STRING_SIZE];		//Error mesg
+  int deferredMode;				//Deferred move mode
   bool pos_ok = false;				//Is the requested position ok
   double readback = motor_position_;		//Controller uses motor_position_ for positioning
   asynStatus status = asynError;
@@ -472,13 +492,17 @@ asynStatus GalilAxis::move(double position, int relative, double minVelocity, do
   //Are moves to be deferred ?
   if (pC_->movesDeferred_ != 0)
 	{
-	//convert all moves to relative
-	deferredPosition_ = (relative) ? position : position - readback;
+	//Retrieve deferred moves mode
+	pC_->getIntegerParam(pC_->GalilDeferredMode_, &deferredMode);
+	//Sync start and stop motor moves require relative move
+	deferredPosition_ = (deferredMode && !relative) ? position - readback : position;
 	//Store required parameters for deferred move in GalilAxis
 	pC_->getIntegerParam(0, pC_->GalilCoordSys_, &deferredCoordsys_);
 	deferredVelocity_ = maxVelocity;
 	deferredAcceleration_ = acceleration;
+	deferredRelative_ = (deferredMode) ? 1 : relative;
 	deferredMove_ = true;
+	deferredMode_ = deferredMode;
 	return asynSuccess;
 	}
   else
@@ -487,10 +511,6 @@ asynStatus GalilAxis::move(double position, int relative, double minVelocity, do
 	//Motor must be enabled to allow move
 	if (motor_enabled())
  		{
-		//Set speed
-		sprintf(pC_->cmd_, "SP%c=%.0lf", axisName_, maxVelocity);
-		pC_->sync_writeReadController();
-
 		//Set absolute or relative move
 		if (relative) 
 		  	{
@@ -574,9 +594,9 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
 	pC_->getDoubleParam(axisNo_, pC_->GalilAfterLimit_, &egu_after_limit);
 
 	//recalculate home/limit switch deceleration for switch jog off given hvel
-	distance = (egu_after_limit < mres) ? mres : egu_after_limit;
+	distance = (egu_after_limit < fabs(mres)) ? fabs(mres) : egu_after_limit;
 	//suvat equation for acceleration
-	deccel = (maxVelocity * maxVelocity)/((distance/mres) * 2.0);
+	deccel = fabs((maxVelocity * maxVelocity)/((distance/mres) * 2.0));
 	//Find closest hardware setting
 	hjgdc = (long)(lrint(deccel/1024.0) * 1024);
 	sprintf(pC_->cmd_, "hjgdc%c=%ld", axisName_, hjgdc);
@@ -1338,7 +1358,7 @@ void GalilAxis::pollServices(void)
                          if (!status && jah)
                             {
                             //Calculate position, velocity (velo not hvel) and acceleration
-                            velocity = velo/mres;
+                            velocity = fabs(velo/mres);
                             acceleration = velocity/accl;
                             //Calculate position in steps from jog after home value in user coordinates
                             position = (double)((jahv - off)/mres) * dirm;
@@ -1533,13 +1553,10 @@ asynStatus GalilAxis::beginMotion(const char *caller, double acceleration, doubl
    double begin_time;	//Time taken for motion to begin
    char mesg[MAX_GALIL_STRING_SIZE];	//Controller error mesg if begin fail
    bool fail = false;			//Fail flag
-   long accel;				//Acceleration
    bool autoOn = false;			//Did auto on do any work?
 
-   //Set acceleration and deceleration
-   accel = (long)lrint(acceleration/1024.0) * 1024;
-   sprintf(pC_->cmd_, "AC%c=%ld;DC%c=%ld", axisName_, accel, axisName_, accel);
-   pC_->sync_writeReadController();
+   //set acceleration and velocity    
+   setAccelVelocity(acceleration, maxVelocity);
 
    //recalculate limit deceleration given velo/slew velocity
    setLimitDecel(maxVelocity);

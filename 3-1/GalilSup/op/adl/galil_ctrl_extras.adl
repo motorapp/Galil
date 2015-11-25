@@ -1,14 +1,14 @@
 
 file {
-	name="/home/ics/git/Galil-3-0/3-0/GalilSup/op/adl/galil_ctrl_extras.adl"
+	name="/home/ics/git/Galil-3-0/3-1/GalilSup/op/adl/galil_ctrl_extras.adl"
 	version=030105
 }
 display {
 	object {
-		x=950
-		y=60
+		x=747
+		y=63
 		width=410
-		height=613
+		height=633
 	}
 	clr=14
 	bclr=4
@@ -235,9 +235,9 @@ text {
 }
 "choice button" {
 	object {
-		x=191
+		x=149
 		y=145
-		width=89
+		width=120
 		height=21
 	}
 	control {
@@ -276,9 +276,9 @@ text {
 }
 "choice button" {
 	object {
-		x=191
+		x=149
 		y=166
-		width=89
+		width=120
 		height=21
 	}
 	control {
@@ -315,6 +315,20 @@ text {
 	}
 	textix="Defer moves"
 }
+"choice button" {
+	object {
+		x=149
+		y=187
+		width=120
+		height=21
+	}
+	control {
+		chan="$(DMC)DEFER_CMD"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
 "text update" {
 	object {
 		x=294
@@ -330,24 +344,50 @@ text {
 	limits {
 	}
 }
-"choice button" {
+text {
 	object {
-		x=191
-		y=187
-		width=89
+		x=9
+		y=213
+		width=97
 		height=21
 	}
-	control {
-		chan="$(DMC)DEFER_CMD"
+	"basic attribute" {
 		clr=14
-		bclr=51
 	}
-	stacking="column"
+	textix="Deferred mode"
 }
 "text update" {
 	object {
 		x=294
 		y=213
+		width=120
+		height=15
+	}
+	monitor {
+		chan="$(DMC)DEFER_MODE_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+menu {
+	object {
+		x=150
+		y=209
+		width=120
+		height=21
+	}
+	control {
+		chan="$(DMC)DEFER_MODE_CMD"
+		clr=14
+		bclr=51
+	}
+}
+"text update" {
+	object {
+		x=294
+		y=235
 		width=81
 		height=15
 	}
@@ -361,9 +401,9 @@ text {
 }
 "choice button" {
 	object {
-		x=191
-		y=208
-		width=89
+		x=149
+		y=230
+		width=120
 		height=21
 	}
 	control {
@@ -375,8 +415,8 @@ text {
 }
 text {
 	object {
-		x=9
-		y=213
+		x=10
+		y=235
 		width=97
 		height=21
 	}
@@ -387,8 +427,8 @@ text {
 }
 "related display" {
 	object {
-		x=194
-		y=238
+		x=149
+		y=260
 		width=15
 		height=15
 	}
@@ -407,8 +447,8 @@ text {
 }
 text {
 	object {
-		x=9
-		y=237
+		x=10
+		y=259
 		width=65
 		height=17
 	}
@@ -419,8 +459,8 @@ text {
 }
 text {
 	object {
-		x=9
-		y=260
+		x=10
+		y=282
 		width=65
 		height=17
 	}
@@ -431,8 +471,8 @@ text {
 }
 "related display" {
 	object {
-		x=194
-		y=261
+		x=149
+		y=283
 		width=15
 		height=15
 	}
@@ -446,8 +486,8 @@ text {
 }
 text {
 	object {
-		x=9
-		y=282
+		x=10
+		y=304
 		width=65
 		height=17
 	}
@@ -458,8 +498,8 @@ text {
 }
 "related display" {
 	object {
-		x=194
-		y=283
+		x=149
+		y=305
 		width=15
 		height=15
 	}
@@ -473,8 +513,8 @@ text {
 }
 text {
 	object {
-		x=9
-		y=304
+		x=10
+		y=326
 		width=65
 		height=17
 	}
@@ -485,8 +525,8 @@ text {
 }
 "related display" {
 	object {
-		x=194
-		y=305
+		x=149
+		y=327
 		width=15
 		height=15
 	}
@@ -520,8 +560,8 @@ text {
 }
 "related display" {
 	object {
-		x=357
-		y=350
+		x=330
+		y=372
 		width=15
 		height=15
 	}
@@ -540,8 +580,8 @@ text {
 }
 composite {
 	object {
-		x=9
-		y=524
+		x=5
+		y=546
 		width=399
 		height=84
 	}
@@ -549,8 +589,8 @@ composite {
 	children {
 		"text update" {
 			object {
-				x=36
-				y=540
+				x=32
+				y=562
 				width=372
 				height=15
 			}
@@ -565,8 +605,8 @@ composite {
 		}
 		text {
 			object {
-				x=9
-				y=555
+				x=5
+				y=577
 				width=65
 				height=17
 			}
@@ -577,8 +617,8 @@ composite {
 		}
 		"text entry" {
 			object {
-				x=36
-				y=572
+				x=32
+				y=594
 				width=372
 				height=20
 			}
@@ -592,8 +632,8 @@ composite {
 		}
 		"text update" {
 			object {
-				x=36
-				y=592
+				x=32
+				y=614
 				width=372
 				height=15
 			}
@@ -608,8 +648,8 @@ composite {
 		}
 		text {
 			object {
-				x=9
-				y=574
+				x=5
+				y=596
 				width=65
 				height=17
 			}
@@ -620,8 +660,8 @@ composite {
 		}
 		text {
 			object {
-				x=9
-				y=591
+				x=5
+				y=613
 				width=65
 				height=17
 			}
@@ -632,8 +672,8 @@ composite {
 		}
 		text {
 			object {
-				x=9
-				y=524
+				x=5
+				y=546
 				width=65
 				height=17
 			}
@@ -646,8 +686,8 @@ composite {
 }
 text {
 	object {
-		x=60
-		y=328
+		x=56
+		y=350
 		width=65
 		height=17
 	}
@@ -658,8 +698,8 @@ text {
 }
 text {
 	object {
-		x=60
-		y=349
+		x=56
+		y=371
 		width=65
 		height=17
 	}
@@ -670,8 +710,8 @@ text {
 }
 "related display" {
 	object {
-		x=194
-		y=350
+		x=149
+		y=372
 		width=15
 		height=15
 	}
@@ -695,8 +735,8 @@ text {
 }
 text {
 	object {
-		x=60
-		y=371
+		x=56
+		y=393
 		width=65
 		height=17
 	}
@@ -707,8 +747,8 @@ text {
 }
 "related display" {
 	object {
-		x=194
-		y=372
+		x=149
+		y=394
 		width=15
 		height=15
 	}
@@ -732,8 +772,8 @@ text {
 }
 "related display" {
 	object {
-		x=194
-		y=394
+		x=149
+		y=416
 		width=15
 		height=15
 	}
@@ -757,8 +797,8 @@ text {
 }
 text {
 	object {
-		x=60
-		y=393
+		x=56
+		y=415
 		width=65
 		height=17
 	}
@@ -769,8 +809,8 @@ text {
 }
 text {
 	object {
-		x=60
-		y=415
+		x=56
+		y=437
 		width=65
 		height=17
 	}
@@ -781,8 +821,8 @@ text {
 }
 "related display" {
 	object {
-		x=194
-		y=416
+		x=149
+		y=438
 		width=15
 		height=15
 	}
@@ -806,8 +846,8 @@ text {
 }
 text {
 	object {
-		x=60
-		y=436
+		x=56
+		y=458
 		width=65
 		height=17
 	}
@@ -818,8 +858,8 @@ text {
 }
 "related display" {
 	object {
-		x=194
-		y=437
+		x=149
+		y=459
 		width=15
 		height=15
 	}
@@ -843,8 +883,8 @@ text {
 }
 "related display" {
 	object {
-		x=194
-		y=459
+		x=149
+		y=481
 		width=15
 		height=15
 	}
@@ -868,8 +908,8 @@ text {
 }
 text {
 	object {
-		x=60
-		y=458
+		x=56
+		y=480
 		width=65
 		height=17
 	}
@@ -880,8 +920,8 @@ text {
 }
 text {
 	object {
-		x=60
-		y=480
+		x=56
+		y=502
 		width=65
 		height=17
 	}
@@ -892,8 +932,8 @@ text {
 }
 "related display" {
 	object {
-		x=194
-		y=481
+		x=149
+		y=503
 		width=15
 		height=15
 	}
@@ -917,8 +957,8 @@ text {
 }
 "related display" {
 	object {
-		x=194
-		y=503
+		x=149
+		y=525
 		width=15
 		height=15
 	}
@@ -942,8 +982,8 @@ text {
 }
 text {
 	object {
-		x=60
-		y=502
+		x=56
+		y=524
 		width=65
 		height=17
 	}
@@ -954,8 +994,8 @@ text {
 }
 text {
 	object {
-		x=232
-		y=328
+		x=228
+		y=350
 		width=65
 		height=17
 	}
@@ -966,8 +1006,8 @@ text {
 }
 text {
 	object {
-		x=232
-		y=349
+		x=228
+		y=371
 		width=65
 		height=17
 	}
@@ -978,8 +1018,8 @@ text {
 }
 text {
 	object {
-		x=232
-		y=371
+		x=228
+		y=393
 		width=65
 		height=17
 	}
@@ -990,8 +1030,8 @@ text {
 }
 text {
 	object {
-		x=232
-		y=393
+		x=228
+		y=415
 		width=65
 		height=17
 	}
@@ -1002,8 +1042,8 @@ text {
 }
 text {
 	object {
-		x=232
-		y=415
+		x=228
+		y=437
 		width=65
 		height=17
 	}
@@ -1014,8 +1054,8 @@ text {
 }
 text {
 	object {
-		x=232
-		y=436
+		x=228
+		y=458
 		width=65
 		height=17
 	}
@@ -1026,8 +1066,8 @@ text {
 }
 text {
 	object {
-		x=232
-		y=458
+		x=228
+		y=480
 		width=65
 		height=17
 	}
@@ -1038,8 +1078,8 @@ text {
 }
 text {
 	object {
-		x=232
-		y=480
+		x=228
+		y=502
 		width=65
 		height=17
 	}
@@ -1050,8 +1090,8 @@ text {
 }
 text {
 	object {
-		x=232
-		y=502
+		x=228
+		y=524
 		width=65
 		height=17
 	}
@@ -1062,8 +1102,8 @@ text {
 }
 "related display" {
 	object {
-		x=357
-		y=372
+		x=330
+		y=394
 		width=15
 		height=15
 	}
@@ -1082,8 +1122,8 @@ text {
 }
 "related display" {
 	object {
-		x=357
-		y=394
+		x=330
+		y=416
 		width=15
 		height=15
 	}
@@ -1102,8 +1142,8 @@ text {
 }
 "related display" {
 	object {
-		x=357
-		y=416
+		x=330
+		y=438
 		width=15
 		height=15
 	}
@@ -1122,8 +1162,8 @@ text {
 }
 "related display" {
 	object {
-		x=357
-		y=437
+		x=330
+		y=459
 		width=15
 		height=15
 	}
@@ -1142,8 +1182,8 @@ text {
 }
 "related display" {
 	object {
-		x=357
-		y=459
+		x=330
+		y=481
 		width=15
 		height=15
 	}
@@ -1162,8 +1202,8 @@ text {
 }
 "related display" {
 	object {
-		x=357
-		y=481
+		x=330
+		y=503
 		width=15
 		height=15
 	}
@@ -1182,8 +1222,8 @@ text {
 }
 "related display" {
 	object {
-		x=357
-		y=503
+		x=330
+		y=525
 		width=15
 		height=15
 	}
