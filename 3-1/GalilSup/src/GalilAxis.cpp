@@ -1804,7 +1804,7 @@ void GalilAxis::set_ssi_connectflag(void)
     pC_->getIntegerParam(axisNo_, pC_->GalilSSIErrorBits_, &ssierrbits);
     pC_->getIntegerParam(axisNo_, pC_->GalilSSIData_, &ssidataform);
 
-    if (ueip != 0 && ssicapable !=0 && ssiinput !=0)
+    if (ssicapable !=0 && ssiinput !=0)
     	{
 	//work out the value recieved when encoder disconnected
 	if (ssidataform == 2)
@@ -1830,9 +1830,12 @@ void GalilAxis::set_ssi_connectflag(void)
 			disconnect_val = 0;
 		}
 		
-	//check if encoder_position_ == value recieved when encoder disconnected
+	//check if encoder readback == value recieved when encoder disconnected
 	//set connect flag accordingly
-	ssi_connect = (encoder_position_ == disconnect_val) ? 0 : 1;
+	if (ssiinput == 1)	//Main encoder
+		ssi_connect = (encoder_position_ == disconnect_val) ? 0 : 1;
+	if (ssiinput == 2)	//Aux encoder
+		ssi_connect = (motor_position_ == disconnect_val) ? 0 : 1;
 	setIntegerParam(pC_->GalilSSIConnected_, ssi_connect);
 	}
     else
