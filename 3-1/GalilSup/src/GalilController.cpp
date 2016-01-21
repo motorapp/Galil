@@ -667,16 +667,12 @@ void GalilController::connected(void)
   //Determine number of threads supported
   //Safe default
   numThreads_ = 8;
+  //Check for controllers that support < 8 threads
   //RIO
   numThreads_ = (rio_)? 4 : numThreads_;
-  //DMC4 range
-  if ((model_[0] == 'D' && model_[3] == '4'))
-     numThreads_ = 8;
   //DMC3 range
   if ((model_[0] == 'D' && model_[3] == '3'))
      numThreads_ = 6;
-  //DMC2 range
-  numThreads_ = (model_[3] == '2')? 8 : numThreads_;
   //DMC1 range
   numThreads_ = (model_[3] == '1')? 2 : numThreads_;
 

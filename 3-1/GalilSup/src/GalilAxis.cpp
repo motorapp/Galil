@@ -1805,39 +1805,38 @@ void GalilAxis::set_ssi_connectflag(void)
     pC_->getIntegerParam(axisNo_, pC_->GalilSSIData_, &ssidataform);
 
     if (ssicapable !=0 && ssiinput !=0)
-    	{
-	//work out the value recieved when encoder disconnected
-	if (ssidataform == 2)
-		{
-		//First we do gray code encoders
-		for (i=0;i<(ssitotalbits - ssierrbits);i++)
-			{
-			if (i % 2)
-				disconnect_valtmp |= (long)pow(2.0,i);
-			
-			}
-		if (!(invert_ssi_))
-			disconnect_val = (double)disconnect_valtmp;
-		else
-			disconnect_val = (pow(2.0,ssitotalbits - ssierrbits) - 1) - disconnect_valtmp;
-		}
-	else
-		{
-		//last we do binary code encoders
-		if (!(invert_ssi_))
-			disconnect_val = (pow(2.0,ssitotalbits - ssierrbits) - 1);
-		else
-			disconnect_val = 0;
-		}
+       {
+       //work out the value recieved when encoder disconnected
+       if (ssidataform == 2)
+          {
+          //First we do gray code encoders
+          for (i = 0; i < (ssitotalbits - ssierrbits); i++)
+             {
+             if (i % 2)
+                disconnect_valtmp |= (long)pow(2.0,i);
+             }
+          if (!(invert_ssi_))
+             disconnect_val = (double)disconnect_valtmp;
+          else
+             disconnect_val = (pow(2.0,ssitotalbits - ssierrbits) - 1) - disconnect_valtmp;
+          }
+       else
+          {
+          //last we do binary code encoders
+          if (!(invert_ssi_))
+             disconnect_val = (pow(2.0,ssitotalbits - ssierrbits) - 1);
+          else
+             disconnect_val = 0;
+          }
 		
-	//check if encoder readback == value recieved when encoder disconnected
-	//set connect flag accordingly
-	if (ssiinput == 1)	//Main encoder
-		ssi_connect = (encoder_position_ == disconnect_val) ? 0 : 1;
-	if (ssiinput == 2)	//Aux encoder
-		ssi_connect = (motor_position_ == disconnect_val) ? 0 : 1;
-	setIntegerParam(pC_->GalilSSIConnected_, ssi_connect);
-	}
+       //check if encoder readback == value recieved when encoder disconnected
+       //set connect flag accordingly
+       if (ssiinput == 1)	//Main encoder
+          ssi_connect = (encoder_position_ == disconnect_val) ? 0 : 1;
+       if (ssiinput == 2)	//Aux encoder
+          ssi_connect = (motor_position_ == disconnect_val) ? 0 : 1;
+       setIntegerParam(pC_->GalilSSIConnected_, ssi_connect);
+       }
     else
 	setIntegerParam(pC_->GalilSSIConnected_, 0);
 }
