@@ -80,6 +80,13 @@
 // 23/11/15 M.Clift 
 //                  Add deferredMode supporting Sync motor start only, and Sync motor start and stop
 //                  Fixed multiple related CSAxis deferred moves were being lost
+// 28/01/15 M.Clift
+//                  Fix SSI capability detection on DMC4xxx series
+//                  Fix SSI encoder connected flag issue when encoder connected to auxillary input
+//                  Fix thread count issue with DMC30000
+//                  Fix problem with DMC30000 not returning \r\n when uploading program
+//                  Fix problem with DMC30000 datarecord decoding
+//                  Revised setOutputCompare to make compatible with DMC30000
 
 #include <stdio.h>
 #include <math.h>
@@ -938,10 +945,10 @@ bool GalilController::motorsAtStart(char *axes, double startp[])
 asynStatus GalilController::setOutputCompare(int oc)
 {
   char message[MAX_GALIL_STRING_SIZE];	//Output compare message
-  int ueip;				//mr ueip field
   int ocaxis;				//Output compare axis from paramList
   int axis;				//Axis number derived from output compare axis in paramList
   int motor;				//motor type read from controller
+  int start, end;			//Looping
   double ocstart;			//Output compare start position from paramList
   double ocincr;			//Output compare incremental distance for repeat pulses from paramList
   double eres;	        		//mr eres
@@ -949,7 +956,6 @@ asynStatus GalilController::setOutputCompare(int oc)
   int encoder_setting;			//Overall encoder setting value
   bool encoders_ok = false;		//Encoder setting good or bad for output compare
   bool setup_ok = false;		//Overall setup status
-  int bankAservo, bankEservo;		//Axis that is servo in banks A-D, and E-H
   int comstatus = asynSuccess;		//Status of comms
   int paramstatus = asynSuccess;	//Status of paramList gets
   int i;				//Looping
@@ -965,17 +971,16 @@ asynStatus GalilController::setOutputCompare(int oc)
 	//Query motor type
 	sprintf(cmd_, "MT%c=?", axis + AASCII);
 	comstatus = sync_writeReadController();
-	motor = atoi(resp_);	
-	//Retrieve ueip setting for this motor
-	paramstatus = getIntegerParam(axis, GalilUseEncoder_, &ueip);
+	motor = atoi(resp_);
 	//Check encoder settings
 	paramstatus |= getIntegerParam(axis, GalilMainEncoder_, &mainencoder);
 	paramstatus |= getIntegerParam(axis, GalilAuxEncoder_, &auxencoder);
 	encoder_setting = mainencoder + auxencoder;
+	//If main, and auxillary encoder setting match
 	if ((!encoder_setting || encoder_setting == 5 || encoder_setting == 10 || encoder_setting == 15) && !paramstatus)
 		encoders_ok = true;
-
-	if (ueip && (abs(motor) == 1) && encoders_ok && !paramstatus && !comstatus)
+	//If motor is a servo, and encoder settings match, no paramlist error, and no command error
+	if ((abs(motor) == 1) && encoders_ok && !paramstatus && !comstatus)
 		{
 		//Passed motor configuration checks.  Motor is servo, ueip = 1, and encoder setting is ok
 		//Retrieve output compare start, and increment values
@@ -1029,23 +1034,23 @@ asynStatus GalilController::setOutputCompare(int oc)
   if (!setup_ok && !paramstatus)
 	{
 	//Default parameters
-	axis = bankAservo = bankEservo = 99;
-	//Find a servo in A-D, and E-H
-	for (i=0;i<MAX_GALIL_AXES;i++)
+	axis = 99;
+	//Calculate loop start/end
+	start = (!oc) ? 0 : 4;
+        end = (!oc) ? 4 : 8; 
+	
+	//Find a servo in correct bank either A-D, or bank E-H
+	for (i = start; i < end; i++)
 		{
 		sprintf(cmd_, "MT%c=?", i + AASCII);
 		comstatus = sync_writeReadController();
 		motor = atoi(resp_);
-		if (abs(motor) == 1 && i<4)
-			bankAservo = i;
-		if (abs(motor) == 1 && i>3)
-			bankEservo = i;
+		if (abs(motor) == 1)
+			{
+			axis = i;
+			break;
+			}
 		}
-	//Determine correct axis to use to turn of this output compare
-	if (!oc && bankAservo != 99)
-		axis = bankAservo;
-	if (oc && bankEservo != 99)
-		axis = bankEservo;
 	
 	if (axis != 99)
 		{
@@ -2375,7 +2380,6 @@ asynStatus GalilController::readInt32(asynUser *pasynUser, epicsInt32 *value)
     int function = pasynUser->reason;		 //function requested
     asynStatus status;				 //Used to work out communication_error_ status.  asynSuccess always returned
     GalilAxis *pAxis = getAxis(pasynUser);	 //Retrieve the axis instance
-    bool reqd_comms;				 //Check for comms error only when function reqd comms
 
     //If provided addr does not return an GalilAxis instance, then return asynError
     if (!pAxis) return asynError;
@@ -2383,9 +2387,6 @@ asynStatus GalilController::readInt32(asynUser *pasynUser, epicsInt32 *value)
     //We dont retrieve values for records at iocInit.  
     //For output records autosave, or db defaults are pushed to hardware instead
     if (!dbInitialized) return asynError;
-
-    //Most functions require comms
-    reqd_comms = true;
     
     if (function == GalilHomeType_)
         {
@@ -2470,10 +2471,7 @@ asynStatus GalilController::readInt32(asynUser *pasynUser, epicsInt32 *value)
 	if (ssicapable)
 		status = pAxis->get_ssi(function, value);
 	else
-		{
 		status = asynSuccess;
-		reqd_comms = false;
-		}
 	}
   else if (function == GalilCoordSys_)
 	{
@@ -2488,11 +2486,7 @@ asynStatus GalilController::readInt32(asynUser *pasynUser, epicsInt32 *value)
    else 
 	{
 	status = asynPortDriver::readInt32(pasynUser, value);
-	reqd_comms = false;
 	}
-
-   //Flag comms error only if function reqd comms
-   check_comms(reqd_comms, status);
 
    //Always return success. Dont need more error mesgs
    return asynSuccess;	
@@ -2648,7 +2642,6 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
   GalilCSAxis *pCSAxis = getCSAxis(pasynUser);	//Retrieve the axis instance
   int hometype, limittype;			//The home, and limit switch type
   int mainencoder, auxencoder, encoder_setting; //Main, aux encoder setting
-  bool reqd_comms;			        //Check for comms error only when function reqd comms
   char coordinate_system;			//Coordinate system S or T
   char axes[MAX_GALIL_AXES];			//Coordinate system axis list
   double eres, mres;				//mr eres, and mres
@@ -2672,9 +2665,6 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
      {
      if (!pCSAxis) return asynError;
      }
-
-  //Most functions require comms
-  reqd_comms = true;
    
   /* Set the parameter and readback in the parameter library.  This may be overwritten when we read back the
    * status at the end, but that's OK */
@@ -2695,8 +2685,6 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 		//Write setting to controller
 		status = sync_writeReadController();
 		}
-	else
-		reqd_comms = false;
   	}
   else if (function == GalilAuxEncoder_ || function == GalilMainEncoder_)	
 	{
@@ -2711,8 +2699,6 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 		//Write setting to controller
 		status = sync_writeReadController();
 		}
-	else
-		reqd_comms = false;
 	}
   else if (function == GalilMotorOn_)
 	{
@@ -2832,8 +2818,6 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 	//Only if controller is SSI capable
 	if (ssicapable)
 		status = pAxis->set_ssi();
-	else
-		reqd_comms = false;
 	}
   else if (function == GalilOffOnError_)
 	{
@@ -2880,11 +2864,7 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 	{
 	/* Call base class method */
 	status = asynMotorController::writeInt32(pasynUser, value);
-	reqd_comms = false;
   	}
-
-  //Flag comms error only if function reqd comms
-  check_comms(reqd_comms, status);
 
   //Always return success. Dont need more error mesgs
   return asynSuccess;
@@ -2902,15 +2882,11 @@ asynStatus GalilController::writeFloat64(asynUser *pasynUser, epicsFloat64 value
   int function = pasynUser->reason;		//Function requested
   asynStatus status;				//Used to work out communication_error_ status.  asynSuccess always returned
   GalilAxis *pAxis = getAxis(pasynUser);	//Retrieve the axis instance
-  bool reqd_comms;				//Check for comms error only when function reqd comms
   int addr=0;					//Address requested
 
   //Retrieve address.  Used for analog IO
   status = getAddress(pasynUser, &addr); 
   if (status != asynSuccess) return(status);
-
-  //Most functions require comms
-  reqd_comms = true;
 
   /* Set the parameter and readback in the parameter library. */
   status = setDoubleParam(addr, function, value);
@@ -2961,11 +2937,7 @@ asynStatus GalilController::writeFloat64(asynUser *pasynUser, epicsFloat64 value
      {
      /* Call base class method */
 	 status = asynMotorController::writeFloat64(pasynUser, value);
-	 reqd_comms = false;
      }
-    
-  //Flag comms error only if function reqd comms
-  check_comms(reqd_comms, status);
 
   //Always return success. Dont need more error mesgs
   return asynSuccess;
@@ -3128,33 +3100,68 @@ void GalilController::getStatus(void)
    int profstate;				//Profile running state
    double paramDouble;				//For passing asynFloat64 to ParamList
    unsigned paramUDig;				//For passing UInt32Digital to ParamList
+   unsigned in = 0, out = 0;			//For passing digital in/out for DMC30000 only
+   int i;					//Looping
   
    //If data record query success in GalilController::acquireDataRecord
    if (recstatus_ == asynSuccess && connected_)
 	{
 	//extract relevant controller data from GalilController record, store in GalilController
 	//If connected, then proceed
-	//digital inputs in banks of 8 bits
-	for (addr=0;addr<BINARYIN_BYTES;addr++)
+
+	//DMC30000 series only.
+	if (model_[3] == '3')
 		{
-		sprintf(src, "_TI%d", addr);
-		paramUDig = (unsigned)sourceValue(recdata_, src);
+		//First 8 input, and first 4 output bits only
+		for (i = 1; i <= 8; i++)
+			{
+			//Digital input bit
+			sprintf(src, "@IN[%d]", i);
+			paramUDig = (unsigned)sourceValue(recdata_, src);
+			in += paramUDig << (i - 1);
+			//Digital output bits
+			if (i <= 4)
+				{
+				//Database records are arranged by word
+				//ValueMask = 0xFFFF because a word is 16 bits
+				sprintf(src, "@OUT[%d]", i);
+				paramUDig = (unsigned)sourceValue(recdata_, src);
+				out += paramUDig << (i - 1);
+				}
+			}
 		//ValueMask = 0xFF because a byte is 8 bits
+		//Database records are arranged by byte
 		//Callbacks happen on value change
-		setUIntDigitalParam(addr, GalilBinaryIn_, paramUDig, 0xFF );
-		//Example showing forced callbacks even if no value change
-		//setUIntDigitalParam(addr, GalilBinaryIn_, paramUDig, 0xFF, 0xFF );
-		}
-	//data record has digital outputs in banks of 16 bits for dmc, 8 bits for rio
-	for (addr=0;addr<BINARYOUT_WORDS;addr++)
-		{
-		sprintf(src, "_OP%d", addr);
-		paramUDig = (unsigned)sourceValue(recdata_, src);
+		setUIntDigitalParam(0, GalilBinaryIn_, in, 0xFF );
+		//Database records are arranged by word
 		//ValueMask = 0xFFFF because a word is 16 bits
-		//Callbacks happen on value change
-		setUIntDigitalParam(addr, GalilBinaryOutRBV_, paramUDig, 0xFFFF );
-		//Example showing forced callbacks even if no value change
-		//setUIntDigitalParam(addr, GalilBinaryOutRBV_, paramUDig, 0xFFFF, 0xFFFF );
+		setUIntDigitalParam(0, GalilBinaryOutRBV_, out, 0xFFFF );
+		}
+	else
+		{
+		//for all models except DMC30000 series
+		//digital inputs in banks of 8 bits for all models except DMC30000 series
+		for (addr=0;addr<BINARYIN_BYTES;addr++)
+			{
+			sprintf(src, "_TI%d", addr);
+			paramUDig = (unsigned)sourceValue(recdata_, src);
+			//ValueMask = 0xFF because a byte is 8 bits
+			//Callbacks happen on value change
+			setUIntDigitalParam(addr, GalilBinaryIn_, paramUDig, 0xFF );
+			//Example showing forced callbacks even if no value change
+			//setUIntDigitalParam(addr, GalilBinaryIn_, paramUDig, 0xFF, 0xFF );
+			}
+		//data record has digital outputs in banks of 16 bits for dmc, 8 bits for rio
+		for (addr=0;addr<BINARYOUT_WORDS;addr++)
+			{
+			sprintf(src, "_OP%d", addr);
+			paramUDig = (unsigned)sourceValue(recdata_, src);
+			//ValueMask = 0xFFFF because a word is 16 bits
+			//Callbacks happen on value change
+			setUIntDigitalParam(addr, GalilBinaryOutRBV_, paramUDig, 0xFFFF );
+			//Example showing forced callbacks even if no value change
+			//setUIntDigitalParam(addr, GalilBinaryOutRBV_, paramUDig, 0xFFFF, 0xFFFF );
+			}
 		}
 	//Analog ports
 	//Port numbering is different on DMC compared to RIO controllers
@@ -3429,6 +3436,8 @@ asynStatus GalilController::sync_writeReadController(void)
    if (debug_file != NULL)
    	{
 	time_t now;
+	//Use line buffering, then flush
+	setvbuf(debug_file, NULL, _IOLBF, BUFSIZ);
 	time(&now);
 	char time_buffer[64];
 	strftime(time_buffer, sizeof(time_buffer), "%Y-%m-%d %H:%M:%S", localtime(&now));
@@ -3712,15 +3721,19 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
 			cout << uc << endl;
 			}
 
+		//Uploaded code
 		//Remove the \r characters - \r\n is returned by galil controller
 		uc.erase (std::remove(uc.begin(), uc.end(), '\r'), uc.end());
-
+		//Change \n to \r (Galil Communications Library expects \r separated lines)
+		std::replace(uc.begin(), uc.end(), '\n', '\r');
+		//Some controllers dont finish upload with \r\n, ensure buffer ends in carriage return
+		if (uc.back() != 13)
+			uc.push_back('\r');
+		//Download code
 		//Copy card_code_ into download code buffer
 		dc = card_code_;
 		//Change \n to \r (Galil Communications Library expects \r separated lines)
 		std::replace(dc.begin(), dc.end(), '\n', '\r');
-		//Change \n to \r (Galil Communications Library expects \r separated lines)
-		std::replace(uc.begin(), uc.end(), '\n', '\r');
 
 		/*If code we wish to download differs from controller current code then download the new code*/
 		if (dc.compare(uc) != 0 && dc.compare("") != 0)
