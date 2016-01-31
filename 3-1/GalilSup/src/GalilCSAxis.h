@@ -93,6 +93,7 @@ private:
   char **revsubs_;			//Reverse kinematic substitutes List of A-P
   int coordsys_;			//The coordinate system S or T that we started when moving
   bool stop_onlimit_;			//Is a real motor in the cs axis stopping on a limit
+  bool stop_issued_;			//CSAxis stop issued
   bool move_started_;			//Has a move been initiated from this cs axis
   bool kinematic_error_reported_;	//Kinematic error has been reported to user
   int last_done_;			//Done status stored from previous poll cycle

@@ -34,8 +34,8 @@
 //Number of communication retries
 #define ALLOWED_TIMEOUTS 2
 #define MAX_GALIL_UNSOLICTED_SIZE 29
-#define MAX_GALIL_STRING_SIZE 256
-#define MAX_GALIL_DATAREC_SIZE 512
+#define MAX_GALIL_STRING_SIZE 768
+#define MAX_GALIL_DATAREC_SIZE 768
 #define MAX_GALIL_AXES 8
 #define MAX_GALIL_VARS 10
 #define MAX_GALIL_CSAXES 8
@@ -204,6 +204,7 @@ public:
 
   asynStatus sync_writeReadController(const char *output, char *input, size_t maxChars, size_t *nread, double timeout);
   asynStatus sync_writeReadController(void);
+  asynStatus synctest_writeReadController(void);
 
   asynStatus sendUnsolicitedMessage(char *mesg);
   bool my_isascii(int c);
@@ -255,7 +256,6 @@ public:
   void write_gen_codefile(const char* suffix);
   asynStatus read_codefile(const char *code_file);
   asynStatus read_codefile_part(const char *code_file, MAC_HANDLE* mac_handle);
-  void check_comms(bool reqd_comms, asynStatus status);
   asynStatus get_integer(int function, epicsInt32 *value, int axisNo);
   asynStatus get_double(int function, epicsFloat64 *value, int axisNo);
   void profileThread();

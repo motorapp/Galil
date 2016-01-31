@@ -80,13 +80,23 @@
 // 23/11/15 M.Clift 
 //                  Add deferredMode supporting Sync motor start only, and Sync motor start and stop
 //                  Fixed multiple related CSAxis deferred moves were being lost
-// 28/01/15 M.Clift
+// 28/01/16 M.Clift
 //                  Fix SSI capability detection on DMC4xxx series
 //                  Fix SSI encoder connected flag issue when encoder connected to auxillary input
+// 28/01/16 E.Norum & M.Clift
 //                  Fix thread count issue with DMC30000
 //                  Fix problem with DMC30000 not returning \r\n when uploading program
 //                  Fix problem with DMC30000 datarecord decoding
 //                  Revised setOutputCompare to make compatible with DMC30000
+// 31/01/16 M.Clift
+//                  Fix seg fault on exit when no controllers are connected
+//                  Fix issue where SSI input setting for motor A effected all motors
+//                  Fix galil gmc code stop caused by CSAxis stop call when no revaxes assigned
+//                  Simplified communications checking
+//                  Simplified CSAxis limit reporting
+//                  Fix CSAxis jog motor run away in Sync start only mode when limit struck
+// 31/01/16 K.Paterson
+//                  Fix seg fault on startup because of RIO-47300-16BIT-24EXOUT large reply
 
 #include <stdio.h>
 #include <math.h>
@@ -586,7 +596,8 @@ void GalilController::setParamDefaults(void)
   //SSI capable
   setIntegerParam(GalilSSICapable_, 0);
   //Communication status
-  setIntegerParam(GalilCommunicationError_, 0);
+  setIntegerParam(GalilCommunicationError_, 1);
+
   //Deferred moves off 
   setIntegerParam(motorDeferMoves_, 0);
   //Default coordinate system is S
@@ -631,6 +642,9 @@ void GalilController::connected(void)
   char mesg[MAX_GALIL_STRING_SIZE];	//Connected mesg
   unsigned i;
 
+  //Flag connected as true
+  connected_ = true;
+  setIntegerParam(GalilCommunicationError_, 0);
   //Load model, and firmware query into cmd structure
   strcpy(cmd_, RV);
   //Query model, and firmware version
@@ -715,17 +729,6 @@ void GalilController::connected(void)
   //Initialize data record structures
   InitializeDataRecord();
 
-  //Set connection that will receive unsolicited messages
-  if (async_records_)
-     sprintf(cmd_, "CF %c", udpHandle_);
-  else
-     sprintf(cmd_, "CF %c", syncHandle_);
-  status = sync_writeReadController();
-
-  //Set most signficant bit for unsolicited bytes
-  strcpy(cmd_, "CW 1");
-  status = sync_writeReadController();
-
   //No timeout errors
   consecutive_timeouts_ = 0;
 
@@ -753,9 +756,17 @@ void GalilController::connected(void)
         }
      }
 
-  //Flag connected as true
-  connected_ = true;
-  setIntegerParam(0, GalilCommunicationError_, 0);
+  //Set connection that will receive unsolicited messages
+  if (async_records_)
+     sprintf(cmd_, "CF %c", udpHandle_);
+  else
+     sprintf(cmd_, "CF %c", syncHandle_);
+  status = sync_writeReadController();
+
+  //Set most signficant bit for unsolicited bytes
+  strcpy(cmd_, "CW 1");
+  status = sync_writeReadController();
+
   callParamCallbacks();
 }
 
@@ -2334,28 +2345,6 @@ asynStatus GalilController::setDeferredMoves(bool deferMoves)
   return asynSuccess;
 }
 
-/** Sets GalilCommunicationError_ param when comms problem occurs
-  * \param[in] reqd_comms - did function that set status require comms
-  * \param[in] status - asynStatus set by function  */
-void GalilController::check_comms(bool reqd_comms, asynStatus status)
-{
-   int b4_status;
-   //Set comms flag only if function reqd comms
-   if (reqd_comms)
-        {
-        //Retrieve current GalilCommunicationError_
-        getIntegerParam(GalilCommunicationError_, &b4_status);
-        //Write to GalilCommunicationError_ parameter only on change
-        //Note GalilCommunicationError_ record is boolean
-        if (b4_status != (int)status)
-           {
-           setIntegerParam(GalilCommunicationError_, status ? 1:0);
-           /* Do callbacks so higher layers see any changes */
-           callParamCallbacks();
-           }
-        }
-}
-
 /** Attempts to read value from controller, returns last value set if fails.  
   ** Called by GaLilController::readInt32()
   * \param[in] cmd to send to controller
@@ -2484,9 +2473,7 @@ asynStatus GalilController::readInt32(asynUser *pasynUser, epicsInt32 *value)
 	setIntegerParam(0, GalilCoordSys_, *value);
 	}
    else 
-	{
 	status = asynPortDriver::readInt32(pasynUser, value);
-	}
 
    //Always return success. Dont need more error mesgs
    return asynSuccess;	
@@ -2515,49 +2502,38 @@ asynStatus GalilController::get_double(int function, epicsFloat64 *value, int ax
 asynStatus GalilController::readFloat64(asynUser *pasynUser, epicsFloat64 *value)
 {
   int function = pasynUser->reason;		 //function requested
-  asynStatus status;				 //Used to work out communication_error_ status.  asynSuccess always returned
   GalilAxis *pAxis = getAxis(pasynUser);	 //Retrieve the axis instance
-  bool reqd_comms;				 //Check for comms error only when function reqd comms
 
   if (!pAxis) return asynError;
 
   //We dont retrieve values for records at iocInit.  
   //For output records autosave, or db defaults are pushed to hardware instead
   if (!dbInitialized) return asynError;
-
-  //Most functions require comms
-  reqd_comms = true;
     
   if (function == GalilStepSmooth_)
      {
      sprintf(cmd_, "MG _KS%c", pAxis->axisName_);
-     status = get_double(GalilStepSmooth_, value, pAxis->axisNo_);
+     get_double(GalilStepSmooth_, value, pAxis->axisNo_);
      }
   else if (function == GalilErrorLimit_)
      {
      sprintf(cmd_, "MG _ER%c", pAxis->axisName_);
-     status = get_double(GalilErrorLimit_, value, pAxis->axisNo_);
+     get_double(GalilErrorLimit_, value, pAxis->axisNo_);
      }
   else if (function == GalilUserCmd_)
      {
      //For when input records are set to periodic scan not I/O Intr
      epicsSnprintf(cmd_, sizeof(cmd_), "%s", (const char*)pasynUser->userData);
-     status = get_double(GalilUserVar_, value);
+     get_double(GalilUserVar_, value);
      }
   else if (function == GalilUserVar_)
      {
      //For when input records are set to periodic scan not I/O Intr
      epicsSnprintf(cmd_, sizeof(cmd_), "%s=?", (const char*)pasynUser->userData);
-     status = get_double(GalilUserVar_, value);
+     get_double(GalilUserVar_, value);
      }
   else
-     {
-     status = asynPortDriver::readFloat64(pasynUser, value);
-     reqd_comms = false;
-     }
-    
-  //Flag comms error only if function reqd comms
-  check_comms(reqd_comms, status);
+     asynPortDriver::readFloat64(pasynUser, value);
   
   //Always return success. Dont need more error mesgs
   return asynSuccess;	
@@ -3405,6 +3381,53 @@ void GalilController::acquireDataRecord(string cmd)
 
 /** Writes a string to the GalilController controller and reads the response using synchronous communications
   * Calls sync_writeReadController() with default locations of the input and output strings
+  * and GalilController timeout. This function is for testing communicationsn only, and ignores
+  * the connected flag*/ 
+asynStatus GalilController::synctest_writeReadController(void)
+{
+  const char *functionName="synctest_writeReadController";
+  size_t nread;
+  int status;
+  static const char* debug_file_name = macEnvExpand("$(GALIL_DEBUG_FILE=)");
+  static FILE* debug_file = ( (debug_file_name != NULL && strlen(debug_file_name) > 0) ? fopen(debug_file_name, "at") : NULL);
+
+  asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, 
+          "%s: controller=\"%s\" command=\"%s\"\n", functionName, address_, cmd_);
+
+  //Write command, and retrieve response
+  status = sync_writeReadController(cmd_, resp_, MAX_GALIL_STRING_SIZE, &nread, timeout_);
+
+  //Remove any unwanted characters
+  string resp = resp_;
+  resp.erase(resp.find_last_not_of(" \n\r\t:")+1);
+  resp.erase (std::remove(resp.begin(), resp.end(), ':'), resp.end());
+  resp.erase (std::remove(resp.begin(), resp.end(), '\r'), resp.end());
+  resp.erase (std::remove(resp.begin(), resp.end(), '\n'), resp.end());
+  strcpy(resp_, resp.c_str());
+
+   //Debugging
+   asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DRIVER, 
+          "%s: controller=\"%s\" command=\"%s\", response=\"%s\", status=%s\n", 
+		      functionName, address_, cmd_, resp_, (status == asynSuccess ? "OK" : "ERROR"));
+
+   if (debug_file != NULL)
+   	{
+	time_t now;
+	//Use line buffering, then flush
+	setvbuf(debug_file, NULL, _IOLBF, BUFSIZ);
+	time(&now);
+	char time_buffer[64];
+	strftime(time_buffer, sizeof(time_buffer), "%Y-%m-%d %H:%M:%S", localtime(&now));
+	fprintf(debug_file, "%s (%d) %s: controller=\"%s\" command=\"%s\", response=\"%s\", status=%s\n", 
+	      time_buffer, getpid(), functionName, address_, cmd_, resp_, (status == asynSuccess ? "OK" : "ERROR"));
+	}
+
+  return (asynStatus)status;
+}
+
+
+/** Writes a string to the GalilController controller and reads the response using synchronous communications
+  * Calls sync_writeReadController() with default locations of the input and output strings
   * and GalilController timeout. */ 
 asynStatus GalilController::sync_writeReadController(void)
 {
@@ -3413,6 +3436,14 @@ asynStatus GalilController::sync_writeReadController(void)
   int status;
   static const char* debug_file_name = macEnvExpand("$(GALIL_DEBUG_FILE=)");
   static FILE* debug_file = ( (debug_file_name != NULL && strlen(debug_file_name) > 0) ? fopen(debug_file_name, "at") : NULL);
+
+  //Simply return asynSuccess if not connected
+  //Asyn module corrupts ram if we try write/read with no connection
+  if (!connected_)
+     {
+     strcpy(resp_, "");
+     return asynSuccess;
+     }
 
   asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, 
           "%s: controller=\"%s\" command=\"%s\"\n", functionName, address_, cmd_);

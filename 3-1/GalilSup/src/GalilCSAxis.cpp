@@ -150,6 +150,8 @@ asynStatus GalilCSAxis::setDefaults(void)
   coordsys_ = -1;
   //The coordinate system is not stopping on a limit switch right now
   stop_onlimit_ = false;
+  //Sync start only mode requires stop to be issued for all CSAxis motor upon stop_onlimit_
+  stop_issued_ = false;
   //A move has not been started by this cs axis
   move_started_ = false;
   //Axis not ready until necessary motor record fields have been pushed into driver
@@ -174,12 +176,8 @@ asynStatus GalilCSAxis::checkMotorVelocities(double npos[], double nvel[])
   double vectorDistance = 0;		//Computed vector distance
   double vel;				//Temp variable used to calculate real motor velocity
   double vmax;				//Motor record vmax
-  int deferredMode;			//Deferred moves mode
 
-  //Retrieve deferred moves mode
-  pC_->getIntegerParam(pC_->GalilDeferredMode_, &deferredMode);
-
-  if (deferredMode)
+  if (deferredMode_)
      {
      //Sync start and stop uses linear mode
      //Use vector mathematics to check requested motor velocities
@@ -227,22 +225,22 @@ asynStatus GalilCSAxis::checkMotorVelocities(double npos[], double nvel[])
     {
     //Sync start only mode
     //Loop thru all real motors and check velocity
-     for (i = 0; i < strlen(revaxes_); i++)
-        {
-        //Retrieve needed motor record fields
-        pC_->getDoubleParam(revaxes_[i] - AASCII, pC_->GalilMotorVmax_, &vmax);
-        pC_->getIntegerParam(revaxes_[i] - AASCII, pC_->GalilUseEncoder_, &ueip);
-        pC_->getDoubleParam(revaxes_[i] - AASCII, pC_->motorResolution_, &mres);
-        pC_->getDoubleParam(revaxes_[i] - AASCII, pC_->GalilEncoderResolution_, &eres);
-        //Calculate requested velocity in egu
-        vel = (ueip) ? nvel[i] * eres : nvel[i] * mres;
-        if (lrint(fabs(vel)*1000.0)/1000.0 > lrint(fabs(vmax)*1000.0)/1000.0)
+    for (i = 0; i < strlen(revaxes_); i++)
+       {
+       //Retrieve needed motor record fields
+       pC_->getDoubleParam(revaxes_[i] - AASCII, pC_->GalilMotorVmax_, &vmax);
+       pC_->getIntegerParam(revaxes_[i] - AASCII, pC_->GalilUseEncoder_, &ueip);
+       pC_->getDoubleParam(revaxes_[i] - AASCII, pC_->motorResolution_, &mres);
+       pC_->getDoubleParam(revaxes_[i] - AASCII, pC_->GalilEncoderResolution_, &eres);
+       //Calculate requested velocity in egu
+       vel = (ueip) ? nvel[i] * eres : nvel[i] * mres;
+       if (lrint(fabs(vel)*1000.0)/1000.0 > lrint(fabs(vmax)*1000.0)/1000.0)
            {
            sprintf(mesg, "Move failed, axis %c velocity %2.21lf > VMAX %2.21lf\n", revaxes_[i], fabs(vel), fabs(vmax));
            pC_->setCtrlError(mesg);
            return asynError;
            }
-        }
+       }
     }
 
   return asynSuccess;
@@ -271,6 +269,8 @@ asynStatus GalilCSAxis::move(double position, int relative, double minVelocity, 
 
   //Clear stop on limit before move
   stop_onlimit_ = false;
+  //Clear stop issued flag before move
+  stop_issued_ = false;
 
   //Retrieve deferred moves mode
   pC_->getIntegerParam(pC_->GalilDeferredMode_, &deferredMode);
@@ -410,8 +410,9 @@ asynStatus GalilCSAxis::stop(double acceleration)
         pC_->sync_writeReadController();
         }
      }
-  else
+  else if (strcmp(revaxes_, "") != 0)
      {
+     //revaxes_ cannot be empty, else all threads on controller get killed
      //Stop the real motors that this CSAxis started
      sprintf(pC_->cmd_, "ST %s", revaxes_);
      pC_->sync_writeReadController();
@@ -1024,19 +1025,25 @@ asynStatus GalilCSAxis::poll(bool *moving)
 	status |= pC_->getIntegerParam(revaxes_[i] - AASCII, pC_->motorStatusHighLimit_, &fwd);
 	if (!status)
 		{
-		//Report limits only when stop caused by limit and this cs axis started the move
-		reportlimits = false;
-		if (stop_onlimit_)
-			reportlimits = true;
-		//Check cs axis limit status
 		//Check cs axis reverse limit
-		if (!direction_ && reportlimits && (rev || fwd))
+		if (!direction_ && stop_onlimit_ && (rev || fwd))
 			csrev |= 1;
 		//Check cs axis forward limit
-		if (direction_ && reportlimits && (fwd || rev))
+		if (direction_ && stop_onlimit_ && (fwd || rev))
 			csfwd |= 1;
 		}
 	}
+
+   //Sync start only mode
+   //If limit struck whilst moving, we must issue stop for all motors in CSAxis
+   if ((csrev || csfwd) && *moving)
+      {
+      if (!deferredMode_ && !stop_issued_)
+         {
+         stop(1);
+         stop_issued_ = true;
+         }
+      }
 
    //Save motor position and done status for next poll cycle
    last_motor_position_ = motor_position_;

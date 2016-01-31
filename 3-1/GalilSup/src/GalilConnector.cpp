@@ -50,8 +50,8 @@ GalilConnector::~GalilConnector()
 {
 	//Flag to GalilConnector run thread that IOC is shutting down
 	shuttingDown_ = true;
-        //Wake GalilConnector thread now shutdown flag is set
-        epicsEventSignal(pC_->connectEvent_);
+	//Wake GalilConnector thread now shutdown flag is set
+	epicsEventSignal(pC_->connectEvent_);
 	//Wait for run thread to exit
 	thread.exitWait();
 }
@@ -79,7 +79,7 @@ void GalilConnector::run(void)
 			//Test synchronous communication
 			//Query controller for synchronous connection handle
 			strcpy(pC_->cmd_, "WH");
-			sync_status = pC_->sync_writeReadController();
+			sync_status = pC_->synctest_writeReadController();
 			if (!sync_status)
 				pC_->syncHandle_ = pC_->resp_[2];	//Store the handle controller used for sync
 			//Check asynchronous communication

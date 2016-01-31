@@ -572,12 +572,21 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
   double deccel;
   double distance;
   int ssiinput;			//SSI encoder register
+  int ssicapable;		//SSI capable
+  char mesg[MAX_GALIL_STRING_SIZE]; //Message to user
 
-  pC_->getIntegerParam(pC_->GalilSSIInput_, &ssiinput);
+  //Retrieve needed param
+  pC_->getIntegerParam(axisNo_, pC_->GalilSSIInput_, &ssiinput);
+  pC_->getIntegerParam(pC_->GalilSSICapable_, &ssicapable);
 
   //Homing not supported for absolute encoders, just move it where you want
-  if (ssiinput)
+  if (ssiinput && ssicapable)
+     {
+     sprintf(mesg, "%c axis has no home process because of SSI encoder", axisName_);
+     //Set controller error mesg monitor
+     pC_->setCtrlError(mesg);
      return asynSuccess;  //Nothing to do
+     }
 
   //Check velocity and wlp protection
   if (beginCheck(functionName, maxVelocity))
@@ -721,7 +730,6 @@ asynStatus GalilAxis::moveVelocity(double minVelocity, double maxVelocity, doubl
   //Always return success. Dont need more error mesgs
   return asynSuccess;
 }
-
 
 /** Stop the motor.
   * \param[in] acceleration The acceleration value. Units=steps/sec/sec. */
@@ -1799,7 +1807,7 @@ void GalilAxis::set_ssi_connectflag(void)
     pC_->getIntegerParam(axisNo_, pC_->GalilUseEncoder_, &ueip);
     //Retrieve SSI parameters required
     pC_->getIntegerParam(pC_->GalilSSICapable_, &ssicapable);
-    pC_->getIntegerParam(pC_->GalilSSIInput_, &ssiinput);
+    pC_->getIntegerParam(axisNo_, pC_->GalilSSIInput_, &ssiinput);
     pC_->getIntegerParam(axisNo_, pC_->GalilSSITotalBits_, &ssitotalbits);
     pC_->getIntegerParam(axisNo_, pC_->GalilSSIErrorBits_, &ssierrbits);
     pC_->getIntegerParam(axisNo_, pC_->GalilSSIData_, &ssidataform);
@@ -1828,7 +1836,9 @@ void GalilAxis::set_ssi_connectflag(void)
           else
              disconnect_val = 0;
           }
-		
+	
+       //safe default
+       ssi_connect = 1;
        //check if encoder readback == value recieved when encoder disconnected
        //set connect flag accordingly
        if (ssiinput == 1)	//Main encoder
