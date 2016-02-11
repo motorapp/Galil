@@ -97,6 +97,10 @@
 //                  Fix CSAxis jog motor run away in Sync start only mode when limit struck
 // 31/01/16 K.Paterson
 //                  Fix seg fault on startup because of RIO-47300-16BIT-24EXOUT large reply
+// 11/02/16 M.Clift 
+//                  Tidy up CSAxis reverse, forward transforms
+//                  Further fixes to setOutputCompare
+//                  Last branch 3-1 commit
 
 #include <stdio.h>
 #include <math.h>
@@ -971,6 +975,12 @@ asynStatus GalilController::setOutputCompare(int oc)
   int paramstatus = asynSuccess;	//Status of paramList gets
   int i;				//Looping
 
+  //Output compare not valid on some controllers
+  //Output compare 1 valid for controllers > 0 axis
+  //Output compare 2 valid for controllers > 4 axis
+  if ((oc && numAxesMax_ <= 4) || (!oc && !numAxesMax_))
+     return asynSuccess;
+
   //Retrieve axis to use with output compare
   paramstatus = getIntegerParam(oc, GalilOutputCompareAxis_, &ocaxis);
 
@@ -1048,7 +1058,7 @@ asynStatus GalilController::setOutputCompare(int oc)
 	axis = 99;
 	//Calculate loop start/end
 	start = (!oc) ? 0 : 4;
-        end = (!oc) ? 4 : 8; 
+	end = (!oc) ? 4 : 8;
 	
 	//Find a servo in correct bank either A-D, or bank E-H
 	for (i = start; i < end; i++)
@@ -1132,33 +1142,33 @@ asynStatus GalilController::buildLinearProfile()
   //Write profile type
   fprintf(profFile,"LINEAR\n");
 
-  //Zero variables, contruct axes, start position, and maxVelocity lists 
-  for (j=0; j<MAX_GALIL_AXES; j++)
+  //Zero variables, construct axes, start position, and maxVelocity lists 
+  for (i = 0; i < MAX_GALIL_AXES; i++)
 	{
 	//Retrieve GalilAxis
-	pAxis = getAxis(j);
-	//Retrieve profileUseAxis_ from ParamList
-	getIntegerParam(j, profileUseAxis_, &useAxis[j]);
+	pAxis = getAxis(i);
+	//Retrieve useAxis from paramList
+	getIntegerParam(i, profileUseAxis_, &useAxis[i]);
 	//Decide to process this axis, or skip
-	if (!useAxis[j] || !pAxis) continue;
+	if (!useAxis[i] || !pAxis) continue;
 	//Initialize accumulated position, and error
-	apos[j] = aerr[j] = velocity[j] = 0;
+	apos[i] = aerr[i] = velocity[i] = 0;
 	//Construct axis list
-	sprintf(axes,"%s%c", axes, (char)(j + AASCII));
+	sprintf(axes,"%s%c", axes, (char)(i + AASCII));
 	//Construct start positions list
 	sprintf(startp,"%s%.0lf,", startp, rint(pAxis->profilePositions_[0]));
 	//Retrieve the motor maxVelocity in egu
-	getDoubleParam(j, GalilMotorVmax_, &maxAllowedVelocity[j]);
+	getDoubleParam(i, GalilMotorVmax_, &maxAllowedVelocity[i]);
 	//Retrieve motor resolution
-	getDoubleParam(j, motorResolution_, &mres);
+	getDoubleParam(i, motorResolution_, &mres);
 	//Calculate velocity in steps
-	maxAllowedVelocity[j] = maxAllowedVelocity[j] / mres;
+	maxAllowedVelocity[i] = maxAllowedVelocity[i] / mres;
 	//Retrieve GalilProfileMoveMode_ from ParamList
-	getIntegerParam(j, GalilProfileMoveMode_, &moveMode[j]);
+	getIntegerParam(i, GalilProfileMoveMode_, &moveMode[i]);
 	//Initialize max profile velocity, position, and acceleration
-	maxProfileVelocity[j] = maxProfilePosition[j] = maxProfileAcceleration[j] = 0;
+	maxProfileVelocity[i] = maxProfilePosition[i] = maxProfileAcceleration[i] = 0;
 	//Initialize min profile position
-	minProfilePosition[j] = DBL_MAX;
+	minProfilePosition[i] = DBL_MAX;
 	}
 
   //Write axes list
@@ -1171,7 +1181,7 @@ asynStatus GalilController::buildLinearProfile()
   num_motors = (int)strlen(axes);
 
   //Calculate motor segment velocities from profile positions, and common time base
-  for (i=0; i<nPoints; i++)
+  for (i = 0; i < nPoints; i++)
   	{
 	//No controller moves assembled yet for this segment
   	strcpy(moves, "");
@@ -1180,12 +1190,10 @@ asynStatus GalilController::buildLinearProfile()
 	//motors with zero moves for this segment
 	zm_count = 0;
 	//Calculate motor incremental move distance, and velocity
-    	for (j=0; j<MAX_GALIL_AXES; j++)
+	for (j = 0; j < MAX_GALIL_AXES; j++)
 		{
 		//Retrieve GalilAxis
 		pAxis = getAxis(j);
-		//Retrieve profileUseAxis_ from ParamList
-		getIntegerParam(j, profileUseAxis_, &useAxis[j]);
 		//Decide to process this axis, or skip
 		if (!useAxis[j] || !pAxis)
 			{
@@ -1195,7 +1203,7 @@ asynStatus GalilController::buildLinearProfile()
 			continue;
 			}
 
-		if (i==0)
+		if (i == 0)
 			{
 			//First segment incremental move distance
 			firstmove[j] = pAxis->profilePositions_[i];

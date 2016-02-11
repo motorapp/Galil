@@ -57,9 +57,11 @@ public:
   //Get motor readbacks for kinematic transform, and pack into mrargs (motor readback args)
   asynStatus packReadbackArgs(char *axes, double mrargs[]);
   //Peform forward kinematic transform using real axis readback data, and store results in GalilCSAxis
-  int forwardTransform(void);
+  asynStatus forwardTransform(void);
   //Perform reverse coordinate and velocity transform
-  int reverseTransform(double pos, double vel, double accel, CSTargets *targets, double npos[], double nvel[], double naccel[]);
+  asynStatus reverseTransform(double pos, double vel, double accel, CSTargets *targets, double npos[], double nvel[], double naccel[]);
+  //Transform CSAxis profile into Axis profiles
+  asynStatus transformCSAxisProfile(void);
   //Selects a free coordinate system S or T and returns coordsys number, or -1 if none free
   int selectFreeCoordinateSystem(void);
   //Uses vector mathematics to check requested real motor velocities

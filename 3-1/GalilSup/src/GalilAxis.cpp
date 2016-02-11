@@ -156,8 +156,16 @@ asynStatus GalilAxis::setDefaults(int limit_as_home, char *enables_string, int s
 
 	//Give default readback values for positions, movement direction
 	motor_position_ = 0;
+	last_motor_position_ = 0;
 	encoder_position_ = 0;
 	direction_ = 1;
+
+	//Pass default step count/aux encoder value to motorRecord
+	setDoubleParam(pC_->motorPosition_, motor_position_);
+	//Pass default encoder value to motorRecord
+	setDoubleParam(pC_->motorEncoderPosition_, encoder_position_);
+	//Pass default direction value to motorRecord
+	setIntegerParam(pC_->motorStatusDirection_, direction_);
 
 	//Motor not homing now
 	homing_ = false;

@@ -146,6 +146,12 @@ asynStatus GalilCSAxis::setDefaults(void)
   last_motor_position_ = 0;
   encoder_position_ = 0;
   direction_ = 1;
+  //Pass default step count/aux encoder value to motorRecord
+  setDoubleParam(pC_->motorPosition_, motor_position_);
+  //Pass default encoder value to motorRecord
+  setDoubleParam(pC_->motorEncoderPosition_, encoder_position_);
+  //Pass default direction value to motorRecord
+  setIntegerParam(pC_->motorStatusDirection_, direction_);
   //This coordinate system axis is not actually using coordinate system S or T right now
   coordsys_ = -1;
   //The coordinate system is not stopping on a limit switch right now
@@ -762,7 +768,7 @@ asynStatus GalilCSAxis::packReadbackArgs(char *axes, double mrargs[])
  * \param[out] npos - Calculated motor positions for the real axis Units=Steps
  * \param[out] nvel - Calculated motor velocities for the real axis Units=steps/s
  * \param[out] naccel - Calculated motor accelerations for the real axis Units-Steps/s/s*/
-int GalilCSAxis::reverseTransform(double pos, double vel, double accel, CSTargets *targets, double npos[], double nvel[], double naccel[])
+asynStatus GalilCSAxis::reverseTransform(double pos, double vel, double accel, CSTargets *targets, double npos[], double nvel[], double naccel[])
 {
   double mres, eres;		//Motor record mres, eres
   int ueip;			//Motor record use encoder if present setting
@@ -773,18 +779,16 @@ int GalilCSAxis::reverseTransform(double pos, double vel, double accel, CSTarget
   unsigned i, j;
   int status = asynSuccess;
 
-  //Pack position readback args for reverse axes
-  status |= packReadbackArgs(revaxes_, ctargs);
-
-  //Pack position readback args for forward axes
-  status |= packReadbackArgs(fwdaxes_, ctargs);
-
   //Default velocity, acceleration transform args to zero
   for (i = 0; i < SCALCARGS; i++)
      {
      vtargs[i] = 0;
      atargs[i] = 0;
+     ctargs[i] = 0;
      }
+
+  //Pack position readback args for forward axes (ie. related CSAxis)
+  status |= packReadbackArgs(fwdaxes_, ctargs);
 
   //Add other CSAxis position, velocity, acceleration setpoints to args if supplied
   if (targets != NULL)
@@ -792,14 +796,12 @@ int GalilCSAxis::reverseTransform(double pos, double vel, double accel, CSTarget
         {
         //Retrieve needed motor record parameters for related CSAxis
         status |= pC_->getDoubleParam(targets->csaxes[i] - AASCII, pC_->motorResolution_, &mres);
-        status |= pC_->getDoubleParam(targets->csaxes[i] - AASCII, pC_->GalilEncoderResolution_, &eres);
-        status |= pC_->getIntegerParam(targets->csaxes[i] - AASCII, pC_->GalilUseEncoder_, &ueip);
         //Add position for csaxis in egu
-        ctargs[targets->csaxes[i] - AASCII] = (ueip) ? (targets->ncspos[i] * eres) : (targets->ncspos[i] * mres);
+        ctargs[targets->csaxes[i] - AASCII] = (targets->ncspos[i] * mres);
         //Add velocity for csaxis in egu
-        vtargs[targets->csaxes[i] - AASCII] = (ueip) ? (targets->ncsvel[i] * eres) : (targets->ncsvel[i] * mres);
+        vtargs[targets->csaxes[i] - AASCII] = (targets->ncsvel[i] * mres);
         //Add acceleration for csaxis in egu
-        atargs[targets->csaxes[i] - AASCII] = (ueip) ? (targets->ncsaccel[i] * eres) : (targets->ncsaccel[i] * mres);
+        atargs[targets->csaxes[i] - AASCII] = (targets->ncsaccel[i] * mres);
         }
 
   //Retrieve needed motor record parameters for this CSAxis
@@ -809,11 +811,11 @@ int GalilCSAxis::reverseTransform(double pos, double vel, double accel, CSTarget
 
   //Substitute new motor position received for this CSAxis, instead of using readback
   //Convert new position from steps into egu dial coordinates
-  ctargs[axisName_ - AASCII] = (ueip) ? (pos * eres) : (pos * mres);
-  //Add CSAXis velocity in egu
-  vtargs[axisName_ - AASCII] = (ueip) ? (vel * eres) : (vel * mres);
-  //Add CSAXis acceleration in egu
-  atargs[axisName_ - AASCII] = (ueip) ? (accel * eres) : (accel * mres);
+  ctargs[axisName_ - AASCII] = (pos * mres);
+  //Add CSAXis velocity in dial egu
+  vtargs[axisName_ - AASCII] = (vel * mres);
+  //Add CSAXis acceleration in dial egu
+  atargs[axisName_ - AASCII] = (accel * mres);
 
   for (i = 0; i < strlen(revaxes_); i++)
 	{
@@ -850,11 +852,11 @@ int GalilCSAxis::reverseTransform(double pos, double vel, double accel, CSTarget
 		}
 	}
 	
-  return status;
+  return (asynStatus)status;
 }
 
 //Perform forward kinematic transform using readback data, variables and store results in GalilCSAxis as csaxis readback
-int GalilCSAxis::forwardTransform(void)
+asynStatus GalilCSAxis::forwardTransform(void)
 {
   unsigned i;
   double mrargs[SCALCARGS];	//Motor readback args in egu used in the forward transform
@@ -863,11 +865,8 @@ int GalilCSAxis::forwardTransform(void)
   int ueip;			//Motor record use encoder if present
   int status = asynSuccess;	//Asyn paramList return code
 
-  //Pack position readback args for reverse axes
+  //Pack position readback args for reverse axes (ie. real motor readbacks)
   status |= packReadbackArgs(revaxes_, mrargs);
-
-  //Pack position readback args for forward axes
-  status |= packReadbackArgs(fwdaxes_, mrargs);
 
   //Get variable values specified
   //and pack them in mrargs for the forward transform calculation
@@ -905,7 +904,7 @@ int GalilCSAxis::forwardTransform(void)
 		}
 	}
 
-  return status;
+  return (asynStatus)status;
 }
 
 //Perform kinematic calculations
@@ -958,7 +957,6 @@ asynStatus GalilCSAxis::poll(bool *moving)
    int csrev, csfwd;		//Determined cs axis limit status
    int rmoving, csmoving;	//Real axis moving status, coordinate system axis moving status derived from real axis moving status
    int status;			//Communication status with controller
-   bool reportlimits;		//Do we report limits for this csaxis under current circumstances
    unsigned i;			//Looping
 
    //Default communication status
