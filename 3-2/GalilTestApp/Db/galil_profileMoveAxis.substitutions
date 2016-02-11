@@ -1,0 +1,48 @@
+file "$(MOTOR)/db/profileMoveAxis.template"
+{
+pattern
+{P,       R,      M,  PORT,     ADDR, NPOINTS,   NREADBACK,  MOTOR,    PREC,    TIMEOUT}
+{DMC01:,  Prof1:, 1,  Galil,    0,    1441,       1441,      DMC01:A,  4,       1}
+{DMC01:,  Prof1:, 2,  Galil,    1,    1441,       1441,      DMC01:B,  4,       1}
+{DMC01:,  Prof1:, 3,  Galil,    2,    1441,       1441,      DMC01:C,  4,       1}
+{DMC01:,  Prof1:, 4,  Galil,    3,    1441,       1441,      DMC01:D,  4,       1}
+{DMC01:,  Prof1:, 5,  Galil,    4,    1441,       1441,      DMC01:E,  4,       1}
+{DMC01:,  Prof1:, 6,  Galil,    5,    1441,       1441,      DMC01:F,  4,       1}
+{DMC01:,  Prof1:, 7,  Galil,    6,    1441,       1441,      DMC01:G,  4,       1}
+{DMC01:,  Prof1:, 8,  Galil,    7,    1441,       1441,      DMC01:H,  4,       1}
+
+#CSAxis
+{DMC01:,  Prof1:, 9,  Galil,    8,    1441,       1441,      DMC01:I,  4,       1}
+{DMC01:,  Prof1:, 10, Galil,    9,    1441,       1441,      DMC01:J,  4,       1}
+{DMC01:,  Prof1:, 11, Galil,    10,   1441,       1441,      DMC01:K,  4,       1}
+{DMC01:,  Prof1:, 12, Galil,    11,   1441,       1441,      DMC01:L,  4,       1}
+{DMC01:,  Prof1:, 13, Galil,    12,   1441,       1441,      DMC01:M,  4,       1}
+{DMC01:,  Prof1:, 14, Galil,    13,   1441,       1441,      DMC01:N,  4,       1}
+{DMC01:,  Prof1:, 15, Galil,    14,   1441,       1441,      DMC01:O,  4,       1}
+{DMC01:,  Prof1:, 16, Galil,    15,   1441,       1441,      DMC01:P,  4,       1}
+}
+
+file "$(GALIL)/GalilSup/Db/galil_profileMoveAxis.template"
+{
+pattern
+{P,       R,      M,  PORT,     ADDR,  NREADBACK,  ZNAM,       ONAM,       PREC,    TIMEOUT }
+{DMC01:,  Prof1:, 1,  Galil,    0,     "1441",     "Relative", "Absolute", 4,       1       }
+{DMC01:,  Prof1:, 2,  Galil,    1,     "1441",     "Relative", "Absolute", 4,       1       }
+{DMC01:,  Prof1:, 3,  Galil,    2,     "1441",     "Relative", "Absolute", 4,       1       }
+{DMC01:,  Prof1:, 4,  Galil,    3,     "1441",     "Relative", "Absolute", 4,       1       }
+{DMC01:,  Prof1:, 5,  Galil,    4,     "1441",     "Relative", "Absolute", 4,       1       }
+{DMC01:,  Prof1:, 6,  Galil,    5,     "1441",     "Relative", "Absolute", 4,       1       }
+{DMC01:,  Prof1:, 7,  Galil,    6,     "1441",     "Relative", "Absolute", 4,       1       }
+{DMC01:,  Prof1:, 8,  Galil,    7,     "1441",     "Relative", "Absolute", 4,       1       }
+
+#CSAxis
+{DMC01:,  Prof1:, 9,  Galil,    8,     "1441",     "Relative", "Absolute", 4,       1       }
+{DMC01:,  Prof1:, 10, Galil,    9,     "1441",     "Relative", "Absolute", 4,       1       }
+{DMC01:,  Prof1:, 11, Galil,   10,     "1441",     "Relative", "Absolute", 4,       1       }
+{DMC01:,  Prof1:, 12, Galil,   11,     "1441",     "Relative", "Absolute", 4,       1       }
+{DMC01:,  Prof1:, 13, Galil,   12,     "1441",     "Relative", "Absolute", 4,       1       }
+{DMC01:,  Prof1:, 14, Galil,   13,     "1441",     "Relative", "Absolute", 4,       1       }
+{DMC01:,  Prof1:, 15, Galil,   14,     "1441",     "Relative", "Absolute", 4,       1       }
+{DMC01:,  Prof1:, 16, Galil,   15,     "1441",     "Relative", "Absolute", 4,       1       }
+}
+

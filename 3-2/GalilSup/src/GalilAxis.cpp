@@ -193,6 +193,9 @@ asynStatus GalilAxis::setDefaults(int limit_as_home, char *enables_string, int s
 	//So we use "use encoder if present" UEIP field to set axisReady_ to true
 	axisReady_ = false;
 
+	//Have not allocated calculated profile array
+	calculatedPositions_ = NULL;
+
 	return asynSuccess;
 }
 
@@ -937,6 +940,20 @@ asynStatus GalilAxis::setClosedLoop(bool closedLoop)
   status = pC_->sync_writeReadController();
 
   return status;
+}
+
+/* These are the functions for profile moves */
+asynStatus GalilAxis::initializeProfile(size_t maxProfilePoints)
+{
+  if (calculatedPositions_)    free(calculatedPositions_);
+  calculatedPositions_ =      (double *)calloc(maxProfilePoints, sizeof(double)); 
+  if (profilePositions_)       free(profilePositions_);
+  profilePositions_ =         (double *)calloc(maxProfilePoints, sizeof(double));
+  if (profileReadbacks_)    free(profileReadbacks_);
+  profileReadbacks_ =         (double *)calloc(maxProfilePoints, sizeof(double));
+  if (profileFollowingErrors_) free(profileFollowingErrors_);
+  profileFollowingErrors_ =   (double *)calloc(maxProfilePoints, sizeof(double));
+  return asynSuccess;
 }
 
 /** Set the motor brake status. 

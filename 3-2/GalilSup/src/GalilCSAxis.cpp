@@ -855,6 +855,63 @@ asynStatus GalilCSAxis::reverseTransform(double pos, double vel, double accel, C
   return (asynStatus)status;
 }
 
+//Transform CSAxis profile into Axis profiles
+asynStatus GalilCSAxis::transformCSAxisProfile(void)
+{
+  unsigned i, j;		//Looping
+  GalilAxis *pAxis[MAX_GALIL_AXES];//GalilAxis
+  double npos[MAX_GALIL_AXES];	//Real axis position targets
+  double nvel[MAX_GALIL_AXES];	//Real axis velocity targets.  Ignored here, but needed
+  double naccel[MAX_GALIL_AXES];//Real axis acceleration targets.  Ignored here, but needed
+  double mres;			//Motor record encoder resolution, motor resolution
+  int status;			//Return status
+  int useCSAxis;		//useAxis flag for CSAxis
+  int nPoints;			//Number of points in profile
+
+  //Retrieve required attributes from ParamList
+  pC_->getIntegerParam(0, pC_->profileNumPoints_, &nPoints);
+  pC_->getIntegerParam(axisNo_, pC_->profileUseAxis_, &useCSAxis);
+  //Process or skip this CSAxis
+  if (!useCSAxis)
+     return asynSuccess;
+
+  //Retrieve the revaxes (real motors) in this CSAxis
+  for (i = 0; i < strlen(revaxes_); i++)
+     {
+     pAxis[i] = pC_->getAxis(revaxes_[i] - AASCII);
+     if (!pAxis[i]) //Return error if any GalilAxis not instantiated
+        return asynError;
+     }
+
+   //Transform this CSAxis, and create Axis profile data
+   for (i = 0; i < (unsigned)nPoints; i++)
+      {
+      //Perform reverse transform and get new axis (real) motor positions
+      //We dont care about velocity (arbitary 100) and acceleration (arbitary 100) here
+      status = reverseTransform(profilePositions_[i], 100, 100, NULL, npos, nvel, naccel);
+      //Copy new axis profile data point into revaxes GalilAxis instances
+      for (j = 0; j < strlen(revaxes_); j++)
+           pAxis[j]->profilePositions_[i] = npos[j];
+      }//Transform complete
+
+   //Upload new points to database readback waveforms
+   for (i = 0; i < strlen(revaxes_); i++)
+      {
+      //Retrieve needed motor record fields
+      status |= pC_->getDoubleParam(revaxes_[i] - AASCII, pC_->motorResolution_, &mres);
+      //Copy profile into calculatedPositions array
+      for (j = 0; j < (unsigned)nPoints; j++)
+         {
+         pAxis[i]->calculatedPositions_[j] = pAxis[i]->profilePositions_[j] * mres;
+         }
+      //Update calculatedPositions record for this revaxis (real motor)
+      pC_->doCallbacksFloat64Array(pAxis[i]->calculatedPositions_, nPoints, pC_->GalilProfileCalculated_, revaxes_[i] - AASCII);
+      }
+
+  //All ok
+  return asynSuccess;
+}
+
 //Perform forward kinematic transform using readback data, variables and store results in GalilCSAxis as csaxis readback
 asynStatus GalilCSAxis::forwardTransform(void)
 {
@@ -938,6 +995,18 @@ asynStatus GalilCSAxis::doCalc(const char *expr, double args[], double *result) 
       }
 
     return asynSuccess;
+}
+
+/* These are the functions for profile moves */
+asynStatus GalilCSAxis::initializeProfile(size_t maxProfilePoints)
+{
+  if (profilePositions_)       free(profilePositions_);
+  profilePositions_ =         (double *)calloc(maxProfilePoints, sizeof(double));
+  if (profileReadbacks_)    free(profileReadbacks_);
+  profileReadbacks_ =         (double *)calloc(maxProfilePoints, sizeof(double));
+  if (profileFollowingErrors_) free(profileFollowingErrors_);
+  profileFollowingErrors_ =   (double *)calloc(maxProfilePoints, sizeof(double));
+  return asynSuccess;
 }
 
 /** Polls the axis.

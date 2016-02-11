@@ -97,10 +97,14 @@
 //                  Fix CSAxis jog motor run away in Sync start only mode when limit struck
 // 31/01/16 K.Paterson
 //                  Fix seg fault on startup because of RIO-47300-16BIT-24EXOUT large reply
-// 11/02/16 M.Clift 
+// 11/02/16 M.Clift
 //                  Tidy up CSAxis reverse, forward transforms
 //                  Further fixes to setOutputCompare
 //                  Last branch 3-1 commit
+// 11/02/16 M.Clift
+//                  Added writeFloat64Array interface
+//                  CSAxis can now be used in profile motion
+//                  Added parameter profile type. Linear or PVT
 
 #include <stdio.h>
 #include <math.h>
@@ -220,6 +224,7 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilLimitTypeString, asynParamInt32, &GalilLimitType_);
   createParam(GalilCtrlErrorString, asynParamOctet, &GalilCtrlError_);
   createParam(GalilDeferredModeString, asynParamInt32, &GalilDeferredMode_);
+  createParam(GalilPVTCapableString, asynParamInt32, &GalilPVTCapable_);
 
   createParam(GalilCoordSysString, asynParamInt32, &GalilCoordSys_);
   createParam(GalilCoordSysMotorsString, asynParamOctet, &GalilCoordSysMotors_);
@@ -234,6 +239,8 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilProfileMinPositionString, asynParamFloat64, &GalilProfileMinPosition_);
   createParam(GalilProfileMaxPositionString, asynParamFloat64, &GalilProfileMaxPosition_);
   createParam(GalilProfileMoveModeString, asynParamInt32, &GalilProfileMoveMode_);
+  createParam(GalilProfileTypeString, asynParamInt32, &GalilProfileType_);
+  createParam(GalilProfileCalculatedString, asynParamFloat64Array, &GalilProfileCalculated_);
 
   createParam(GalilOutputCompare1AxisString, asynParamInt32, &GalilOutputCompareAxis_);
   createParam(GalilOutputCompare1StartString, asynParamFloat64, &GalilOutputCompareStart_);
@@ -599,6 +606,8 @@ void GalilController::setParamDefaults(void)
   setStringParam(GalilModel_, "Unknown");
   //SSI capable
   setIntegerParam(GalilSSICapable_, 0);
+  //PVT capable
+  setIntegerParam(GalilPVTCapable_, 0);
   //Communication status
   setIntegerParam(GalilCommunicationError_, 1);
 
@@ -1089,6 +1098,123 @@ asynStatus GalilController::setOutputCompare(int oc)
   return (asynStatus)comstatus;
 }
 
+/*
+ * Called at start of profile build, and execute
+ * Check CSAxis profiles, make sure motors are not shared amongst specified CSAxis.
+ * Check useAxis consistent amongst CSAxis and their reverse axis (real motors)
+ * Check moveMode consistent amongst CSAxis and their reverse axis (real motors)
+ * Param [in] mesg_function - Function number of message receiver (ie. profileBuildMessage_ or profileExecuteMessage_)
+ * @return motor driver status code.
+ */
+asynStatus GalilController::checkCSAxisProfiles(int mesg_function)
+{
+  unsigned i, j;				//Looping
+  GalilCSAxis *pCSAxes[MAX_GALIL_AXES] = {0};	//GalilCSAxis list
+  char mesg[MAX_GALIL_STRING_SIZE];		//Controller error mesg if begin fail
+  int useCSAxis[MAX_GALIL_CSAXES] = {0};	//CSAxis useAxis flag for profile moves
+  int useAxis[MAX_GALIL_AXES] = {0};		//Axis useAxis flag for profile moves
+  int moveCSMode[MAX_GALIL_AXES] = {0};		//CSAxis moveMode flag for profile moves
+  int moveMode[MAX_GALIL_AXES] = {0};		//Axis moveMode flag for profile moves
+  string str1, str2;				//String searching
+  size_t found;					//String searching
+
+  //Collect all CSAxis instances, moveModes, and useAxes flags
+  for (i = 0; i < MAX_GALIL_CSAXES; i++)
+     {
+     //Retrieve profileUseAxis_ from ParamList for CSAxis
+     getIntegerParam(i + MAX_GALIL_AXES, profileUseAxis_, &useCSAxis[i]);
+     //Retrieve GalilProfileMoveMode_ from ParamList for CSAxis
+     getIntegerParam(i + MAX_GALIL_AXES, GalilProfileMoveMode_, &moveCSMode[i]);
+     //Retrieve GalilCSAxis instance
+     pCSAxes[i] = getCSAxis(i + MAX_GALIL_AXES);
+     }
+
+  //Collect all Axis moveModes, and useAxes flags
+  for (i = 0; i < MAX_GALIL_AXES; i++)
+     {
+     //Retrieve profileUseAxis_ from ParamList for Axis
+     getIntegerParam(i, profileUseAxis_, &useAxis[i]);
+     //Retrieve GalilProfileMoveMode_ from ParamList for Axis
+     getIntegerParam(i, GalilProfileMoveMode_, &moveMode[i]);
+     }
+
+  //Loop thru included CSAXis
+  //Look for setup problems
+  for (i = 0; i < MAX_GALIL_CSAXES; i++)
+     {
+     //Decide to process this axis, or skip
+     if (!useCSAxis[i] || !pCSAxes[i]) continue;
+     //Pass reverse axis list to std::string type for processing
+     str1 = pCSAxes[i]->revaxes_;
+     //Loop thru all motors in this CSAxis
+     //Ensure useAxis set true on all motors
+     //Ensure motor moveMode matches CSAxis
+     for (j = 0; j < strlen(str1.c_str()); j++)
+        {
+        //Ensure useAxis set true
+        if (!useAxis[pCSAxes[i]->revaxes_[j] - AASCII])
+           {
+           //Update the message
+           sprintf(mesg, "%c axis UseAxis flag is set to no, it should be set yes instead", pCSAxes[i]->revaxes_[j]);
+           setStringParam(mesg_function, mesg);
+           return asynError;
+           }
+        //Ensure Axis movemode matches the CSAxis
+        if (moveMode[pCSAxes[i]->revaxes_[j] - AASCII] != moveCSMode[i])
+           {
+           //Update the message
+           sprintf(mesg, "%c axis moveMode does not match CSAxis %c", pCSAxes[i]->revaxes_[j], pCSAxes[i]->axisName_);
+           setStringParam(mesg_function, mesg);
+           return asynError;
+           }
+        }
+     //Check other included CSAxis revaxes against this one
+     //If any CSAxis in profile share a motor, then fail
+     for (j = 0; j < MAX_GALIL_CSAXES; j++)
+        {
+        //Decide to process this axis, or skip
+        if (i == j) continue;
+        if (!useCSAxis[j] || !pCSAxes[j]) continue;
+        str2 = pCSAxes[j]->revaxes_;
+        found = str1.find_first_of(str2);
+        if (found != string::npos)
+           {
+           //Update the message
+           sprintf(mesg, "%c axis cannot be shared.  Review axis included in profile", str1[found]);
+           setStringParam(mesg_function, mesg);
+           return asynError;
+           }
+        }
+     }
+
+   //No motors are shared, all flags match, return success
+   return asynSuccess;
+}
+
+/**
+ * Transform CSAxis profile data to Axis data
+ * @return motor driver status code.
+ */
+asynStatus GalilController::transformCSAxisProfiles()
+{
+  unsigned i;			//Looping
+  GalilCSAxis *pCSAxis;		//GalilCSAxis
+  int status = asynSuccess;	//Return status
+
+  //Loop thru CSAxis
+  for (i = 0; i < MAX_GALIL_CSAXES; i++)
+     {
+     //Retrieve GalilCSAxis
+     pCSAxis = getCSAxis(i + MAX_GALIL_AXES);
+     //Transform the CSAxis profile
+     if (pCSAxis)
+        status |= pCSAxis->transformCSAxisProfile();
+     }
+
+  //Return code
+  return (asynStatus)status;
+}
+
 //Creates a profile data file suitable for use with linear interpolation mode
 asynStatus GalilController::buildLinearProfile()
 {
@@ -1118,6 +1244,17 @@ asynStatus GalilController::buildLinearProfile()
   FILE *profFile;			//File handle for above file
   bool buildOK=true;			//Was the trajectory built successfully
   double mres;				//Motor resolution
+
+  //Check CSAxis profiles
+  //Ensure motors are not shared
+  //Ensure useAxis, and moveMode between CSAxes, and 
+  //member reverse (real) motors are consistent
+  if (checkCSAxisProfiles(profileBuildMessage_))
+     return asynError;
+
+  //Transform CSAxis profiles to axis profiles
+  if (transformCSAxisProfiles())
+     return asynError;
   
   //No axis included yet
   strcpy(axes, "");
@@ -1355,11 +1492,42 @@ asynStatus GalilController::buildLinearProfile()
   return asynSuccess;
 }
 
+//Overridden as we need CSAxis, and calculatedPositions_ (function=ProfileCalculated_) waveform
+/* These are the functions for profile moves */
+/** Initialize a profile move of multiple axes. */
+asynStatus GalilController::initializeProfile(size_t maxProfilePoints)
+{
+  int axis;
+  GalilAxis *pAxis;
+  GalilCSAxis *pCSAxis;
+  
+  maxProfilePoints_ = maxProfilePoints;
+  if (profileTimes_) free(profileTimes_);
+  profileTimes_ = (double *)calloc(maxProfilePoints, sizeof(double));
+  for (axis = 0; axis < MAX_GALIL_AXES + MAX_GALIL_CSAXES; axis++) 
+     {
+     if (axis < MAX_GALIL_AXES)
+         {
+         pAxis = getAxis(axis);
+         if (pAxis)
+            pAxis->initializeProfile(maxProfilePoints);
+         }
+     else
+         {
+         pCSAxis = getCSAxis(axis);
+         if (pCSAxis)
+            pCSAxis->initializeProfile(maxProfilePoints);
+         }
+     }
+  return asynSuccess;
+}
+
 /* Function to build, install and verify trajectory */ 
 asynStatus GalilController::buildProfile()
 {
-  int status;				//asynStatus
+  int status = asynSuccess;		//asynStatus
   char message[MAX_GALIL_STRING_SIZE];	//Profile build message
+  int pvtcapable, proftype;		//PVT capable, and profile type
   static const char *functionName = "buildProfile";
 
   asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW,
@@ -1376,11 +1544,27 @@ asynStatus GalilController::buildProfile()
   setIntegerParam(profileBuildStatus_, PROFILE_STATUS_UNDEFINED);
   callParamCallbacks();
 
-  //Short delay showing status busy so user knows work actually happened
-  epicsThreadSleep(.1);
-  
-  //Build profile data for use with linear interpolation mode
-  status = buildLinearProfile();
+  //Retrieve needed params
+  getIntegerParam(GalilPVTCapable_, &pvtcapable);
+  getIntegerParam(GalilProfileType_, &proftype);
+
+  //Check pvt capable and profile type flags
+  if (!pvtcapable && proftype)
+     {
+     //PVT mode requested, but controller doesn't support it
+     strcpy(message, "Controller is not PVT capable, select Linear mode instead");
+     setStringParam(profileBuildMessage_, message);
+     }
+
+  //Build requested profile
+  if (pvtcapable && proftype)
+     {
+     //PVT mode
+     strcpy(message, "PVT mode is not yet implemented, but its comming soon..");
+     setStringParam(profileBuildMessage_, message);
+     }
+  else //Build profile data for use with linear interpolation mode
+     status = buildLinearProfile();
 
   //Update profile build state
   setIntegerParam(profileBuildState_, PROFILE_BUILD_DONE);
@@ -1717,6 +1901,13 @@ asynStatus GalilController::runLinearProfile(FILE *profFile)
   unsigned index;			//looping
   double startp[MAX_GALIL_AXES];	//Motor start positions from file
   asynStatus status;			//Error status
+
+  //Check CSAxis profiles
+  //Ensure motors are not shared
+  //Ensure useAxis, and moveMode between CSAxes, and 
+  //member reverse (real) motors are consistent
+  if (checkCSAxisProfiles(profileBuildMessage_))
+     return asynError;
 
   //Retrieve currently selected coordinate system 
   getIntegerParam(GalilCoordSys_, &coordsys);
@@ -2623,7 +2814,7 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
   int addr=0;				        //Address requested
   asynStatus status;				//Used to work out communication_error_ status.  asynSuccess always returned
   GalilAxis *pAxis = getAxis(pasynUser);	//Retrieve the axis instance
-  GalilCSAxis *pCSAxis = getCSAxis(pasynUser);	//Retrieve the axis instance
+  GalilCSAxis *pCSAxis = getCSAxis(pasynUser);	//Retrieve the CSAxis instance
   int hometype, limittype;			//The home, and limit switch type
   int mainencoder, auxencoder, encoder_setting; //Main, aux encoder setting
   char coordinate_system;			//Coordinate system S or T
@@ -2920,10 +3111,54 @@ asynStatus GalilController::writeFloat64(asynUser *pasynUser, epicsFloat64 value
   else
      {
      /* Call base class method */
-	 status = asynMotorController::writeFloat64(pasynUser, value);
+     status = asynMotorController::writeFloat64(pasynUser, value);
      }
 
   //Always return success. Dont need more error mesgs
+  return asynSuccess;
+}
+
+//  Overriden from asynMotorController as we need to support CSAxis profiles
+/** Called when asyn clients call pasynFloat64Array->write().
+  * \param[in] pasynUser pasynUser structure that encodes the reason and address.
+  * \param[in] value Pointer to the array to write.
+  * \param[in] nElements Number of elements to write. */
+asynStatus GalilController::writeFloat64Array(asynUser *pasynUser, epicsFloat64 *value,
+                                                  size_t nElements)
+{
+  int function = pasynUser->reason;		//Reason this method was called
+  GalilAxis *pAxis = getAxis(pasynUser);	//Retrieve the axis instance
+  GalilCSAxis *pCSAxis = getCSAxis(pasynUser);	//Retrieve the CSAxis instance
+  asynStatus status;				//Status
+  int addr;					//address
+
+  //Retrieve address of caller
+  status = getAddress(pasynUser, &addr); 
+  if (status != asynSuccess) return(status);
+
+  //Check axis instance the easy way since no RIO commands in writeFloat64Array
+  if (addr < MAX_GALIL_AXES)
+     {
+     if (!pAxis) return asynError;
+     }
+  else
+     {
+     if (!pCSAxis) return asynError;
+     }
+  
+  if (nElements > maxProfilePoints_) nElements = maxProfilePoints_;
+   
+  if (function == profileTimeArray_) {
+    memcpy(profileTimes_, value, nElements*sizeof(double));
+  } 
+  else if (function == profilePositions_) {
+    if (addr < MAX_GALIL_AXES)
+       pAxis->defineProfile(value, nElements);
+    else
+       pCSAxis->defineProfile(value, nElements);
+  }
+  else  //Call parent class method 
+     asynMotorController::writeFloat64Array(pasynUser, value, nElements);
   return asynSuccess;
 }
 

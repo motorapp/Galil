@@ -71,6 +71,7 @@
 #define GalilCtrlErrorString		"CONTROLLER_ERROR"
 #define GalilCommunicationErrorString	"CONTROLLER_COMMERR"
 #define GalilDeferredModeString		"CONTROLLER_DEFERRED_MODE"
+#define GalilPVTCapableString		"CONTROLLER_PVTCAPABLE"
 
 #define GalilCoordSysString		"COORDINATE_SYSTEM"
 #define GalilCoordSysMotorsString	"COORDINATE_SYSTEM_MOTORS"
@@ -85,6 +86,8 @@
 #define GalilProfileMinPositionString	"GALIL_PROFILE_MIN_POSITION"
 #define GalilProfileMaxPositionString	"GALIL_PROFILE_MAX_POSITION"
 #define GalilProfileMoveModeString	"GALIL_PROFILE_MOVE_MODE"
+#define GalilProfileTypeString		"GALIL_PROFILE_TYPE"
+#define GalilProfileCalculatedString    "GALIL_PROFILE_CALCULATED"
 
 #define GalilOutputCompare1AxisString	"OUTPUT_COMPARE_AXIS"
 #define GalilOutputCompare1StartString	"OUTPUT_COMPARE_START"
@@ -216,6 +219,7 @@ public:
   asynStatus setDeferredMoves(bool deferMoves);
   asynStatus writeInt32(asynUser *pasynUser, epicsInt32 value);
   asynStatus writeFloat64(asynUser *pasynUser, epicsFloat64 value);
+  asynStatus writeFloat64Array(asynUser *pasynUser, epicsFloat64 *value, size_t nElements);
   asynStatus writeOctet(asynUser *pasynUser, const char*  value,  size_t  nChars,  size_t *  nActual);
   asynStatus readInt32(asynUser *pasynUser, epicsInt32 *value);
   asynStatus readFloat64(asynUser *pasynUser, epicsFloat64 *value);
@@ -238,8 +242,11 @@ public:
   //asynStatus initializeProfile(size_t maxPoints, const char* ftpUsername, const char* ftpPassword);
   asynStatus buildProfile();
   asynStatus buildLinearProfile();
+  asynStatus checkCSAxisProfiles(int mesg_function);
+  asynStatus transformCSAxisProfiles();
   asynStatus executeProfile();
   asynStatus abortProfile();
+  asynStatus initializeProfile(size_t maxProfilePoints);
   //asynStatus readbackProfile();
 
   /* These are the methods that are new to this class */
@@ -306,6 +313,7 @@ protected:
   int GalilLimitType_;
   int GalilCtrlError_;
   int GalilDeferredMode_;
+  int GalilPVTCapable_;
   int GalilCoordSys_;
   int GalilCoordSysMotors_;
   int GalilCoordSysMoving_;
@@ -319,6 +327,8 @@ protected:
   int GalilProfileMinPosition_;
   int GalilProfileMaxPosition_;
   int GalilProfileMoveMode_;
+  int GalilProfileType_;
+  int GalilProfileCalculated_;
 
   int GalilOutputCompareAxis_;
   int GalilOutputCompareStart_;

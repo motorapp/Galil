@@ -31,11 +31,37 @@
 #   $(TIMEOUT)  - asyn timeout
 
 # Name of the trajectory file that is built
-record(stringout, "$(P)$(R)TrajectoryFile") {
-    field(DESC, "Trajectory file")
-    field(PINI, "YES")
-    field(DTYP, "asynOctetWrite")
-    field(OUT,  "@asyn($(PORT),0,$(TIMEOUT))GALIL_PROFILE_FILE")
-    field(VAL,  "TrajectoryScan.trj")
+record(stringout, "$(P)$(R)TrajectoryFile")
+{
+	field(DESC, "Trajectory file")
+	field(PINI, "YES")
+	field(DTYP, "asynOctetWrite")
+	field(OUT,  "@asyn($(PORT),0,$(TIMEOUT))GALIL_PROFILE_FILE")
+	field(VAL,  "TrajectoryScan.trj")
+}
+
+record(bi,"$(P)$(R)PROFILETYPE_STATUS")
+{
+	field(DESC, "profile type")
+	field(DTYP, "asynInt32")
+	field(SCAN, "I/O Intr")
+	field(ONAM, "PVT")
+   	field(OSV,  "NO_ALARM")
+  	field(ZNAM, "Linear")
+  	field(ZSV,  "NO_ALARM")
+   	field(INP,  "@asyn($(PORT),0)GALIL_PROFILE_TYPE")
+}
+
+record(bo,"$(P)$(R)PROFILETYPE_CMD")
+{
+	field(DESC, "profile type")
+	field(DTYP, "asynInt32")
+	field(PINI, "YES")
+	field(ONAM, "PVT")
+   	field(OSV,  "NO_ALARM")
+  	field(ZNAM, "Linear")
+  	field(ZSV,  "NO_ALARM")
+   	field(OUT,  "@asyn($(PORT),0)GALIL_PROFILE_TYPE")
+        field(FLNK, "$(P)$(R)PROFILETYPE_STATUS")
 }
 

@@ -139,6 +139,7 @@ public:
   asynStatus setIGain(double iGain);
   asynStatus setDGain(double dGain);
   asynStatus setClosedLoop(bool closedLoop);
+  asynStatus initializeProfile(size_t maxProfilePoints);
 
   ~GalilAxis();
 
@@ -201,6 +202,8 @@ private:
   bool homedSent_;			//Homed message sent to pollServices
   bool homedExecuted_;			//Homed message has been executed by pollServices
   bool cancelHomeSent_;			//Cancel home process message sent to pollServices
+
+  double *calculatedPositions_;         //Real motor profile positions calculated from CSAxis profile
 
 friend class GalilController;
 friend class GalilCSAxis;

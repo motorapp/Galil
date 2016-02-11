@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>501</width>
+    <width>574</width>
     <height>369</height>
    </rect>
   </property>
@@ -45,7 +45,7 @@
              </font>
             </property>
             <property name="variable1" stdset="0">
-             <string>$(DMC)Prof1:M1Positions</string>
+             <string>$(DMC)Prof1:M1CalculatedPositions</string>
             </property>
             <property name="axisEnableX">
              <bool>true</bool>
@@ -95,7 +95,7 @@
              </font>
             </property>
             <property name="variable1" stdset="0">
-             <string>$(DMC)Prof1:M2Positions</string>
+             <string>$(DMC)Prof1:M2CalculatedPositions</string>
             </property>
             <property name="axisEnableX">
              <bool>true</bool>
@@ -145,7 +145,7 @@
              </font>
             </property>
             <property name="variable1" stdset="0">
-             <string>$(DMC)Prof1:M3Positions</string>
+             <string>$(DMC)Prof1:M3CalculatedPositions</string>
             </property>
             <property name="axisEnableX">
              <bool>true</bool>
@@ -195,7 +195,7 @@
              </font>
             </property>
             <property name="variable1" stdset="0">
-             <string>$(DMC)Prof1:M4Positions</string>
+             <string>$(DMC)Prof1:M4CalculatedPositions</string>
             </property>
             <property name="axisEnableX">
              <bool>true</bool>
@@ -245,7 +245,7 @@
              </font>
             </property>
             <property name="variable1" stdset="0">
-             <string>$(DMC)Prof1:M5Positions</string>
+             <string>$(DMC)Prof1:M5CalculatedPositions</string>
             </property>
             <property name="axisEnableX">
              <bool>true</bool>
@@ -295,7 +295,7 @@
              </font>
             </property>
             <property name="variable1" stdset="0">
-             <string>$(DMC)Prof1:M6Positions</string>
+             <string>$(DMC)Prof1:M6CalculatedPositions</string>
             </property>
             <property name="axisEnableX">
              <bool>true</bool>
@@ -345,7 +345,7 @@
              </font>
             </property>
             <property name="variable1" stdset="0">
-             <string>$(DMC)Prof1:M7Positions</string>
+             <string>$(DMC)Prof1:M7CalculatedPositions</string>
             </property>
             <property name="axisEnableX">
              <bool>true</bool>
@@ -395,7 +395,7 @@
              </font>
             </property>
             <property name="variable1" stdset="0">
-             <string>$(DMC)Prof1:M8Positions</string>
+             <string>$(DMC)Prof1:M8CalculatedPositions</string>
             </property>
             <property name="axisEnableX">
              <bool>true</bool>

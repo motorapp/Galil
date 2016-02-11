@@ -70,8 +70,8 @@ GalilCreateCSAxes("Galil")
 # 2. char *code file(s) to deliver to the controller we are starting. "" = use generated code (recommended)
 #             Specify a single file or to use templates use: headerfile;bodyfile1!bodyfile2!bodyfileN;footerfile
 # 3. int   Burn program to EEPROM conditions
-#             0 = transfer code if differs from eeprom, dont burn code to eeprom, then finally execute code thread 0.
-#             1 = transfer code if differs from eeprom, burn code to eeprom, then finally execute code thread 0.
+#             0 = transfer code if differs from eeprom, dont burn code to eeprom, then finally execute code thread 0
+#             1 = transfer code if differs from eeprom, burn code to eeprom, then finally execute code thread 0
 #             It is asssumed thread 0 starts all other required threads
 # 4. int   display code. Set bit 1 to display generated code and or the code file specified.  Set bit 2 to display uploaded code
 # 5. int   Thread mask.  Check these threads are running after controller code start.  Bit 0 = thread 0 and so on

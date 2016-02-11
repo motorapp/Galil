@@ -1,7 +1,0 @@
-file "$(TOP)/SR03ID01HU03IOC08App/Db/basic_asyn_motor.db"
-{
-pattern
-{P,                   M,        DTYP,         PORT,     ADDR, DESC,      EGU,      DIR,   VELO,   VBAS,   ACCL, BDST, BVEL, BACC, MRES,    PREC, DHLM,   DLLM,  RTRY, UEIP, INIT}
-{SR03ID01HU03LENS01:, "ZOOM",   "asynMotor",  Navitar,  0,    "Focus",   Counts,   Pos,   15.9,   0,      1,    0,    1,    .2,   1,       5,    2140,   -100,  0,    1,    ""}
-{SR03ID01HU03LENS01:, "FOCUS",  "asynMotor",  Navitar,  1,    "Zoom",    Counts,   Pos,   15.9,   0,      1,    0,    1,    .2,   1,       5,    17450,  -100,  0,    1,    ""}
-}
