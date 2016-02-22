@@ -6,12 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>968</width>
-    <height>639</height>
+    <width>1044</width>
+    <height>731</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Motor control</string>
+  </property>
+  <property name="frameShape">
+   <enum>QFrame::NoFrame</enum>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
@@ -22,6 +25,9 @@
    </property>
    <item>
     <widget class="QEFormGrid" name="qeformgrid">
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
      <property name="uiFile">
       <string>galil_motor_basic.ui</string>
      </property>
