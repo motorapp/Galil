@@ -105,6 +105,13 @@
 //                  Added writeFloat64Array interface
 //                  CSAxis can now be used in profile motion
 //                  Added parameter profile type. Linear or PVT
+// 22/02/16 M.Clift
+//                  Prevent loss of GalilAxis profile data when using GalilCSAxis in profiles
+//                  Add PVT capable detection code
+//                  Add motor home allowed (eg. None, reverse, forward, both) setting
+//                  Change buildLinearProfile to buildProfileFile
+//                  buildProfileFile can now build linear or pvt profiles
+//                  Re-worked MEDM screens for APS fonts
 
 #include <stdio.h>
 #include <math.h>
@@ -295,6 +302,7 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilAutoBrakeOnDelayString, asynParamFloat64, &GalilAutoBrakeOnDelay_);
   createParam(GalilBrakePortString, asynParamInt32, &GalilBrakePort_);
   createParam(GalilBrakeString, asynParamInt32, &GalilBrake_);
+  createParam(GalilHomeAllowedString, asynParamInt32, &GalilHomeAllowed_);
 
   createParam(GalilMainEncoderString, asynParamInt32, &GalilMainEncoder_);
   createParam(GalilAuxEncoderString, asynParamInt32, &GalilAuxEncoder_);
@@ -697,6 +705,20 @@ void GalilController::connected(void)
      setIntegerParam(GalilSSICapable_, 1);
   else
      setIntegerParam(GalilSSICapable_, 0);
+
+  //Determine if controller is PVT capable
+  if (model_[3] == '5' || model_[3] == '4' || model_[3] == '3')
+     setIntegerParam(GalilPVTCapable_, 1);
+  else
+     setIntegerParam(GalilPVTCapable_, 0);
+
+  //Determine maximum acceleration
+  //default for most models
+  maxAcceleration_ = 1073740800;
+  //DMC50000
+  maxAcceleration_ = (model_[3] == '5') ? 2147483648 : maxAcceleration_;
+  //DMC2xxx
+  maxAcceleration_ = (model_[3] == '2') ? 67107840 : maxAcceleration_;
 	
   //Determine number of threads supported
   //Safe default
@@ -1215,8 +1237,8 @@ asynStatus GalilController::transformCSAxisProfiles()
   return (asynStatus)status;
 }
 
-//Creates a profile data file suitable for use with linear interpolation mode
-asynStatus GalilController::buildLinearProfile()
+//Creates a profile data file
+asynStatus GalilController::buildProfileFile()
 {
   GalilAxis *pAxis;				//GalilAxis instance
   int nPoints;					//Number of points in profile
@@ -1234,6 +1256,7 @@ asynStatus GalilController::buildLinearProfile()
   int i, j;			        //Loop counters
   int zm_count;				//Zero segment move counter
   int num_motors;			//Number of motors in trajectory
+  int pvtcapable, proftype;		//PVT capable, and profile type (Linear or PVT)
   char message[MAX_GALIL_STRING_SIZE];	//Profile build message
   int useAxis[MAX_GALIL_AXES];		//Use axis flag for profile moves
   int moveMode[MAX_GALIL_AXES];		//Move mode absolute or relative
@@ -1244,6 +1267,7 @@ asynStatus GalilController::buildLinearProfile()
   FILE *profFile;			//File handle for above file
   bool buildOK=true;			//Was the trajectory built successfully
   double mres;				//Motor resolution
+  double temp_time;			//Used for timebase calculations in PVT mode
 
   //Check CSAxis profiles
   //Ensure motors are not shared
@@ -1262,9 +1286,19 @@ asynStatus GalilController::buildLinearProfile()
   //Start position list for all motors in the profile
   strcpy(startp, "");
 
-  // Retrieve required attributes from ParamList
+  //Retrieve required attributes from ParamList
   getStringParam(GalilProfileFile_, (int)sizeof(fileName), fileName);
   getIntegerParam(profileNumPoints_, &nPoints);
+  getIntegerParam(GalilPVTCapable_, &pvtcapable);
+  getIntegerParam(GalilProfileType_, &proftype);
+
+  //Check pvt capable and profile type flags
+  /*if (!pvtcapable && proftype)
+     {
+     //PVT mode requested, but controller doesn't support it
+     strcpy(message, "Controller is not PVT capable, select Linear mode instead");
+     return asynError;
+     }*/
 
   //Check provided fileName
   if (!abs(strcmp(fileName, "")))
@@ -1277,7 +1311,10 @@ asynStatus GalilController::buildLinearProfile()
   profFile =  fopen(fileName, "wt");
 
   //Write profile type
-  fprintf(profFile,"LINEAR\n");
+  if (proftype)
+     fprintf(profFile,"PVT\n");
+  else
+     fprintf(profFile,"LINEAR\n");
 
   //Zero variables, construct axes, start position, and maxVelocity lists 
   for (i = 0; i < MAX_GALIL_AXES; i++)
@@ -1334,8 +1371,9 @@ asynStatus GalilController::buildLinearProfile()
 		//Decide to process this axis, or skip
 		if (!useAxis[j] || !pAxis)
 			{
-			if (j < MAX_GALIL_AXES - 1)
-				sprintf(moves,  "%s,", moves);	 //Add axis relative move separator character ',' as needed
+			//Linear mode, add axis relative move separator character ',' as needed
+			if ((j < MAX_GALIL_AXES - 1) && !proftype)
+				sprintf(moves,  "%s,", moves);
 			//Skip the rest, this axis is not in the profile move
 			continue;
 			}
@@ -1409,59 +1447,90 @@ asynStatus GalilController::buildLinearProfile()
 				}
 			}
 
-		//Add this motors' contribution to vector velocity for this segment
-		vectorVelocity += pow(velocity[j], 2);
-
-		//Store motor incremental move distance for this segment
-		sprintf(moves, "%s%.0lf", moves, rint(incmove));
-		
+                if (!proftype)
+			{
+			//Calculate linear mode velocity
+			//Add this motors' contribution to vector velocity for this segment
+			vectorVelocity += pow(velocity[j], 2);
+			//Store motor incremental move distance for this segment
+			sprintf(moves, "%s%.0lf", moves, rint(incmove));
+			//Add axis relative move separator character ',' as needed
+			if (j < MAX_GALIL_AXES - 1)
+				sprintf(moves,  "%s,", moves);
+			}
+		else
+			{
+			//PVT mode.  Controller time base is 0.000976 sec per sample.
+			//PVT has 2 sample minimum therefore = 0.000976 * 2 = 0.001952
+			sprintf(moves, "%sPV%c=%.0lf,%.0lf,%.0lf\n", moves, pAxis->axisName_, rint(incmove), velocity[j], rint(profileTimes_[i]/.001952));
+			//Check timebase is multiple of 2ms
+			temp_time = profileTimes_[i] * 1000.0;
+			if ((int)(temp_time) % 2 != 0)
+				{
+				sprintf(message, "Profile time base must be multiple of 2ms in PVT mode");
+				buildOK = false;
+				}
+			}
 		//Detect zero moves in this segment
                 zm_count =  (rint(incmove) == 0) ? zm_count+1 : zm_count;
-
-		if (j < MAX_GALIL_AXES - 1)
-			sprintf(moves,  "%s,", moves);	 //Add axis relative move separator character ',' as needed
 		}
 
-	//Determine vector velocity for this segment
-	vectorVelocity = sqrt(vectorVelocity);
-
-	//Check for segment too short error
-	if (rint(vectorVelocity) == 0 && i != 0)
+	if (!proftype)
 		{
-		sprintf(message, "Seg %d: Vector velocity zero, reduce time, add motors, and check profile", i);
-		buildOK = false;
-		}
-	if (zm_count == num_motors && i != 0)
-		{
-		sprintf(message, "Seg %d: Vector zero move distance, reduce time, add motors, and check profile", i);
-		buildOK = false;
-		}
-
-	//Trim trailing ',' characters from moves string
-	for (j=(int)strlen(moves)-1; j>0; j--)
-		{
-		if (moves[j] != ',')
+		//Linear mode
+		//Determine vector velocity for this segment
+		vectorVelocity = sqrt(vectorVelocity);
+		//Check for segment too short error
+		if (rint(vectorVelocity) == 0 && i != 0)
 			{
-			//Terminate moves string
-			moves[j+1] = '\0';
-			break;
+			sprintf(message, "Seg %d: Vector velocity zero, reduce time, add motors, and check profile", i);
+			buildOK = false;
 			}
+		if (zm_count == num_motors && i != 0)
+			{
+			sprintf(message, "Seg %d: Vector zero move distance, reduce time, add motors, and check profile", i);
+			buildOK = false;
+			}
+		//Trim trailing ',' characters from moves string
+		for (j=(int)strlen(moves)-1; j>0; j--)
+			{
+			if (moves[j] != ',')
+				{
+				//Terminate moves string
+				moves[j+1] = '\0';
+				break;
+				}
+			}
+		//Add segment velocity
+		sprintf(moves, "%s<%.0lf", moves, rint(vectorVelocity));
 		}
 
-	//Add segment velocity
-	sprintf(moves, "%s<%.0lf", moves, rint(vectorVelocity));
 	//Add second segment and above
 	//First segment is the "relative" offset or start position for the profile
 	//This is done to prevent jumps in the motor
 	if (i > 0)
 		{
 		//Write the segment command to profile file
-		fprintf(profFile,"%s\n", moves);
+		if (proftype) //PVT
+			fprintf(profFile,"%s", moves);
+		else	//Linear
+			fprintf(profFile,"%s\n", moves);
 		}
   	}
   
   //Profile written to file now close the file
   fclose(profFile);
+
+  //Check, and if neccessary restore GalilAxis original profile
+  //data after CSAxis profiles have been built
+  for (i = 0; i < MAX_GALIL_AXES; i++)
+     {
+     //Retrieve GalilAxis
+     pAxis = getAxis(i);
+     //Decide to process this axis, or skip
+     if (!pAxis) continue;
+     pAxis->restoreProfileData();
+     }
 
   //Build failed.  
   if (!buildOK)
@@ -1527,7 +1596,6 @@ asynStatus GalilController::buildProfile()
 {
   int status = asynSuccess;		//asynStatus
   char message[MAX_GALIL_STRING_SIZE];	//Profile build message
-  int pvtcapable, proftype;		//PVT capable, and profile type
   static const char *functionName = "buildProfile";
 
   asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW,
@@ -1544,27 +1612,8 @@ asynStatus GalilController::buildProfile()
   setIntegerParam(profileBuildStatus_, PROFILE_STATUS_UNDEFINED);
   callParamCallbacks();
 
-  //Retrieve needed params
-  getIntegerParam(GalilPVTCapable_, &pvtcapable);
-  getIntegerParam(GalilProfileType_, &proftype);
-
-  //Check pvt capable and profile type flags
-  if (!pvtcapable && proftype)
-     {
-     //PVT mode requested, but controller doesn't support it
-     strcpy(message, "Controller is not PVT capable, select Linear mode instead");
-     setStringParam(profileBuildMessage_, message);
-     }
-
-  //Build requested profile
-  if (pvtcapable && proftype)
-     {
-     //PVT mode
-     strcpy(message, "PVT mode is not yet implemented, but its comming soon..");
-     setStringParam(profileBuildMessage_, message);
-     }
-  else //Build profile data for use with linear interpolation mode
-     status = buildLinearProfile();
+  //Build profile data
+  status = buildProfileFile();
 
   //Update profile build state
   setIntegerParam(profileBuildState_, PROFILE_BUILD_DONE);
@@ -1884,7 +1933,6 @@ asynStatus GalilController::startLinearProfileCoordsys(int coordsys, char coordN
  * It needs to lock and unlock when it accesses class data. */ 
 asynStatus GalilController::runLinearProfile(FILE *profFile)
 {
-  long maxAcceleration;			//Max acceleration for this controller
   int segsent;				//Segments loaded to controller so far
   char moves[MAX_GALIL_STRING_SIZE];	//Segment move command assembled for controller
   char message[MAX_GALIL_STRING_SIZE];	//Profile execute message
@@ -1906,7 +1954,7 @@ asynStatus GalilController::runLinearProfile(FILE *profFile)
   //Ensure motors are not shared
   //Ensure useAxis, and moveMode between CSAxes, and 
   //member reverse (real) motors are consistent
-  if (checkCSAxisProfiles(profileBuildMessage_))
+  if (checkCSAxisProfiles(profileExecuteMessage_))
      return asynError;
 
   //Retrieve currently selected coordinate system 
@@ -1938,16 +1986,11 @@ asynStatus GalilController::runLinearProfile(FILE *profFile)
         }
      }
 
-  //Set vector acceleration/decceleration
-  maxAcceleration = 67107840;
-  if (model_[0] == 'D' && model_[3] == '4')
-	maxAcceleration = 1073740800;
-
   //Called without lock, and we need it to call sync_writeReadController
   lock();
 
   //Set vector acceleration/decceleration
-  sprintf(cmd_, "VA%c=%ld;VD%c=%ld", coordName, maxAcceleration, coordName, maxAcceleration);
+  sprintf(cmd_, "VA%c=%ld;VD%c=%ld", coordName, maxAcceleration_, coordName, maxAcceleration_);
   sync_writeReadController();
 
   //Clear any segments in the coordsys buffer
@@ -4523,6 +4566,7 @@ void GalilController::setCtrlError(const char* mesg)
    if (mesg[0] != '\0')
       std::cout << mesg << std::endl;
    setStringParam(0, GalilCtrlError_, mesg);
+  callParamCallbacks();
 }
 
 void GalilController::InitializeDataRecord(void)

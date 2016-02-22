@@ -1,7 +1,7 @@
 
 file {
-	name="/home/ics/git/Galil-3-0/3-1/GalilSup/op/adl/galil_CSprofileMove.adl"
-	version=030105
+	name="/home/ics/git/Galil-3-0/3-2/GalilSup/op/adl/galil_CSprofileMove.adl"
+	version=030109
 }
 display {
 	object {
@@ -103,7 +103,7 @@ text {
 		x=103
 		y=16
 		width=324
-		height=25
+		height=20
 	}
 	"basic attribute" {
 		clr=14
@@ -126,10 +126,10 @@ rectangle {
 }
 text {
 	object {
-		x=16
+		x=12
 		y=54
 		width=160
-		height=20
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -141,7 +141,7 @@ text {
 		x=346
 		y=50
 		width=70
-		height=20
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -153,7 +153,7 @@ text {
 		x=414
 		y=50
 		width=100
-		height=20
+		height=13
 	}
 	monitor {
 		chan="$(P)$(R)CurrentPoint"
@@ -180,10 +180,10 @@ text {
 }
 text {
 	object {
-		x=16
+		x=12
 		y=212
 		width=200
-		height=20
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -192,10 +192,10 @@ text {
 }
 text {
 	object {
-		x=16
+		x=12
 		y=193
 		width=90
-		height=20
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -204,10 +204,10 @@ text {
 }
 text {
 	object {
-		x=16
+		x=12
 		y=175
 		width=180
-		height=20
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -216,10 +216,10 @@ text {
 }
 text {
 	object {
-		x=16
+		x=12
 		y=155
 		width=90
-		height=20
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -228,10 +228,10 @@ text {
 }
 text {
 	object {
-		x=16
+		x=12
 		y=137
 		width=180
-		height=20
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -240,10 +240,10 @@ text {
 }
 text {
 	object {
-		x=16
+		x=12
 		y=115
 		width=200
-		height=20
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -252,10 +252,10 @@ text {
 }
 text {
 	object {
-		x=16
+		x=12
 		y=93
 		width=90
-		height=20
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -282,7 +282,7 @@ text {
 		x=342
 		y=194
 		width=30
-		height=20
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -309,7 +309,7 @@ text {
 		x=342
 		y=155
 		width=30
-		height=20
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -336,7 +336,7 @@ text {
 		x=494
 		y=194
 		width=30
-		height=20
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -348,7 +348,7 @@ text {
 		x=494
 		y=155
 		width=30
-		height=20
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -360,7 +360,7 @@ text {
 		x=97
 		y=233
 		width=425
-		height=15
+		height=13
 	}
 	monitor {
 		chan="$(P)OCMESSAGE_MON"
@@ -373,10 +373,10 @@ text {
 }
 text {
 	object {
-		x=16
+		x=12
 		y=233
 		width=70
-		height=20
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -416,7 +416,7 @@ text {
 		x=244
 		y=194
 		width=30
-		height=20
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -428,7 +428,7 @@ text {
 		x=244
 		y=176
 		width=25
-		height=20
+		height=13
 	}
 	monitor {
 		chan="$(P)OC2AXIS_STATUS"
@@ -443,7 +443,7 @@ text {
 		x=244
 		y=155
 		width=30
-		height=20
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -483,7 +483,7 @@ menu {
 		x=244
 		y=137
 		width=25
-		height=20
+		height=13
 	}
 	monitor {
 		chan="$(P)OC1AXIS_STATUS"
@@ -526,7 +526,7 @@ text {
 		x=277
 		y=137
 		width=30
-		height=20
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -538,7 +538,7 @@ text {
 		x=278
 		y=176
 		width=30
-		height=20
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -560,10 +560,10 @@ menu {
 }
 text {
 	object {
-		x=16
+		x=12
 		y=73
 		width=90
-		height=20
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -575,7 +575,7 @@ text {
 		x=245
 		y=74
 		width=100
-		height=20
+		height=13
 	}
 	monitor {
 		chan="$(P)$(R)PROFILETYPE_STATUS"
@@ -585,898 +585,887 @@ text {
 	limits {
 	}
 }
-composite {
+rectangle {
 	object {
 		x=4
 		y=258
 		width=524
-		height=434
+		height=229
 	}
-	"composite name"=""
-	children {
-		rectangle {
-			object {
-				x=4
-				y=258
-				width=524
-				height=229
-			}
-			"basic attribute" {
-				clr=14
-				fill="outline"
-				width=2
-			}
-		}
-		rectangle {
-			object {
-				x=4
-				y=492
-				width=524
-				height=200
-			}
-			"basic attribute" {
-				clr=14
-				fill="outline"
-				width=2
-			}
-		}
-		text {
-			object {
-				x=130
-				y=262
-				width=100
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Move axis?"
-		}
-		menu {
-			object {
-				x=129
-				y=311
-				width=90
-				height=20
-			}
-			control {
-				chan="$(P)$(R)M10UseAxis"
-				clr=14
-				bclr=51
-			}
-		}
-		menu {
-			object {
-				x=129
-				y=336
-				width=90
-				height=20
-			}
-			control {
-				chan="$(P)$(R)M11UseAxis"
-				clr=14
-				bclr=51
-			}
-		}
-		menu {
-			object {
-				x=129
-				y=286
-				width=90
-				height=20
-			}
-			control {
-				chan="$(P)$(R)M9UseAxis"
-				clr=14
-				bclr=51
-			}
-		}
-		menu {
-			object {
-				x=129
-				y=361
-				width=90
-				height=20
-			}
-			control {
-				chan="$(P)$(R)M12UseAxis"
-				clr=14
-				bclr=51
-			}
-		}
-		menu {
-			object {
-				x=129
-				y=386
-				width=90
-				height=20
-			}
-			control {
-				chan="$(P)$(R)M13UseAxis"
-				clr=14
-				bclr=51
-			}
-		}
-		menu {
-			object {
-				x=129
-				y=411
-				width=90
-				height=20
-			}
-			control {
-				chan="$(P)$(R)M14UseAxis"
-				clr=14
-				bclr=51
-			}
-		}
-		menu {
-			object {
-				x=129
-				y=436
-				width=90
-				height=20
-			}
-			control {
-				chan="$(P)$(R)M15UseAxis"
-				clr=14
-				bclr=51
-			}
-		}
-		menu {
-			object {
-				x=129
-				y=461
-				width=90
-				height=20
-			}
-			control {
-				chan="$(P)$(R)M16UseAxis"
-				clr=14
-				bclr=51
-			}
-		}
-		menu {
-			object {
-				x=221
-				y=286
-				width=90
-				height=20
-			}
-			control {
-				chan="$(P)$(R)M9MoveMode"
-				clr=14
-				bclr=51
-			}
-		}
-		menu {
-			object {
-				x=221
-				y=311
-				width=90
-				height=20
-			}
-			control {
-				chan="$(P)$(R)M10MoveMode"
-				clr=14
-				bclr=51
-			}
-		}
-		menu {
-			object {
-				x=221
-				y=336
-				width=90
-				height=20
-			}
-			control {
-				chan="$(P)$(R)M11MoveMode"
-				clr=14
-				bclr=51
-			}
-		}
-		menu {
-			object {
-				x=221
-				y=361
-				width=90
-				height=20
-			}
-			control {
-				chan="$(P)$(R)M12MoveMode"
-				clr=14
-				bclr=51
-			}
-		}
-		menu {
-			object {
-				x=221
-				y=386
-				width=90
-				height=20
-			}
-			control {
-				chan="$(P)$(R)M13MoveMode"
-				clr=14
-				bclr=51
-			}
-		}
-		menu {
-			object {
-				x=221
-				y=411
-				width=90
-				height=20
-			}
-			control {
-				chan="$(P)$(R)M14MoveMode"
-				clr=14
-				bclr=51
-			}
-		}
-		menu {
-			object {
-				x=221
-				y=436
-				width=90
-				height=20
-			}
-			control {
-				chan="$(P)$(R)M15MoveMode"
-				clr=14
-				bclr=51
-			}
-		}
-		menu {
-			object {
-				x=221
-				y=461
-				width=90
-				height=20
-			}
-			control {
-				chan="$(P)$(R)M16MoveMode"
-				clr=14
-				bclr=51
-			}
-		}
-		text {
-			object {
-				x=230
-				y=263
-				width=100
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Move mode"
-		}
-		"text update" {
-			object {
-				x=296
-				y=286
-				width=103
-				height=20
-			}
-			monitor {
-				chan="$(P)$(M9).RBV"
-				clr=54
-				bclr=4
-			}
-			align="horiz. right"
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=296
-				y=311
-				width=103
-				height=20
-			}
-			monitor {
-				chan="$(P)$(M10).RBV"
-				clr=54
-				bclr=4
-			}
-			align="horiz. right"
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=296
-				y=336
-				width=103
-				height=20
-			}
-			monitor {
-				chan="$(P)$(M11).RBV"
-				clr=54
-				bclr=4
-			}
-			align="horiz. right"
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=296
-				y=361
-				width=103
-				height=20
-			}
-			monitor {
-				chan="$(P)$(M12).RBV"
-				clr=54
-				bclr=4
-			}
-			align="horiz. right"
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=296
-				y=386
-				width=103
-				height=20
-			}
-			monitor {
-				chan="$(P)$(M13).RBV"
-				clr=54
-				bclr=4
-			}
-			align="horiz. right"
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=296
-				y=411
-				width=103
-				height=20
-			}
-			monitor {
-				chan="$(P)$(M14).RBV"
-				clr=54
-				bclr=4
-			}
-			align="horiz. right"
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=296
-				y=436
-				width=103
-				height=20
-			}
-			monitor {
-				chan="$(P)$(M15).RBV"
-				clr=54
-				bclr=4
-			}
-			align="horiz. right"
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=296
-				y=461
-				width=103
-				height=20
-			}
-			monitor {
-				chan="$(P)$(M16).RBV"
-				clr=54
-				bclr=4
-			}
-			align="horiz. right"
-			limits {
-			}
-		}
-		text {
-			object {
-				x=321
-				y=262
-				width=100
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Current Pos."
-		}
-		text {
-			object {
-				x=415
-				y=262
-				width=50
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Plots"
-		}
-		"related display" {
-			object {
-				x=414
-				y=286
-				width=75
-				height=20
-			}
-			display[0] {
-				label="Output"
-				name="trajectoryPlot.adl"
-				args="M=$(P)$(M9),TITLE=Output_Trajectory, Y=$(P)$(R)M9Positions"
-			}
-			clr=14
-			bclr=51
-		}
-		"related display" {
-			object {
-				x=414
-				y=311
-				width=75
-				height=20
-			}
-			display[0] {
-				label="Output"
-				name="trajectoryPlot.adl"
-				args="M=$(P)$(M10),TITLE=Output_Trajectory, Y=$(P)$(R)M10Positions"
-			}
-			clr=14
-			bclr=51
-		}
-		"related display" {
-			object {
-				x=414
-				y=336
-				width=75
-				height=20
-			}
-			display[0] {
-				label="Output"
-				name="trajectoryPlot.adl"
-				args="M=$(P)$(M11),TITLE=Output_Trajectory, Y=$(P)$(R)M11Positions"
-			}
-			clr=14
-			bclr=51
-		}
-		"related display" {
-			object {
-				x=414
-				y=361
-				width=75
-				height=20
-			}
-			display[0] {
-				label="Output"
-				name="trajectoryPlot.adl"
-				args="M=$(P)$(M12),TITLE=Output_Trajectory, Y=$(P)$(R)M12Positions"
-			}
-			clr=14
-			bclr=51
-		}
-		"related display" {
-			object {
-				x=414
-				y=386
-				width=75
-				height=20
-			}
-			display[0] {
-				label="Output"
-				name="trajectoryPlot.adl"
-				args="M=$(P)$(M13),TITLE=Output_Trajectory, Y=$(P)$(R)M13Positions"
-			}
-			clr=14
-			bclr=51
-		}
-		"related display" {
-			object {
-				x=414
-				y=411
-				width=75
-				height=20
-			}
-			display[0] {
-				label="Output"
-				name="trajectoryPlot.adl"
-				args="M=$(P)$(M14),TITLE=Output_Trajectory, Y=$(P)$(R)M14Positions"
-			}
-			clr=14
-			bclr=51
-		}
-		"related display" {
-			object {
-				x=414
-				y=436
-				width=75
-				height=20
-			}
-			display[0] {
-				label="Output"
-				name="trajectoryPlot.adl"
-				args="M=$(P)$(M15),TITLE=Output_Trajectory, Y=$(P)$(R)M15Positions"
-			}
-			clr=14
-			bclr=51
-		}
-		"related display" {
-			object {
-				x=414
-				y=461
-				width=75
-				height=20
-			}
-			display[0] {
-				label="Output"
-				name="trajectoryPlot.adl"
-				args="M=$(P)$(M16),TITLE=Output_Trajectory, Y=$(P)$(R)M16Positions"
-			}
-			clr=14
-			bclr=51
-		}
-		"text update" {
-			object {
-				x=15
-				y=461
-				width=100
-				height=20
-			}
-			monitor {
-				chan="$(P)$(M16).DESC"
-				clr=14
-				bclr=4
-			}
-			align="horiz. right"
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=15
-				y=436
-				width=100
-				height=20
-			}
-			monitor {
-				chan="$(P)$(M15).DESC"
-				clr=14
-				bclr=4
-			}
-			align="horiz. right"
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=15
-				y=411
-				width=100
-				height=20
-			}
-			monitor {
-				chan="$(P)$(M14).DESC"
-				clr=14
-				bclr=4
-			}
-			align="horiz. right"
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=15
-				y=386
-				width=100
-				height=20
-			}
-			monitor {
-				chan="$(P)$(M13).DESC"
-				clr=14
-				bclr=4
-			}
-			align="horiz. right"
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=15
-				y=361
-				width=100
-				height=20
-			}
-			monitor {
-				chan="$(P)$(M12).DESC"
-				clr=14
-				bclr=4
-			}
-			align="horiz. right"
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=15
-				y=336
-				width=100
-				height=20
-			}
-			monitor {
-				chan="$(P)$(M11).DESC"
-				clr=14
-				bclr=4
-			}
-			align="horiz. right"
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=16
-				y=311
-				width=100
-				height=20
-			}
-			monitor {
-				chan="$(P)$(M10).DESC"
-				clr=14
-				bclr=4
-			}
-			align="horiz. right"
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=16
-				y=286
-				width=100
-				height=20
-			}
-			monitor {
-				chan="$(P)$(M9).DESC"
-				clr=14
-				bclr=4
-			}
-			align="horiz. right"
-			limits {
-			}
-		}
-		text {
-			object {
-				x=40
-				y=526
-				width=50
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Build"
-		}
-		"message button" {
-			object {
-				x=96
-				y=526
-				width=96
-				height=20
-			}
-			control {
-				chan="$(P)$(R)Build"
-				clr=14
-				bclr=51
-			}
-			label="Build"
-			press_msg="1"
-		}
-		"text update" {
-			object {
-				x=201
-				y=526
-				width=103
-				height=20
-			}
-			monitor {
-				chan="$(P)$(R)BuildState"
-				clr=50
-				bclr=13
-			}
-			clrmod="alarm"
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=201
-				y=601
-				width=103
-				height=20
-			}
-			monitor {
-				chan="$(P)$(R)ExecuteState"
-				clr=50
-				bclr=14
-			}
-			clrmod="alarm"
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=315
-				y=526
-				width=103
-				height=20
-			}
-			monitor {
-				chan="$(P)$(R)BuildStatus"
-				clr=50
-				bclr=14
-			}
-			clrmod="alarm"
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=315
-				y=601
-				width=103
-				height=20
-			}
-			monitor {
-				chan="$(P)$(R)ExecuteStatus"
-				clr=50
-				bclr=14
-			}
-			clrmod="alarm"
-			limits {
-			}
-		}
-		text {
-			object {
-				x=109
-				y=501
-				width=70
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Command"
-		}
-		text {
-			object {
-				x=227
-				y=501
-				width=50
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="State"
-		}
-		text {
-			object {
-				x=336
-				y=501
-				width=60
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Status"
-		}
-		"message button" {
-			object {
-				x=422
-				y=591
-				width=100
-				height=30
-			}
-			control {
-				chan="$(P)$(R)Abort"
-				clr=14
-				bclr=20
-			}
-			label="Abort!"
-			press_msg="1"
-			release_msg="0"
-		}
-		text {
-			object {
-				x=20
-				y=626
-				width=70
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Message"
-		}
-		"text update" {
-			object {
-				x=11
-				y=642
-				width=512
-				height=15
-			}
-			monitor {
-				chan="$(P)$(R)ExecuteMessage"
-				clr=14
-				bclr=56
-			}
-			format="string"
-			limits {
-			}
-		}
-		text {
-			object {
-				x=20
-				y=601
-				width=70
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Execute"
-		}
-		"message button" {
-			object {
-				x=96
-				y=601
-				width=96
-				height=20
-			}
-			control {
-				chan="$(P)$(R)Execute"
-				clr=14
-				bclr=51
-			}
-			label="Execute"
-			press_msg="1"
-		}
-		"text update" {
-			object {
-				x=11
-				y=568
-				width=512
-				height=15
-			}
-			monitor {
-				chan="$(P)$(R)BuildMessage"
-				clr=14
-				bclr=56
-			}
-			format="string"
-			limits {
-			}
-		}
-		text {
-			object {
-				x=20
-				y=551
-				width=70
-				height=20
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Message"
-		}
+	"basic attribute" {
+		clr=14
+		fill="outline"
+		width=2
 	}
+}
+rectangle {
+	object {
+		x=4
+		y=492
+		width=524
+		height=200
+	}
+	"basic attribute" {
+		clr=14
+		fill="outline"
+		width=2
+	}
+}
+text {
+	object {
+		x=130
+		y=262
+		width=100
+		height=16
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Move axis?"
+}
+menu {
+	object {
+		x=129
+		y=311
+		width=90
+		height=20
+	}
+	control {
+		chan="$(P)$(R)M10UseAxis"
+		clr=14
+		bclr=51
+	}
+}
+menu {
+	object {
+		x=129
+		y=336
+		width=90
+		height=20
+	}
+	control {
+		chan="$(P)$(R)M11UseAxis"
+		clr=14
+		bclr=51
+	}
+}
+menu {
+	object {
+		x=129
+		y=286
+		width=90
+		height=20
+	}
+	control {
+		chan="$(P)$(R)M9UseAxis"
+		clr=14
+		bclr=51
+	}
+}
+menu {
+	object {
+		x=129
+		y=361
+		width=90
+		height=20
+	}
+	control {
+		chan="$(P)$(R)M12UseAxis"
+		clr=14
+		bclr=51
+	}
+}
+menu {
+	object {
+		x=129
+		y=386
+		width=90
+		height=20
+	}
+	control {
+		chan="$(P)$(R)M13UseAxis"
+		clr=14
+		bclr=51
+	}
+}
+menu {
+	object {
+		x=129
+		y=411
+		width=90
+		height=20
+	}
+	control {
+		chan="$(P)$(R)M14UseAxis"
+		clr=14
+		bclr=51
+	}
+}
+menu {
+	object {
+		x=129
+		y=436
+		width=90
+		height=20
+	}
+	control {
+		chan="$(P)$(R)M15UseAxis"
+		clr=14
+		bclr=51
+	}
+}
+menu {
+	object {
+		x=129
+		y=461
+		width=90
+		height=20
+	}
+	control {
+		chan="$(P)$(R)M16UseAxis"
+		clr=14
+		bclr=51
+	}
+}
+menu {
+	object {
+		x=221
+		y=286
+		width=90
+		height=20
+	}
+	control {
+		chan="$(P)$(R)M9MoveMode"
+		clr=14
+		bclr=51
+	}
+}
+menu {
+	object {
+		x=221
+		y=311
+		width=90
+		height=20
+	}
+	control {
+		chan="$(P)$(R)M10MoveMode"
+		clr=14
+		bclr=51
+	}
+}
+menu {
+	object {
+		x=221
+		y=336
+		width=90
+		height=20
+	}
+	control {
+		chan="$(P)$(R)M11MoveMode"
+		clr=14
+		bclr=51
+	}
+}
+menu {
+	object {
+		x=221
+		y=361
+		width=90
+		height=20
+	}
+	control {
+		chan="$(P)$(R)M12MoveMode"
+		clr=14
+		bclr=51
+	}
+}
+menu {
+	object {
+		x=221
+		y=386
+		width=90
+		height=20
+	}
+	control {
+		chan="$(P)$(R)M13MoveMode"
+		clr=14
+		bclr=51
+	}
+}
+menu {
+	object {
+		x=221
+		y=411
+		width=90
+		height=20
+	}
+	control {
+		chan="$(P)$(R)M14MoveMode"
+		clr=14
+		bclr=51
+	}
+}
+menu {
+	object {
+		x=221
+		y=436
+		width=90
+		height=20
+	}
+	control {
+		chan="$(P)$(R)M15MoveMode"
+		clr=14
+		bclr=51
+	}
+}
+menu {
+	object {
+		x=221
+		y=461
+		width=90
+		height=20
+	}
+	control {
+		chan="$(P)$(R)M16MoveMode"
+		clr=14
+		bclr=51
+	}
+}
+text {
+	object {
+		x=230
+		y=263
+		width=100
+		height=16
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Move mode"
+}
+"text update" {
+	object {
+		x=296
+		y=286
+		width=103
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M9).RBV"
+		clr=54
+		bclr=4
+	}
+	align="horiz. right"
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=296
+		y=311
+		width=103
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M10).RBV"
+		clr=54
+		bclr=4
+	}
+	align="horiz. right"
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=296
+		y=336
+		width=103
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M11).RBV"
+		clr=54
+		bclr=4
+	}
+	align="horiz. right"
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=296
+		y=361
+		width=103
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M12).RBV"
+		clr=54
+		bclr=4
+	}
+	align="horiz. right"
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=296
+		y=386
+		width=103
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M13).RBV"
+		clr=54
+		bclr=4
+	}
+	align="horiz. right"
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=296
+		y=411
+		width=103
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M14).RBV"
+		clr=54
+		bclr=4
+	}
+	align="horiz. right"
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=296
+		y=436
+		width=103
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M15).RBV"
+		clr=54
+		bclr=4
+	}
+	align="horiz. right"
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=296
+		y=461
+		width=103
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M16).RBV"
+		clr=54
+		bclr=4
+	}
+	align="horiz. right"
+	limits {
+	}
+}
+text {
+	object {
+		x=321
+		y=262
+		width=100
+		height=16
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Current Pos."
+}
+text {
+	object {
+		x=415
+		y=262
+		width=50
+		height=16
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Plots"
+}
+"related display" {
+	object {
+		x=414
+		y=286
+		width=75
+		height=20
+	}
+	display[0] {
+		label="Output"
+		name="trajectoryPlot.adl"
+		args="M=$(P)$(M9),TITLE=Output_Trajectory, Y=$(P)$(R)M9Positions"
+	}
+	clr=14
+	bclr=51
+}
+"related display" {
+	object {
+		x=414
+		y=311
+		width=75
+		height=20
+	}
+	display[0] {
+		label="Output"
+		name="trajectoryPlot.adl"
+		args="M=$(P)$(M10),TITLE=Output_Trajectory, Y=$(P)$(R)M10Positions"
+	}
+	clr=14
+	bclr=51
+}
+"related display" {
+	object {
+		x=414
+		y=336
+		width=75
+		height=20
+	}
+	display[0] {
+		label="Output"
+		name="trajectoryPlot.adl"
+		args="M=$(P)$(M11),TITLE=Output_Trajectory, Y=$(P)$(R)M11Positions"
+	}
+	clr=14
+	bclr=51
+}
+"related display" {
+	object {
+		x=414
+		y=361
+		width=75
+		height=20
+	}
+	display[0] {
+		label="Output"
+		name="trajectoryPlot.adl"
+		args="M=$(P)$(M12),TITLE=Output_Trajectory, Y=$(P)$(R)M12Positions"
+	}
+	clr=14
+	bclr=51
+}
+"related display" {
+	object {
+		x=414
+		y=386
+		width=75
+		height=20
+	}
+	display[0] {
+		label="Output"
+		name="trajectoryPlot.adl"
+		args="M=$(P)$(M13),TITLE=Output_Trajectory, Y=$(P)$(R)M13Positions"
+	}
+	clr=14
+	bclr=51
+}
+"related display" {
+	object {
+		x=414
+		y=411
+		width=75
+		height=20
+	}
+	display[0] {
+		label="Output"
+		name="trajectoryPlot.adl"
+		args="M=$(P)$(M14),TITLE=Output_Trajectory, Y=$(P)$(R)M14Positions"
+	}
+	clr=14
+	bclr=51
+}
+"related display" {
+	object {
+		x=414
+		y=436
+		width=75
+		height=20
+	}
+	display[0] {
+		label="Output"
+		name="trajectoryPlot.adl"
+		args="M=$(P)$(M15),TITLE=Output_Trajectory, Y=$(P)$(R)M15Positions"
+	}
+	clr=14
+	bclr=51
+}
+"related display" {
+	object {
+		x=414
+		y=461
+		width=75
+		height=20
+	}
+	display[0] {
+		label="Output"
+		name="trajectoryPlot.adl"
+		args="M=$(P)$(M16),TITLE=Output_Trajectory, Y=$(P)$(R)M16Positions"
+	}
+	clr=14
+	bclr=51
+}
+"text update" {
+	object {
+		x=15
+		y=461
+		width=100
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M16).DESC"
+		clr=14
+		bclr=4
+	}
+	align="horiz. right"
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=15
+		y=436
+		width=100
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M15).DESC"
+		clr=14
+		bclr=4
+	}
+	align="horiz. right"
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=15
+		y=411
+		width=100
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M14).DESC"
+		clr=14
+		bclr=4
+	}
+	align="horiz. right"
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=15
+		y=386
+		width=100
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M13).DESC"
+		clr=14
+		bclr=4
+	}
+	align="horiz. right"
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=15
+		y=361
+		width=100
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M12).DESC"
+		clr=14
+		bclr=4
+	}
+	align="horiz. right"
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=15
+		y=336
+		width=100
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M11).DESC"
+		clr=14
+		bclr=4
+	}
+	align="horiz. right"
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=16
+		y=311
+		width=100
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M10).DESC"
+		clr=14
+		bclr=4
+	}
+	align="horiz. right"
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=16
+		y=286
+		width=100
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M9).DESC"
+		clr=14
+		bclr=4
+	}
+	align="horiz. right"
+	limits {
+	}
+}
+text {
+	object {
+		x=40
+		y=526
+		width=50
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Build"
+}
+"message button" {
+	object {
+		x=96
+		y=526
+		width=96
+		height=16
+	}
+	control {
+		chan="$(P)$(R)Build"
+		clr=14
+		bclr=51
+	}
+	label="Build"
+	press_msg="1"
+}
+"text update" {
+	object {
+		x=201
+		y=526
+		width=103
+		height=16
+	}
+	monitor {
+		chan="$(P)$(R)BuildState"
+		clr=50
+		bclr=13
+	}
+	clrmod="alarm"
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=201
+		y=601
+		width=103
+		height=16
+	}
+	monitor {
+		chan="$(P)$(R)ExecuteState"
+		clr=50
+		bclr=14
+	}
+	clrmod="alarm"
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=315
+		y=526
+		width=103
+		height=16
+	}
+	monitor {
+		chan="$(P)$(R)BuildStatus"
+		clr=50
+		bclr=14
+	}
+	clrmod="alarm"
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=315
+		y=601
+		width=103
+		height=16
+	}
+	monitor {
+		chan="$(P)$(R)ExecuteStatus"
+		clr=50
+		bclr=14
+	}
+	clrmod="alarm"
+	limits {
+	}
+}
+text {
+	object {
+		x=109
+		y=501
+		width=70
+		height=16
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Command"
+}
+text {
+	object {
+		x=227
+		y=501
+		width=50
+		height=16
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="State"
+}
+text {
+	object {
+		x=336
+		y=501
+		width=60
+		height=16
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Status"
+}
+"message button" {
+	object {
+		x=422
+		y=591
+		width=100
+		height=30
+	}
+	control {
+		chan="$(P)$(R)Abort"
+		clr=14
+		bclr=20
+	}
+	label="Abort!"
+	press_msg="1"
+	release_msg="0"
+}
+text {
+	object {
+		x=20
+		y=626
+		width=70
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Message"
+}
+"text update" {
+	object {
+		x=11
+		y=642
+		width=512
+		height=11
+	}
+	monitor {
+		chan="$(P)$(R)ExecuteMessage"
+		clr=14
+		bclr=56
+	}
+	format="string"
+	limits {
+	}
+}
+text {
+	object {
+		x=20
+		y=601
+		width=70
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Execute"
+}
+"message button" {
+	object {
+		x=96
+		y=601
+		width=96
+		height=16
+	}
+	control {
+		chan="$(P)$(R)Execute"
+		clr=14
+		bclr=51
+	}
+	label="Execute"
+	press_msg="1"
+}
+"text update" {
+	object {
+		x=11
+		y=568
+		width=512
+		height=11
+	}
+	monitor {
+		chan="$(P)$(R)BuildMessage"
+		clr=14
+		bclr=56
+	}
+	format="string"
+	limits {
+	}
+}
+text {
+	object {
+		x=20
+		y=551
+		width=70
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Message"
 }

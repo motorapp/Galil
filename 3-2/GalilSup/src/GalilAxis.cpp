@@ -196,6 +196,13 @@ asynStatus GalilAxis::setDefaults(int limit_as_home, char *enables_string, int s
 	//Have not allocated calculated profile array
 	calculatedPositions_ = NULL;
 
+	//Have not allocated profile data backup array
+	//Data restored automatically after profile built
+	profileBackupPositions_ = NULL;
+
+	//We dont need to restore any profile data now
+	restoreProfile_ = false;
+
 	return asynSuccess;
 }
 
@@ -585,10 +592,27 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
   int ssiinput;			//SSI encoder register
   int ssicapable;		//SSI capable
   char mesg[MAX_GALIL_STRING_SIZE]; //Message to user
+  int homeAllowed;		//Home types allowed
 
   //Retrieve needed param
   pC_->getIntegerParam(axisNo_, pC_->GalilSSIInput_, &ssiinput);
   pC_->getIntegerParam(pC_->GalilSSICapable_, &ssicapable);
+  pC_->getIntegerParam(axisNo_, pC_->GalilHomeAllowed_, &homeAllowed);
+
+  //Check if requested home type is allowed
+  strcpy(mesg, "");
+  if (!homeAllowed)
+     sprintf(mesg, "%c motor extra settings do not allow home", axisName_);
+  if (homeAllowed == 1 && forwards)
+     sprintf(mesg, "%c motor extra settings do not allow forward home", axisName_);
+  if (homeAllowed == 2 && !forwards)
+     sprintf(mesg, "%c motor extra settings do not allow reverse home", axisName_);
+  //If problem with settings, do nothing
+  if (strcmp(mesg, "") != 0)
+     {
+     pC_->setCtrlError(mesg);
+     return asynSuccess;
+     }
 
   //Homing not supported for absolute encoders, just move it where you want
   if (ssiinput && ssicapable)
@@ -945,14 +969,16 @@ asynStatus GalilAxis::setClosedLoop(bool closedLoop)
 /* These are the functions for profile moves */
 asynStatus GalilAxis::initializeProfile(size_t maxProfilePoints)
 {
+  if (profileBackupPositions_)    free(profileBackupPositions_);
+  profileBackupPositions_ =      (double *)calloc(maxProfilePoints, sizeof(double)); 
   if (calculatedPositions_)    free(calculatedPositions_);
   calculatedPositions_ =      (double *)calloc(maxProfilePoints, sizeof(double)); 
   if (profilePositions_)       free(profilePositions_);
   profilePositions_ =         (double *)calloc(maxProfilePoints, sizeof(double));
-  if (profileReadbacks_)    free(profileReadbacks_);
-  profileReadbacks_ =         (double *)calloc(maxProfilePoints, sizeof(double));
-  if (profileFollowingErrors_) free(profileFollowingErrors_);
-  profileFollowingErrors_ =   (double *)calloc(maxProfilePoints, sizeof(double));
+//  if (profileReadbacks_)    free(profileReadbacks_);
+//  profileReadbacks_ =         (double *)calloc(maxProfilePoints, sizeof(double));
+//  if (profileFollowingErrors_) free(profileFollowingErrors_);
+//  profileFollowingErrors_ =   (double *)calloc(maxProfilePoints, sizeof(double));
   return asynSuccess;
 }
 
@@ -995,6 +1021,25 @@ asynStatus GalilAxis::restoreBrake(void)
      status = pC_->sync_writeReadController();
      }
   return status;
+}
+
+//Copy profileBackupPositions_ back into profilePositions_ after a CSAxis profile has been built
+void GalilAxis::restoreProfileData(void)
+{
+  unsigned i;		//Looping
+  int nPoints;		//Number of points in profile
+
+  //Retrieve required attributes from ParamList
+  pC_->getIntegerParam(0, pC_->profileNumPoints_, &nPoints);
+  //Act only if restore is required
+  if (restoreProfile_)
+     {
+     //Restore original GalilAxis profile data
+     for (i = 0; i < (unsigned)nPoints; i++)
+        profilePositions_[i] = profileBackupPositions_[i];
+     //After restore, reset flag to false
+     restoreProfile_ = false;
+     }
 }
 
 //Extract axis data from GalilController data record and

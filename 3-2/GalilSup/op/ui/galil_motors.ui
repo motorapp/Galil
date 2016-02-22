@@ -13,6 +13,9 @@
   <property name="windowTitle">
    <string>Motor control</string>
   </property>
+  <property name="frameShape">
+   <enum>QFrame::NoFrame</enum>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
     <number>1</number>
@@ -22,6 +25,9 @@
    </property>
    <item>
     <widget class="QEFormGrid" name="qeformgrid">
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
      <property name="uiFile">
       <string>galil_motor_basic.ui</string>
      </property>

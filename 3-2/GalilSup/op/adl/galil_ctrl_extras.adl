@@ -1,14 +1,14 @@
 
 file {
-	name="/home/ics/git/Galil-3-0/3-1/GalilSup/op/adl/galil_ctrl_extras.adl"
-	version=030105
+	name="/home/ics/git/Galil-3-0/3-2/GalilSup/op/adl/galil_ctrl_extras.adl"
+	version=030109
 }
 display {
 	object {
-		x=278
-		y=74
+		x=1015
+		y=135
 		width=410
-		height=646
+		height=615
 	}
 	clr=14
 	bclr=4
@@ -90,7 +90,7 @@ display {
 rectangle {
 	object {
 		x=124
-		y=18
+		y=8
 		width=150
 		height=28
 	}
@@ -102,9 +102,9 @@ rectangle {
 text {
 	object {
 		x=105
-		y=25
+		y=15
 		width=193
-		height=30
+		height=18
 	}
 	"basic attribute" {
 		clr=14
@@ -115,9 +115,9 @@ text {
 text {
 	object {
 		x=9
-		y=82
+		y=71
 		width=97
-		height=24
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -126,10 +126,10 @@ text {
 }
 "text update" {
 	object {
-		x=294
-		y=84
+		x=286
+		y=71
 		width=95
-		height=15
+		height=13
 	}
 	monitor {
 		chan="$(DMC)ADDRESS_MON"
@@ -142,9 +142,9 @@ text {
 text {
 	object {
 		x=9
-		y=106
+		y=91
 		width=97
-		height=24
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -153,10 +153,10 @@ text {
 }
 "text update" {
 	object {
-		x=294
-		y=105
+		x=286
+		y=91
 		width=95
-		height=15
+		height=13
 	}
 	monitor {
 		chan="$(DMC)COMMERR_STATUS"
@@ -170,9 +170,9 @@ text {
 text {
 	object {
 		x=9
-		y=60
+		y=52
 		width=97
-		height=24
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -181,10 +181,10 @@ text {
 }
 "text update" {
 	object {
-		x=294
-		y=63
+		x=286
+		y=52
 		width=120
-		height=15
+		height=13
 	}
 	monitor {
 		chan="$(DMC)MODEL_MON"
@@ -197,9 +197,9 @@ text {
 text {
 	object {
 		x=9
-		y=167
+		y=149
 		width=97
-		height=21
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -209,9 +209,9 @@ text {
 "choice button" {
 	object {
 		x=149
-		y=163
+		y=147
 		width=120
-		height=21
+		height=18
 	}
 	control {
 		chan="$(DMC)LIMITTYPE_CMD"
@@ -222,10 +222,10 @@ text {
 }
 "text update" {
 	object {
-		x=294
-		y=167
+		x=286
+		y=150
 		width=95
-		height=15
+		height=13
 	}
 	monitor {
 		chan="$(DMC)LIMITTYPE_STATUS"
@@ -238,9 +238,9 @@ text {
 text {
 	object {
 		x=9
-		y=189
+		y=168
 		width=69
-		height=21
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -250,9 +250,9 @@ text {
 "choice button" {
 	object {
 		x=149
-		y=184
+		y=165
 		width=120
-		height=21
+		height=18
 	}
 	control {
 		chan="$(DMC)HOMETYPE_CMD"
@@ -263,10 +263,10 @@ text {
 }
 "text update" {
 	object {
-		x=294
-		y=188
+		x=286
+		y=169
 		width=81
-		height=15
+		height=13
 	}
 	monitor {
 		chan="$(DMC)HOMETYPE_STATUS"
@@ -279,9 +279,9 @@ text {
 text {
 	object {
 		x=9
-		y=210
+		y=187
 		width=97
-		height=21
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -291,9 +291,9 @@ text {
 "choice button" {
 	object {
 		x=149
-		y=205
+		y=183
 		width=120
-		height=21
+		height=18
 	}
 	control {
 		chan="$(DMC)DEFER_CMD"
@@ -304,10 +304,10 @@ text {
 }
 "text update" {
 	object {
-		x=294
-		y=210
+		x=286
+		y=186
 		width=81
-		height=15
+		height=13
 	}
 	monitor {
 		chan="$(DMC)DEFER_STATUS"
@@ -320,9 +320,9 @@ text {
 text {
 	object {
 		x=9
-		y=231
+		y=205
 		width=97
-		height=21
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -332,9 +332,9 @@ text {
 menu {
 	object {
 		x=149
-		y=226
+		y=201
 		width=120
-		height=21
+		height=20
 	}
 	control {
 		chan="$(DMC)DEFER_MODE_CMD"
@@ -344,10 +344,10 @@ menu {
 }
 "text update" {
 	object {
-		x=294
-		y=253
+		x=286
+		y=224
 		width=81
-		height=15
+		height=13
 	}
 	monitor {
 		chan="$(DMC)COORDSYS_STATUS"
@@ -360,9 +360,9 @@ menu {
 "choice button" {
 	object {
 		x=149
-		y=247
+		y=220
 		width=120
-		height=21
+		height=18
 	}
 	control {
 		chan="$(DMC)COORDSYS_CMD"
@@ -373,10 +373,10 @@ menu {
 }
 text {
 	object {
-		x=10
-		y=253
+		x=9
+		y=224
 		width=97
-		height=21
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -385,8 +385,8 @@ text {
 }
 "related display" {
 	object {
-		x=149
-		y=278
+		x=150
+		y=248
 		width=15
 		height=15
 	}
@@ -405,10 +405,10 @@ text {
 }
 text {
 	object {
-		x=10
-		y=277
+		x=9
+		y=247
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -417,10 +417,10 @@ text {
 }
 text {
 	object {
-		x=10
-		y=300
+		x=9
+		y=270
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -429,8 +429,8 @@ text {
 }
 "related display" {
 	object {
-		x=149
-		y=301
+		x=150
+		y=271
 		width=15
 		height=15
 	}
@@ -444,10 +444,10 @@ text {
 }
 text {
 	object {
-		x=10
-		y=322
+		x=9
+		y=292
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -456,8 +456,8 @@ text {
 }
 "related display" {
 	object {
-		x=149
-		y=323
+		x=150
+		y=293
 		width=15
 		height=15
 	}
@@ -489,118 +489,107 @@ text {
 	clr=14
 	bclr=51
 }
-composite {
+"text update" {
 	object {
-		x=5
-		y=559
-		width=399
-		height=84
+		x=32
+		y=545
+		width=372
+		height=13
 	}
-	"composite name"=""
-	children {
-		"text update" {
-			object {
-				x=32
-				y=575
-				width=372
-				height=15
-			}
-			monitor {
-				chan="$(DMC)ERROR_MON"
-				clr=14
-				bclr=56
-			}
-			format="string"
-			limits {
-			}
-		}
-		text {
-			object {
-				x=5
-				y=590
-				width=65
-				height=17
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Command console"
-		}
-		"text entry" {
-			object {
-				x=32
-				y=607
-				width=372
-				height=20
-			}
-			control {
-				chan="$(DMC)SEND_STR_CMD"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=32
-				y=627
-				width=372
-				height=15
-			}
-			monitor {
-				chan="$(DMC)SEND_STR_MON"
-				clr=14
-				bclr=56
-			}
-			format="string"
-			limits {
-			}
-		}
-		text {
-			object {
-				x=5
-				y=609
-				width=65
-				height=17
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Cmd"
-		}
-		text {
-			object {
-				x=5
-				y=626
-				width=65
-				height=17
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Resp"
-		}
-		text {
-			object {
-				x=5
-				y=559
-				width=65
-				height=17
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Controller mesg"
-		}
+	monitor {
+		chan="$(DMC)ERROR_MON"
+		clr=14
+		bclr=56
+	}
+	format="string"
+	limits {
 	}
 }
 text {
 	object {
-		x=56
-		y=341
+		x=5
+		y=560
 		width=65
-		height=17
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Command console"
+}
+"text entry" {
+	object {
+		x=32
+		y=577
+		width=372
+		height=13
+	}
+	control {
+		chan="$(DMC)SEND_STR_CMD"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=32
+		y=597
+		width=372
+		height=13
+	}
+	monitor {
+		chan="$(DMC)SEND_STR_MON"
+		clr=14
+		bclr=56
+	}
+	format="string"
+	limits {
+	}
+}
+text {
+	object {
+		x=5
+		y=579
+		width=65
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Cmd"
+}
+text {
+	object {
+		x=5
+		y=596
+		width=65
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Resp"
+}
+text {
+	object {
+		x=5
+		y=529
+		width=65
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Controller mesg"
+}
+text {
+	object {
+		x=56
+		y=311
+		width=65
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -610,9 +599,9 @@ text {
 text {
 	object {
 		x=228
-		y=341
+		y=311
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -622,7 +611,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=366
+		y=336
 		width=15
 		height=15
 	}
@@ -642,9 +631,9 @@ text {
 text {
 	object {
 		x=56
-		y=365
+		y=335
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -653,8 +642,8 @@ text {
 }
 "related display" {
 	object {
-		x=149
-		y=366
+		x=150
+		y=336
 		width=15
 		height=15
 	}
@@ -679,9 +668,9 @@ text {
 text {
 	object {
 		x=56
-		y=387
+		y=357
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -690,8 +679,8 @@ text {
 }
 "related display" {
 	object {
-		x=149
-		y=388
+		x=150
+		y=358
 		width=15
 		height=15
 	}
@@ -715,8 +704,8 @@ text {
 }
 "related display" {
 	object {
-		x=149
-		y=410
+		x=150
+		y=380
 		width=15
 		height=15
 	}
@@ -741,9 +730,9 @@ text {
 text {
 	object {
 		x=56
-		y=409
+		y=379
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -753,9 +742,9 @@ text {
 text {
 	object {
 		x=56
-		y=431
+		y=401
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -764,8 +753,8 @@ text {
 }
 "related display" {
 	object {
-		x=149
-		y=432
+		x=150
+		y=402
 		width=15
 		height=15
 	}
@@ -790,9 +779,9 @@ text {
 text {
 	object {
 		x=56
-		y=452
+		y=422
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -801,8 +790,8 @@ text {
 }
 "related display" {
 	object {
-		x=149
-		y=453
+		x=150
+		y=423
 		width=15
 		height=15
 	}
@@ -826,8 +815,8 @@ text {
 }
 "related display" {
 	object {
-		x=149
-		y=475
+		x=150
+		y=445
 		width=15
 		height=15
 	}
@@ -852,9 +841,9 @@ text {
 text {
 	object {
 		x=56
-		y=474
+		y=444
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -864,9 +853,9 @@ text {
 text {
 	object {
 		x=56
-		y=496
+		y=466
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -875,8 +864,8 @@ text {
 }
 "related display" {
 	object {
-		x=149
-		y=497
+		x=150
+		y=467
 		width=15
 		height=15
 	}
@@ -900,8 +889,8 @@ text {
 }
 "related display" {
 	object {
-		x=149
-		y=519
+		x=150
+		y=489
 		width=15
 		height=15
 	}
@@ -926,9 +915,9 @@ text {
 text {
 	object {
 		x=56
-		y=518
+		y=488
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -938,9 +927,9 @@ text {
 text {
 	object {
 		x=228
-		y=365
+		y=335
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -950,9 +939,9 @@ text {
 text {
 	object {
 		x=228
-		y=387
+		y=357
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -962,9 +951,9 @@ text {
 text {
 	object {
 		x=228
-		y=409
+		y=379
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -974,9 +963,9 @@ text {
 text {
 	object {
 		x=228
-		y=431
+		y=401
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -986,9 +975,9 @@ text {
 text {
 	object {
 		x=228
-		y=452
+		y=422
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -998,9 +987,9 @@ text {
 text {
 	object {
 		x=228
-		y=474
+		y=444
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -1010,9 +999,9 @@ text {
 text {
 	object {
 		x=228
-		y=496
+		y=466
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -1022,9 +1011,9 @@ text {
 text {
 	object {
 		x=228
-		y=518
+		y=488
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -1034,7 +1023,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=388
+		y=358
 		width=15
 		height=15
 	}
@@ -1054,7 +1043,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=410
+		y=380
 		width=15
 		height=15
 	}
@@ -1074,7 +1063,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=432
+		y=402
 		width=15
 		height=15
 	}
@@ -1094,7 +1083,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=453
+		y=422
 		width=15
 		height=15
 	}
@@ -1114,7 +1103,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=475
+		y=444
 		width=15
 		height=15
 	}
@@ -1134,7 +1123,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=497
+		y=467
 		width=15
 		height=15
 	}
@@ -1154,7 +1143,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=519
+		y=489
 		width=15
 		height=15
 	}
@@ -1174,9 +1163,9 @@ text {
 text {
 	object {
 		x=56
-		y=540
+		y=510
 		width=75
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -1186,9 +1175,9 @@ text {
 text {
 	object {
 		x=228
-		y=541
+		y=511
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -1197,8 +1186,8 @@ text {
 }
 "related display" {
 	object {
-		x=149
-		y=540
+		x=150
+		y=510
 		width=15
 		height=15
 	}
@@ -1213,7 +1202,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=541
+		y=511
 		width=15
 		height=15
 	}
@@ -1227,10 +1216,10 @@ text {
 }
 "text update" {
 	object {
-		x=294
-		y=231
+		x=286
+		y=205
 		width=120
-		height=15
+		height=13
 	}
 	monitor {
 		chan="$(DMC)DEFER_MODE_STATUS"
@@ -1240,50 +1229,39 @@ text {
 	limits {
 	}
 }
-composite {
+"text update" {
+	object {
+		x=286
+		y=111
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(DMC)SSICAPABLE_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
 	object {
 		x=9
-		y=127
-		width=366
-		height=19
+		y=111
+		width=97
+		height=13
 	}
-	"composite name"=""
-	children {
-		"text update" {
-			object {
-				x=294
-				y=127
-				width=81
-				height=15
-			}
-			monitor {
-				chan="$(DMC)SSICAPABLE_STATUS"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		text {
-			object {
-				x=9
-				y=128
-				width=97
-				height=18
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="SSI Capable"
-		}
+	"basic attribute" {
+		clr=14
 	}
+	textix="SSI Capable"
 }
 "text update" {
 	object {
-		x=294
-		y=147
+		x=286
+		y=130
 		width=81
-		height=15
+		height=13
 	}
 	monitor {
 		chan="$(DMC)PVTCAPABLE_STATUS"
@@ -1296,9 +1274,9 @@ composite {
 text {
 	object {
 		x=9
-		y=148
+		y=130
 		width=97
-		height=18
+		height=13
 	}
 	"basic attribute" {
 		clr=14

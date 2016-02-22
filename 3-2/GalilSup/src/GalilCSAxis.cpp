@@ -881,6 +881,8 @@ asynStatus GalilCSAxis::transformCSAxisProfile(void)
      pAxis[i] = pC_->getAxis(revaxes_[i] - AASCII);
      if (!pAxis[i]) //Return error if any GalilAxis not instantiated
         return asynError;
+     else //Transform will proceed, and later restore is required for this GalilAxis
+        pAxis[i]->restoreProfile_ = true;
      }
 
    //Transform this CSAxis, and create Axis profile data
@@ -891,7 +893,12 @@ asynStatus GalilCSAxis::transformCSAxisProfile(void)
       status = reverseTransform(profilePositions_[i], 100, 100, NULL, npos, nvel, naccel);
       //Copy new axis profile data point into revaxes GalilAxis instances
       for (j = 0; j < strlen(revaxes_); j++)
+           {
+           //Backup GalilAxis profile data
+           pAxis[j]->profileBackupPositions_[i] = pAxis[j]->profilePositions_[i];
+           //Copy in new GalilAxis profile data from transform
            pAxis[j]->profilePositions_[i] = npos[j];
+           }
       }//Transform complete
 
    //Upload new points to database readback waveforms

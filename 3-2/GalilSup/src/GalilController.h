@@ -134,6 +134,7 @@
 #define GalilAutoBrakeOnDelayString     "MOTOR_AUTO_BRAKEONDELAY"
 #define GalilBrakePortString		"MOTOR_BRAKEPORT"
 #define GalilBrakeString		"MOTOR_BRAKE"
+#define GalilHomeAllowedString		"MOTOR_HOME_ALLOWED"
 
 #define GalilMainEncoderString		"MOTOR_MAIN_ENCODER"
 #define GalilAuxEncoderString		"MOTOR_AUX_ENCODER"
@@ -241,7 +242,7 @@ public:
   /* These are the functions for profile moves */
   //asynStatus initializeProfile(size_t maxPoints, const char* ftpUsername, const char* ftpPassword);
   asynStatus buildProfile();
-  asynStatus buildLinearProfile();
+  asynStatus buildProfileFile();
   asynStatus checkCSAxisProfiles(int mesg_function);
   asynStatus transformCSAxisProfiles();
   asynStatus executeProfile();
@@ -373,6 +374,7 @@ protected:
   int GalilAutoBrakeOnDelay_;
   int GalilBrakePort_;
   int GalilBrake_;
+  int GalilHomeAllowed_;
 
   int GalilMainEncoder_;
   int GalilAuxEncoder_;
@@ -440,6 +442,8 @@ private:
   epicsTimeStamp begin_begint_;		//Used to track length of time motor begin takes
 
   bool movesDeferred_;			//Should moves be deferred for this controller
+
+  long maxAcceleration_;		//Maximum acceleration on this model
 
   bool coordSysStopping_[2];		//Coordinate system stopping status.  Used to process limit status for csaxes
 

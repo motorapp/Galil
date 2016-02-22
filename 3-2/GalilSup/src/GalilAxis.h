@@ -123,6 +123,8 @@ public:
   asynStatus setBrake(bool enable);
   //Restore the motor brake status after axisReady_
   asynStatus restoreBrake(void);
+  //Copy profileBackupPositions_ back into profilePositions_ after a CSAxis profile has been built
+  void restoreProfileData(void);
 
   /* These are the methods we override from the base class */
   asynStatus move(double position, int relative, double minVelocity, double maxVelocity, double acceleration);
@@ -203,7 +205,11 @@ private:
   bool homedExecuted_;			//Homed message has been executed by pollServices
   bool cancelHomeSent_;			//Cancel home process message sent to pollServices
 
-  double *calculatedPositions_;         //Real motor profile positions calculated from CSAxis profile
+
+  bool restoreProfile_;			//Should profileBackupPositions_ be copied into profilePositions_ after orofile built complete? 
+                                        //True for all GalilAxis involved in CSAxis profile build, set false at built end
+  double *profileBackupPositions_;	//Profile positions backup for this axis, restored after profile is built
+  double *calculatedPositions_;         //Real motor profile positions in egu calculated from CSAxis profile
 
 friend class GalilController;
 friend class GalilCSAxis;

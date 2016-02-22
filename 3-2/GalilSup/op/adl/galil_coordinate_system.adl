@@ -1,7 +1,7 @@
 
 file {
-	name="/beamline/perforce/Dev/SBS/4_Controls/4_3_Network_Infrastructure/4_3_1_Comms_Common_Services/sw/device_drivers/Galil/3-0/GalilSup/op/adl/galil_coordinate_system.adl"
-	version=030105
+	name="/home/ics/git/Galil-3-0/3-2/GalilSup/op/adl/galil_coordinate_system.adl"
+	version=030109
 }
 display {
 	object {
@@ -90,7 +90,7 @@ display {
 rectangle {
 	object {
 		x=123
-		y=19
+		y=8
 		width=150
 		height=28
 	}
@@ -102,9 +102,9 @@ rectangle {
 text {
 	object {
 		x=105
-		y=25
+		y=15
 		width=193
-		height=30
+		height=18
 	}
 	"basic attribute" {
 		clr=14
@@ -117,7 +117,7 @@ text {
 		x=23
 		y=82
 		width=97
-		height=24
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -129,7 +129,7 @@ text {
 		x=23
 		y=129
 		width=97
-		height=24
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -141,7 +141,7 @@ text {
 		x=23
 		y=106
 		width=97
-		height=24
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -153,7 +153,7 @@ text {
 		x=23
 		y=60
 		width=97
-		height=24
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -165,7 +165,7 @@ text {
 		x=277
 		y=63
 		width=95
-		height=15
+		height=13
 	}
 	monitor {
 		chan="$(P)$(R)_NAME_MON"
@@ -180,7 +180,7 @@ text {
 		x=277
 		y=84
 		width=95
-		height=15
+		height=13
 	}
 	monitor {
 		chan="$(P)$(R)_MOTORS_MON"
@@ -195,7 +195,7 @@ text {
 		x=277
 		y=107
 		width=95
-		height=15
+		height=13
 	}
 	monitor {
 		chan="$(P)$(R)_MOVN_STATUS"
@@ -210,7 +210,7 @@ text {
 		x=277
 		y=129
 		width=95
-		height=15
+		height=13
 	}
 	monitor {
 		chan="$(P)$(R)_SEGMENTS_MON"
@@ -239,7 +239,7 @@ text {
 		x=23
 		y=151
 		width=97
-		height=24
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -251,7 +251,7 @@ text {
 		x=23
 		y=174
 		width=97
-		height=24
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -295,7 +295,7 @@ text {
 		x=23
 		y=197
 		width=97
-		height=18
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -307,7 +307,7 @@ text {
 		x=277
 		y=197
 		width=81
-		height=15
+		height=13
 	}
 	monitor {
 		chan="$(P)DEFER_STATUS"

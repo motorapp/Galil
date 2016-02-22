@@ -1,12 +1,12 @@
 
 file {
-	name="/beamline/perforce/Dev/SBS/4_Controls/4_3_Network_Infrastructure/4_3_1_Comms_Common_Services/sw/device_drivers/Galil/3-0/GalilSup/op/adl/galil_SSI.adl"
-	version=030105
+	name="/home/ics/git/Galil-3-0/3-2/GalilSup/op/adl/galil_SSI.adl"
+	version=030109
 }
 display {
 	object {
-		x=652
-		y=340
+		x=896
+		y=195
 		width=400
 		height=218
 	}
@@ -87,48 +87,37 @@ display {
 		1a7309,
 	}
 }
-composite {
+rectangle {
+	object {
+		x=129
+		y=7
+		width=129
+		height=25
+	}
+	"basic attribute" {
+		clr=14
+		fill="outline"
+	}
+}
+text {
 	object {
 		x=99
-		y=9
+		y=12
 		width=193
-		height=37
+		height=18
 	}
-	"composite name"=""
-	children {
-		rectangle {
-			object {
-				x=129
-				y=9
-				width=129
-				height=28
-			}
-			"basic attribute" {
-				clr=14
-				fill="outline"
-			}
-		}
-		text {
-			object {
-				x=99
-				y=16
-				width=193
-				height=30
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="SSI Settings"
-			align="horiz. centered"
-		}
+	"basic attribute" {
+		clr=14
 	}
+	textix="SSI Settings"
+	align="horiz. centered"
 }
 text {
 	object {
 		x=8
 		y=46
 		width=97
-		height=18
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -140,7 +129,7 @@ text {
 		x=150
 		y=48
 		width=58
-		height=18
+		height=13
 	}
 	monitor {
 		chan="$(P)$(M)_AXIS_STATUS"
@@ -154,8 +143,8 @@ text {
 	object {
 		x=150
 		y=65
-		width=120
-		height=18
+		width=200
+		height=13
 	}
 	monitor {
 		chan="$(P)$(M).NAME"
@@ -170,7 +159,7 @@ text {
 		x=8
 		y=64
 		width=97
-		height=18
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -182,7 +171,7 @@ text {
 		x=8
 		y=139
 		width=69
-		height=18
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -194,7 +183,7 @@ text {
 		x=8
 		y=156
 		width=69
-		height=18
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -206,7 +195,7 @@ text {
 		x=8
 		y=176
 		width=69
-		height=18
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -263,7 +252,7 @@ text {
 		x=8
 		y=122
 		width=69
-		height=18
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -290,7 +279,7 @@ text {
 		x=274
 		y=180
 		width=81
-		height=18
+		height=13
 	}
 	monitor {
 		chan="$(P)$(M)_SSITIME_MON"
@@ -305,7 +294,7 @@ text {
 		x=274
 		y=162
 		width=81
-		height=18
+		height=13
 	}
 	monitor {
 		chan="$(P)$(M)_SSIERRBITS_MON"
@@ -320,7 +309,7 @@ text {
 		x=274
 		y=144
 		width=81
-		height=18
+		height=13
 	}
 	monitor {
 		chan="$(P)$(M)_SSISINGLETBITS_MON"
@@ -335,7 +324,7 @@ text {
 		x=274
 		y=126
 		width=81
-		height=18
+		height=13
 	}
 	monitor {
 		chan="$(P)$(M)_SSITOTBITS_MON"
@@ -350,7 +339,7 @@ text {
 		x=8
 		y=194
 		width=69
-		height=18
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -376,7 +365,7 @@ text {
 		x=274
 		y=197
 		width=81
-		height=18
+		height=13
 	}
 	monitor {
 		chan="$(P)$(M)_SSIDATA_STATUS"
@@ -391,7 +380,7 @@ text {
 		x=8
 		y=85
 		width=69
-		height=18
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -402,8 +391,8 @@ text {
 	object {
 		x=150
 		y=85
-		width=81
-		height=18
+		width=100
+		height=13
 	}
 	monitor {
 		chan="$(P)$(M)_SCONN_STATUS"
@@ -418,7 +407,7 @@ text {
 		x=8
 		y=103
 		width=69
-		height=18
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -443,7 +432,7 @@ menu {
 		x=274
 		y=108
 		width=81
-		height=18
+		height=13
 	}
 	monitor {
 		chan="$(P)$(M)_SSIINPUT_STATUS"
