@@ -378,6 +378,41 @@ record(bo,"$(P):$(M)_SSIDATA_CMD")
 	field(FLNK, "$(P):$(M)_SSIDATA_STATUS")
 }
 
+record(mbbo,"$(P):$(M)_HOMEALLOWED_CMD")
+{
+	field(DESC, "Home allowed")
+	field(PINI, "YES")
+	field(DTYP, "asynInt32")
+	field(ZRST, "None")
+	field(ONST, "Reverse")
+	field(TWST, "Forward")
+	field(THST, "Both")
+	field(ZRVL, "0")
+	field(ONVL, "1")
+	field(TWVL, "2")
+	field(THVL, "3")
+	field(VAL,  "0")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_HOME_ALLOWED")
+	field(FLNK, "$(P):$(M)_HOMEALLOWED_STATUS")
+}
+
+record(mbbi,"$(P):$(M)_HOMEALLOWED_STATUS")
+{
+	field(DESC, "Home allowed")
+	field(SCAN, "$(SCAN)")
+	field(DTYP, "asynInt32")
+	field(ZRST, "None")
+	field(ONST, "Reverse")
+	field(TWST, "Forward")
+	field(THST, "Both")
+	field(ZRVL, "0")
+	field(ONVL, "1")
+	field(TWVL, "2")
+	field(THVL, "3")
+	field(VAL,  "0")
+	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_HOME_ALLOWED")
+}
+
 record(ao,"$(P):$(M)_ERRLIMIT_SP")
 {
 	field(DESC,"error limit")

@@ -100,7 +100,9 @@
 // 11/02/16 M.Clift 
 //                  Tidy up CSAxis reverse, forward transforms
 //                  Further fixes to setOutputCompare
-//                  Last branch 3-1 commit
+// 22/02/16 M.Clift
+//                  Added home allowed to motor extras
+//                  Reworked MEDM screens for APS fonts
 
 #include <stdio.h>
 #include <math.h>
@@ -288,6 +290,7 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilAutoBrakeOnDelayString, asynParamFloat64, &GalilAutoBrakeOnDelay_);
   createParam(GalilBrakePortString, asynParamInt32, &GalilBrakePort_);
   createParam(GalilBrakeString, asynParamInt32, &GalilBrake_);
+  createParam(GalilHomeAllowedString, asynParamInt32, &GalilHomeAllowed_);
 
   createParam(GalilMainEncoderString, asynParamInt32, &GalilMainEncoder_);
   createParam(GalilAuxEncoderString, asynParamInt32, &GalilAuxEncoder_);

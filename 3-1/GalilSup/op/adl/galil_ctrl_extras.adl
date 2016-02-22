@@ -1,14 +1,14 @@
 
 file {
 	name="/home/ics/git/Galil-3-0/3-1/GalilSup/op/adl/galil_ctrl_extras.adl"
-	version=030105
+	version=030109
 }
 display {
 	object {
-		x=747
-		y=63
+		x=594
+		y=133
 		width=410
-		height=633
+		height=598
 	}
 	clr=14
 	bclr=4
@@ -90,7 +90,7 @@ display {
 rectangle {
 	object {
 		x=124
-		y=18
+		y=8
 		width=150
 		height=28
 	}
@@ -102,9 +102,9 @@ rectangle {
 text {
 	object {
 		x=105
-		y=25
+		y=15
 		width=193
-		height=30
+		height=18
 	}
 	"basic attribute" {
 		clr=14
@@ -115,9 +115,9 @@ text {
 text {
 	object {
 		x=9
-		y=82
+		y=71
 		width=97
-		height=24
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -126,10 +126,10 @@ text {
 }
 "text update" {
 	object {
-		x=294
-		y=84
+		x=286
+		y=71
 		width=95
-		height=15
+		height=13
 	}
 	monitor {
 		chan="$(DMC)ADDRESS_MON"
@@ -142,9 +142,9 @@ text {
 text {
 	object {
 		x=9
-		y=106
+		y=91
 		width=97
-		height=24
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -153,10 +153,10 @@ text {
 }
 "text update" {
 	object {
-		x=294
-		y=105
+		x=286
+		y=91
 		width=95
-		height=15
+		height=13
 	}
 	monitor {
 		chan="$(DMC)COMMERR_STATUS"
@@ -170,9 +170,9 @@ text {
 text {
 	object {
 		x=9
-		y=60
+		y=52
 		width=97
-		height=24
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -181,10 +181,10 @@ text {
 }
 "text update" {
 	object {
-		x=294
-		y=63
+		x=286
+		y=52
 		width=120
-		height=15
+		height=13
 	}
 	monitor {
 		chan="$(DMC)MODEL_MON"
@@ -197,36 +197,9 @@ text {
 text {
 	object {
 		x=9
-		y=128
+		y=129
 		width=97
-		height=18
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="SSI Capable"
-}
-"text update" {
-	object {
-		x=294
-		y=127
-		width=81
-		height=15
-	}
-	monitor {
-		chan="$(DMC)SSICAPABLE_STATUS"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-text {
-	object {
-		x=9
-		y=149
-		width=97
-		height=21
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -236,9 +209,9 @@ text {
 "choice button" {
 	object {
 		x=149
-		y=145
+		y=127
 		width=120
-		height=21
+		height=18
 	}
 	control {
 		chan="$(DMC)LIMITTYPE_CMD"
@@ -249,10 +222,10 @@ text {
 }
 "text update" {
 	object {
-		x=294
-		y=149
+		x=286
+		y=130
 		width=95
-		height=15
+		height=13
 	}
 	monitor {
 		chan="$(DMC)LIMITTYPE_STATUS"
@@ -265,9 +238,9 @@ text {
 text {
 	object {
 		x=9
-		y=171
+		y=148
 		width=69
-		height=21
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -277,9 +250,9 @@ text {
 "choice button" {
 	object {
 		x=149
-		y=166
+		y=145
 		width=120
-		height=21
+		height=18
 	}
 	control {
 		chan="$(DMC)HOMETYPE_CMD"
@@ -290,10 +263,10 @@ text {
 }
 "text update" {
 	object {
-		x=294
-		y=170
+		x=286
+		y=149
 		width=81
-		height=15
+		height=13
 	}
 	monitor {
 		chan="$(DMC)HOMETYPE_STATUS"
@@ -306,9 +279,9 @@ text {
 text {
 	object {
 		x=9
-		y=192
+		y=167
 		width=97
-		height=21
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -318,9 +291,9 @@ text {
 "choice button" {
 	object {
 		x=149
-		y=187
+		y=163
 		width=120
-		height=21
+		height=18
 	}
 	control {
 		chan="$(DMC)DEFER_CMD"
@@ -331,10 +304,10 @@ text {
 }
 "text update" {
 	object {
-		x=294
-		y=192
+		x=286
+		y=166
 		width=81
-		height=15
+		height=13
 	}
 	monitor {
 		chan="$(DMC)DEFER_STATUS"
@@ -347,36 +320,21 @@ text {
 text {
 	object {
 		x=9
-		y=213
+		y=185
 		width=97
-		height=21
+		height=13
 	}
 	"basic attribute" {
 		clr=14
 	}
 	textix="Deferred mode"
 }
-"text update" {
-	object {
-		x=294
-		y=213
-		width=120
-		height=15
-	}
-	monitor {
-		chan="$(DMC)DEFER_MODE_STATUS"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
 menu {
 	object {
-		x=150
-		y=209
+		x=149
+		y=181
 		width=120
-		height=21
+		height=20
 	}
 	control {
 		chan="$(DMC)DEFER_MODE_CMD"
@@ -386,10 +344,10 @@ menu {
 }
 "text update" {
 	object {
-		x=294
-		y=235
+		x=286
+		y=204
 		width=81
-		height=15
+		height=13
 	}
 	monitor {
 		chan="$(DMC)COORDSYS_STATUS"
@@ -402,9 +360,9 @@ menu {
 "choice button" {
 	object {
 		x=149
-		y=230
+		y=200
 		width=120
-		height=21
+		height=18
 	}
 	control {
 		chan="$(DMC)COORDSYS_CMD"
@@ -415,10 +373,10 @@ menu {
 }
 text {
 	object {
-		x=10
-		y=235
+		x=9
+		y=204
 		width=97
-		height=21
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -427,8 +385,8 @@ text {
 }
 "related display" {
 	object {
-		x=149
-		y=260
+		x=150
+		y=228
 		width=15
 		height=15
 	}
@@ -447,10 +405,10 @@ text {
 }
 text {
 	object {
-		x=10
-		y=259
+		x=9
+		y=227
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -459,37 +417,10 @@ text {
 }
 text {
 	object {
-		x=10
-		y=282
+		x=9
+		y=250
 		width=65
-		height=17
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Profile move"
-}
-"related display" {
-	object {
-		x=149
-		y=283
-		width=15
-		height=15
-	}
-	display[0] {
-		label="Profile 1"
-		name="galil_profileMove.adl"
-		args="P=$(DMC),TITLE=Galil profile, R=Prof1:, M1=A, M2=B, M3=C, M4=D, M5=E, M6=F, M7=G, M8=H"
-	}
-	clr=14
-	bclr=51
-}
-text {
-	object {
-		x=10
-		y=304
-		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -498,8 +429,8 @@ text {
 }
 "related display" {
 	object {
-		x=149
-		y=305
+		x=150
+		y=251
 		width=15
 		height=15
 	}
@@ -513,10 +444,10 @@ text {
 }
 text {
 	object {
-		x=10
-		y=326
+		x=9
+		y=272
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -525,8 +456,8 @@ text {
 }
 "related display" {
 	object {
-		x=149
-		y=327
+		x=150
+		y=273
 		width=15
 		height=15
 	}
@@ -558,10 +489,129 @@ text {
 	clr=14
 	bclr=51
 }
+"text update" {
+	object {
+		x=32
+		y=525
+		width=372
+		height=13
+	}
+	monitor {
+		chan="$(DMC)ERROR_MON"
+		clr=14
+		bclr=56
+	}
+	format="string"
+	limits {
+	}
+}
+text {
+	object {
+		x=5
+		y=540
+		width=65
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Command console"
+}
+"text entry" {
+	object {
+		x=32
+		y=557
+		width=372
+		height=13
+	}
+	control {
+		chan="$(DMC)SEND_STR_CMD"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=32
+		y=577
+		width=372
+		height=13
+	}
+	monitor {
+		chan="$(DMC)SEND_STR_MON"
+		clr=14
+		bclr=56
+	}
+	format="string"
+	limits {
+	}
+}
+text {
+	object {
+		x=5
+		y=559
+		width=65
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Cmd"
+}
+text {
+	object {
+		x=5
+		y=576
+		width=65
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Resp"
+}
+text {
+	object {
+		x=5
+		y=509
+		width=65
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Controller mesg"
+}
+text {
+	object {
+		x=56
+		y=291
+		width=65
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Real motors"
+}
+text {
+	object {
+		x=228
+		y=291
+		width=65
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="CS motors"
+}
 "related display" {
 	object {
 		x=330
-		y=372
+		y=316
 		width=15
 		height=15
 	}
@@ -578,130 +628,12 @@ text {
 	clr=14
 	bclr=51
 }
-composite {
-	object {
-		x=5
-		y=546
-		width=399
-		height=84
-	}
-	"composite name"=""
-	children {
-		"text update" {
-			object {
-				x=32
-				y=562
-				width=372
-				height=15
-			}
-			monitor {
-				chan="$(DMC)ERROR_MON"
-				clr=14
-				bclr=56
-			}
-			format="string"
-			limits {
-			}
-		}
-		text {
-			object {
-				x=5
-				y=577
-				width=65
-				height=17
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Command console"
-		}
-		"text entry" {
-			object {
-				x=32
-				y=594
-				width=372
-				height=20
-			}
-			control {
-				chan="$(DMC)SEND_STR_CMD"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=32
-				y=614
-				width=372
-				height=15
-			}
-			monitor {
-				chan="$(DMC)SEND_STR_MON"
-				clr=14
-				bclr=56
-			}
-			format="string"
-			limits {
-			}
-		}
-		text {
-			object {
-				x=5
-				y=596
-				width=65
-				height=17
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Cmd"
-		}
-		text {
-			object {
-				x=5
-				y=613
-				width=65
-				height=17
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Resp"
-		}
-		text {
-			object {
-				x=5
-				y=546
-				width=65
-				height=17
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Controller mesg"
-		}
-	}
-}
 text {
 	object {
 		x=56
-		y=350
+		y=315
 		width=65
-		height=17
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Real motors"
-}
-text {
-	object {
-		x=56
-		y=371
-		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -710,8 +642,8 @@ text {
 }
 "related display" {
 	object {
-		x=149
-		y=372
+		x=150
+		y=316
 		width=15
 		height=15
 	}
@@ -736,9 +668,9 @@ text {
 text {
 	object {
 		x=56
-		y=393
+		y=337
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -747,8 +679,8 @@ text {
 }
 "related display" {
 	object {
-		x=149
-		y=394
+		x=150
+		y=338
 		width=15
 		height=15
 	}
@@ -772,8 +704,8 @@ text {
 }
 "related display" {
 	object {
-		x=149
-		y=416
+		x=150
+		y=360
 		width=15
 		height=15
 	}
@@ -798,9 +730,9 @@ text {
 text {
 	object {
 		x=56
-		y=415
+		y=359
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -810,9 +742,9 @@ text {
 text {
 	object {
 		x=56
-		y=437
+		y=381
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -821,8 +753,8 @@ text {
 }
 "related display" {
 	object {
-		x=149
-		y=438
+		x=150
+		y=382
 		width=15
 		height=15
 	}
@@ -847,9 +779,9 @@ text {
 text {
 	object {
 		x=56
-		y=458
+		y=402
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -858,8 +790,8 @@ text {
 }
 "related display" {
 	object {
-		x=149
-		y=459
+		x=150
+		y=403
 		width=15
 		height=15
 	}
@@ -883,8 +815,8 @@ text {
 }
 "related display" {
 	object {
-		x=149
-		y=481
+		x=150
+		y=425
 		width=15
 		height=15
 	}
@@ -909,9 +841,9 @@ text {
 text {
 	object {
 		x=56
-		y=480
+		y=424
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -921,9 +853,9 @@ text {
 text {
 	object {
 		x=56
-		y=502
+		y=446
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -932,8 +864,8 @@ text {
 }
 "related display" {
 	object {
-		x=149
-		y=503
+		x=150
+		y=447
 		width=15
 		height=15
 	}
@@ -957,8 +889,8 @@ text {
 }
 "related display" {
 	object {
-		x=149
-		y=525
+		x=150
+		y=469
 		width=15
 		height=15
 	}
@@ -983,9 +915,9 @@ text {
 text {
 	object {
 		x=56
-		y=524
+		y=468
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -995,21 +927,9 @@ text {
 text {
 	object {
 		x=228
-		y=350
+		y=315
 		width=65
-		height=17
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="CS motors"
-}
-text {
-	object {
-		x=228
-		y=371
-		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -1019,9 +939,9 @@ text {
 text {
 	object {
 		x=228
-		y=393
+		y=337
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -1031,9 +951,9 @@ text {
 text {
 	object {
 		x=228
-		y=415
+		y=359
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -1043,9 +963,9 @@ text {
 text {
 	object {
 		x=228
-		y=437
+		y=381
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -1055,9 +975,9 @@ text {
 text {
 	object {
 		x=228
-		y=458
+		y=402
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -1067,9 +987,9 @@ text {
 text {
 	object {
 		x=228
-		y=480
+		y=424
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -1079,9 +999,9 @@ text {
 text {
 	object {
 		x=228
-		y=502
+		y=446
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -1091,9 +1011,9 @@ text {
 text {
 	object {
 		x=228
-		y=524
+		y=468
 		width=65
-		height=17
+		height=13
 	}
 	"basic attribute" {
 		clr=14
@@ -1103,7 +1023,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=394
+		y=338
 		width=15
 		height=15
 	}
@@ -1123,7 +1043,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=416
+		y=360
 		width=15
 		height=15
 	}
@@ -1143,7 +1063,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=438
+		y=382
 		width=15
 		height=15
 	}
@@ -1163,7 +1083,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=459
+		y=402
 		width=15
 		height=15
 	}
@@ -1183,7 +1103,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=481
+		y=424
 		width=15
 		height=15
 	}
@@ -1203,7 +1123,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=503
+		y=447
 		width=15
 		height=15
 	}
@@ -1223,7 +1143,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=525
+		y=469
 		width=15
 		height=15
 	}
@@ -1239,4 +1159,100 @@ text {
 	}
 	clr=14
 	bclr=51
+}
+text {
+	object {
+		x=56
+		y=490
+		width=75
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Profile move"
+}
+text {
+	object {
+		x=228
+		y=491
+		width=65
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Profile move"
+}
+"related display" {
+	object {
+		x=150
+		y=490
+		width=15
+		height=15
+	}
+	display[0] {
+		label="Profile 1"
+		name="galil_profileMove.adl"
+		args="P=$(DMC),TITLE=Galil profile, R=Prof1:, M1=A, M2=B, M3=C, M4=D, M5=E, M6=F, M7=G, M8=H"
+	}
+	clr=14
+	bclr=51
+}
+"related display" {
+	object {
+		x=330
+		y=491
+		width=15
+		height=15
+	}
+	display[0] {
+		label="Profile 1"
+		name="galil_CSprofileMove.adl"
+		args="P=$(DMC),TITLE=Galil CS profile, R=Prof1:, M9=I, M10=J, M11=K, M12=L, M13=M, M14=N, M15=O, M16=P"
+	}
+	clr=14
+	bclr=51
+}
+"text update" {
+	object {
+		x=286
+		y=185
+		width=120
+		height=13
+	}
+	monitor {
+		chan="$(DMC)DEFER_MODE_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=286
+		y=111
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(DMC)SSICAPABLE_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=9
+		y=111
+		width=97
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="SSI Capable"
 }

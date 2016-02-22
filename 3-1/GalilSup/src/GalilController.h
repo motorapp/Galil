@@ -131,6 +131,7 @@
 #define GalilAutoBrakeOnDelayString     "MOTOR_AUTO_BRAKEONDELAY"
 #define GalilBrakePortString		"MOTOR_BRAKEPORT"
 #define GalilBrakeString		"MOTOR_BRAKE"
+#define GalilHomeAllowedString		"MOTOR_HOME_ALLOWED"
 
 #define GalilMainEncoderString		"MOTOR_MAIN_ENCODER"
 #define GalilAuxEncoderString		"MOTOR_AUX_ENCODER"
@@ -363,6 +364,7 @@ protected:
   int GalilAutoBrakeOnDelay_;
   int GalilBrakePort_;
   int GalilBrake_;
+  int GalilHomeAllowed_;
 
   int GalilMainEncoder_;
   int GalilAuxEncoder_;

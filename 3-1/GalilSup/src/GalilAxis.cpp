@@ -579,6 +579,7 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
   double egu_after_limit;
   double deccel;
   double distance;
+  int homeAllowed;		//Home types allowed
   int ssiinput;			//SSI encoder register
   int ssicapable;		//SSI capable
   char mesg[MAX_GALIL_STRING_SIZE]; //Message to user
@@ -586,6 +587,22 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
   //Retrieve needed param
   pC_->getIntegerParam(axisNo_, pC_->GalilSSIInput_, &ssiinput);
   pC_->getIntegerParam(pC_->GalilSSICapable_, &ssicapable);
+  pC_->getIntegerParam(axisNo_, pC_->GalilHomeAllowed_, &homeAllowed);
+
+  //Check if requested home type is allowed
+  strcpy(mesg, "");
+  if (!homeAllowed)
+     sprintf(mesg, "%c motor extra settings do not allow home", axisName_);
+  if (homeAllowed == 1 && forwards)
+     sprintf(mesg, "%c motor extra settings do not allow forward home", axisName_);
+  if (homeAllowed == 2 && !forwards)
+     sprintf(mesg, "%c motor extra settings do not allow reverse home", axisName_);
+  //If problem with settings, do nothing
+  if (strcmp(mesg, "") != 0)
+     {
+     pC_->setCtrlError(mesg);
+     return asynSuccess;
+     }
 
   //Homing not supported for absolute encoders, just move it where you want
   if (ssiinput && ssicapable)
@@ -687,7 +704,7 @@ asynStatus GalilAxis::beginCheck(const char *functionName, double maxVelocity)
   //Dont start if wlp is on, and its been activated
   if (wlp && wlpactive)
 	{
-	sprintf(mesg, "%s failed, wlp active for axis %c", functionName, axisName_);
+	sprintf(mesg, "%s failed, wrong limit protect active for axis %c", functionName, axisName_);
 	//Set controller error mesg monitor
 	pC_->setCtrlError(mesg);
 	return asynError;  //Nothing to do 
