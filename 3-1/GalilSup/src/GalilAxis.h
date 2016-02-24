@@ -28,6 +28,12 @@
 #define KDMAX			4095.875
 #define HOMING_TIMEOUT		3.5
 
+//Home type allowed
+#define HOME_NONE 0
+#define HOME_REV 1
+#define HOME_FWD 2
+#define HOME_BOTH 3
+
 //pollServices request numbers
 static const int MOTOR_STOP = 0;
 static const int MOTOR_POST = 1;

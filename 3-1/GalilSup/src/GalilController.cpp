@@ -103,6 +103,8 @@
 // 22/02/16 M.Clift
 //                  Added home allowed to motor extras
 //                  Reworked MEDM screens for APS fonts
+// 24/02/16 M.Clift 
+//                  Add CSAxis home method
 
 #include <stdio.h>
 #include <math.h>

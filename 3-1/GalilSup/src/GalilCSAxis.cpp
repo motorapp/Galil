@@ -428,6 +428,72 @@ asynStatus GalilCSAxis::stop(double acceleration)
   return asynSuccess;
 }
 
+/** Move the motor to the home position.
+  * \param[in] minVelocity The initial velocity, often called the base velocity. Units=steps/sec.
+  * \param[in] maxVelocity The maximum velocity, often called the slew velocity. Units=steps/sec.
+  * \param[in] acceleration The acceleration value. Units=steps/sec/sec.
+  * \param[in] forwards  Flag indicating to move the motor in the forward direction(1) or reverse direction(0).
+  *                      Some controllers need to be told the direction, others know which way to go to home. */
+asynStatus GalilCSAxis::home(double minVelocity, double maxVelocity, double acceleration, int forwards)
+{
+   unsigned i;		//Looping
+   GalilAxis *pAxis;	//GalilAxis
+   double npos[MAX_GALIL_AXES];		//Real axis position targets
+   double nvel[MAX_GALIL_AXES];		//Real axis velocity targets
+   double naccel[MAX_GALIL_AXES];	//Real axis acceleration targets
+   int dir;				//Reverse axis home direction
+   int hometypeallowed;			//Home type allowed
+   int status;				//Driver status
+
+   //Perform reverse transform to get real motor accelerations and velocities
+   //We dont care about position here (arbitary 100)
+   status = reverseTransform(100, maxVelocity, acceleration, NULL, npos, nvel, naccel);
+
+   if (!status)
+      {
+      //Loop thru real motor list, and send them home
+      for (i = 0; i < (unsigned)strlen(revaxes_); i++)
+         {
+         //Retrieve axis
+         pAxis = pC_->getAxis(revaxes_[i] - AASCII);
+         //Process or skip
+         if (!pAxis) continue;
+         //Retrieve home type allowed for this axis
+         pC_->getIntegerParam(pAxis->axisNo_, pC_->GalilHomeAllowed_, &hometypeallowed);
+         //Work out direction to home this axis
+         //CSAxis home is forward
+         if (forwards)
+            {
+            if (hometypeallowed == HOME_FWD || hometypeallowed == HOME_BOTH)
+               dir = 1;  //Axis allows forward home
+            else
+               {
+               //Axis does not allow forward home, so try reverse instead
+               if (hometypeallowed == HOME_REV)
+                  dir = 0;
+               }
+            }
+         else
+            {
+            //CSAxis home is reverse
+            if (hometypeallowed == HOME_REV || hometypeallowed == HOME_BOTH)
+               dir = 0;  //Axis allows reverse home
+            else
+               {
+               //Axis does not allow reverse home, so try forward instead
+               if (hometypeallowed == HOME_FWD)
+                  dir = 1;
+               }
+            }
+         //Home axis in direction we worked out above
+         //If homing not allowed, GalilAxis::home will handle it
+         pAxis->home(minVelocity, nvel[i], naccel[i], dir);
+         }
+      }
+
+   return asynSuccess;
+}
+
 /** Select a free coordinate system, or return -1
   */
 int GalilCSAxis::selectFreeCoordinateSystem(void)
