@@ -70,7 +70,7 @@ public:
   /* These are the methods we override from the base class */
   asynStatus move(double position, int relative, double min_velocity, double max_velocity, double acceleration);
   asynStatus moveVelocity(double min_velocity, double max_velocity, double acceleration);
-  //asynStatus home(double min_velocity, double max_velocity, double acceleration, int forwards);
+  asynStatus home(double minVelocity, double maxVelocity, double acceleration, int forwards);
   asynStatus stop(double acceleration);
   asynStatus initializeProfile(size_t maxProfilePoints);
   asynStatus poll(bool *moving);
@@ -94,7 +94,6 @@ private:
   char **reverse_;			//Reverse transforms to calculate each axis position in the coordinate system
   char **revvars_;			//Reverse kinematic variables List of Q-Z
   char **revsubs_;			//Reverse kinematic substitutes List of A-P
-  int coordsys_;			//The coordinate system S or T that we started when moving
   bool stop_onlimit_;			//Is a real motor in the cs axis stopping on a limit
   bool stop_issued_;			//CSAxis stop issued
   bool move_started_;			//Has a move been initiated from this cs axis

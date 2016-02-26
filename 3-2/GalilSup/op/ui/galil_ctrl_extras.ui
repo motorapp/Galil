@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>456</width>
-    <height>556</height>
+    <height>580</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -251,57 +251,6 @@
         </item>
        </layout>
       </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_20" stretch="4,3">
-        <item>
-         <widget class="QLabel" name="label_16">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="sizeIncrement">
-           <size>
-            <width>1</width>
-            <height>1</height>
-           </size>
-          </property>
-          <property name="font">
-           <font>
-            <family>Abyssinica SIL</family>
-            <pointsize>9</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>PVT capable</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QELabel" name="qelabel_14">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="font">
-           <font>
-            <family>Abyssinica SIL</family>
-            <pointsize>9</pointsize>
-           </font>
-          </property>
-          <property name="variable" stdset="0">
-           <string>$(DMC)PVTCAPABLE_STATUS</string>
-          </property>
-          <property name="text">
-           <string>PVT capable</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
      </layout>
     </widget>
    </item>
@@ -367,16 +316,10 @@
            <item>
             <widget class="QLabel" name="label_10">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>1</height>
-              </size>
              </property>
              <property name="sizeIncrement">
               <size>
@@ -398,16 +341,10 @@
            <item>
             <widget class="QEComboBox" name="qecombobox">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>1</height>
-              </size>
              </property>
              <property name="font">
               <font>
@@ -428,16 +365,10 @@
              <item>
               <widget class="QELabel" name="qelabel_6">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>1</height>
-                </size>
                </property>
                <property name="font">
                 <font>
@@ -465,16 +396,10 @@
            <item>
             <widget class="QLabel" name="label_11">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>1</height>
-              </size>
              </property>
              <property name="sizeIncrement">
               <size>
@@ -496,16 +421,10 @@
            <item>
             <widget class="QEComboBox" name="qecombobox_2">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>1</height>
-              </size>
              </property>
              <property name="font">
               <font>
@@ -526,16 +445,10 @@
              <item>
               <widget class="QELabel" name="qelabel_7">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>1</height>
-                </size>
                </property>
                <property name="font">
                 <font>
@@ -592,12 +505,6 @@
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>1</height>
-              </size>
              </property>
              <property name="font">
               <font>
@@ -679,12 +586,6 @@
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>1</height>
-              </size>
-             </property>
              <property name="font">
               <font>
                <family>Abyssinica SIL</family>
@@ -765,12 +666,6 @@
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>1</height>
-              </size>
-             </property>
              <property name="font">
               <font>
                <family>Abyssinica SIL</family>
@@ -842,7 +737,7 @@
           <property name="minimumSize">
            <size>
             <width>0</width>
-            <height>1</height>
+            <height>0</height>
            </size>
           </property>
           <property name="font">
@@ -906,12 +801,6 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>1</height>
-           </size>
-          </property>
           <property name="font">
            <font>
             <family>Abyssinica SIL</family>
@@ -973,12 +862,6 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>1</height>
-           </size>
-          </property>
           <property name="font">
            <font>
             <family>Abyssinica SIL</family>
@@ -1039,12 +922,6 @@
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>1</height>
-           </size>
           </property>
           <property name="font">
            <font>
@@ -1116,12 +993,6 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>1</height>
-           </size>
-          </property>
           <property name="font">
            <font>
             <family>Abyssinica SIL</family>
@@ -1192,12 +1063,6 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>1</height>
-           </size>
-          </property>
           <property name="font">
            <font>
             <family>Abyssinica SIL</family>
@@ -1267,12 +1132,6 @@
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>1</height>
-           </size>
           </property>
           <property name="font">
            <font>
@@ -1510,7 +1369,7 @@
           <property name="font">
            <font>
             <family>Abyssinica SIL</family>
-            <pointsize>9</pointsize>
+            <pointsize>10</pointsize>
            </font>
           </property>
           <property name="variable" stdset="0">

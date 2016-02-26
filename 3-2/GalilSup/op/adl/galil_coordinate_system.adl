@@ -1,6 +1,6 @@
 
 file {
-	name="/home/ics/git/Galil-3-0/3-2/GalilSup/op/adl/galil_coordinate_system.adl"
+	name="/home/ics/git/Galil-3-0/3-1/GalilSup/op/adl/galil_coordinate_system.adl"
 	version=030109
 }
 display {
@@ -225,7 +225,7 @@ text {
 		x=153
 		y=193
 		width=89
-		height=21
+		height=20
 	}
 	control {
 		chan="$(P)DEFER_CMD"
@@ -263,7 +263,7 @@ text {
 		x=153
 		y=151
 		width=89
-		height=21
+		height=20
 	}
 	control {
 		chan="$(P)$(R)_STOP_CMD"
@@ -279,7 +279,7 @@ text {
 		x=153
 		y=172
 		width=89
-		height=21
+		height=20
 	}
 	control {
 		chan="$(P)$(R)_GO_CMD"

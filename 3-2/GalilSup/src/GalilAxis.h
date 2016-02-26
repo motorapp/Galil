@@ -28,6 +28,12 @@
 #define KDMAX			4095.875
 #define HOMING_TIMEOUT		3.5
 
+//Home type allowed
+#define HOME_NONE 0
+#define HOME_REV 1
+#define HOME_FWD 2
+#define HOME_BOTH 3
+
 //pollServices request numbers
 static const int MOTOR_STOP = 0;
 static const int MOTOR_POST = 1;
@@ -83,8 +89,6 @@ public:
   asynStatus get_ssi(int function, epicsInt32 *value);
   //Set acceleration and velocity
   asynStatus setAccelVelocity(double acceleration, double velocity);
-  //Set limdc parameter on controller
-  asynStatus setLimitDecel(double velocity);
   //Extract axis data from GalilController data record
   asynStatus getStatus(void);
   //Set poller status variables bassed on GalilController data record info
@@ -118,11 +122,13 @@ public:
   //Check velocity and wlp protection
   asynStatus beginCheck(const char *functionName, double maxVelocity);
   //Begin motor motion
-  asynStatus beginMotion(const char *caller, double acceleration, double maxVelocity);
+  asynStatus beginMotion(const char *caller);
   //Set axis brake state
   asynStatus setBrake(bool enable);
   //Restore the motor brake status after axisReady_
   asynStatus restoreBrake(void);
+  //Setup home move, but dont start it
+  asynStatus setupHome(double maxVelocity, int forwards);
   //Copy profileBackupPositions_ back into profilePositions_ after a CSAxis profile has been built
   void restoreProfileData(void);
 
@@ -205,9 +211,8 @@ private:
   bool homedExecuted_;			//Homed message has been executed by pollServices
   bool cancelHomeSent_;			//Cancel home process message sent to pollServices
 
-
   bool restoreProfile_;			//Should profileBackupPositions_ be copied into profilePositions_ after orofile built complete? 
-                                        //True for all GalilAxis involved in CSAxis profile build, set false at built end
+                                //True for all GalilAxis involved in CSAxis profile build, set false at built end
   double *profileBackupPositions_;	//Profile positions backup for this axis, restored after profile is built
   double *calculatedPositions_;         //Real motor profile positions in egu calculated from CSAxis profile
 

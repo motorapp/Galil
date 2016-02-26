@@ -97,21 +97,25 @@
 //                  Fix CSAxis jog motor run away in Sync start only mode when limit struck
 // 31/01/16 K.Paterson
 //                  Fix seg fault on startup because of RIO-47300-16BIT-24EXOUT large reply
-// 11/02/16 M.Clift
+// 11/02/16 M.Clift 
 //                  Tidy up CSAxis reverse, forward transforms
 //                  Further fixes to setOutputCompare
-//                  Last branch 3-1 commit
-// 11/02/16 M.Clift
 //                  Added writeFloat64Array interface
 //                  CSAxis can now be used in profile motion
 //                  Added parameter profile type. Linear or PVT
 // 22/02/16 M.Clift
+//                  Added home allowed to motor extras
+//                  Reworked MEDM screens for APS fonts
 //                  Prevent loss of GalilAxis profile data when using GalilCSAxis in profiles
 //                  Add PVT capable detection code
 //                  Add motor home allowed (eg. None, reverse, forward, both) setting
 //                  Change buildLinearProfile to buildProfileFile
 //                  buildProfileFile can now build linear or pvt profiles
-//                  Re-worked MEDM screens for APS fonts
+// 26/02/16 M.Clift 
+//                  Add CSAxis home method
+//                  Consolidation and tidy up
+//                  Further minor adjustments to Qt and MEDM screens
+//                  Minor adjustments to begin motion methods
 
 #include <stdio.h>
 #include <math.h>
@@ -1472,7 +1476,7 @@ asynStatus GalilController::buildProfileFile()
 				}
 			}
 		//Detect zero moves in this segment
-                zm_count =  (rint(incmove) == 0) ? zm_count+1 : zm_count;
+		zm_count =  (rint(incmove) == 0) ? zm_count+1 : zm_count;
 		}
 
 	if (!proftype)
@@ -1594,7 +1598,7 @@ asynStatus GalilController::initializeProfile(size_t maxProfilePoints)
 /* Function to build, install and verify trajectory */ 
 asynStatus GalilController::buildProfile()
 {
-  int status = asynSuccess;		//asynStatus
+  int status;				//asynStatus
   char message[MAX_GALIL_STRING_SIZE];	//Profile build message
   static const char *functionName = "buildProfile";
 
@@ -1871,12 +1875,45 @@ asynStatus GalilController::motorsToProfileStartPosition(FILE *profFile, char *a
 /* Convenience function to begin linear profile using specified coordinate system
    Called after filling the linear buffer
 */
-asynStatus GalilController::startLinearProfileCoordsys(int coordsys, char coordName, const char *axes)
+asynStatus GalilController::beginLinearProfileMotion(int coordsys, char coordName, const char *axes)
 {
-  char message[MAX_GALIL_STRING_SIZE];	//Profile execute message
+   char mesg[MAX_GALIL_STRING_SIZE];
+   asynStatus status = asynSuccess;
+
+   //Begin profile
+   status = beginLinearGroupMotion(coordsys, coordName, axes, true);
+
+   //Set message
+   if (status)
+      {
+      //Start fail
+      strcpy(mesg, "Profile start failed...\n");
+      //Store message in ParamList
+      setStringParam(profileExecuteMessage_, mesg);
+      }
+   else
+      {
+      //Start success
+      setIntegerParam(profileExecuteState_, PROFILE_EXECUTE_EXECUTING);
+      strcpy(mesg, "Profile executing...");
+      //Store message in ParamList
+      setStringParam(profileExecuteMessage_, mesg);
+      }
+
+   //Post message
+   callParamCallbacks();
+   //Return status
+   return status;
+}
+
+/* Convenience function to begin linear group using specified coordinate system
+   Called after filling the linear buffer
+*/
+asynStatus GalilController::beginLinearGroupMotion(int coordsys, char coordName, const char *axes, bool profileAbort = false)
+{
   double begin_time;			//Time taken to begin
-  int segprocessed = 0;			//Segments processed by the coordsys
-  bool fail = false;			//Fail flag
+  int csmoving = 0;			//Coordsys moving status
+  asynStatus status = asynSuccess;	//Error status
 
   //Execute motor auto on and brake off function
   executeAutoOnBrakeOff(axes);
@@ -1891,7 +1928,7 @@ asynStatus GalilController::startLinearProfileCoordsys(int coordsys, char coordN
   if (sync_writeReadController() == asynSuccess)
      {
      unlock();
-     while (segprocessed < 1 && !profileAbort_) //Pause until 1 segment processed
+     while (!csmoving)
         {
         epicsThreadSleep(.001);
         epicsTimeGetCurrent(&begin_nowt_);
@@ -1899,40 +1936,35 @@ asynStatus GalilController::startLinearProfileCoordsys(int coordsys, char coordN
         begin_time = epicsTimeDiffInSeconds(&begin_nowt_, &begin_begint_);
         if (begin_time > BEGIN_TIMEOUT)
            {
-           fail = true;
+           status = asynError;
            break;  //Timeout, give up
            }
-        //Segments processed
-	getIntegerParam(coordsys, GalilCoordSysSegments_, &segprocessed);
+
+        //If caller cares about profile abort then check it
+        if (profileAbort_ && profileAbort)
+           break; //User pressed profile abort
+
+        //Retrieve coordinate system moving status as set by poll thread
+        getIntegerParam(coordsys, GalilCoordSysMoving_, &csmoving);
         }
+     //Wait 1 update period for poller to update
+     if (begin_time <= BEGIN_TIMEOUT)
+        epicsThreadSleep(updatePeriod_/1000.0);
      lock();
      }
   else  //Controller gave error at begin
-     fail = true;
+     status = asynError;
 
-  if (fail)
-     {
-     strcpy(message, "Profile start failed...\n");
-     //Store message in ParamList
-     setStringParam(profileExecuteMessage_, message);
-     callParamCallbacks();
-     return asynError;	//Return error
-     }
-
-  //Start success
-  setIntegerParam(profileExecuteState_, PROFILE_EXECUTE_EXECUTING);
-  strcpy(message, "Profile executing...");
-  //Store message in ParamList
-  setStringParam(profileExecuteMessage_, message);
-  callParamCallbacks();
   //Return success
-  return asynSuccess;
+  return status;
 }
 
 /* Function to run trajectory.  It runs in a dedicated thread, so it's OK to block.
  * It needs to lock and unlock when it accesses class data. */ 
 asynStatus GalilController::runLinearProfile(FILE *profFile)
 {
+  const char *functionName = "runLinearProfile";
+  long maxAcceleration;			//Max acceleration for this controller
   int segsent;				//Segments loaded to controller so far
   char moves[MAX_GALIL_STRING_SIZE];	//Segment move command assembled for controller
   char message[MAX_GALIL_STRING_SIZE];	//Profile execute message
@@ -1974,10 +2006,11 @@ asynStatus GalilController::runLinearProfile(FILE *profFile)
      //Retrieve axis specified in axes list
      pAxis = getAxis(axes[index] - AASCII);
      if (!pAxis) continue;
-     if (!pAxis->motor_enabled())
+     //Check motors are good to go.  Supply arbitary velocity here (100)
+     if (pAxis->beginCheck(functionName, 100))
         {
         //Show disabled message in profile message area
-        sprintf(message, "%c disabled due to digital input", pAxis->axisName_);
+        sprintf(message, "%c not ready, check controller message", pAxis->axisName_);
         setStringParam(profileExecuteMessage_, message);
         setIntegerParam(profileExecuteStatus_, PROFILE_STATUS_FAILURE);
         setIntegerParam(profileExecuteState_, PROFILE_EXECUTE_DONE);
@@ -1986,11 +2019,16 @@ asynStatus GalilController::runLinearProfile(FILE *profFile)
         }
      }
 
+  //Set vector acceleration/decceleration
+  maxAcceleration = 67107840;
+  if (model_[0] == 'D' && model_[3] == '4')
+	maxAcceleration = 1073740800;
+
   //Called without lock, and we need it to call sync_writeReadController
   lock();
 
   //Set vector acceleration/decceleration
-  sprintf(cmd_, "VA%c=%ld;VD%c=%ld", coordName, maxAcceleration_, coordName, maxAcceleration_);
+  sprintf(cmd_, "VA%c=%ld;VD%c=%ld", coordName, maxAcceleration, coordName, maxAcceleration);
   sync_writeReadController();
 
   //Clear any segments in the coordsys buffer
@@ -2104,7 +2142,7 @@ asynStatus GalilController::runLinearProfile(FILE *profFile)
 			if (!profStarted && atStart && !status && !profileAbort_)
 				{
 				//Start the profile
-				status = startLinearProfileCoordsys(coordsys, coordName, axes);
+				status = beginLinearProfileMotion(coordsys, coordName, axes);
 				profStarted = (status) ? false : true;
 				//Buffer next if started ok
 				if (!status)
@@ -2140,7 +2178,7 @@ asynStatus GalilController::runLinearProfile(FILE *profFile)
 	//If motors at start position, begin profile
 	if (motorsAtStart(axes, startp))
 		{
-		status = startLinearProfileCoordsys(coordsys, coordName, axes);
+		status = beginLinearProfileMotion(coordsys, coordName, axes);
 		profStarted = (status) ? false : true;
 		}
 	}
@@ -2253,17 +2291,14 @@ asynStatus GalilController::runProfile()
  * @param velocity - The vector velocity for the coordsys
  * @return motor driver status code.
  */
-asynStatus GalilController::executeSyncStartStopDeferredMove(int coordsys, char *axes, char *moves, double acceleration, double velocity)
+asynStatus GalilController::beginSyncStartStopMove(int coordsys, char *axes, char *moves, double acceleration, double velocity)
 {
-  const char *functionName = "executeSyncStartStopDeferredMove";
+  const char *functionName = "beginSyncStartStopMove";
   GalilAxis *pAxis;		//GalilAxis pointer
   char coordName;		//Coordinate system name
-  int csmoving = 0;		//Coordinate system moving status
   asynStatus status;		//Result
   unsigned index;		//looping
   char mesg[MAX_GALIL_STRING_SIZE];	//Controller error mesg if begin fail
-  double begin_time;		//Time taken for motion to begin
-  bool fail = false;
 
   //Selected coordinate system name
   coordName = (coordsys == 0 ) ? 'S' : 'T';
@@ -2278,16 +2313,6 @@ asynStatus GalilController::executeSyncStartStopDeferredMove(int coordsys, char 
 
   //Update coordinate system motor list at record layer
   setStringParam(coordsys, GalilCoordSysMotors_, axes);
-
-  //Loop through the axes list for this coordinate system
-  //Ensure all motors are enabled
-  for (index = 0; index < strlen(axes); index++)
-     {
-     //Retrieve axis specified in axes list
-     pAxis = getAxis(axes[index] - AASCII);
-     if (!pAxis->motor_enabled())
-        return asynError;
-     }
 
   //Set linear interpolation mode and include motor list provided
   sprintf(cmd_, "LM %s", axes);
@@ -2309,42 +2334,10 @@ asynStatus GalilController::executeSyncStartStopDeferredMove(int coordsys, char 
   sprintf(cmd_, "LE");
   sync_writeReadController();
 
-  //Execute motor auto on and brake off function
-  executeAutoOnBrakeOff(axes);
-
-  //Execute motor record prem
-  executePrem(axes);
-
   //move the coordinate system
-  //Get time when attempt motor begin
-  epicsTimeGetCurrent(&begin_begint_);
-  sprintf(cmd_, "BG %c", coordName);
-  status =   sync_writeReadController();
-  if (!status)
-     {
-     //Started without error.  Pause till cs is moving
-     //Give sync poller chance to get lock
-     unlock();
-     while (!csmoving)
-        {
-        epicsThreadSleep(.001);
-        epicsTimeGetCurrent(&begin_nowt_);
-        //Calculate time begin has taken so far
-        begin_time = epicsTimeDiffInSeconds(&begin_nowt_, &begin_begint_);
-        if (begin_time > BEGIN_TIMEOUT)
-           {
-           fail = true;
-           break;  //Timeout, give up
-           }
-        //Retrieve coordinate system moving status as set by poll thread
-        getIntegerParam(coordsys, GalilCoordSysMoving_, &csmoving);
-        }
-     lock();
-     }
-  else  //Controller gave error at begin
-     fail = true;
+  status = beginLinearGroupMotion(coordsys, coordName, axes);
 
-  if (fail)
+  if (status)
      {
      sprintf(mesg, "%s begin failure coordsys %c", functionName, coordName);
      //Set controller error mesg monitor
@@ -2355,12 +2348,14 @@ asynStatus GalilController::executeSyncStartStopDeferredMove(int coordsys, char 
   //Loop through the axes list for this coordinate system
   //Turn off deferredMove_ for these axis as coordinated move has been started
   for (index = 0; index < strlen(axes); index++)
-	{
-	//Retrieve axis specified in axes list
-	pAxis = getAxis(axes[index] - AASCII);
-	//Set flag
-	pAxis->deferredMove_ = false;
-	}
+    {
+    //Retrieve axis specified in axes list
+    pAxis = getAxis(axes[index] - AASCII);
+    //Process or skip
+    if (!pAxis) continue;
+    //Set flag
+    pAxis->deferredMove_ = false;
+    }
 
   return status;
 }
@@ -2369,8 +2364,9 @@ asynStatus GalilController::executeSyncStartStopDeferredMove(int coordsys, char 
 //Coordinates groups of motors
 //Both start and stop times of motors are synchronized
 //Uses linear mode to achieve these goals
-asynStatus GalilController::prepareSyncStartStopDeferredMoves(void)
+asynStatus GalilController::prepSyncStartStopMoves(void)
 {
+  const char *functionName = "prepSyncStartStopMoves";
   GalilAxis *pAxis;			//GalilAxis pointer
   int coordsys;				//Coordinate system looping
   unsigned axis;			//Axis looping
@@ -2392,20 +2388,30 @@ asynStatus GalilController::prepareSyncStartStopDeferredMoves(void)
      //Loop through the axis looking for deferredMoves in this coordsys
      for (axis = 0; axis < MAX_GALIL_AXES; axis++)
         {
+        //Retrieve the axis
         pAxis = getAxis(axis);
-        if (pAxis)
-           if (pAxis->deferredCoordsys_ == coordsys && pAxis->deferredMove_ && pAxis->deferredMode_)
+        //Process or skip
+        if (!pAxis) continue;
+        //Look for deferred move
+        if (pAxis->deferredCoordsys_ == coordsys && pAxis->deferredMove_ && pAxis->deferredMode_)
+           {
+           //Deferred move found in this coordsys
+           //Ensure motor is good to go
+           if (pAxis->beginCheck(functionName, pAxis->deferredVelocity_))
               {
-              //Deferred move found
-              //Store axis in coordinate system axes list
-              sprintf(axes, "%s%c", axes, pAxis->axisName_);
-              //Store axis relative move
-              sprintf(moves, "%s%.0lf", moves, pAxis->deferredPosition_);
-              //Add this motors' contribution to vector acceleration for this segment
-              vectorAcceleration += pow(pAxis->deferredAcceleration_, 2);
-              //Add this motors' contribution to vector velocity for this segment
-              vectorVelocity += pow(pAxis->deferredVelocity_, 2);
+              //Motor has problem, so turn off deferred move for this axis
+              pAxis->deferredMove_ = false;
+              continue;
               }
+           //Store axis in coordinate system axes list
+           sprintf(axes, "%s%c", axes, pAxis->axisName_);
+           //Store axis relative move
+           sprintf(moves, "%s%.0lf", moves, pAxis->deferredPosition_);
+           //Add this motors' contribution to vector acceleration for this segment
+           vectorAcceleration += pow(pAxis->deferredAcceleration_, 2);
+           //Add this motors' contribution to vector velocity for this segment
+           vectorVelocity += pow(pAxis->deferredVelocity_, 2);
+           }
         //Add axis relative move separator character ',' as needed
         if (axis < MAX_GALIL_AXES - 1)
            sprintf(moves,  "%s,", moves);
@@ -2421,7 +2427,7 @@ asynStatus GalilController::prepareSyncStartStopDeferredMoves(void)
         vectorVelocity = lrint(vectorVelocity/2.0) * 2;
         vectorAcceleration = lrint(vectorAcceleration/1024.0) * 1024;
         //Start the move
-        executeSyncStartStopDeferredMove(coordsys, axes, moves, vectorAcceleration, vectorVelocity);
+        beginSyncStartStopMove(coordsys, axes, moves, vectorAcceleration, vectorVelocity);
         }
     }
 
@@ -2429,19 +2435,17 @@ asynStatus GalilController::prepareSyncStartStopDeferredMoves(void)
 }
 
 /**
- * Perform a deferred move (a coordinated group move)
- * Motor start times are synchronized
+ * Start a group of motors in independent mode simultanously
  * @param [in] axes - The list of axis/motors in the move (eg. "ABCD")
  * @return motor driver status code.
  */
-asynStatus GalilController::executeSyncStartOnlyDeferredMove(char *axes)
+asynStatus GalilController::beginGroupMotion(char *axes)
 {
-  const char *functionName = "executeSyncStartOnlyDeferredMoves";
+  const char *functionName = "beginMotionGroup";
   GalilAxis *pAxis;			//GalilAxis instance
   char mesg[MAX_GALIL_STRING_SIZE];	//Controller mesg
   double begin_time;			//Time taken to begin
   bool fail = false;			//Fail flag
-  unsigned i;					//Looping
   asynStatus status;			//Return status
 
   //Retrieve 1st motor GalilAxis instance
@@ -2473,6 +2477,9 @@ asynStatus GalilController::executeSyncStartOnlyDeferredMove(char *axes)
            break;  //Timeout, give up
            }
         }
+     //Wait 1 update period for poller to update
+     if (begin_time <= BEGIN_TIMEOUT)
+        epicsThreadSleep(updatePeriod_/1000.0);
      lock();
      }
   else  //Controller gave error at begin
@@ -2486,12 +2493,30 @@ asynStatus GalilController::executeSyncStartOnlyDeferredMove(char *axes)
      status = asynError;
      }
 
+  return status;
+}
+
+/**
+ * Perform a deferred move (a coordinated group move)
+ * Motor start times are synchronized
+ * @param [in] axes - The list of axis/motors in the move (eg. "ABCD")
+ * @return motor driver status code.
+ */
+asynStatus GalilController::beginSyncStartOnlyMove(char *axes)
+{
+  GalilAxis *pAxis;			//GalilAxis instance
+  unsigned i;				//Looping
+  asynStatus status;			//Return status
+
+  //Start the group of motors
+  status = beginGroupMotion(axes);
   //Loop through the axes list for this move
   //Turn off deferredMove_ for these axis as move has been started
   for (i = 0; i < strlen(axes); i++)
 	{
 	//Retrieve axis specified in axes list
 	pAxis = getAxis(axes[i] - AASCII);
+	//Process or skip
 	if (!pAxis) continue;
 	//Set flag
 	pAxis->deferredMove_ = false;
@@ -2505,8 +2530,9 @@ asynStatus GalilController::executeSyncStartOnlyDeferredMove(char *axes)
 //Synchronize motor start times
 //Stop times maybe synchronized depending on kinematics
 //Kinematics are obeyed for position, velocity and acceleration
-asynStatus GalilController::prepareSyncStartOnlyDeferredMoves(void)
+asynStatus GalilController::prepSyncStartOnlyMoves(void)
 {
+   const char *functionName = "prepSyncStartOnlyMoves";
    GalilAxis *pAxis;			//GalilAxis instance
    unsigned axis;			//Axis looping
    char axes[MAX_GALIL_AXES] = {0};	//Constructed list of axis in the deferred move
@@ -2517,19 +2543,21 @@ asynStatus GalilController::prepareSyncStartOnlyDeferredMoves(void)
       pAxis = getAxis(axis);
       //Skip loop if !pAxis 
       if (!pAxis) continue;
-      //Ensure motor is enabled
-      if (!pAxis->motor_enabled())
-         return asynError;
       //Check axis for Sync motor start only deferred move
       if (pAxis->deferredMove_ && !pAxis->deferredMode_)
          {
          //Deferred move found
+         //Check motor is good to go
+         if (pAxis->beginCheck(functionName, pAxis->deferredVelocity_))
+            {
+            //Motor has problem, so turn off deferred move for this axis
+            pAxis->deferredMove_ = false;
+            continue;
+            }
          //Store axis in list
          sprintf(axes, "%s%c", axes, pAxis->axisName_);
          //Set the acceleration and velocity for this axis
          pAxis->setAccelVelocity(pAxis->deferredAcceleration_, pAxis->deferredVelocity_);
-         //Set limits decel given velocity
-         pAxis->setLimitDecel(pAxis->deferredVelocity_);
          //Set position
          if (pAxis->deferredRelative_)
             sprintf(cmd_, "PR%c=%.0lf", pAxis->axisName_, pAxis->deferredPosition_);
@@ -2541,7 +2569,7 @@ asynStatus GalilController::prepareSyncStartOnlyDeferredMoves(void)
 
    //If at least one axis was found with a deferred move, then start it
    if (strcmp(axes, ""))
-      executeSyncStartOnlyDeferredMove(axes);
+      beginSyncStartOnlyMove(axes);
 
    return asynSuccess;
 }
@@ -2569,9 +2597,9 @@ asynStatus GalilController::setDeferredMoves(bool deferMoves)
 
   //Execute deferred moves
   //Sync start and stop moves
-  prepareSyncStartStopDeferredMoves();
+  prepSyncStartStopMoves();
   //Sync start only moves
-  prepareSyncStartOnlyDeferredMoves();
+  prepSyncStartOnlyMoves();
 
   //All deferred moves have started.  Unset deferredMove flag on all CSAxis
   for (axis = MAX_GALIL_AXES; axis < MAX_GALIL_AXES + MAX_GALIL_CSAXES; axis++)
@@ -2857,7 +2885,7 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
   int addr=0;				        //Address requested
   asynStatus status;				//Used to work out communication_error_ status.  asynSuccess always returned
   GalilAxis *pAxis = getAxis(pasynUser);	//Retrieve the axis instance
-  GalilCSAxis *pCSAxis = getCSAxis(pasynUser);	//Retrieve the CSAxis instance
+  GalilCSAxis *pCSAxis = getCSAxis(pasynUser);	//Retrieve the axis instance
   int hometype, limittype;			//The home, and limit switch type
   int mainencoder, auxencoder, encoder_setting; //Main, aux encoder setting
   char coordinate_system;			//Coordinate system S or T
@@ -3154,7 +3182,7 @@ asynStatus GalilController::writeFloat64(asynUser *pasynUser, epicsFloat64 value
   else
      {
      /* Call base class method */
-     status = asynMotorController::writeFloat64(pasynUser, value);
+	 status = asynMotorController::writeFloat64(pasynUser, value);
      }
 
   //Always return success. Dont need more error mesgs
