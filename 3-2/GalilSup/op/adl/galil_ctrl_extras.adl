@@ -1,14 +1,14 @@
 
 file {
-	name="/home/ics/git/Galil-3-0/3-1/GalilSup/op/adl/galil_ctrl_extras.adl"
+	name="/home/ics/git/Galil-3-0/3-2/GalilSup/op/adl/galil_ctrl_extras.adl"
 	version=030109
 }
 display {
 	object {
-		x=152
-		y=137
+		x=1015
+		y=135
 		width=410
-		height=596
+		height=615
 	}
 	clr=14
 	bclr=4
@@ -197,7 +197,7 @@ text {
 text {
 	object {
 		x=9
-		y=129
+		y=149
 		width=97
 		height=13
 	}
@@ -209,7 +209,7 @@ text {
 "choice button" {
 	object {
 		x=149
-		y=127
+		y=147
 		width=120
 		height=18
 	}
@@ -223,7 +223,7 @@ text {
 "text update" {
 	object {
 		x=286
-		y=130
+		y=150
 		width=95
 		height=13
 	}
@@ -238,7 +238,7 @@ text {
 text {
 	object {
 		x=9
-		y=148
+		y=168
 		width=69
 		height=13
 	}
@@ -250,7 +250,7 @@ text {
 "choice button" {
 	object {
 		x=149
-		y=145
+		y=165
 		width=120
 		height=18
 	}
@@ -264,7 +264,7 @@ text {
 "text update" {
 	object {
 		x=286
-		y=149
+		y=169
 		width=81
 		height=13
 	}
@@ -279,7 +279,7 @@ text {
 text {
 	object {
 		x=9
-		y=167
+		y=187
 		width=97
 		height=13
 	}
@@ -291,7 +291,7 @@ text {
 "choice button" {
 	object {
 		x=149
-		y=163
+		y=183
 		width=120
 		height=18
 	}
@@ -305,7 +305,7 @@ text {
 "text update" {
 	object {
 		x=286
-		y=166
+		y=186
 		width=81
 		height=13
 	}
@@ -320,7 +320,7 @@ text {
 text {
 	object {
 		x=9
-		y=185
+		y=205
 		width=97
 		height=13
 	}
@@ -332,7 +332,7 @@ text {
 menu {
 	object {
 		x=149
-		y=181
+		y=201
 		width=120
 		height=20
 	}
@@ -345,7 +345,7 @@ menu {
 "text update" {
 	object {
 		x=286
-		y=204
+		y=224
 		width=81
 		height=13
 	}
@@ -360,7 +360,7 @@ menu {
 "choice button" {
 	object {
 		x=149
-		y=200
+		y=220
 		width=120
 		height=18
 	}
@@ -374,7 +374,7 @@ menu {
 text {
 	object {
 		x=9
-		y=204
+		y=224
 		width=97
 		height=13
 	}
@@ -386,7 +386,7 @@ text {
 "related display" {
 	object {
 		x=150
-		y=228
+		y=248
 		width=15
 		height=15
 	}
@@ -406,7 +406,7 @@ text {
 text {
 	object {
 		x=9
-		y=227
+		y=247
 		width=65
 		height=13
 	}
@@ -418,7 +418,7 @@ text {
 text {
 	object {
 		x=9
-		y=250
+		y=270
 		width=65
 		height=13
 	}
@@ -430,7 +430,7 @@ text {
 "related display" {
 	object {
 		x=150
-		y=251
+		y=271
 		width=15
 		height=15
 	}
@@ -445,7 +445,7 @@ text {
 text {
 	object {
 		x=9
-		y=272
+		y=292
 		width=65
 		height=13
 	}
@@ -457,7 +457,7 @@ text {
 "related display" {
 	object {
 		x=150
-		y=273
+		y=293
 		width=15
 		height=15
 	}
@@ -492,7 +492,7 @@ text {
 "text update" {
 	object {
 		x=32
-		y=525
+		y=545
 		width=372
 		height=13
 	}
@@ -508,7 +508,7 @@ text {
 text {
 	object {
 		x=5
-		y=540
+		y=560
 		width=65
 		height=13
 	}
@@ -520,7 +520,7 @@ text {
 "text entry" {
 	object {
 		x=32
-		y=558
+		y=577
 		width=372
 		height=20
 	}
@@ -535,7 +535,7 @@ text {
 "text update" {
 	object {
 		x=32
-		y=578
+		y=597
 		width=372
 		height=13
 	}
@@ -551,7 +551,7 @@ text {
 text {
 	object {
 		x=5
-		y=559
+		y=579
 		width=65
 		height=13
 	}
@@ -563,7 +563,7 @@ text {
 text {
 	object {
 		x=5
-		y=577
+		y=596
 		width=65
 		height=13
 	}
@@ -575,7 +575,7 @@ text {
 text {
 	object {
 		x=5
-		y=509
+		y=529
 		width=65
 		height=13
 	}
@@ -587,7 +587,7 @@ text {
 text {
 	object {
 		x=56
-		y=291
+		y=311
 		width=65
 		height=13
 	}
@@ -599,7 +599,7 @@ text {
 text {
 	object {
 		x=228
-		y=291
+		y=311
 		width=65
 		height=13
 	}
@@ -611,7 +611,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=316
+		y=336
 		width=15
 		height=15
 	}
@@ -631,7 +631,7 @@ text {
 text {
 	object {
 		x=56
-		y=315
+		y=335
 		width=65
 		height=13
 	}
@@ -643,7 +643,7 @@ text {
 "related display" {
 	object {
 		x=150
-		y=316
+		y=336
 		width=15
 		height=15
 	}
@@ -668,7 +668,7 @@ text {
 text {
 	object {
 		x=56
-		y=337
+		y=357
 		width=65
 		height=13
 	}
@@ -680,7 +680,7 @@ text {
 "related display" {
 	object {
 		x=150
-		y=338
+		y=358
 		width=15
 		height=15
 	}
@@ -705,7 +705,7 @@ text {
 "related display" {
 	object {
 		x=150
-		y=360
+		y=380
 		width=15
 		height=15
 	}
@@ -730,7 +730,7 @@ text {
 text {
 	object {
 		x=56
-		y=359
+		y=379
 		width=65
 		height=13
 	}
@@ -742,7 +742,7 @@ text {
 text {
 	object {
 		x=56
-		y=381
+		y=401
 		width=65
 		height=13
 	}
@@ -754,7 +754,7 @@ text {
 "related display" {
 	object {
 		x=150
-		y=382
+		y=402
 		width=15
 		height=15
 	}
@@ -779,7 +779,7 @@ text {
 text {
 	object {
 		x=56
-		y=402
+		y=422
 		width=65
 		height=13
 	}
@@ -791,7 +791,7 @@ text {
 "related display" {
 	object {
 		x=150
-		y=403
+		y=423
 		width=15
 		height=15
 	}
@@ -816,7 +816,7 @@ text {
 "related display" {
 	object {
 		x=150
-		y=425
+		y=445
 		width=15
 		height=15
 	}
@@ -841,7 +841,7 @@ text {
 text {
 	object {
 		x=56
-		y=424
+		y=444
 		width=65
 		height=13
 	}
@@ -853,7 +853,7 @@ text {
 text {
 	object {
 		x=56
-		y=446
+		y=466
 		width=65
 		height=13
 	}
@@ -865,7 +865,7 @@ text {
 "related display" {
 	object {
 		x=150
-		y=447
+		y=467
 		width=15
 		height=15
 	}
@@ -890,7 +890,7 @@ text {
 "related display" {
 	object {
 		x=150
-		y=469
+		y=489
 		width=15
 		height=15
 	}
@@ -915,7 +915,7 @@ text {
 text {
 	object {
 		x=56
-		y=468
+		y=488
 		width=65
 		height=13
 	}
@@ -927,7 +927,7 @@ text {
 text {
 	object {
 		x=228
-		y=315
+		y=335
 		width=65
 		height=13
 	}
@@ -939,7 +939,7 @@ text {
 text {
 	object {
 		x=228
-		y=337
+		y=357
 		width=65
 		height=13
 	}
@@ -951,7 +951,7 @@ text {
 text {
 	object {
 		x=228
-		y=359
+		y=379
 		width=65
 		height=13
 	}
@@ -963,7 +963,7 @@ text {
 text {
 	object {
 		x=228
-		y=381
+		y=401
 		width=65
 		height=13
 	}
@@ -975,7 +975,7 @@ text {
 text {
 	object {
 		x=228
-		y=402
+		y=422
 		width=65
 		height=13
 	}
@@ -987,7 +987,7 @@ text {
 text {
 	object {
 		x=228
-		y=424
+		y=444
 		width=65
 		height=13
 	}
@@ -999,7 +999,7 @@ text {
 text {
 	object {
 		x=228
-		y=446
+		y=466
 		width=65
 		height=13
 	}
@@ -1011,7 +1011,7 @@ text {
 text {
 	object {
 		x=228
-		y=468
+		y=488
 		width=65
 		height=13
 	}
@@ -1023,7 +1023,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=338
+		y=358
 		width=15
 		height=15
 	}
@@ -1043,7 +1043,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=360
+		y=380
 		width=15
 		height=15
 	}
@@ -1063,7 +1063,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=382
+		y=402
 		width=15
 		height=15
 	}
@@ -1083,7 +1083,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=402
+		y=422
 		width=15
 		height=15
 	}
@@ -1103,7 +1103,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=424
+		y=444
 		width=15
 		height=15
 	}
@@ -1123,7 +1123,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=447
+		y=467
 		width=15
 		height=15
 	}
@@ -1143,7 +1143,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=469
+		y=489
 		width=15
 		height=15
 	}
@@ -1163,7 +1163,7 @@ text {
 text {
 	object {
 		x=56
-		y=490
+		y=510
 		width=75
 		height=13
 	}
@@ -1175,7 +1175,7 @@ text {
 text {
 	object {
 		x=228
-		y=490
+		y=511
 		width=65
 		height=13
 	}
@@ -1187,7 +1187,7 @@ text {
 "related display" {
 	object {
 		x=150
-		y=490
+		y=510
 		width=15
 		height=15
 	}
@@ -1202,7 +1202,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=491
+		y=511
 		width=15
 		height=15
 	}
@@ -1217,7 +1217,7 @@ text {
 "text update" {
 	object {
 		x=286
-		y=185
+		y=205
 		width=120
 		height=13
 	}
@@ -1255,4 +1255,31 @@ text {
 		clr=14
 	}
 	textix="SSI Capable"
+}
+"text update" {
+	object {
+		x=286
+		y=130
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(DMC)PVTCAPABLE_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=9
+		y=130
+		width=97
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="PVT Capable"
 }
