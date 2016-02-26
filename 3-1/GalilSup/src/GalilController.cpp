@@ -1718,6 +1718,9 @@ asynStatus GalilController::beginLinearGroupMotion(int coordsys, char coordName,
         //Retrieve coordinate system moving status as set by poll thread
         getIntegerParam(coordsys, GalilCoordSysMoving_, &csmoving);
         }
+     //Wait 1 update period for poller to update
+     if (begin_time <= BEGIN_TIMEOUT)
+        epicsThreadSleep(updatePeriod_/1000.0);
      lock();
      }
   else  //Controller gave error at begin
@@ -2238,6 +2241,9 @@ asynStatus GalilController::beginGroupMotion(char *axes)
            break;  //Timeout, give up
            }
         }
+     //Wait 1 update period for poller to update
+     if (begin_time <= BEGIN_TIMEOUT)
+        epicsThreadSleep(updatePeriod_/1000.0);
      lock();
      }
   else  //Controller gave error at begin

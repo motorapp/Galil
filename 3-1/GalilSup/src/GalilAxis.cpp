@@ -1625,6 +1625,9 @@ asynStatus GalilAxis::beginMotion(const char *caller)
             break;
             }
          }
+      //Wait 1 update period for poller to update
+      if (begin_time <= BEGIN_TIMEOUT)
+         epicsThreadSleep(pC_->updatePeriod_/1000.0);
       pC_->lock();
       }
    else
