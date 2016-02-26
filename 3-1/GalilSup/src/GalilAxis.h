@@ -89,8 +89,6 @@ public:
   asynStatus get_ssi(int function, epicsInt32 *value);
   //Set acceleration and velocity
   asynStatus setAccelVelocity(double acceleration, double velocity);
-  //Set limdc parameter on controller
-  asynStatus setLimitDecel(double velocity);
   //Extract axis data from GalilController data record
   asynStatus getStatus(void);
   //Set poller status variables bassed on GalilController data record info
@@ -124,11 +122,13 @@ public:
   //Check velocity and wlp protection
   asynStatus beginCheck(const char *functionName, double maxVelocity);
   //Begin motor motion
-  asynStatus beginMotion(const char *caller, double acceleration, double maxVelocity);
+  asynStatus beginMotion(const char *caller);
   //Set axis brake state
   asynStatus setBrake(bool enable);
   //Restore the motor brake status after axisReady_
   asynStatus restoreBrake(void);
+  //Setup home move, but dont start it
+  asynStatus setupHome(double maxVelocity, int forwards);
 
   /* These are the methods we override from the base class */
   asynStatus move(double position, int relative, double minVelocity, double maxVelocity, double acceleration);

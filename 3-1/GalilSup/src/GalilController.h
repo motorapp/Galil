@@ -266,8 +266,10 @@ public:
   bool anyMotorMoving(char *axes);
   bool allMotorsMoving(char *axes);
   bool motorsAtStart(char *axes, double startp[]);
-  asynStatus startLinearProfileCoordsys(int coordsys, char coordName, const char *axes);
+  asynStatus beginLinearProfileMotion(int coordsys, char coordName, const char *axes);
+  asynStatus beginLinearGroupMotion(int coordsys, char coordName, const char *axes, bool profileAbort);
   asynStatus motorsToProfileStartPosition(FILE *profFile, char *axes, double startp[], bool move);
+  asynStatus beginGroupMotion(char *axes);
   //Execute motor record prem function for motor list
   void executePrem(const char *axes);
   //Execute auto motor power on, and brake off 
@@ -291,10 +293,10 @@ public:
   void dq_analog(int byte, int input_num);
 
   /* Deferred moves functions.*/
-  asynStatus executeSyncStartStopDeferredMove(int coordsys, char *axes, char *moves, double acceleration, double velocity);
-  asynStatus executeSyncStartOnlyDeferredMove(char *axes);
-  asynStatus prepareSyncStartStopDeferredMoves(void);
-  asynStatus prepareSyncStartOnlyDeferredMoves(void);
+  asynStatus beginSyncStartStopMove(int coordsys, char *axes, char *moves, double acceleration, double velocity);
+  asynStatus beginSyncStartOnlyMove(char *axes);
+  asynStatus prepSyncStartStopMoves(void);
+  asynStatus prepSyncStartOnlyMoves(void);
 
   void shutdownController();
   ~GalilController();

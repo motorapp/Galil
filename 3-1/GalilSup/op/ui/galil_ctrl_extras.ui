@@ -1369,7 +1369,7 @@
           <property name="font">
            <font>
             <family>Abyssinica SIL</family>
-            <pointsize>9</pointsize>
+            <pointsize>10</pointsize>
            </font>
           </property>
           <property name="variable" stdset="0">

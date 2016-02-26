@@ -152,8 +152,6 @@ asynStatus GalilCSAxis::setDefaults(void)
   setDoubleParam(pC_->motorEncoderPosition_, encoder_position_);
   //Pass default direction value to motorRecord
   setIntegerParam(pC_->motorStatusDirection_, direction_);
-  //This coordinate system axis is not actually using coordinate system S or T right now
-  coordsys_ = -1;
   //The coordinate system is not stopping on a limit switch right now
   stop_onlimit_ = false;
   //Sync start only mode requires stop to be issued for all CSAxis motor upon stop_onlimit_
@@ -248,6 +246,10 @@ asynStatus GalilCSAxis::checkMotorVelocities(double npos[], double nvel[])
            }
        }
     }
+
+  //All ok
+  strcpy(mesg, "");
+  pC_->setCtrlError(mesg);
 
   return asynSuccess;
 }
@@ -349,7 +351,7 @@ asynStatus GalilCSAxis::move(double position, int relative, double minVelocity, 
 
 	//Select a free coordinate system
 	if (deferredMode && !status)
-	   if ((coordsys_ = selectFreeCoordinateSystem()) == -1)
+	   if (selectFreeCoordinateSystem() == -1)
 		status = asynError;
 
 	//Do the coordinate system axis move, using deferredMoves facility in GalilController
@@ -407,16 +409,27 @@ asynStatus GalilCSAxis::moveVelocity(double minVelocity, double maxVelocity, dou
   * \param[in] acceleration The acceleration value. Units=steps/sec/sec. */
 asynStatus GalilCSAxis::stop(double acceleration)
 {
-  if (deferredMode_)
+  unsigned i;		//Looping
+  GalilAxis *pAxis;	//GalilAxis
+
+  //Cancel home operations
+  for (i = 0; i < (unsigned)strlen(revaxes_); i++)
      {
-     //Stop the coordinate system S or T that this CSAxis started
-     if (coordsys_ == 0 || coordsys_ == 1)
-        {
-        sprintf(pC_->cmd_, "ST %c", (coordsys_ == 0) ? 'S' : 'T');
-        pC_->sync_writeReadController();
-        }
+     //Retrieve the axis
+     pAxis = pC_->getAxis(revaxes_[i] - AASCII);
+     //Process or skip
+     if (!pAxis) continue;
+     //cancel any home operations that may be underway
+     sprintf(pC_->cmd_, "home%c=0", pAxis->axisName_);
+     pC_->sync_writeReadController();
+     pAxis->homing_ = false;
+     //cancel any home switch jog off operations that may be underway
+     sprintf(pC_->cmd_, "hjog%c=0", pAxis->axisName_);
+     pC_->sync_writeReadController();
      }
-  else if (strcmp(revaxes_, "") != 0)
+  
+  //Issue stop
+  if (strcmp(revaxes_, "") != 0)
      {
      //revaxes_ cannot be empty, else all threads on controller get killed
      //Stop the real motors that this CSAxis started
@@ -428,7 +441,7 @@ asynStatus GalilCSAxis::stop(double acceleration)
   return asynSuccess;
 }
 
-/** Move the motor to the home position.
+/** Move the motors to the home position.
   * \param[in] minVelocity The initial velocity, often called the base velocity. Units=steps/sec.
   * \param[in] maxVelocity The maximum velocity, often called the slew velocity. Units=steps/sec.
   * \param[in] acceleration The acceleration value. Units=steps/sec/sec.
@@ -436,6 +449,7 @@ asynStatus GalilCSAxis::stop(double acceleration)
   *                      Some controllers need to be told the direction, others know which way to go to home. */
 asynStatus GalilCSAxis::home(double minVelocity, double maxVelocity, double acceleration, int forwards)
 {
+   static const char *functionName = "GalilCSAxis::home";
    unsigned i;		//Looping
    GalilAxis *pAxis;	//GalilAxis
    double npos[MAX_GALIL_AXES];		//Real axis position targets
@@ -444,6 +458,7 @@ asynStatus GalilCSAxis::home(double minVelocity, double maxVelocity, double acce
    int dir;				//Reverse axis home direction
    int hometypeallowed;			//Home type allowed
    int status;				//Driver status
+   char mesg[MAX_GALIL_STRING_SIZE];	//Controller error mesg
 
    //Perform reverse transform to get real motor accelerations and velocities
    //We dont care about position here (arbitary 100)
@@ -458,6 +473,10 @@ asynStatus GalilCSAxis::home(double minVelocity, double maxVelocity, double acce
          pAxis = pC_->getAxis(revaxes_[i] - AASCII);
          //Process or skip
          if (!pAxis) continue;
+
+         //Ensure motor is good to go
+         if (pAxis->beginCheck(functionName, nvel[i])) return asynError;
+
          //Retrieve home type allowed for this axis
          pC_->getIntegerParam(pAxis->axisNo_, pC_->GalilHomeAllowed_, &hometypeallowed);
          //Work out direction to home this axis
@@ -486,8 +505,44 @@ asynStatus GalilCSAxis::home(double minVelocity, double maxVelocity, double acce
                }
             }
          //Home axis in direction we worked out above
-         //If homing not allowed, GalilAxis::home will handle it
-         pAxis->home(minVelocity, nvel[i], naccel[i], dir);
+         if (hometypeallowed)
+            {
+            //set acceleration, velocity is ignored here
+            pAxis->setAccelVelocity(naccel[i], maxVelocity);
+            //Set home velocity, direction.  We dont use return hvel here
+            pAxis->setupHome(nvel[i], dir);
+            }
+         else
+            {//This reverse axis does not allow homing at all
+            sprintf(mesg, "%c axis extra settings do not allow homing", pAxis->axisName_);
+            pC_->setCtrlError(mesg);
+            return asynSuccess;
+            }
+         }
+   
+      //Start motors simultanously
+      pC_->beginGroupMotion(revaxes_);
+      
+      //Loop thru real motor list, and set home flags
+      for (i = 0; i < (unsigned)strlen(revaxes_); i++)
+         {
+         //Retrieve axis
+         pAxis = pC_->getAxis(revaxes_[i] - AASCII);
+         //Process or skip
+         if (!pAxis) continue;
+         //Retrieve home type allowed for this axis
+         pC_->getIntegerParam(pAxis->axisNo_, pC_->GalilHomeAllowed_, &hometypeallowed);
+         //If revaxes allows homing, set flags now home jog has started
+         if (hometypeallowed)
+            {
+            pAxis->homing_ = true;  //Start was successful
+            pAxis->cancelHomeSent_ = false;  //Homing has not been cancelled yet
+            //tell controller which axis we are doing a home on
+            //We do this last so home algorithm doesn't cancel home jog in incase motor
+            //is sitting on opposite limit to which we are homing
+            sprintf(pC_->cmd_, "home%c=1", pAxis->axisName_);
+            pC_->sync_writeReadController();
+            }
          }
       }
 

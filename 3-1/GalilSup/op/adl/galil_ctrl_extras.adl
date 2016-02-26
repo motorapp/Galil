@@ -5,10 +5,10 @@ file {
 }
 display {
 	object {
-		x=594
-		y=133
+		x=152
+		y=137
 		width=410
-		height=598
+		height=596
 	}
 	clr=14
 	bclr=4
@@ -520,9 +520,9 @@ text {
 "text entry" {
 	object {
 		x=32
-		y=557
+		y=558
 		width=372
-		height=13
+		height=20
 	}
 	control {
 		chan="$(DMC)SEND_STR_CMD"
@@ -535,7 +535,7 @@ text {
 "text update" {
 	object {
 		x=32
-		y=577
+		y=578
 		width=372
 		height=13
 	}
@@ -563,7 +563,7 @@ text {
 text {
 	object {
 		x=5
-		y=576
+		y=577
 		width=65
 		height=13
 	}
@@ -1175,7 +1175,7 @@ text {
 text {
 	object {
 		x=228
-		y=491
+		y=490
 		width=65
 		height=13
 	}
