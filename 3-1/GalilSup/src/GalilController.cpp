@@ -695,6 +695,14 @@ void GalilController::connected(void)
      setIntegerParam(GalilSSICapable_, 1);
   else
      setIntegerParam(GalilSSICapable_, 0);
+
+  //Determine maximum acceleration
+  //default for most models
+  maxAcceleration_ = 1073740800;
+  //DMC50000
+  maxAcceleration_ = (model_[3] == '5') ? 2147483648 : maxAcceleration_;
+  //DMC2xxx
+  maxAcceleration_ = (model_[3] == '2') ? 67107840 : maxAcceleration_;
 	
   //Determine number of threads supported
   //Safe default
@@ -1286,7 +1294,7 @@ asynStatus GalilController::buildLinearProfile()
 		sprintf(moves, "%s%.0lf", moves, rint(incmove));
 		
 		//Detect zero moves in this segment
-                zm_count =  (rint(incmove) == 0) ? zm_count+1 : zm_count;
+		zm_count =  (rint(incmove) == 0) ? zm_count+1 : zm_count;
 
 		if (j < MAX_GALIL_AXES - 1)
 			sprintf(moves,  "%s,", moves);	 //Add axis relative move separator character ',' as needed
@@ -1642,7 +1650,6 @@ asynStatus GalilController::motorsToProfileStartPosition(FILE *profFile, char *a
   return (asynStatus)status;
 }
 
-
 /* Convenience function to begin linear profile using specified coordinate system
    Called after filling the linear buffer
 */
@@ -1735,7 +1742,6 @@ asynStatus GalilController::beginLinearGroupMotion(int coordsys, char coordName,
 asynStatus GalilController::runLinearProfile(FILE *profFile)
 {
   const char *functionName = "runLinearProfile";
-  long maxAcceleration;			//Max acceleration for this controller
   int segsent;				//Segments loaded to controller so far
   char moves[MAX_GALIL_STRING_SIZE];	//Segment move command assembled for controller
   char message[MAX_GALIL_STRING_SIZE];	//Profile execute message
@@ -1783,16 +1789,11 @@ asynStatus GalilController::runLinearProfile(FILE *profFile)
         }
      }
 
-  //Set vector acceleration/decceleration
-  maxAcceleration = 67107840;
-  if (model_[0] == 'D' && model_[3] == '4')
-	maxAcceleration = 1073740800;
-
   //Called without lock, and we need it to call sync_writeReadController
   lock();
 
   //Set vector acceleration/decceleration
-  sprintf(cmd_, "VA%c=%ld;VD%c=%ld", coordName, maxAcceleration, coordName, maxAcceleration);
+  sprintf(cmd_, "VA%c=%ld;VD%c=%ld", coordName, maxAcceleration_, coordName, maxAcceleration_);
   sync_writeReadController();
 
   //Clear any segments in the coordsys buffer
@@ -4314,6 +4315,7 @@ void GalilController::setCtrlError(const char* mesg)
    if (mesg[0] != '\0')
       std::cout << mesg << std::endl;
    setStringParam(0, GalilCtrlError_, mesg);
+   callParamCallbacks();
 }
 
 void GalilController::InitializeDataRecord(void)

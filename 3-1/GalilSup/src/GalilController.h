@@ -435,6 +435,8 @@ private:
 
   bool movesDeferred_;			//Should moves be deferred for this controller
 
+  long maxAcceleration_;		//Maximum acceleration on this model
+
   bool coordSysStopping_[2];		//Coordinate system stopping status.  Used to process limit status for csaxes
 
   epicsEventId profileExecuteEvent_;	//Event for executing motion profiles
