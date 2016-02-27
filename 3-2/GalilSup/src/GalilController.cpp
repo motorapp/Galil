@@ -1451,7 +1451,7 @@ asynStatus GalilController::buildProfileFile()
 				}
 			}
 
-                if (!proftype)
+		if (!proftype)
 			{
 			//Calculate linear mode velocity
 			//Add this motors' contribution to vector velocity for this segment
@@ -1964,7 +1964,6 @@ asynStatus GalilController::beginLinearGroupMotion(int coordsys, char coordName,
 asynStatus GalilController::runLinearProfile(FILE *profFile)
 {
   const char *functionName = "runLinearProfile";
-  long maxAcceleration;			//Max acceleration for this controller
   int segsent;				//Segments loaded to controller so far
   char moves[MAX_GALIL_STRING_SIZE];	//Segment move command assembled for controller
   char message[MAX_GALIL_STRING_SIZE];	//Profile execute message
@@ -2019,16 +2018,11 @@ asynStatus GalilController::runLinearProfile(FILE *profFile)
         }
      }
 
-  //Set vector acceleration/decceleration
-  maxAcceleration = 67107840;
-  if (model_[0] == 'D' && model_[3] == '4')
-	maxAcceleration = 1073740800;
-
   //Called without lock, and we need it to call sync_writeReadController
   lock();
 
   //Set vector acceleration/decceleration
-  sprintf(cmd_, "VA%c=%ld;VD%c=%ld", coordName, maxAcceleration, coordName, maxAcceleration);
+  sprintf(cmd_, "VA%c=%ld;VD%c=%ld", coordName, maxAcceleration_, coordName, maxAcceleration_);
   sync_writeReadController();
 
   //Clear any segments in the coordsys buffer
@@ -4594,7 +4588,7 @@ void GalilController::setCtrlError(const char* mesg)
    if (mesg[0] != '\0')
       std::cout << mesg << std::endl;
    setStringParam(0, GalilCtrlError_, mesg);
-  callParamCallbacks();
+   callParamCallbacks();
 }
 
 void GalilController::InitializeDataRecord(void)
