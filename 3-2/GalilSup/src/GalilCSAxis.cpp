@@ -195,10 +195,14 @@ asynStatus GalilCSAxis::checkMotorVelocities(double npos[], double nvel[])
         pC_->getIntegerParam(revaxes_[i] - AASCII, pC_->GalilUseEncoder_, &ueip);
         //Calculate incremental move distance in steps
         incmove[i] = (ueip) ? npos[i] - epos : npos[i] - mpos;
-        //Calculate vector distance
-        vectorDistance += pow(incmove[i], 2);
-        //Calculate vector velocity
-        vectorVelocity += pow(nvel[i], 2);
+        //Sum vector distance, velocity for non zero move increments
+        if (fabs(incmove[i]) != 0.0)
+           {
+           //Calculate vector distance
+           vectorDistance += pow(incmove[i], 2);
+           //Calculate vector velocity
+           vectorVelocity += pow(nvel[i], 2);
+           }
         }
 
      //Calculate vector distance
@@ -217,7 +221,7 @@ asynStatus GalilCSAxis::checkMotorVelocities(double npos[], double nvel[])
         //Calculate this motors actual velocity in egu
         vel = (incmove[i]/vectorDistance) * vectorVelocity;
         vel = (ueip) ? vel * eres : vel * mres;
-        if (lrint(fabs(vel)*1000.0)/1000.0 > lrint(fabs(vmax)*1000.0)/1000.0)
+        if (fabs(vel) > fabs(vmax))
            {
            sprintf(mesg, "Move failed, axis %c velocity %lf > VMAX %lf\n", revaxes_[i], fabs(vel), fabs(vmax));
            pC_->setCtrlError(mesg);
@@ -238,7 +242,7 @@ asynStatus GalilCSAxis::checkMotorVelocities(double npos[], double nvel[])
        pC_->getDoubleParam(revaxes_[i] - AASCII, pC_->GalilEncoderResolution_, &eres);
        //Calculate requested velocity in egu
        vel = (ueip) ? nvel[i] * eres : nvel[i] * mres;
-       if (lrint(fabs(vel)*1000.0)/1000.0 > lrint(fabs(vmax)*1000.0)/1000.0)
+       if (fabs(vel) > fabs(vmax))
            {
            sprintf(mesg, "Move failed, axis %c velocity %2.21lf > VMAX %2.21lf\n", revaxes_[i], fabs(vel), fabs(vmax));
            pC_->setCtrlError(mesg);

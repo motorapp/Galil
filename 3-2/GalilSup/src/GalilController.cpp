@@ -116,6 +116,9 @@
 //                  Consolidation and tidy up
 //                  Further minor adjustments to Qt and MEDM screens
 //                  Minor adjustments to begin motion methods
+// 28/02/10 M.Clift 
+//                  Fixed problem in vector calculations
+//                  Fixed problem with motor interlock function
 
 #include <stdio.h>
 #include <math.h>
@@ -1453,9 +1456,13 @@ asynStatus GalilController::buildProfileFile()
 
 		if (!proftype)
 			{
-			//Calculate linear mode velocity
-			//Add this motors' contribution to vector velocity for this segment
-			vectorVelocity += pow(velocity[j], 2);
+			//Sum segment vector velocity for non zero move increments
+			if (rint(incmove) != 0)
+				{
+				//Calculate linear mode velocity
+				//Add this motors' contribution to segment vector velocity
+				vectorVelocity += pow(velocity[j], 2);
+				}
 			//Store motor incremental move distance for this segment
 			sprintf(moves, "%s%.0lf", moves, rint(incmove));
 			//Add axis relative move separator character ',' as needed
@@ -2401,10 +2408,14 @@ asynStatus GalilController::prepSyncStartStopMoves(void)
            sprintf(axes, "%s%c", axes, pAxis->axisName_);
            //Store axis relative move
            sprintf(moves, "%s%.0lf", moves, pAxis->deferredPosition_);
-           //Add this motors' contribution to vector acceleration for this segment
-           vectorAcceleration += pow(pAxis->deferredAcceleration_, 2);
-           //Add this motors' contribution to vector velocity for this segment
-           vectorVelocity += pow(pAxis->deferredVelocity_, 2);
+           //Sum vector acceleration, velocity for non zero move increments
+           if (rint(pAxis->deferredPosition_) != 0)
+              {
+              //Add this motors' contribution to vector acceleration for this segment
+              vectorAcceleration += pow(pAxis->deferredAcceleration_, 2);
+              //Add this motors' contribution to vector velocity for this segment
+              vectorVelocity += pow(pAxis->deferredVelocity_, 2);
+              }
            }
         //Add axis relative move separator character ',' as needed
         if (axis < MAX_GALIL_AXES - 1)
@@ -4250,64 +4261,64 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
 
 void GalilController::gen_card_codeend(void)
 {
-	int digports=0,digport,digvalues=0;
-	int i;
+   int digports = 0, digvalues = 0;
+   struct Galilmotor_enables *motor_enables = NULL;  //Convenience pointer to GalilController motor_enables[digport]
+   int i;
 
-        //Ensure motor interlock function is initially disabled
-	sprintf(cmd_, "mlock=0");
-	sync_writeReadController();
+   //Ensure motor interlock function is initially disabled
+   sprintf(cmd_, "mlock=0");
+   sync_writeReadController();
 
-	/* Calculate the digports and digvalues required for motor interlock function */
-	for (i=0;i<8;i++)
-		{
-		if (strlen(motor_enables_->motors) > 0)
-			{
-			digport = i + 1;  	//digital port number counting from 1 to 8
-			digports = digports | (1 << (digport-1)); 
-			digvalues = digvalues | (motor_enables_->disablestates[0] << (digport-1));
-			}
-		}
+   //Calculate the digports and digvalues required for motor interlock function
+   for (i = 0; i < 8; i++)
+      {
+      //Retrieve structure for digital port from controller instance
+      motor_enables = (Galilmotor_enables *)&motor_enables_[i];
+      //If this digital in port has at least 1 motor, include it
+      if (strlen(motor_enables->motors) > 0)
+         {
+         //Include the port
+         digports = digports | (1 << i);
+         //Include the disable value 
+         digvalues = digvalues | (motor_enables->disablestates[0] << i);
+         }
+      }
+
+   //Activate input interrupts for motor interlock function */
+   if (digitalinput_init_ == true)
+      {
+      if (digports != 0)
+         {
+         /*motor interlock.  output variable values to activate code embedded in thread A*/
+         sprintf(cmd_, "dpon=%d;dvalues=%d;mlock=1", digports, digvalues);
+         sync_writeReadController();
+         }
+      }
 	
-	/* Activate input interrupts.  Two cases are EPS home, away function AND motor interlock function */
-	if (digitalinput_init_ == true)
-		{
-		if (digports==0)
-			{
-			/* EPS home and away function */
-			strcat(card_code_,"II 1,8\n");		/*code to enable dig input interrupt must be internal to G21X3*/
-			}
-		else
-			{
-			/*motor interlock.  output variable values to activate code embedded in thread A*/
-			sprintf(cmd_, "dpon=%d;dvalues=%d;mlock=1", digports, digvalues);
-			sync_writeReadController();
-			}
-		}
+   //generate code end, only if axis are defined	
+   if (numAxes_ != 0)
+      {
+      // Add galil program termination code
+      if (digitalinput_init_ == true)
+         {
+         strcat(limit_code_, "RE 1\n");	/*we have written limit code, and we are done with LIMSWI but not prog end*/
+         //Add controller wide motor interlock code to #ININT
+         if (digports != 0)
+            gen_motor_enables_code();
 	
-	//generate code end, only if axis are defined	
-	if (numAxes_ != 0)
-		{
-		// Add galil program termination code
-		if (digitalinput_init_ == true)
-			{
-			strcat(limit_code_, "RE 1\n");	/*we have written limit code, and we are done with LIMSWI but not prog end*/
-			//Add controller wide motor interlock code to #ININT
-			if (digports != 0)
-				gen_motor_enables_code();
-	
-			// Add code to end digital port interrupt routine, and end the prog
-			strcat(digital_code_, "RI 1\nEN\n");	
-			}
-		else
-			strcat(limit_code_, "RE 1\nEN\n");   /*we have written limit code, and we are done with LIMSWI and is prog end*/
+         // Add code to end digital port interrupt routine, and end the prog
+         strcat(digital_code_, "RI 1\nEN\n");	
+         }
+      else
+         strcat(limit_code_, "RE 1\nEN\n");   /*we have written limit code, and we are done with LIMSWI and is prog end*/
 					
-		//Add command error handler
-		sprintf(thread_code_, "%s#CMDERR\nerrstr=_ED;errcde=_TC;cmderr=cmderr+1\nEN\n", thread_code_);
-		
-		//Set cmderr counter to 0
-		sprintf(cmd_, "cmderr=0");
-		sync_writeReadController();
-		}
+      //Add command error handler
+      sprintf(thread_code_, "%s#CMDERR\nerrstr=_ED;errcde=_TC;cmderr=cmderr+1\nEN\n", thread_code_);
+	
+      //Set cmderr counter to 0
+      sprintf(cmd_, "cmderr=0");
+      sync_writeReadController();
+      }
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -4320,7 +4331,7 @@ void GalilController::gen_card_codeend(void)
 void GalilController::gen_motor_enables_code(void)
 {
 	int i,j;
-	struct Galilmotor_enables *motor_enables=NULL;  //Convenience pointer to GalilController motor_enables[digport]
+	struct Galilmotor_enables *motor_enables = NULL;  //Convenience pointer to GalilController motor_enables[digport]
 	bool any;
 
 	//Assume no digital interlock specified
@@ -4331,22 +4342,19 @@ void GalilController::gen_motor_enables_code(void)
 		{
 		//Retrieve structure for digital port from controller instance
 		motor_enables = (Galilmotor_enables *)&motor_enables_[i];
-		// Generate if statement for this digital port
+		//Generate if statement for this digital port
 		if (strlen(motor_enables->motors) > 0)
 			{
 			any = true;
 			sprintf(digital_code_,"%sIF ((@IN[%d]=%d)\n", digital_code_, (i + 1), (int)motor_enables->disablestates[0]);
-			// Scan through all motors associated with the port
+			//Scan through all motors associated with the port
 			for (j=0;j<(int)strlen(motor_enables->motors);j++)
 				{
 				//Add code to stop the motors when digital input state matches that specified
-				if (j == (int)strlen(motor_enables->motors) - 1)
-					sprintf(digital_code_,"%sST%c\n", digital_code_, motor_enables->motors[j]);
-				else
-					sprintf(digital_code_,"%sST%c;", digital_code_, motor_enables->motors[j]);
+				sprintf(digital_code_,"%sST%c;", digital_code_, motor_enables->motors[j]);
 				}
 			//Manipulate interrupt flag to turn off the interrupt on this port for one threadA cycle
-			sprintf(digital_code_,"%sdpoff=dpoff-%d\nENDIF\n", digital_code_, (int)pow(2.0,i));
+			sprintf(digital_code_,"%sdpoff=dpoff-%d;ENDIF\n", digital_code_, (int)pow(2.0,i));
 			}
 		}
 	/* Re-enable input interrupt for all except the digital port(s) just serviced during interrupt routine*/
