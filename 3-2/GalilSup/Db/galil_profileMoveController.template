@@ -40,6 +40,7 @@ record(stringout, "$(P)$(R)TrajectoryFile")
 	field(VAL,  "TrajectoryScan.trj")
 }
 
+# Profile type.  Linear, or PVT
 record(bi,"$(P)$(R)PROFILETYPE_STATUS")
 {
 	field(DESC, "profile type")

@@ -1145,7 +1145,6 @@ asynStatus GalilCSAxis::initializeProfile(size_t maxProfilePoints)
   * This function reads the controller position, encoder position, the limit status, the moving status, 
   * and the drive power-on status.  It does not current detect following error, etc. but this could be
   * added.
-  * callParamCallbacks is now called in GalilPoller
   * It calls setIntegerParam() and setDoubleParam() for each item that it polls,
   * \param[out] moving A flag that is set indicating that the axis is moving (1) or done (0). */
 asynStatus GalilCSAxis::poll(bool *moving)

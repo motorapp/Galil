@@ -119,6 +119,8 @@
 // 28/02/10 M.Clift 
 //                  Fixed problem in vector calculations
 //                  Fixed problem with motor interlock function
+// 08/03/16 M.Clift
+//                  Add PVT profile ability completed
 
 #include <stdio.h>
 #include <math.h>
@@ -451,6 +453,7 @@ void GalilController::connect(void)
   if (address.find("COM") == string::npos && address.find("ttyS") == string::npos)
      {
      //Controller address is not serial, so it must be ethernet
+     serial_ = false;
      //Open Synchronous ethernet connection
      //Append Telnet port, and TCP directive to provided address
      sprintf(address_string,"%s:23 TCP", address_);
@@ -481,6 +484,7 @@ void GalilController::connect(void)
   else
      {
      //Open Synchronous serial connection
+     serial_ = true;
      //Connect to the device, and configure Asyn Interpose to do end of string processing
      drvAsynSerialPortConfigure(syncPort_, address_, epicsThreadPriorityMax, 0, 0);
      //Flag async records false for serial connections
@@ -885,18 +889,16 @@ GalilCSAxis* GalilController::getCSAxis(int axisNo)
 /** Returns true if any motor in the provided list is moving
   * \param[in] Motor list
   */
-bool GalilController::anyMotorMoving(char *axes)
+bool GalilController::anyMotorMoving()
 {
   int moving = 0;	//Moving status
-  int axisNo;		//Axis number
   int j;		//Looping
 
   //Look through motor list, if any moving return true
-  for (j = 0; j < (int)strlen(axes); j++)
+  for (j = 0; j < (int)strlen(profileAxes_); j++)
 	{
 	//Determine axis number
-	axisNo = axes[j] - AASCII;
-	getIntegerParam(axisNo, motorStatusMoving_, &moving);
+	getIntegerParam(profileAxes_[j] - AASCII, motorStatusMoving_, &moving);
 	if (moving) return true;
 	}
 
@@ -907,18 +909,16 @@ bool GalilController::anyMotorMoving(char *axes)
 /** Returns true if all motors in the provided list are moving
   * \param[in] Motor list
   */
-bool GalilController::allMotorsMoving(char *axes)
+bool GalilController::allMotorsMoving()
 {
   int moving = 0;	//Moving status
-  int axisNo;		//Axis number
   int j;		//Looping
 
   //Look through motor list, if any not moving return false
-  for (j = 0; j < (int)strlen(axes); j++)
+  for (j = 0; j < (int)strlen(profileAxes_); j++)
 	{
-	//Determine axis number
-	axisNo = axes[j] - AASCII;
-	getIntegerParam(axisNo, motorStatusMoving_, &moving);
+	//Determine moving status
+	getIntegerParam(profileAxes_[j] - AASCII, motorStatusMoving_, &moving);
 	if (!moving) return false;
 	}
 
@@ -928,10 +928,9 @@ bool GalilController::allMotorsMoving(char *axes)
 
 /** Returns true if motors are moving or stopped at start position without limit
   * Returns false a single motor has stopped out of position, or with limit
-  * \param[in] - Motor list
   * \param[in] - Requested start positions Units=Steps
   */
-bool GalilController::motorsAtStart(char *axes, double startp[])
+bool GalilController::motorsAtStart(double startp[])
 {
   char message[MAX_GALIL_STRING_SIZE];	//Profile execute message
   bool atStart = true;	//Are all motors in axes list moving or stopped without limit
@@ -952,10 +951,10 @@ bool GalilController::motorsAtStart(char *axes, double startp[])
   epicsThreadSleep(updatePeriod_/1000.0);
 
   //Look through motor list
-  for (j = 0; j < (int)strlen(axes); j++)
+  for (j = 0; j < (int)strlen(profileAxes_); j++)
 	{
 	//Determine axis number
-	axisNo = axes[j] - AASCII;
+	axisNo = profileAxes_[j] - AASCII;
 	//Retrieve GalilProfileMoveMode_ from ParamList
 	getIntegerParam(axisNo, GalilProfileMoveMode_, &moveMode);
 	//If moveMode = Relative skip the axis
@@ -1299,14 +1298,6 @@ asynStatus GalilController::buildProfileFile()
   getIntegerParam(GalilPVTCapable_, &pvtcapable);
   getIntegerParam(GalilProfileType_, &proftype);
 
-  //Check pvt capable and profile type flags
-  /*if (!pvtcapable && proftype)
-     {
-     //PVT mode requested, but controller doesn't support it
-     strcpy(message, "Controller is not PVT capable, select Linear mode instead");
-     return asynError;
-     }*/
-
   //Check provided fileName
   if (!abs(strcmp(fileName, "")))
 	{
@@ -1471,12 +1462,12 @@ asynStatus GalilController::buildProfileFile()
 			}
 		else
 			{
-			//PVT mode.  Controller time base is 0.000976 sec per sample.
-			//PVT has 2 sample minimum therefore = 0.000976 * 2 = 0.001952
-			sprintf(moves, "%sPV%c=%.0lf,%.0lf,%.0lf\n", moves, pAxis->axisName_, rint(incmove), velocity[j], rint(profileTimes_[i]/.001952));
+			//PVT mode
+			sprintf(moves, "%s%.0lf,%.0lf,%.0lf\n", moves, rint(incmove), velocity[j], rint(profileTimes_[i]*1000.0));
 			//Check timebase is multiple of 2ms
 			temp_time = profileTimes_[i] * 1000.0;
-			if ((int)(temp_time) % 2 != 0)
+			//PVT has 2 sample minimum
+			if ((int)(rint)(temp_time) % 2 != 0)
 				{
 				sprintf(message, "Profile time base must be multiple of 2ms in PVT mode");
 				buildOK = false;
@@ -1484,6 +1475,15 @@ asynStatus GalilController::buildProfileFile()
 			}
 		//Detect zero moves in this segment
 		zm_count =  (rint(incmove) == 0) ? zm_count+1 : zm_count;
+		}
+
+	//Check for zero move segments
+	if (zm_count == num_motors && i != 0)
+		{
+		sprintf(message, "Seg %d: Vector zero move distance, reduce time, add motors, and check profile", i);
+		if (!num_motors)
+			strcpy(message, "No motors in profile, add motors");
+		buildOK = false;
 		}
 
 	if (!proftype)
@@ -1495,11 +1495,6 @@ asynStatus GalilController::buildProfileFile()
 		if (rint(vectorVelocity) == 0 && i != 0)
 			{
 			sprintf(message, "Seg %d: Vector velocity zero, reduce time, add motors, and check profile", i);
-			buildOK = false;
-			}
-		if (zm_count == num_motors && i != 0)
-			{
-			sprintf(message, "Seg %d: Vector zero move distance, reduce time, add motors, and check profile", i);
 			buildOK = false;
 			}
 		//Trim trailing ',' characters from moves string
@@ -1663,25 +1658,30 @@ void GalilController::profileThread()
 
 asynStatus GalilController::abortProfile()
 {
-  int moving;
-  int coordsys;
-
-  //Retrieve currently selected coordinate system 
-  getIntegerParam(GalilCoordSys_, &coordsys);
-  //Coordsys moving status
-  getIntegerParam(coordsys, GalilCoordSysMoving_, &moving);
-
+  unsigned i;
   //Request the thread that buffers/executes the profile to abort the process
   profileAbort_ = true;
 
-  //Stop the coordinate system if its moving
-  if (moving)
+  if (profileType_)
+     {
+     //Empty PVT buffer
+     for (i = 0; i < (unsigned)strlen(profileAxes_); i++)
+        {
+        sprintf(cmd_, "PV%c=0,0,-1", profileAxes_[i]);
+        //Write setting to controller
+	    sync_writeReadController();
+        } 
+     }
+
+  //Stop the profile axis
+  if (strcmp(profileAxes_, "") != 0)
 	{
-        //Stop the coordinate system  
-	sprintf(cmd_, "ST %c", (coordsys == 0) ? 'S' : 'T');
+    //Stop the axes
+    sprintf(cmd_, "ST %s", profileAxes_);
 	//Write setting to controller
 	sync_writeReadController();
-        }
+    }
+
   return asynSuccess;
 }
 
@@ -1810,13 +1810,15 @@ void GalilController::executeAutoOnBrakeOff(const char *axes)
 
 /* For profile moves.  Convenience function to move motors to start or stop them moving to start
 */
-asynStatus GalilController::motorsToProfileStartPosition(FILE *profFile, char *axes, double startp[], bool move = true)
+asynStatus GalilController::motorsToProfileStartPosition(FILE *profFile, double startp[], bool move = true)
 {
   GalilAxis *pAxis;			//GalilAxis
   int j;				//Axis looping
   int axisNo;				//Axis number
   int moveMode[MAX_GALIL_AXES];  	//Move mode absolute or relative
-  double accl, velo, mres;		//Required mr attributes
+  int ueip;				//Required mr attributes
+  double rdbd;				//Required mr attributes
+  double accl, velo, mres, eres;	//Required mr attributes
   double velocity, acceleration;	//Used to move motors to start
   char message[MAX_GALIL_STRING_SIZE];	//Profile execute message
   double readback;			//Readback controller is using
@@ -1831,10 +1833,10 @@ asynStatus GalilController::motorsToProfileStartPosition(FILE *profFile, char *a
 	}
 
   //If mode absolute, send motors to start position or stop them moving to start position
-  for (j = 0; j < (int)strlen(axes); j++)
+  for (j = 0; j < (int)strlen(profileAxes_); j++)
   	{
 	//Determine the axis number mentioned in profFile
-	axisNo = axes[j] - AASCII;
+	axisNo = profileAxes_[j] - AASCII;
 	//Retrieve GalilProfileMoveMode_ from ParamList
 	getIntegerParam(axisNo, GalilProfileMoveMode_, &moveMode[axisNo]);
 	if (move) //Read profile start positions from file
@@ -1849,6 +1851,11 @@ asynStatus GalilController::motorsToProfileStartPosition(FILE *profFile, char *a
 	getDoubleParam(axisNo, GalilMotorAccl_, &accl);
 	getDoubleParam(axisNo, GalilMotorVelo_, &velo);
 	getDoubleParam(axisNo, motorResolution_, &mres);
+	getDoubleParam(axisNo, GalilMotorRdbd_, &rdbd);
+	getDoubleParam(axisNo, GalilEncoderResolution_, &eres);
+	getIntegerParam(axisNo, GalilUseEncoder_, &ueip);
+	//Calculate deadband in steps
+	rdbd = (ueip) ? (rdbd/eres) : (rdbd/mres);
 	//Calculate velocity and acceleration in steps
 	velocity = fabs(velo/mres);
 	acceleration = velocity/accl;
@@ -1858,7 +1865,7 @@ asynStatus GalilController::motorsToProfileStartPosition(FILE *profFile, char *a
 		//If motor is servo and ueip_ = 1 then controller uses encoder_position_ for positioning
 		if (pAxis->ueip_ && (pAxis->motorType_ == 0 || pAxis->motorType_ == 1))
 			readback = pAxis->encoder_position_;
-		if (startp[axisNo] != readback)
+		if (!(startp[axisNo] >= readback - rdbd && startp[axisNo] <= readback + rdbd))
 			status = pAxis->move(startp[axisNo], 0, 0, velocity, acceleration);
 		}
 	else    //Stop motor moving to start
@@ -1879,16 +1886,19 @@ asynStatus GalilController::motorsToProfileStartPosition(FILE *profFile, char *a
   return (asynStatus)status;
 }
 
-/* Convenience function to begin linear profile using specified coordinate system
+/* Convenience function to begin profile
    Called after filling the linear buffer
 */
-asynStatus GalilController::beginLinearProfileMotion(int coordsys, char coordName, const char *axes)
+asynStatus GalilController::beginProfileMotion(int coordsys, char coordName)
 {
    char mesg[MAX_GALIL_STRING_SIZE];
    asynStatus status = asynSuccess;
 
    //Begin profile
-   status = beginLinearGroupMotion(coordsys, coordName, axes, true);
+   if (!profileType_)
+      status = beginLinearGroupMotion(coordsys, coordName, profileAxes_, true);
+   else
+      status = beginPVTProfileMotion();
 
    //Set message
    if (status)
@@ -1913,12 +1923,62 @@ asynStatus GalilController::beginLinearProfileMotion(int coordsys, char coordNam
    return status;
 }
 
+/* Convenience function to begin PVT group
+   Called after filling the PVT buffer
+*/
+asynStatus GalilController::beginPVTProfileMotion()
+{
+  double begin_time = 0;		//Time taken to begin
+  int pmoving = 0;			//Profile moving status
+  asynStatus status = asynSuccess;	//Error status
+
+  //Execute motor auto on and brake off function
+  executeAutoOnBrakeOff(profileAxes_);
+
+  //Execute motor record prem
+  executePrem(profileAxes_);
+
+  //Begin the move
+  //Get time when attempt motor begin
+  epicsTimeGetCurrent(&begin_begint_);
+  sprintf(cmd_, "BT %s", profileAxes_);
+  if (sync_writeReadController() == asynSuccess)
+     {
+     unlock();
+     while (!pmoving)
+        {
+        epicsThreadSleep(.001);
+        epicsTimeGetCurrent(&begin_nowt_);
+        //Calculate time begin has taken so far
+        begin_time = epicsTimeDiffInSeconds(&begin_nowt_, &begin_begint_);
+        if (begin_time > BEGIN_TIMEOUT)
+           {
+           status = asynError;
+           break;  //Timeout, give up
+           }
+
+        //Check profile abort
+        if (profileAbort_)
+           break; //User pressed profile abort
+
+        //Retrieve coordinate system moving status as set by poll thread
+        getIntegerParam(profileAxes_[0] - AASCII, motorStatusMoving_, &pmoving);
+        }
+     lock();
+     }
+  else  //Controller gave error at begin
+     status = asynError;
+
+  //Return success
+  return status;
+}
+
 /* Convenience function to begin linear group using specified coordinate system
    Called after filling the linear buffer
 */
 asynStatus GalilController::beginLinearGroupMotion(int coordsys, char coordName, const char *axes, bool profileAbort = false)
 {
-  double begin_time;			//Time taken to begin
+  double begin_time = 0;		//Time taken to begin
   int csmoving = 0;			//Coordsys moving status
   asynStatus status = asynSuccess;	//Error status
 
@@ -1954,9 +2014,6 @@ asynStatus GalilController::beginLinearGroupMotion(int coordsys, char coordName,
         //Retrieve coordinate system moving status as set by poll thread
         getIntegerParam(coordsys, GalilCoordSysMoving_, &csmoving);
         }
-     //Wait 1 update period for poller to update
-     if (begin_time <= BEGIN_TIMEOUT)
-        epicsThreadSleep(updatePeriod_/1000.0);
      lock();
      }
   else  //Controller gave error at begin
@@ -1966,94 +2023,245 @@ asynStatus GalilController::beginLinearGroupMotion(int coordsys, char coordName,
   return status;
 }
 
-/* Function to run trajectory.  It runs in a dedicated thread, so it's OK to block.
- * It needs to lock and unlock when it accesses class data. */ 
-asynStatus GalilController::runLinearProfile(FILE *profFile)
+/*
+ prepRunProfile - Preparation sequence for both Linear, and PVT profiles
+ profFile [in] - Trajectory file
+ axes[out] - axes in the profile
+ startp[out] - profile start positions for each axis
+*/
+asynStatus GalilController::prepRunProfile(FILE **profFile, int *coordsys, char *coordName, double startp[])
 {
-  const char *functionName = "runLinearProfile";
-  int segsent;				//Segments loaded to controller so far
-  char moves[MAX_GALIL_STRING_SIZE];	//Segment move command assembled for controller
-  char message[MAX_GALIL_STRING_SIZE];	//Profile execute message
-  char axes[MAX_GALIL_AXES];		//Motors involved in profile move
-  int coordsys;				//Coordinate system S(0) or T(1)
-  int coordName;			//Coordinate system S or T
-  bool profStarted = false;		//Has profile execution started
-  bool atStart = false;			//Have the motors arrived at the start position
-  int segprocessed;			//Segments processed by coordsys
-  int csmoving;				//Moving status of coordinate system
-  int retval;				//Return value from file read
-  bool bufferNext = true;		//Controller ready to buffer next segment
-  GalilAxis *pAxis;			//GalilAxis
-  unsigned index;			//looping
-  double startp[MAX_GALIL_AXES];	//Motor start positions from file
-  asynStatus status;			//Error status
+  const char *functionName = "prepRunProfile";
+  unsigned i;					//Looping
+  asynStatus status = asynSuccess;		//Return value
+  GalilAxis *pAxis;				//GalilAxis
+  char mesg[MAX_GALIL_STRING_SIZE]= "";		//Profile execute message
+  char fileName[MAX_FILENAME_LEN];		//Filename to read profile data from
+  char profileType[MAX_GALIL_STRING_SIZE];	//String read from trajectory file that represents profile type (ie. LINEAR or PVT)
+  int pvtcapable;				//Controller PVT capable status
+
+  //Retrieve pvt capable status
+  getIntegerParam(GalilPVTCapable_, &pvtcapable);
+
+  //Retrieve currently selected coordinate system 
+  getIntegerParam(GalilCoordSys_, coordsys);
+
+  //Selected coordinate system name
+  *coordName = (*coordsys == 0 ) ? 'S' : 'T';
+
+  //Profile has not been aborted
+  profileAbort_ = false;
 
   //Check CSAxis profiles
   //Ensure motors are not shared
   //Ensure useAxis, and moveMode between CSAxes, and 
   //member reverse (real) motors are consistent
-  if (checkCSAxisProfiles(profileExecuteMessage_))
-     return asynError;
-
-  //Retrieve currently selected coordinate system 
-  getIntegerParam(GalilCoordSys_, &coordsys);
-
-  //Selected coordinate system name
-  coordName = (coordsys == 0 ) ? 'S' : 'T';
-
-  //Read profFile and determine which motors are involved
-  retval = fscanf(profFile, "%s\n", axes);
-  //Update coordinate system motor list at record layer
-  setStringParam(coordsys, GalilCoordSysMotors_, axes);
-  //Loop through the axes list for this coordinate system
-  //Ensure all motors are enabled
-  for (index = 0; index < strlen(axes); index++)
+  status = checkCSAxisProfiles(profileExecuteMessage_);
+  
+  //Open the profile file
+  if (!status)
      {
-     //Retrieve axis specified in axes list
-     pAxis = getAxis(axes[index] - AASCII);
-     if (!pAxis) continue;
-     //Check motors are good to go.  Supply arbitary velocity here (100)
-     if (pAxis->beginCheck(functionName, 100))
+     //Update execute profile status
+     setIntegerParam(profileExecuteState_, PROFILE_EXECUTE_MOVE_START);
+     setIntegerParam(profileExecuteStatus_, PROFILE_STATUS_UNDEFINED);
+     callParamCallbacks();
+     //Retrieve trajectory filename from ParamList
+     getStringParam(GalilProfileFile_, (int)sizeof(fileName), fileName);
+     //Open trajectory file
+     if ((*profFile =  fopen(fileName, "rt")) == NULL)
         {
-        //Show disabled message in profile message area
-        sprintf(message, "%c not ready, check controller message", pAxis->axisName_);
-        setStringParam(profileExecuteMessage_, message);
-        setIntegerParam(profileExecuteStatus_, PROFILE_STATUS_FAILURE);
-        setIntegerParam(profileExecuteState_, PROFILE_EXECUTE_DONE);
-        callParamCallbacks();
-        return asynSuccess;  //Nothing to do
+        //Assemble error message
+        strcpy(mesg, "Can't open trajectory file\n");
+        status = asynError;
         }
      }
+
+  //File opened ok?
+  if (!status)
+     {
+     //Read file header, and grab profile type
+     fscanf(*profFile, "%s\n", profileType);
+     //Determine profile type LINEAR or PVT type
+     profileType_ = strcmp(profileType, "PVT") == 0 ? 1 : 0;
+     //Determine which motors are involved
+     fscanf(*profFile, "%s\n", profileAxes_);
+     //Loop through the axes list
+     //Ensure all motors are enabled
+     for (i = 0; i < strlen(profileAxes_); i++)
+        {
+        //Retrieve axis specified in axes list
+        pAxis = getAxis(profileAxes_[i] - AASCII);
+        if (!pAxis) continue;
+        //Check motors are good to go.  Supply arbitary velocity here (100)
+        if (pAxis->beginCheck(functionName, 100)) //Show disabled message in profile message area
+           {
+           //Assemble error message
+           sprintf(mesg, "%c not ready, check controller message", pAxis->axisName_);
+           status = asynError;
+           break;
+           }
+        }
+     }
+
+  //Check profileType_ against controller capability
+  if (profileType_ && !pvtcapable && !status)
+     {
+     strcpy(mesg, "Controller is not PVT capable");
+     status = asynError;
+     }
+
+  //Setup linear profiles
+  if (!profileType_ && !status)
+    {
+    //Linear profile
+    //Set vector acceleration/decceleration
+    sprintf(cmd_, "VA%c=%ld;VD%c=%ld", *coordName, maxAcceleration_, *coordName, maxAcceleration_);
+    sync_writeReadController();
+
+    //Clear any segments in the coordsys buffer
+    sprintf(cmd_, "CS %c", *coordName);
+    sync_writeReadController();
+
+    //Update coordinate system motor list at record layer
+    setStringParam(*coordsys, GalilCoordSysMotors_, profileAxes_);
+
+    //Set linear interpolation mode and include motor list provided
+    sprintf(cmd_, "LM %s", profileAxes_);
+    sync_writeReadController();
+    }
+  else if (!status)
+    {
+    //PVT profile
+    for (i = 0; i < strlen(profileAxes_); i++)
+       {
+       //Clear any segments in the pvt buffer(s)
+       sprintf(cmd_, "PV%c=0,0,-1", profileAxes_[i]);
+       sync_writeReadController();
+       //Set acceleration/deceleration
+       sprintf(cmd_, "AC%c=%ld;DC%c=%ld", profileAxes_[i], maxAcceleration_, profileAxes_[i], maxAcceleration_);
+       sync_writeReadController();
+       }
+    }
+  
+  //Display any error message, and return error
+  if (status)
+     {
+     //Set profile message and status
+     setStringParam(profileExecuteMessage_, mesg);
+     setIntegerParam(profileExecuteStatus_, PROFILE_STATUS_FAILURE);
+     setIntegerParam(profileExecuteState_, PROFILE_EXECUTE_DONE);
+     callParamCallbacks();
+     //Close the profile file
+     if (*profFile != NULL)
+        fclose(*profFile); //Close the trajectory file
+     }
+
+  //Return result
+  return status;
+}
+
+void GalilController::profileGetSegsMoving(int profStarted, int coordsys, int *moving, int *segprocessed)
+{
+   if (profileType_)
+      {
+      //PVT profile
+      //Segments processed
+      if (profStarted)
+         {
+         sprintf(cmd_, "MG _BT%c", profileAxes_[0]); //Use first axis as measure of segs processed
+         sync_writeReadController();
+         *segprocessed = atoi(resp_);
+         //Profile moving status
+         getIntegerParam(profileAxes_[0] - AASCII, motorStatusMoving_, moving);
+         //PVT end takes 1 segment, compensate in final segment count
+         if (!*moving)
+            *segprocessed -= 1;
+         }
+      }
+   else
+      {
+      //Linear profile
+      //Segments processed
+      getIntegerParam(coordsys, GalilCoordSysSegments_, segprocessed);
+      //Profile moving status
+      getIntegerParam(coordsys, GalilCoordSysMoving_, moving);
+      }
+
+   //Update profile current point in ParamList
+   setIntegerParam(profileCurrentPoint_, *segprocessed);
+   callParamCallbacks();
+}
+
+/* Function to run trajectory.  It runs in a dedicated thread, so it's OK to block.
+ * It needs to lock and unlock when it accesses class data. */ 
+asynStatus GalilController::runProfile()
+{
+  int segsent;				//Segments loaded to controller so far
+  char moves[MAX_GALIL_STRING_SIZE];	//Segment move command assembled for controller
+  char message[MAX_GALIL_STRING_SIZE];	//Profile execute message
+  unsigned i;				//Axes index for PVT profiles
+  unsigned nmotors = 0;			//Number of axis in PVT profile
+  bool profStarted = false;		//Has profile execution started
+  bool atStart = false;			//Have the motors arrived at the start position
+  int segprocessed;			//Segments processed by coordsys
+  int pmoving;				//Moving status of the profile
+  int coordsys;				//Coordinate system S(0) or T(1)
+  int maxsegs;				//Maximum number of segments
+  int startsegs;			//Segments to buffer before starting
+  char coordName;			//Coordinate system S or T
+  int retval;				//Return value from file read
+  bool bufferNext = true;		//Controller ready to buffer next segment
+  double startp[MAX_GALIL_AXES];	//Motor start positions from file
+  FILE *profFile = NULL;		//File handle to trajectory file
+  asynStatus status = asynSuccess;	//Return value
 
   //Called without lock, and we need it to call sync_writeReadController
   lock();
 
-  //Set vector acceleration/decceleration
-  sprintf(cmd_, "VA%c=%ld;VD%c=%ld", coordName, maxAcceleration_, coordName, maxAcceleration_);
-  sync_writeReadController();
-
-  //Clear any segments in the coordsys buffer
-  sprintf(cmd_, "CS %c", coordName);
-  sync_writeReadController();
-
-  //No segments sent to controller just yet
-  segsent = 0;
-  //Number of segments processed by coordsys
-  segprocessed = 0;
-  //Profile has not been aborted
-  profileAbort_ = false;
-
-  //Set linear interpolation mode and include motor list provided
-  sprintf(cmd_, "LM %s", axes);
-  sync_writeReadController();
+  //prepare the profile
+  //Retrieve profile file pointer, profile type, coordsys (linear only), coordName (linear only)
+  //Retrieve profile axes list, and start positions from file
+  if (prepRunProfile(&profFile, &coordsys, &coordName, startp))
+     {
+     //Unlock the mutex
+     unlock();
+     //A fail in prepRunProfile is fatal
+     return asynError;
+     }
 
   //Move motors to start position, and return start position values here
-  status = motorsToProfileStartPosition(profFile, axes, startp);
+  status = motorsToProfileStartPosition(profFile, startp);
 
   unlock();
 
+  //No segments sent to controller just yet
+  segsent = 0;
+  //Number of segments processed
+  segprocessed = 0;
+  //Default maximum number of segments
+  maxsegs = MAX_LINEAR_SEGMENTS;
+
+  //Initialize local variables for PVT profile
+  if (profileType_)
+     {
+     //Default maximum number of segments
+     maxsegs = MAX_PVT_SEGMENTS;
+     //Initialize PVT variables
+     i = 0;
+     nmotors = (unsigned)strlen(profileAxes_);
+     }
+
+  //Default number of segments to buffer before start
+  startsegs = maxsegs;
+
+  //If connection serial, then fill buffer before start
+  if (serial_)
+     startsegs = maxsegs;
+
   //Execute the profile
   //Loop till file downloaded to buffer, or error, or abort
+  //Note Linear is 1 loop per segment
+  //PVT is nmotor loops per segment
   while (retval != EOF && !status && !profileAbort_)
 	{
 	if (bufferNext)		//Read the segment
@@ -2062,13 +2270,11 @@ asynStatus GalilController::runLinearProfile(FILE *profFile)
 	//Process segment if didnt hit EOF
 	if (retval != EOF)
 		{
-		//Segments processed
-		getIntegerParam(coordsys, GalilCoordSysSegments_, &segprocessed);
-		//Coordsys moving status
-		getIntegerParam(coordsys, GalilCoordSysMoving_, &csmoving);
+		//Retrieve moving status, and segments processed
+		profileGetSegsMoving(profStarted, coordsys, &pmoving, &segprocessed); 
 
 		//Case where profile has started, but then stopped
-		if ((profStarted && !csmoving))
+		if ((profStarted && !pmoving))
 			{
 			unlock();
 			//Give other threads a chance to get the lock
@@ -2080,11 +2286,11 @@ asynStatus GalilController::runLinearProfile(FILE *profFile)
 		if (!profStarted && !atStart)
 			{
 			//Abort if motor stopped and not at start position, or limit
-			if (!allMotorsMoving(axes))
-				status = motorsAtStart(axes, startp) ? asynSuccess : asynError;
-			if (!anyMotorMoving(axes))
+			if (!allMotorsMoving())
+				status = motorsAtStart(startp) ? asynSuccess : asynError;
+			if (!anyMotorMoving())
 				{
-				status = motorsAtStart(axes, startp) ? asynSuccess : asynError;
+				status = motorsAtStart(startp) ? asynSuccess : asynError;
 				atStart = (status) ? false : true;
 				}
 			}
@@ -2093,7 +2299,10 @@ asynStatus GalilController::runLinearProfile(FILE *profFile)
 		if (!status && !profileAbort_ && bufferNext)
 			{
 			//Proceed to send next segment to controller
-			sprintf(cmd_, "LI %s", moves);
+			if (!profileType_)	//LINEAR
+				sprintf(cmd_, "LI %s", moves);
+			else		//PVT
+				sprintf(cmd_, "PV%c=%s", profileAxes_[i], moves);
 			status = sync_writeReadController();
 			if (status)
 				{
@@ -2104,8 +2313,26 @@ asynStatus GalilController::runLinearProfile(FILE *profFile)
 				strcpy(message, "Error downloading segment");
 				setStringParam(profileExecuteMessage_, message);
 				}
-			else	//Increment segments sent to controller
-				segsent++;
+			else	
+				{
+				//Increment segments sent to controller
+				if (!profileType_) //Linear segment
+					segsent++;
+				else
+					{
+					//PVT profile
+					//Increment PVT axis
+					i++;
+					//Has a complete segment been sent?
+					if (i >= nmotors)
+						{
+						//Full segment has been sent
+						segsent++;
+						//Again back to first PVT axis
+						i = 0;
+						}
+					}
+				}
 			}
 
 		//Ensure segs are being sent faster than can be processed by controller
@@ -2124,32 +2351,36 @@ asynStatus GalilController::runLinearProfile(FILE *profFile)
 		//Default bufferNext true before checking buffer
 		bufferNext = true;
 		//Check buffer, and abort status
-		if ((segsent - segprocessed) >= MAX_SEGMENTS && !status && !profileAbort_)
+		if ((segsent - segprocessed) >= maxsegs && !status && !profileAbort_)
 			{
 			//Segment buffer is full, and user has not pressed abort
 
 			//Dont buffer next segment	
 			//Give time for motors to arrive at start, or
 			//Give time for controller to process a segment
-			if ((anyMotorMoving(axes) && !profStarted) || profStarted)
+			if ((anyMotorMoving() && !profStarted) || profStarted)
 				{
 				unlock();
 				epicsThreadSleep(.01);
 				bufferNext = false;
 				lock();
 				}
-
+			}
+        //Check profile start condition
+		if ((segsent - segprocessed) >= startsegs && !status && !profileAbort_)
+			{
+            //Buffered startsegs number of segments
 			//Case where motors were moving to start position, and now complete, profile is not started.
 			if (!profStarted && atStart && !status && !profileAbort_)
 				{
 				//Start the profile
-				status = beginLinearProfileMotion(coordsys, coordName, axes);
+				status = beginProfileMotion(coordsys, coordName);
 				profStarted = (status) ? false : true;
 				//Buffer next if started ok
 				if (!status)
 					bufferNext = true;
 				}
-			}
+            }
 		}
 
 	unlock();
@@ -2160,15 +2391,26 @@ asynStatus GalilController::runLinearProfile(FILE *profFile)
   lock();
 
   //All segments have been sent to controller
-  //End linear interpolation mode
-  strcpy(cmd_, "LE");
-  sync_writeReadController();
+  if (!profileType_)
+     {
+     //End linear interpolation mode
+     strcpy(cmd_, "LE");
+     sync_writeReadController();
+     }
+  else
+     {
+     for (i = 0; i < strlen(profileAxes_); i++)
+        {
+        sprintf(cmd_, "PV%c=0,0,0", profileAxes_[i]);
+        sync_writeReadController();
+        }
+     }
 
   //Check if motors still moving to start position
   if (!profStarted && !status && !profileAbort_)
 	{
 	//Pause till motors stop
-	while (anyMotorMoving(axes))
+	while (anyMotorMoving())
 		{
 		unlock();
 		epicsThreadSleep(.01);
@@ -2177,27 +2419,28 @@ asynStatus GalilController::runLinearProfile(FILE *profFile)
 	
 	//Start short profiles that fit entirely in the controller buffer <= MAX_SEGMENTS
 	//If motors at start position, begin profile
-	if (motorsAtStart(axes, startp))
+	if (motorsAtStart(startp))
 		{
-		status = beginLinearProfileMotion(coordsys, coordName, axes);
+		status = beginProfileMotion(coordsys, coordName);
 		profStarted = (status) ? false : true;
 		}
 	}
  
   //Profile not started, and motors still moving, stop them
-  if (!profStarted && anyMotorMoving(axes))
-  	motorsToProfileStartPosition(profFile, axes, startp, false);  //Stop motors moving to start position
+  if (!profStarted && anyMotorMoving())
+  	motorsToProfileStartPosition(profFile, startp, false);  //Stop motors moving to start position
 
   //Finish up
   if (!status)
 	{
 	if (profStarted)
 		{
-		csmoving = 1;
-		//Loop until coordinate system stops
-		while (csmoving)
+		pmoving = 1;
+		//Loop until stopped, or aborted
+		while (pmoving)
 			{
-			getIntegerParam(coordsys, GalilCoordSysMoving_, &csmoving);
+			//Retrieve moving status, and segments processed
+			profileGetSegsMoving(profStarted, coordsys, &pmoving, &segprocessed); 
 			//Restrict loop frequency
 			unlock();
 			epicsThreadSleep(.01);
@@ -2205,8 +2448,8 @@ asynStatus GalilController::runLinearProfile(FILE *profFile)
 			}
 		}
 
-	//Segments processed
-	getIntegerParam(coordsys, GalilCoordSysSegments_, &segprocessed);
+	//Retrieve moving status, and segments processed
+	profileGetSegsMoving(profStarted, coordsys, &pmoving, &segprocessed); 
 
 	//Were all segments processed by controller
 	if (segprocessed == segsent)
@@ -2232,53 +2475,13 @@ asynStatus GalilController::runLinearProfile(FILE *profFile)
   //Update status
   setIntegerParam(profileExecuteState_, PROFILE_EXECUTE_DONE);
   callParamCallbacks();
+
+  if (profFile != NULL)
+     fclose(profFile); //Close the trajectory file
+
   unlock();
 
   return asynSuccess;
-}
-
-/* Function to run trajectory.  It runs in a dedicated thread, so it's OK to block.
- * It needs to lock and unlock when it accesses class data. */ 
-asynStatus GalilController::runProfile()
-{
-  int status = asynError;		//Execute status
-  char fileName[MAX_FILENAME_LEN];	//Filename to read profile data from
-  char profType[MAX_GALIL_STRING_SIZE];	//Segment move command assembled for controller
-  char message[MAX_GALIL_STRING_SIZE];	//Profile run message
-  FILE *profFile;			//File handle for above file
-
-  //Retrieve required attributes from ParamList
-  getStringParam(GalilProfileFile_, (int)sizeof(fileName), fileName);
-
-  //Update execute profile status
-  setIntegerParam(profileExecuteState_, PROFILE_EXECUTE_MOVE_START);
-  setIntegerParam(profileExecuteStatus_, PROFILE_STATUS_UNDEFINED);
-  callParamCallbacks();
-    
-  //Open the profile file
-  profFile =  fopen(fileName, "rt");
-
-  if (profFile != NULL)
-	{
-	//Read file header
-	//LINEAR or PVT type
-	fscanf(profFile, "%s\n", profType);
-	//Call appropriate method to handle this profile type
-	if (!abs(strcmp(profType, "LINEAR")))
-		status = runLinearProfile(profFile);
-	//Done, close the file
-	fclose(profFile);
-	}
-  else
-	{
-	strcpy(message, "Can't open trajectory file\n");
-	setStringParam(profileExecuteMessage_, message);
-	setIntegerParam(profileExecuteStatus_, PROFILE_STATUS_FAILURE);
-	setIntegerParam(profileExecuteState_, PROFILE_EXECUTE_DONE);
-	callParamCallbacks();
-	}
-
-  return (asynStatus)status;
 }
 
 /**
@@ -2449,7 +2652,8 @@ asynStatus GalilController::beginGroupMotion(char *axes)
   const char *functionName = "beginMotionGroup";
   GalilAxis *pAxis;			//GalilAxis instance
   char mesg[MAX_GALIL_STRING_SIZE];	//Controller mesg
-  double begin_time;			//Time taken to begin
+  int moving = 0;			//Moving status
+  double begin_time = 0;		//Time taken to begin
   bool fail = false;			//Fail flag
   asynStatus status;			//Return status
 
@@ -2470,7 +2674,7 @@ asynStatus GalilController::beginGroupMotion(char *axes)
   if (sync_writeReadController() == asynSuccess)
      {
      unlock();
-     while (!pAxis->inmotion_) //Pause until 1st motor listed begins moving
+     while (!moving) //Pause until 1st motor listed begins moving
         {
         epicsThreadSleep(.001);
         epicsTimeGetCurrent(&begin_nowt_);
@@ -2481,10 +2685,10 @@ asynStatus GalilController::beginGroupMotion(char *axes)
            fail = true;
            break;  //Timeout, give up
            }
+
+        //Retrieve moving status
+        getIntegerParam(axes[0] - AASCII, motorStatusMoving_, &moving);
         }
-     //Wait 1 update period for poller to update
-     if (begin_time <= BEGIN_TIMEOUT)
-        epicsThreadSleep(updatePeriod_/1000.0);
      lock();
      }
   else  //Controller gave error at begin
@@ -3493,13 +3697,6 @@ void GalilController::getStatus(void)
 		//Segment count
 		sprintf(src, "_CS%c", (addr) ? 'T' : 'S');
 		setIntegerParam(addr, GalilCoordSysSegments_, (int)sourceValue(recdata_, src));
-
-		//Update profile current point in ParamList
-		if ((addr == coordsys) && (profstate))
-			{
-			//Update profile current point in ParamList
-			setIntegerParam(0, profileCurrentPoint_, (int)sourceValue(recdata_, src));
-			}
 
 		//Coordinate system stopping status
 		sprintf(src, "ST%c", (addr) ? 'T' : 'S');

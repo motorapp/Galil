@@ -1636,8 +1636,9 @@ void GalilAxis::executeAutoBrakeOn(void)
 //Called by move, moveVelocity, home
 asynStatus GalilAxis::beginMotion(const char *caller)
 {
-   double begin_time;	//Time taken for motion to begin
+   double begin_time = 0;		//Time taken for motion to begin
    char mesg[MAX_GALIL_STRING_SIZE];	//Controller error mesg if begin fail
+   int moving = 0;			//Motor moving status
    bool fail = false;			//Fail flag
    bool autoOn = false;			//Did auto on do any work?
 
@@ -1658,7 +1659,7 @@ asynStatus GalilAxis::beginMotion(const char *caller)
       {
       //Give sync poller change to get lock
       pC_->unlock();
-      while (!inmotion_) //Allow time for motion to begin
+      while (!moving) //Allow time for motion to begin
          {
          epicsThreadSleep(.001);
          epicsTimeGetCurrent(&begin_nowt_);
@@ -1669,10 +1670,9 @@ asynStatus GalilAxis::beginMotion(const char *caller)
             fail = true;  //Time is up, give up
             break;
             }
+         //Retrieve moving status
+         pC_->getIntegerParam(axisNo_, pC_->motorStatusMoving_, &moving);
          }
-      //Wait 1 update period for poller to update
-      if (begin_time <= BEGIN_TIMEOUT)
-         epicsThreadSleep(pC_->updatePeriod_/1000.0);
       pC_->lock();
       }
    else
@@ -1694,7 +1694,6 @@ asynStatus GalilAxis::beginMotion(const char *caller)
   * This function reads the controller position, encoder position, the limit status, the moving status, 
   * and the drive power-on status.  It does not current detect following error, etc. but this could be
   * added.
-  * callParamCallbacks is now called in GalilPoller
   * It calls setIntegerParam() and setDoubleParam() for each item that it polls,
   * \param[out] moving A flag that is set indicating that the axis is moving (1) or done (0). */
 asynStatus GalilAxis::poll(bool *moving)

@@ -40,7 +40,8 @@
 #define MAX_GALIL_VARS 10
 #define MAX_GALIL_CSAXES 8
 #define MAX_FILENAME_LEN 2048
-#define MAX_SEGMENTS 511
+#define MAX_LINEAR_SEGMENTS 511
+#define MAX_PVT_SEGMENTS 255
 #define COORDINATE_SYSTEMS 2
 #define ANALOG_PORTS 8
 #define BINARYIN_BYTES 7
@@ -245,9 +246,18 @@ public:
   asynStatus buildProfileFile();
   asynStatus checkCSAxisProfiles(int mesg_function);
   asynStatus transformCSAxisProfiles();
+  asynStatus prepRunProfile(FILE **profFile, int *coordsys, char *coordName, double startp[]);
   asynStatus executeProfile();
   asynStatus abortProfile();
   asynStatus initializeProfile(size_t maxProfilePoints);
+  asynStatus beginProfileMotion(int coordsys, char coordName);
+  asynStatus beginPVTProfileMotion();
+  asynStatus runProfile();
+  bool anyMotorMoving();
+  bool allMotorsMoving();
+  bool motorsAtStart(double startp[]);
+  asynStatus motorsToProfileStartPosition(FILE *profFile, double startp[], bool move);
+  void profileGetSegsMoving(int profStarted, int coordsys, int *moving, int *segprocessed);
   //asynStatus readbackProfile();
 
   /* These are the methods that are new to this class */
@@ -268,14 +278,7 @@ public:
   asynStatus get_double(int function, epicsFloat64 *value, int axisNo);
   void profileThread();
   asynStatus setOutputCompare(int oc);
-  asynStatus runProfile();
-  asynStatus runLinearProfile(FILE *profFile);
-  bool anyMotorMoving(char *axes);
-  bool allMotorsMoving(char *axes);
-  bool motorsAtStart(char *axes, double startp[]);
-  asynStatus beginLinearProfileMotion(int coordsys, char coordName, const char *axes);
   asynStatus beginLinearGroupMotion(int coordsys, char coordName, const char *axes, bool profileAbort);
-  asynStatus motorsToProfileStartPosition(FILE *profFile, char *axes, double startp[], bool move);
   asynStatus beginGroupMotion(char *axes);
   //Execute motor record prem function for motor list
   void executePrem(const char *axes);
@@ -439,6 +442,7 @@ private:
   double updatePeriod_;			//Period between data records in ms
   bool async_records_;			//Are the data records obtained async(DR), or sync (QR)
   bool try_async_;			//Should we even try async udp (DR) before going to synchronous tcp (QR) mode
+  bool serial_;				//Connection is serial?
 
   epicsTimeStamp begin_nowt_;		//Used to track length of time motor begin takes
   epicsTimeStamp begin_begint_;		//Used to track length of time motor begin takes
@@ -451,6 +455,9 @@ private:
 
   epicsEventId profileExecuteEvent_;	//Event for executing motion profiles
   bool profileAbort_;			//Abort profile request flag.  Aborts profile when set true
+  char profileAxes_[MAX_GALIL_AXES+1];	//Running profile axes list
+  int profileType_;			//Running profile type 0=linear, 1=pvt
+
   unsigned thread_mask_;		//Mask detailing which threads are expected to be running after program download Bit 0 = thread 0 etc
 
   vector<char> recdata_;		//Data record from controller
