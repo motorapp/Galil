@@ -1595,7 +1595,9 @@ asynStatus GalilController::motorsToProfileStartPosition(FILE *profFile, char *a
   int j;				//Axis looping
   int axisNo;				//Axis number
   int moveMode[MAX_GALIL_AXES];  	//Move mode absolute or relative
-  double accl, velo, mres;		//Required mr attributes
+  int ueip;				//Required mr attributes
+  double rdbd;				//Required mr attributes
+  double accl, velo, mres, eres;	//Required mr attributes
   double velocity, acceleration;	//Used to move motors to start
   char message[MAX_GALIL_STRING_SIZE];	//Profile execute message
   double readback;			//Readback controller is using
@@ -1628,6 +1630,11 @@ asynStatus GalilController::motorsToProfileStartPosition(FILE *profFile, char *a
 	getDoubleParam(axisNo, GalilMotorAccl_, &accl);
 	getDoubleParam(axisNo, GalilMotorVelo_, &velo);
 	getDoubleParam(axisNo, motorResolution_, &mres);
+	getDoubleParam(axisNo, GalilMotorRdbd_, &rdbd);
+	getDoubleParam(axisNo, GalilEncoderResolution_, &eres);
+	getIntegerParam(axisNo, GalilUseEncoder_, &ueip);
+	//Calculate deadband in steps
+	rdbd = (ueip) ? (rdbd/eres) : (rdbd/mres);
 	//Calculate velocity and acceleration in steps
 	velocity = fabs(velo/mres);
 	acceleration = velocity/accl;
@@ -1637,7 +1644,7 @@ asynStatus GalilController::motorsToProfileStartPosition(FILE *profFile, char *a
 		//If motor is servo and ueip_ = 1 then controller uses encoder_position_ for positioning
 		if (pAxis->ueip_ && (pAxis->motorType_ == 0 || pAxis->motorType_ == 1))
 			readback = pAxis->encoder_position_;
-		if (startp[axisNo] != readback)
+		if (!(startp[axisNo] >= readback - rdbd && startp[axisNo] <= readback + rdbd))
 			status = pAxis->move(startp[axisNo], 0, 0, velocity, acceleration);
 		}
 	else    //Stop motor moving to start
@@ -1733,9 +1740,6 @@ asynStatus GalilController::beginLinearGroupMotion(int coordsys, char coordName,
         //Retrieve coordinate system moving status as set by poll thread
         getIntegerParam(coordsys, GalilCoordSysMoving_, &csmoving);
         }
-     //Wait 1 update period for poller to update
-     if (begin_time <= BEGIN_TIMEOUT)
-        epicsThreadSleep(updatePeriod_/1000.0);
      lock();
      }
   else  //Controller gave error at begin
@@ -2221,7 +2225,8 @@ asynStatus GalilController::beginGroupMotion(char *axes)
   const char *functionName = "beginMotionGroup";
   GalilAxis *pAxis;			//GalilAxis instance
   char mesg[MAX_GALIL_STRING_SIZE];	//Controller mesg
-  double begin_time;			//Time taken to begin
+  int moving = 0;			//Moving status
+  double begin_time = 0;		//Time taken to begin
   bool fail = false;			//Fail flag
   asynStatus status;			//Return status
 
@@ -2242,7 +2247,7 @@ asynStatus GalilController::beginGroupMotion(char *axes)
   if (sync_writeReadController() == asynSuccess)
      {
      unlock();
-     while (!pAxis->inmotion_) //Pause until 1st motor listed begins moving
+     while (!moving) //Pause until 1st motor listed begins moving
         {
         epicsThreadSleep(.001);
         epicsTimeGetCurrent(&begin_nowt_);
@@ -2253,10 +2258,10 @@ asynStatus GalilController::beginGroupMotion(char *axes)
            fail = true;
            break;  //Timeout, give up
            }
+
+        //Retrieve moving status
+        getIntegerParam(axes[0] - AASCII, motorStatusMoving_, &moving);
         }
-     //Wait 1 update period for poller to update
-     if (begin_time <= BEGIN_TIMEOUT)
-        epicsThreadSleep(updatePeriod_/1000.0);
      lock();
      }
   else  //Controller gave error at begin
