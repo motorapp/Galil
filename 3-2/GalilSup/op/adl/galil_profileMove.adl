@@ -1,7 +1,7 @@
 
 file {
 	name="/home/ics/git/Galil-3-0/3-2/GalilSup/op/adl/galil_profileMove.adl"
-	version=030109
+	version=030105
 }
 display {
 	object {
@@ -734,7 +734,7 @@ text {
 		x=11
 		y=643
 		width=512
-		height=11
+		height=13
 	}
 	monitor {
 		chan="$(P)$(R)ExecuteMessage"
@@ -777,7 +777,7 @@ text {
 		x=11
 		y=569
 		width=512
-		height=11
+		height=13
 	}
 	monitor {
 		chan="$(P)$(R)BuildMessage"

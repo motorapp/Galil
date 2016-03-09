@@ -1,7 +1,7 @@
 
 file {
 	name="/home/ics/git/Galil-3-0/3-2/GalilSup/op/adl/galil_ctrl_extras.adl"
-	version=030109
+	version=030105
 }
 display {
 	object {
@@ -374,7 +374,7 @@ menu {
 text {
 	object {
 		x=9
-		y=224
+		y=223
 		width=97
 		height=13
 	}
