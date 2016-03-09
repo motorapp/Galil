@@ -1,6 +1,6 @@
 
 file {
-	name="/home/ics/git/Galil-3-0/3-2/GalilSup/op/adl/galil_profileMove.adl"
+	name="/home/ics/git/Galil-3-0/3-1/GalilSup/op/adl/galil_profileMove.adl"
 	version=030109
 }
 display {
@@ -297,7 +297,7 @@ text {
 		x=11
 		y=623
 		width=512
-		height=11
+		height=13
 	}
 	monitor {
 		chan="$(P)$(R)ExecuteMessage"
@@ -340,7 +340,7 @@ text {
 		x=11
 		y=549
 		width=512
-		height=11
+		height=13
 	}
 	monitor {
 		chan="$(P)$(R)BuildMessage"
@@ -1128,478 +1128,467 @@ text {
 	clr=14
 	bclr=51
 }
-composite {
+text {
 	object {
 		x=12
+		y=194
+		width=200
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Trajectory file:"
+}
+text {
+	object {
+		x=12
+		y=175
+		width=90
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Start position:"
+}
+text {
+	object {
+		x=12
+		y=157
+		width=180
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Output compare 2 Axis:"
+}
+text {
+	object {
+		x=12
+		y=137
+		width=90
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Start position:"
+}
+text {
+	object {
+		x=12
+		y=119
+		width=180
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Output compare 1 Axis:"
+}
+text {
+	object {
+		x=12
+		y=97
+		width=200
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Fixed time per point"
+}
+text {
+	object {
+		x=12
+		y=76
+		width=90
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Time mode"
+}
+"text entry" {
+	object {
+		x=158
+		y=192
+		width=331
+		height=20
+	}
+	control {
+		chan="$(P)$(R)TrajectoryFile"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"related display" {
+	object {
+		x=414
+		y=91
+		width=75
+		height=20
+	}
+	display[0] {
+		label="Galil more"
+		name="galil_profileMove_more.adl"
+		args="P=$(P),R=$(R),TITLE=Details,M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8)"
+	}
+	clr=14
+	bclr=51
+	label="More"
+}
+"related display" {
+	object {
+		x=414
+		y=72
+		width=75
+		height=20
+	}
+	display[0] {
+		label="Time per element"
+		name="trajectoryPlot.adl"
+		args="TITLE=Time_per_element, Y=$(P)$(R)Times"
+	}
+	clr=14
+	bclr=51
+}
+text {
+	object {
+		x=346
+		y=76
+		width=90
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Plot time"
+}
+text {
+	object {
+		x=346
 		y=52
-		width=510
-		height=177
+		width=70
+		height=13
 	}
-	"composite name"=""
-	children {
-		text {
-			object {
-				x=12
-				y=194
-				width=200
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Trajectory file:"
-		}
-		text {
-			object {
-				x=12
-				y=175
-				width=90
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Start position:"
-		}
-		text {
-			object {
-				x=12
-				y=157
-				width=180
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Output compare 2 Axis:"
-		}
-		text {
-			object {
-				x=12
-				y=137
-				width=90
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Start position:"
-		}
-		text {
-			object {
-				x=12
-				y=119
-				width=180
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Output compare 1 Axis:"
-		}
-		text {
-			object {
-				x=12
-				y=97
-				width=200
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Fixed time per point"
-		}
-		text {
-			object {
-				x=12
-				y=76
-				width=90
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Time mode"
-		}
-		"text entry" {
-			object {
-				x=158
-				y=192
-				width=331
-				height=20
-			}
-			control {
-				chan="$(P)$(R)TrajectoryFile"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		"related display" {
-			object {
-				x=414
-				y=91
-				width=75
-				height=20
-			}
-			display[0] {
-				label="Galil more"
-				name="galil_profileMove_more.adl"
-				args="P=$(P),R=$(R),TITLE=Details,M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8)"
-			}
-			clr=14
-			bclr=51
-			label="More"
-		}
-		"related display" {
-			object {
-				x=414
-				y=72
-				width=75
-				height=20
-			}
-			display[0] {
-				label="Time per element"
-				name="trajectoryPlot.adl"
-				args="TITLE=Time_per_element, Y=$(P)$(R)Times"
-			}
-			clr=14
-			bclr=51
-		}
-		text {
-			object {
-				x=346
-				y=76
-				width=90
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Plot time"
-		}
-		text {
-			object {
-				x=346
-				y=52
-				width=70
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Current"
-		}
-		text {
-			object {
-				x=342
-				y=176
-				width=30
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Then every:"
-		}
-		"text entry" {
-			object {
-				x=414
-				y=173
-				width=75
-				height=20
-			}
-			control {
-				chan="$(P)OC2INCR_CMD"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		text {
-			object {
-				x=342
-				y=137
-				width=30
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Then every:"
-		}
-		"text entry" {
-			object {
-				x=414
-				y=133
-				width=75
-				height=20
-			}
-			control {
-				chan="$(P)OC1INCR_CMD"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=414
-				y=52
-				width=100
-				height=13
-			}
-			monitor {
-				chan="$(P)$(R)CurrentPoint"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		text {
-			object {
-				x=490
-				y=176
-				width=30
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="(EGU)"
-		}
-		text {
-			object {
-				x=490
-				y=137
-				width=30
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="(EGU)"
-		}
-		"text update" {
-			object {
-				x=97
-				y=215
-				width=425
-				height=13
-			}
-			monitor {
-				chan="$(P)OCMESSAGE_MON"
-				clr=14
-				bclr=56
-			}
-			format="string"
-			limits {
-			}
-		}
-		text {
-			object {
-				x=12
-				y=216
-				width=70
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Message"
-		}
-		"text entry" {
-			object {
-				x=158
-				y=173
-				width=80
-				height=20
-			}
-			control {
-				chan="$(P)OC2START_CMD"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		menu {
-			object {
-				x=158
-				y=153
-				width=80
-				height=20
-			}
-			control {
-				chan="$(P)OC2AXIS_CMD"
-				clr=14
-				bclr=51
-			}
-		}
-		text {
-			object {
-				x=244
-				y=176
-				width=30
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="(EGU)"
-		}
-		"text update" {
-			object {
-				x=244
-				y=158
-				width=25
-				height=13
-			}
-			monitor {
-				chan="$(P)OC2AXIS_STATUS"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		text {
-			object {
-				x=244
-				y=137
-				width=30
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="(EGU)"
-		}
-		"text entry" {
-			object {
-				x=158
-				y=133
-				width=80
-				height=20
-			}
-			control {
-				chan="$(P)OC1START_CMD"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		menu {
-			object {
-				x=158
-				y=115
-				width=80
-				height=20
-			}
-			control {
-				chan="$(P)OC1AXIS_CMD"
-				clr=14
-				bclr=51
-			}
-		}
-		"text update" {
-			object {
-				x=244
-				y=119
-				width=25
-				height=13
-			}
-			monitor {
-				chan="$(P)OC1AXIS_STATUS"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text entry" {
-			object {
-				x=158
-				y=94
-				width=80
-				height=20
-			}
-			control {
-				chan="$(P)$(R)FixedTime"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		menu {
-			object {
-				x=158
-				y=74
-				width=80
-				height=20
-			}
-			control {
-				chan="$(P)$(R)TimeMode"
-				clr=14
-				bclr=51
-			}
-		}
-		text {
-			object {
-				x=277
-				y=119
-				width=30
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Servo only"
-		}
-		text {
-			object {
-				x=278
-				y=158
-				width=30
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Servo only"
-		}
-		"text entry" {
-			object {
-				x=158
-				y=53
-				width=80
-				height=20
-			}
-			control {
-				chan="$(P)$(R)NumPoints"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		text {
-			object {
-				x=12
-				y=56
-				width=160
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="# Profile points"
-		}
+	"basic attribute" {
+		clr=14
 	}
+	textix="Current"
+}
+text {
+	object {
+		x=342
+		y=176
+		width=30
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Then every:"
+}
+"text entry" {
+	object {
+		x=414
+		y=173
+		width=75
+		height=20
+	}
+	control {
+		chan="$(P)OC2INCR_CMD"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=342
+		y=137
+		width=30
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Then every:"
+}
+"text entry" {
+	object {
+		x=414
+		y=133
+		width=75
+		height=20
+	}
+	control {
+		chan="$(P)OC1INCR_CMD"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=414
+		y=52
+		width=100
+		height=13
+	}
+	monitor {
+		chan="$(P)$(R)CurrentPoint"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=490
+		y=176
+		width=30
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="(EGU)"
+}
+text {
+	object {
+		x=490
+		y=137
+		width=30
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="(EGU)"
+}
+"text update" {
+	object {
+		x=97
+		y=215
+		width=425
+		height=13
+	}
+	monitor {
+		chan="$(P)OCMESSAGE_MON"
+		clr=14
+		bclr=56
+	}
+	format="string"
+	limits {
+	}
+}
+text {
+	object {
+		x=12
+		y=216
+		width=70
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Message"
+}
+"text entry" {
+	object {
+		x=158
+		y=173
+		width=80
+		height=20
+	}
+	control {
+		chan="$(P)OC2START_CMD"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+menu {
+	object {
+		x=158
+		y=153
+		width=80
+		height=20
+	}
+	control {
+		chan="$(P)OC2AXIS_CMD"
+		clr=14
+		bclr=51
+	}
+}
+text {
+	object {
+		x=244
+		y=176
+		width=30
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="(EGU)"
+}
+"text update" {
+	object {
+		x=244
+		y=158
+		width=25
+		height=13
+	}
+	monitor {
+		chan="$(P)OC2AXIS_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=244
+		y=137
+		width=30
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="(EGU)"
+}
+"text entry" {
+	object {
+		x=158
+		y=133
+		width=80
+		height=20
+	}
+	control {
+		chan="$(P)OC1START_CMD"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+menu {
+	object {
+		x=158
+		y=115
+		width=80
+		height=20
+	}
+	control {
+		chan="$(P)OC1AXIS_CMD"
+		clr=14
+		bclr=51
+	}
+}
+"text update" {
+	object {
+		x=244
+		y=119
+		width=25
+		height=13
+	}
+	monitor {
+		chan="$(P)OC1AXIS_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text entry" {
+	object {
+		x=158
+		y=94
+		width=80
+		height=20
+	}
+	control {
+		chan="$(P)$(R)FixedTime"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+menu {
+	object {
+		x=158
+		y=74
+		width=80
+		height=20
+	}
+	control {
+		chan="$(P)$(R)TimeMode"
+		clr=14
+		bclr=51
+	}
+}
+text {
+	object {
+		x=277
+		y=119
+		width=30
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Servo only"
+}
+text {
+	object {
+		x=278
+		y=158
+		width=30
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Servo only"
+}
+"text entry" {
+	object {
+		x=158
+		y=53
+		width=80
+		height=20
+	}
+	control {
+		chan="$(P)$(R)NumPoints"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=12
+		y=56
+		width=160
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="# Profile points"
 }
