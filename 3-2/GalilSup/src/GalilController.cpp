@@ -121,6 +121,12 @@
 //                  Fixed problem with motor interlock function
 // 08/03/16 M.Clift
 //                  Add PVT profile ability completed
+// 14/03/16 M.Clift
+//                  Fixed problem with async connection terminator during udp handle discovery
+//                  Rewrote readDataRecord resulting in upto 10% reduced CPU load
+//                  Fixed issue with datarecord header on some models
+//                  Adjustments to profile buffering
+//                  Remove counter from generated code
 
 #include <stdio.h>
 #include <math.h>
@@ -781,6 +787,7 @@ void GalilController::connected(void)
   //Has code for the GalilController been assembled
   if (code_assembled_)
      {
+     //This is reconnect
      //Put poller to sleep for GalilStartController
      unlock();
      poller_->sleepPoller();
@@ -788,17 +795,20 @@ void GalilController::connected(void)
      //Deliver and start the code on controller
      GalilStartController(code_file_, burn_program_, 0, thread_mask_);
      }
-
-  //Try async udp mode unless user specfically wants sync tcp mode
-  if (async_records_)
+  else
      {
-     //Start async data record transmission on controller
-     sprintf(cmd_, "DR %.0f, %d", updatePeriod_, udpHandle_ - AASCII);
-     status = sync_writeReadController();
-     if (status)
+     //This is initial connect
+     //Try async udp mode unless user specfically wants sync tcp mode
+     if (async_records_)
         {
-        async_records_ = false; //Something went wrong
-        setCtrlError("Asynchronous UDP failed, switching to TCP synchronous");
+        //Start async data record transmission on controller
+        sprintf(cmd_, "DR %.0f, %d", updatePeriod_, udpHandle_ - AASCII);
+        status = sync_writeReadController();
+        if (status)
+           {
+           async_records_ = false; //Something went wrong
+           setCtrlError("Asynchronous UDP failed, switching to TCP synchronous");
+           }
         }
      }
 
@@ -1658,28 +1668,16 @@ void GalilController::profileThread()
 
 asynStatus GalilController::abortProfile()
 {
-  unsigned i;
   //Request the thread that buffers/executes the profile to abort the process
   profileAbort_ = true;
 
-  if (profileType_)
-     {
-     //Empty PVT buffer
-     for (i = 0; i < (unsigned)strlen(profileAxes_); i++)
-        {
-        sprintf(cmd_, "PV%c=0,0,-1", profileAxes_[i]);
-        //Write setting to controller
-	    sync_writeReadController();
-        } 
-     }
-
   //Stop the profile axis
   if (strcmp(profileAxes_, "") != 0)
-	{
+    {
     //Stop the axes
     sprintf(cmd_, "ST %s", profileAxes_);
-	//Write setting to controller
-	sync_writeReadController();
+    //Write setting to controller
+    sync_writeReadController();
     }
 
   return asynSuccess;
@@ -1930,6 +1928,7 @@ asynStatus GalilController::beginPVTProfileMotion()
 {
   double begin_time = 0;		//Time taken to begin
   int pmoving = 0;			//Profile moving status
+  unsigned i;				//Looping
   asynStatus status = asynSuccess;	//Error status
 
   //Execute motor auto on and brake off function
@@ -1937,6 +1936,14 @@ asynStatus GalilController::beginPVTProfileMotion()
 
   //Execute motor record prem
   executePrem(profileAxes_);
+
+  //Set accel/decel for profileAxes_
+  for (i = 0; i < strlen(profileAxes_); i++)
+     {
+     //Set acceleration/deceleration
+     sprintf(cmd_, "AC%c=%ld;DC%c=%ld", profileAxes_[i], maxAcceleration_, profileAxes_[i], maxAcceleration_);
+     sync_writeReadController();
+     }
 
   //Begin the move
   //Get time when attempt motor begin
@@ -2137,9 +2144,6 @@ asynStatus GalilController::prepRunProfile(FILE **profFile, int *coordsys, char 
        //Clear any segments in the pvt buffer(s)
        sprintf(cmd_, "PV%c=0,0,-1", profileAxes_[i]);
        sync_writeReadController();
-       //Set acceleration/deceleration
-       sprintf(cmd_, "AC%c=%ld;DC%c=%ld", profileAxes_[i], maxAcceleration_, profileAxes_[i], maxAcceleration_);
-       sync_writeReadController();
        }
     }
   
@@ -2336,12 +2340,12 @@ asynStatus GalilController::runProfile()
 			}
 
 		//Ensure segs are being sent faster than can be processed by controller
-		if (((segsent - segprocessed) <= 5) && profStarted && !status && !profileAbort_)
+		if (((segsent - segprocessed) <= 2) && profStarted && !status && !profileAbort_)
 			{
+			abortProfile();
 			unlock();
 			epicsThreadSleep(.2);
 			lock();
-			abortProfile();
 			strcpy(message, "Profile time base too fast\n");
 			setStringParam(profileExecuteMessage_, message);
 			//break loop
@@ -2361,15 +2365,16 @@ asynStatus GalilController::runProfile()
 			if ((anyMotorMoving() && !profStarted) || profStarted)
 				{
 				unlock();
-				epicsThreadSleep(.01);
+				//Sleep for time equal to currently processing segment
+				epicsThreadSleep(profileTimes_[segprocessed]);
 				bufferNext = false;
 				lock();
 				}
 			}
-        //Check profile start condition
+		//Check profile start condition
 		if ((segsent - segprocessed) >= startsegs && !status && !profileAbort_)
 			{
-            //Buffered startsegs number of segments
+			//Buffered startsegs number of segments
 			//Case where motors were moving to start position, and now complete, profile is not started.
 			if (!profStarted && atStart && !status && !profileAbort_)
 				{
@@ -2380,7 +2385,7 @@ asynStatus GalilController::runProfile()
 				if (!status)
 					bufferNext = true;
 				}
-            }
+			}
 		}
 
 	unlock();
@@ -2399,6 +2404,7 @@ asynStatus GalilController::runProfile()
      }
   else
      {
+     //End PVT mode
      for (i = 0; i < strlen(profileAxes_); i++)
         {
         sprintf(cmd_, "PV%c=0,0,0", profileAxes_[i]);
@@ -3762,6 +3768,11 @@ bool GalilController::my_isascii(int c)
       return false;
 }
 
+/** Reads a binary data record from the controller
+  * pasynUser [in] - pasynUser for the synchronous or asynchronous connection 
+  * input [out] - The caller supplied buffer to put data into
+  * bytesize [in] - The data record size expected
+  */ 
 asynStatus GalilController::readDataRecord(asynUser *pasynUser, char *input, unsigned bytesize)
 {
   int done = false;	//Break read loop
@@ -3774,58 +3785,89 @@ asynStatus GalilController::readDataRecord(asynUser *pasynUser, char *input, uns
   bool recstart = false;//We found the record header bytes 2, and 3
   char previous = 0;	//Byte read in previous cycle
   unsigned char value;	//Used for type conversion
-  unsigned i = 0, j = 0;//Counters for data record bytes, and unsolicited bytes
+  unsigned i = 0;	//Looping
+  unsigned j = 0;	//Unsolicited byte counter
+  unsigned databytes = 0; //Number of datarecord bytes found in read
+  unsigned datastart = 0; //Datarecord data start index in buffer
 
   while (!done)
      {
-     //Read a byte
-     status = pasynOctetSyncIO->read(pasynUser, buf, 1, timeout_, &nread, &eomReason);
-     if (!status && eomReason == ASYN_EOM_CNT && nread == 1)
+     //Read HEADER_BYTES
+     status = pasynOctetSyncIO->read(pasynUser, buf, HEADER_BYTES, timeout_, &nread, &eomReason);
+     if (!status && eomReason == ASYN_EOM_CNT && nread == HEADER_BYTES)
         {
-        value = (unsigned char)(buf[0] - 0x80);
-        if (((buf[0] & 0x80) == 0x80) && (my_isascii((int)value)))
+        //Read returned ok
+        //Look for record header
+        if (!recstart)
            {
-           //Check for overrun
-           if (j > MAX_GALIL_DATAREC_SIZE - 2)
-                return asynError;//No unsolicited message should be this long return error
-           //Copy unsolicited byte into mesg buffer
-           mesg[j++] = buf[0];
-           mesg[j] = '\0';
-           }
-       else
-           {
-           //Look for record header byte by byte
-           if (!recstart)
+           for (i = 0; i < HEADER_BYTES; i++)
               {
-              //Look for record header bytes 2, and 3
-              check = buf[0] << 8;
+              //Set previous byte
+              if (i != 0)
+                 previous = buf[i - 1];
+              //Calculate record size using this byte, and previous
+              check = buf[i] << 8;
               check = previous + check;
+              //Compare calculated size against datarecsize we are searching for
               if (check == datarecsize_)
-                 recstart = true;  //Found matching header
+                 {
+                 //Found matching header
+                 recstart = true;
+                 //The number of datarecord data bytes in this read
+                 databytes = HEADER_BYTES - (i + 1);
+                 //Buffer index where datarecord data bytes start
+                 datastart = i + 1;
+                 }
               }
-          //If record header has been received, then read the record data
-          if (recstart)
-             {
-             //Read the data record contents
-             status = pasynOctetSyncIO->read(pasynUser, buf, bytesize - 4, timeout_, &nread, &eomReason);
-             if (!status && eomReason == ASYN_EOM_CNT)
-                {
-                //Copy data record into supplied buffer
-                for (i = 0; i < bytesize - 4; i++)
-                   input[4 + i] = buf[i];
-                }
-             done = true;
-             }
-           //Store byte received for next cycle
-           previous = buf[0];
+           //Store last byte received for next cycle
+           if (!recstart)
+              previous = buf[HEADER_BYTES - 1];
+           }
+
+        //If record header has been received, then read the record data
+        if (recstart)
+           {
+           //Copy data record into supplied buffer
+           for (i = datastart; i < databytes; i++)
+              input[HEADER_BYTES + i - datastart] = buf[i];
+
+           //Read the data record contents
+           status = pasynOctetSyncIO->read(pasynUser, buf, bytesize - HEADER_BYTES - databytes, timeout_, &nread, &eomReason);
+           if (!status && eomReason == ASYN_EOM_CNT)
+              {
+              //Copy data record into supplied buffer
+              for (i = 0; i < bytesize - HEADER_BYTES - databytes; i++)
+                 input[HEADER_BYTES + databytes + i] = buf[i];
+              }
+           //Data record read, finish up
+           done = true;
+           }
+
+        //Header not found, see if bytes look like an unsolicited message
+        if (!done)
+           {
+           for (i = 0; i < HEADER_BYTES; i++)
+              {
+              value = (unsigned char)(buf[i] - 0x80);
+              if (((buf[i] & 0x80) == 0x80) && (my_isascii((int)value)))
+                 {
+                 //Byte looks like an unsolicited packet
+                 //Check for overrun
+                 if (j > MAX_GALIL_DATAREC_SIZE - 2)
+                    return asynError;//No unsolicited message should be this long return error
+                 //Copy potential unsolicited byte into mesg buffer
+                 mesg[j++] = buf[i];
+                 mesg[j] = '\0';
+                 }
+              }
            }
         }
-     else //Couldn't read a byte
+     else  //Couldn't read HEADER_BYTES number of bytes
         done = true;
      }
 
   //Send unsolicited mesg to queue
-  if (j != 0)
+  if (j != 0) //Reciever will respond to valid messages only
      sendUnsolicitedMessage(mesg);
 
   return status;
@@ -4833,7 +4875,7 @@ void GalilController::InitializeDataRecord(void)
      charstr = epicsStrtok_r(NULL, ",", &tokSave);
      axis_b = atoi(charstr);
      //Store the data record size
-     datarecsize_ = 4 + (axes * axis_b) + general_b + coord_b;
+     datarecsize_ = HEADER_BYTES + (axes * axis_b) + general_b + coord_b;
      //DMC300x0 returns 1 18 16 36, search for "DMC31" in model string to determine 16bit ADC
      if (general_b == 18) return Init30010(model.find("DMC31") != string::npos);
      //DMC40x0/DMC41x3/DMC50000         8 52 26 36
