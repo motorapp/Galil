@@ -407,6 +407,7 @@ void GalilAxis::gen_homecode(char c,			//GalilAxis::axisName_ used very often
 	sprintf(pC_->cmd_, "hjog%c=0", c);
 	pC_->sync_writeReadController();
 	
+	/*
 	//Add code that counts cpu cycles through thread 0
 	if (axisName_ == 'A')
 		{
@@ -416,6 +417,7 @@ void GalilAxis::gen_homecode(char c,			//GalilAxis::axisName_ used very often
 		sprintf(pC_->cmd_, "counter=0");
 		pC_->sync_writeReadController();
 		}
+	*/
 }
 
 /*  Sets acceleration and velocity for this axis

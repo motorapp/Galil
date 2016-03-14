@@ -86,7 +86,7 @@ void GalilConnector::run(void)
 			if (pC_->try_async_)
 				{
 				//Need to change terminator for handle discovery query on udp connection
-				pasynOctetSyncIO->setInputEos(pC_->pasynUserAsyncGalil_, "\r", 1);
+				pasynOctetSyncIO->setInputEos(pC_->pasynUserAsyncGalil_, ":", 1);
 				//Retrieve controller connection handle used for async udp
 				strcpy(pC_->asynccmd_, "WH");
 				async_status = pC_->async_writeReadController();
