@@ -127,6 +127,8 @@
 //                  Fixed issue with datarecord header on some models
 //                  Adjustments to profile buffering
 //                  Remove counter from generated code
+// 17/03/16 M.Davies & M.Clift
+//                  Fix problem with extractEthAddr string length
 
 #include <stdio.h>
 #include <math.h>
@@ -665,9 +667,15 @@ std::string GalilController::extractEthAddr(const char* str)
 {
 	static const std::string eth("ETHERNET ADDRESS");
 	std::string th(str);
-	size_t pos1 = th.find(eth);
-	pos1 = pos1 + eth.size() + 1;
-	return th.substr(pos1, string::npos - pos1);
+	//Find start and end of substring containing mac address
+	size_t start = th.find(eth);
+	size_t end = th.find("\r");
+	start = start + eth.size() + 1;
+	//Find the mac address substring
+	std::string mac(th.substr(start, end - start));
+	//Ensure it will fit in a string record
+	mac.resize(40);
+	return mac;
 }
 
 //Anything that should be done once connection established
@@ -4012,9 +4020,6 @@ asynStatus GalilController::sync_writeReadController(void)
   //Remove any unwanted characters
   string resp = resp_;
   resp.erase(resp.find_last_not_of(" \n\r\t:")+1);
-  resp.erase (std::remove(resp.begin(), resp.end(), ':'), resp.end());
-  resp.erase (std::remove(resp.begin(), resp.end(), '\r'), resp.end());
-  resp.erase (std::remove(resp.begin(), resp.end(), '\n'), resp.end());
   strcpy(resp_, resp.c_str());
 
    //Debugging
