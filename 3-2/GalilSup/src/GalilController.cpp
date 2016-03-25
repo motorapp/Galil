@@ -127,8 +127,17 @@
 //                  Fixed issue with datarecord header on some models
 //                  Adjustments to profile buffering
 //                  Remove counter from generated code
-// 17/03/16 M.Davies & M.Clift
+// 17/03/16 M.Davis & M.Clift
 //                  Fix problem with extractEthAddr string length
+// 20/03/16 M.Clift
+//                  Added analog readback deadbands
+//                  Added PWM servo motor types
+//                  Improved wrongLimitProtection logic
+//                  Added axis user data to motor extras
+//                  pollServices stop changed to emergency (limit stop) stop
+// 23/23/10 M.Davis
+//                  Further fixes to extractEthAddr
+//                  Fixed further issues with readDataRecord header on some models
 
 #include <stdio.h>
 #include <math.h>
@@ -320,6 +329,8 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilBrakePortString, asynParamInt32, &GalilBrakePort_);
   createParam(GalilBrakeString, asynParamInt32, &GalilBrake_);
   createParam(GalilHomeAllowedString, asynParamInt32, &GalilHomeAllowed_);
+  createParam(GalilUserDataString, asynParamFloat64, &GalilUserData_);
+  createParam(GalilUserDataDeadbString, asynParamFloat64, &GalilUserDataDeadb_);
 
   createParam(GalilMainEncoderString, asynParamInt32, &GalilMainEncoder_);
   createParam(GalilAuxEncoderString, asynParamInt32, &GalilAuxEncoder_);
@@ -333,8 +344,11 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilBinaryOutRBVString, asynParamUInt32Digital, &GalilBinaryOutRBV_);
 
   createParam(GalilAnalogInString, asynParamFloat64, &GalilAnalogIn_);
+  createParam(GalilAnalogInDeadbString, asynParamFloat64, &GalilAnalogInDeadb_);
+
   createParam(GalilAnalogOutString, asynParamFloat64, &GalilAnalogOut_);
   createParam(GalilAnalogOutRBVString, asynParamFloat64, &GalilAnalogOutRBV_);
+  createParam(GalilAnalogOutRBVDeadbString, asynParamFloat64, &GalilAnalogOutRBVDeadb_);
 
   createParam(GalilStopEventString, asynParamInt32, &GalilStopEvent_);
 
@@ -665,16 +679,23 @@ void GalilController::setParamDefaults(void)
 // return 00-00-00-00-00-00 if unable to parse input string
 std::string GalilController::extractEthAddr(const char* str)
 {
+	//Result string
+	std::string mac;
+	//Search string
 	static const std::string eth("ETHERNET ADDRESS");
+	//Result from TH command
 	std::string th(str);
 	//Find start and end of substring containing mac address
 	size_t start = th.find(eth);
-	size_t end = th.find("\r");
 	start = start + eth.size() + 1;
-	//Find the mac address substring
-	std::string mac(th.substr(start, end - start));
-	//Ensure it will fit in a string record
-	mac.resize(40);
+	size_t end = start + 17;
+	//copy portion of the string containing the MAC addr
+	if ((start < 0) || (end >= th.size()) || (start >= end))
+		mac = std::string("00-00-00-00-00-00");  //tdebug
+	else
+		mac = std::string(th.substr(start, end - start));
+	//Trim final result to mac address length
+	mac.resize(17);
 	return mac;
 }
 
@@ -2994,40 +3015,64 @@ asynStatus GalilController::get_double(int function, epicsFloat64 *value, int ax
   * \param[in] value Address of the value to read. */
 asynStatus GalilController::readFloat64(asynUser *pasynUser, epicsFloat64 *value)
 {
-  int function = pasynUser->reason;		 //function requested
-  GalilAxis *pAxis = getAxis(pasynUser);	 //Retrieve the axis instance
+  int function = pasynUser->reason;		//function requested
+  GalilAxis *pAxis = getAxis(pasynUser);	//Retrieve the axis instance
+  asynStatus status;				//Asyn status
+  int addr;					//Address
+  bool found = true;				//Have we found the command
 
-  if (!pAxis) return asynError;
+  //Retrieve address.  Used for analog IO
+  status = getAddress(pasynUser, &addr); 
+  if (status != asynSuccess) return(status);
 
   //We dont retrieve values for records at iocInit.  
   //For output records autosave, or db defaults are pushed to hardware instead
   if (!dbInitialized) return asynError;
-    
-  if (function == GalilStepSmooth_)
+
+  if (pAxis)
      {
-     sprintf(cmd_, "MG _KS%c", pAxis->axisName_);
-     get_double(GalilStepSmooth_, value, pAxis->axisNo_);
+     if (function == GalilStepSmooth_)
+        {
+        sprintf(cmd_, "MG _KS%c", pAxis->axisName_);
+        get_double(GalilStepSmooth_, value, pAxis->axisNo_);
+        }
+     else if (function == GalilErrorLimit_)
+        {
+        sprintf(cmd_, "MG _ER%c", pAxis->axisName_);
+        get_double(GalilErrorLimit_, value, pAxis->axisNo_);
+        }
+     else //Command not found so far
+        found = false;
      }
-  else if (function == GalilErrorLimit_)
+  if (!found)
      {
-     sprintf(cmd_, "MG _ER%c", pAxis->axisName_);
-     get_double(GalilErrorLimit_, value, pAxis->axisNo_);
+     if (function == GalilUserCmd_)
+        {
+        //For when input records are set to periodic scan not I/O Intr
+        epicsSnprintf(cmd_, sizeof(cmd_), "%s", (const char*)pasynUser->userData);
+        get_double(GalilUserVar_, value);
+        }
+     else if (function == GalilUserVar_)
+        {
+        //For when input records are set to periodic scan not I/O Intr
+        epicsSnprintf(cmd_, sizeof(cmd_), "%s=?", (const char*)pasynUser->userData);
+        get_double(GalilUserVar_, value);
+        }
+     else if (function == GalilAnalogIn_ && !status)
+        {
+        //Likely a DMC4xxx with low number of axes
+        //User wants analog input value > numaxes and so the data is not in datarecord
+        //For when input records are set to periodic scan not I/O Intr
+        sprintf(cmd_, "MG @AN%d", addr);
+        get_double(GalilAnalogIn_, value, addr);
+        }
+     else  //Command not found
+        found = false;
      }
-  else if (function == GalilUserCmd_)
-     {
-     //For when input records are set to periodic scan not I/O Intr
-     epicsSnprintf(cmd_, sizeof(cmd_), "%s", (const char*)pasynUser->userData);
-     get_double(GalilUserVar_, value);
-     }
-  else if (function == GalilUserVar_)
-     {
-     //For when input records are set to periodic scan not I/O Intr
-     epicsSnprintf(cmd_, sizeof(cmd_), "%s=?", (const char*)pasynUser->userData);
-     get_double(GalilUserVar_, value);
-     }
-  else
+
+  if (!found)
      asynPortDriver::readFloat64(pasynUser, value);
-  
+
   //Always return success. Dont need more error mesgs
   return asynSuccess;	
 }
@@ -3116,13 +3161,14 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
   double eres, mres;				//mr eres, and mres
   float oldmotor;				//Motor type before changing it.  Use Galil numbering
   unsigned i;					//Looping
+  float oldmtr_abs, newmtr_abs;			//Track motor changes
 
   //GalilPoller is designed to be a constant and fast poller
   //So we dont honour motorUpdateStatus as it will cause threading issues
   if (function == motorUpdateStatus_)
 	return asynSuccess;
 
-  status = getAddress(pasynUser, &addr); 
+  status = getAddress(pasynUser, &addr);
   if (status != asynSuccess) return(status);
 
   //Check axis instance the easy way since no RIO commands in writeInt32
@@ -3215,6 +3261,10 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 			break;
 		case 5: newmtr = 2.5;
 			break;
+		case 6: newmtr = 1.5;
+			break;
+		case 7: newmtr = -1.5;
+			break;
 		default: newmtr = 1.0;
 			break;
 		}
@@ -3250,6 +3300,23 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 		//Write setting to controller
 		status = sync_writeReadController();
 		}
+
+	//Changing motor polarity will change motor limits direction consistency
+	oldmtr_abs = abs(oldmotor);
+	newmtr_abs = abs(newmtr);
+	if (((oldmtr_abs == newmtr_abs) && ((oldmotor > 0 && newmtr < 0) || (oldmotor < 0 && newmtr > 0))) ||
+		((oldmtr_abs == 2.0 && newmtr_abs == 2.5) || (oldmtr_abs == 2.5 && newmtr_abs == 2.0)) ||
+		((oldmotor == 1.0 && newmtr == -1.5) || (oldmtr_abs == -1.5 && newmtr_abs == 1.0)) ||
+		((oldmotor == -1.0 && newmtr == 1.5) || (oldmtr_abs == 1.5 && newmtr_abs == -1.0)))
+		{
+		if (pAxis->limitsDirState_ != unknown)
+			pAxis->limitsDirState_ = (pAxis->limitsDirState_ == not_consistent) ? consistent : not_consistent;
+		//Ensure WLP Active state is unlatch so a move can be initiated
+		if (pAxis->limitsDirState_ == consistent)
+			setIntegerParam(pAxis->axisNo_, GalilWrongLimitProtectionActive_, 0);
+		}
+	else if (oldmotor != newmtr)
+		pAxis->limitsDirState_ = unknown;
 	}
   else if (function == GalilUseEncoder_)
 	{
@@ -3405,7 +3472,7 @@ asynStatus GalilController::writeFloat64(asynUser *pasynUser, epicsFloat64 value
   else
      {
      /* Call base class method */
-	 status = asynMotorController::writeFloat64(pasynUser, value);
+     status = asynMotorController::writeFloat64(pasynUser, value);
      }
 
   //Always return success. Dont need more error mesgs
@@ -3612,6 +3679,8 @@ void GalilController::getStatus(void)
    int coordsys;				//Coordinate system currently selected
    int profstate;				//Profile running state
    double paramDouble;				//For passing asynFloat64 to ParamList
+   double analogIndeadb;			//Analog in deadband
+   double analogOutRBVdeadb;			//Analog out deadband
    unsigned paramUDig;				//For passing UInt32Digital to ParamList
    unsigned in = 0, out = 0;			//For passing digital in/out for DMC30000 only
    int i;					//Looping
@@ -3680,16 +3749,28 @@ void GalilController::getStatus(void)
 	//Port numbering is different on DMC compared to RIO controllers
 	start = (rio_) ? 0 : 1;
         end = ANALOG_PORTS + start;
+
 	for (addr = start;addr < end;addr++)
 		{
+		//Retrieve user set deadbands for analog channel
+		getDoubleParam(addr ,GalilAnalogInDeadb_, &analogIndeadb);
+		getDoubleParam(addr ,GalilAnalogOutRBVDeadb_, &analogOutRBVdeadb);
 		//Analog inputs
 		sprintf(src, "@AN[%d]", addr);
 		paramDouble = (double)sourceValue(recdata_, src);
-		setDoubleParam(addr, GalilAnalogIn_, paramDouble);
-		//Analog outputs
+		if ((paramDouble < (analogInPosted_[addr] - analogIndeadb)) || (paramDouble > (analogInPosted_[addr] + analogIndeadb)))
+			{
+			setDoubleParam(addr, GalilAnalogIn_, paramDouble);
+			analogInPosted_[addr] = paramDouble;
+			}
+		//Analog output readbacks for rio
 		sprintf(src, "@AO[%d]", addr);
 		paramDouble = (double)sourceValue(recdata_, src);
-		setDoubleParam(addr, GalilAnalogOutRBV_, paramDouble);
+		if ((paramDouble < (analogOutRbvPosted_[addr] - analogOutRBVdeadb)) || (paramDouble > (analogOutRbvPosted_[addr] + analogOutRBVdeadb)))
+			{
+			setDoubleParam(addr, GalilAnalogOutRBV_, paramDouble);
+			analogOutRbvPosted_[addr] = paramDouble;
+			}
 		}
 
 	//Process unsolicited mesgs from controller
@@ -3814,8 +3895,8 @@ asynStatus GalilController::readDataRecord(asynUser *pasynUser, char *input, uns
               if (i != 0)
                  previous = buf[i - 1];
               //Calculate record size using this byte, and previous
-              check = buf[i] << 8;
-              check = previous + check;
+              check = (unsigned char)buf[i] << 8;
+              check = (unsigned char)previous + check;
               //Compare calculated size against datarecsize we are searching for
               if (check == datarecsize_)
                  {
@@ -4476,6 +4557,14 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
 				}
 			else
 				errlogPrintf("Code started successfully on model %s, address %s\n",model_, address_);
+			}
+
+		//Limits motor direction consistency unknown
+		for (i = 0; i < numAxes_; i++)
+			{
+			pAxis = getAxis(i);
+			if (!pAxis) continue;
+			pAxis->limitsDirState_ = unknown;
 			}
 
 		//Decrease timeout now finished manipulating controller code

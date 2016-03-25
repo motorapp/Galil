@@ -1,14 +1,14 @@
 
 file {
-	name="/home/ics/git/Galil-3-0/3-1/GalilSup/op/adl/galil_motor_extras.adl"
-	version=030109
+	name="/home/ics/git/Galil-3-0/3-2/GalilSup/op/adl/galil_motor_extras.adl"
+	version=030105
 }
 display {
 	object {
 		x=554
 		y=67
 		width=425
-		height=584
+		height=617
 	}
 	clr=14
 	bclr=4
@@ -316,18 +316,6 @@ menu {
 text {
 	object {
 		x=2
-		y=359
-		width=97
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Error (cts)"
-}
-text {
-	object {
-		x=2
 		y=342
 		width=100
 		height=13
@@ -346,21 +334,6 @@ text {
 	}
 	monitor {
 		chan="$(P)$(M)_ERRLIMIT_MON"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=309
-		y=361
-		width=58
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M)_ERR_MON"
 		clr=54
 		bclr=4
 	}
@@ -1134,60 +1107,6 @@ text {
 text {
 	object {
 		x=2
-		y=544
-		width=69
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Servo velocity (cts/s)"
-}
-text {
-	object {
-		x=2
-		y=562
-		width=69
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Servo velocity (EGU/s)"
-}
-"text update" {
-	object {
-		x=309
-		y=560
-		width=81
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M)_VELOCITYEGU_MON"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=309
-		y=543
-		width=81
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M)_VELOCITYRAW_MON"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-text {
-	object {
-		x=2
 		y=452
 		width=69
 		height=13
@@ -1219,6 +1138,185 @@ menu {
 	}
 	monitor {
 		chan="$(P)$(M)_HOMEALLOWED_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+composite {
+	object {
+		x=2
+		y=582
+		width=388
+		height=32
+	}
+	"composite name"=""
+	children {
+		composite {
+			object {
+				x=2
+				y=599
+				width=388
+				height=15
+			}
+			"composite name"=""
+			children {
+				text {
+					object {
+						x=2
+						y=601
+						width=69
+						height=13
+					}
+					"basic attribute" {
+						clr=14
+					}
+					textix="Servo velocity (EGU/s)"
+				}
+				"text update" {
+					object {
+						x=309
+						y=599
+						width=81
+						height=13
+					}
+					monitor {
+						chan="$(P)$(M)_VELOCITYEGU_MON"
+						clr=54
+						bclr=4
+					}
+					limits {
+					}
+				}
+			}
+		}
+		composite {
+			object {
+				x=2
+				y=582
+				width=388
+				height=14
+			}
+			"composite name"=""
+			children {
+				text {
+					object {
+						x=2
+						y=583
+						width=69
+						height=13
+					}
+					"basic attribute" {
+						clr=14
+					}
+					textix="Servo velocity (cts/s)"
+				}
+				"text update" {
+					object {
+						x=309
+						y=582
+						width=81
+						height=13
+					}
+					monitor {
+						chan="$(P)$(M)_VELOCITYRAW_MON"
+						clr=54
+						bclr=4
+					}
+					limits {
+					}
+				}
+			}
+		}
+	}
+}
+text {
+	object {
+		x=2
+		y=546
+		width=69
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="User data deadband"
+}
+"text entry" {
+	object {
+		x=164
+		y=543
+		width=135
+		height=19
+	}
+	control {
+		chan="$(P)$(M)_USERDATADEADB_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+composite {
+	object {
+		x=2
+		y=359
+		width=365
+		height=15
+	}
+	"composite name"=""
+	children {
+		text {
+			object {
+				x=2
+				y=359
+				width=97
+				height=13
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="Error (cts)"
+		}
+		"text update" {
+			object {
+				x=309
+				y=361
+				width=58
+				height=13
+			}
+			monitor {
+				chan="$(P)$(M)_ERR_MON"
+				clr=54
+				bclr=4
+			}
+			limits {
+			}
+		}
+	}
+}
+text {
+	object {
+		x=2
+		y=564
+		width=97
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="User data"
+}
+"text update" {
+	object {
+		x=309
+		y=566
+		width=58
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_USERDATA_MON"
 		clr=54
 		bclr=4
 	}

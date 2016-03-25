@@ -27,28 +27,28 @@
 
 file "$(GALIL)/GalilSup/Db/galil_analog_in.template"
 { 
-   pattern { P,           R,          PORT,    ADDR,  PREC }
+   pattern { P,           R,          PORT,    ADDR,  SCAN,       PREC }
 
 #DMC Ports numbered 0 to 7 at database layer for GUI.
 #DMC Ports numbered 1 to 8 on controller hardware
-	   { "DMC01",    "GalilAi0",  "Galil", "1",   "3"  }
-	   { "DMC01",    "GalilAi1",  "Galil", "2",   "3"  }
-	   { "DMC01",    "GalilAi2",  "Galil", "3",   "3"  }
-	   { "DMC01",    "GalilAi3",  "Galil", "4",   "3"  }
-	   { "DMC01",    "GalilAi4",  "Galil", "5",   "3"  }
-	   { "DMC01",    "GalilAi5",  "Galil", "6",   "3"  }
-	   { "DMC01",    "GalilAi6",  "Galil", "7",   "3"  }
-	   { "DMC01",    "GalilAi7",  "Galil", "8",   "3"  }
+	   { "DMC01",    "GalilAi0",  "Galil", "1",   "I/O Intr", "3"  }
+	   { "DMC01",    "GalilAi1",  "Galil", "2",   "I/O Intr", "3"  }
+	   { "DMC01",    "GalilAi2",  "Galil", "3",   "I/O Intr", "3"  }
+	   { "DMC01",    "GalilAi3",  "Galil", "4",   "I/O Intr", "3"  }
+	   { "DMC01",    "GalilAi4",  "Galil", "5",   "I/O Intr", "3"  }
+	   { "DMC01",    "GalilAi5",  "Galil", "6",   "I/O Intr", "3"  }
+	   { "DMC01",    "GalilAi6",  "Galil", "7",   "I/O Intr", "3"  }
+	   { "DMC01",    "GalilAi7",  "Galil", "8",   "I/O Intr", "3"  }
 
 #RIO Ports numbered 0 to 7 on controller hardware
-	   { "RIO01",    "GalilAi0",  "RIO",   "0",   "3"  }
-	   { "RIO01",    "GalilAi1",  "RIO",   "1",   "3"  }
-	   { "RIO01",    "GalilAi2",  "RIO",   "2",   "3"  }
-	   { "RIO01",    "GalilAi3",  "RIO",   "3",   "3"  }
-	   { "RIO01",    "GalilAi4",  "RIO",   "4",   "3"  }
-	   { "RIO01",    "GalilAi5",  "RIO",   "5",   "3"  }
-	   { "RIO01",    "GalilAi6",  "RIO",   "6",   "3"  }
-	   { "RIO01",    "GalilAi7",  "RIO",   "7",   "3"  }
+	   { "RIO01",    "GalilAi0",  "RIO",   "0",   "I/O Intr", "3"  }
+	   { "RIO01",    "GalilAi1",  "RIO",   "1",   "I/O Intr", "3"  }
+	   { "RIO01",    "GalilAi2",  "RIO",   "2",   "I/O Intr", "3"  }
+	   { "RIO01",    "GalilAi3",  "RIO",   "3",   "I/O Intr", "3"  }
+	   { "RIO01",    "GalilAi4",  "RIO",   "4",   "I/O Intr", "3"  }
+	   { "RIO01",    "GalilAi5",  "RIO",   "5",   "I/O Intr", "3"  }
+	   { "RIO01",    "GalilAi6",  "RIO",   "6",   "I/O Intr", "3"  }
+	   { "RIO01",    "GalilAi7",  "RIO",   "7",   "I/O Intr", "3"  }
 }
 
 file "$(GALIL)/GalilSup/Db/galil_analog_out.template"

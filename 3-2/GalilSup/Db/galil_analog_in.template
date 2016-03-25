@@ -33,9 +33,18 @@
 record(ai, "$(P):$(R)_MON") {
 	field(PREC, "$(PREC)")
 	field(EGU,  "Volts")
-	field(SCAN, "I/O Intr")
+	field(SCAN, "$(SCAN)")
 	field(DTYP, "asynFloat64")
 	field(INP,  "@asyn($(PORT),$(ADDR))ANALOG_IN")
+}
+
+record(ao, "$(P):$(R)Deadb_SP") {
+	field(PREC, "$(PREC)")
+	field(EGU,  "Volts")
+	field(PINI, "YES")
+	field(VAL,  "0.002")
+	field(DTYP, "asynFloat64")
+	field(OUT,  "@asyn($(PORT),$(ADDR))ANALOG_IN_DEADB")
 }
 
 # end

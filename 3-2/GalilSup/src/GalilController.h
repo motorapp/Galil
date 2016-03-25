@@ -137,6 +137,8 @@
 #define GalilBrakePortString		"MOTOR_BRAKEPORT"
 #define GalilBrakeString		"MOTOR_BRAKE"
 #define GalilHomeAllowedString		"MOTOR_HOME_ALLOWED"
+#define GalilUserDataString		"MOTOR_USER_DATA"
+#define GalilUserDataDeadbString	"MOTOR_USER_DATA_DEADB"
 
 #define GalilMainEncoderString		"MOTOR_MAIN_ENCODER"
 #define GalilAuxEncoderString		"MOTOR_AUX_ENCODER"
@@ -146,8 +148,11 @@
 #define GalilMotorVeloString		"MOTOR_VELO"
 #define GalilMotorVmaxString		"MOTOR_VMAX"
 #define GalilAnalogInString		"ANALOG_IN"
+#define GalilAnalogInDeadbString	"ANALOG_IN_DEADB"
 #define GalilAnalogOutString		"ANALOG_OUT"
 #define GalilAnalogOutRBVString		"ANALOG_OUTRBV"
+#define GalilAnalogOutRBVDeadbString	"ANALOG_OUTRBV_DEADB"
+
 #define GalilBinaryInString		"BINARY_IN"
 #define GalilBinaryOutString		"BINARY_OUT"
 #define GalilBinaryOutRBVString		"BINARY_OUTRBV"
@@ -381,6 +386,8 @@ protected:
   int GalilBrakePort_;
   int GalilBrake_;
   int GalilHomeAllowed_;
+  int GalilUserData_;
+  int GalilUserDataDeadb_;
 
   int GalilMainEncoder_;
   int GalilAuxEncoder_;
@@ -389,8 +396,10 @@ protected:
   int GalilMotorVelo_;
   int GalilMotorVmax_;
   int GalilAnalogIn_;
+  int GalilAnalogInDeadb_;
   int GalilAnalogOut_;
   int GalilAnalogOutRBV_;
+  int GalilAnalogOutRBVDeadb_;
   int GalilBinaryIn_;
   int GalilBinaryOut_;
   int GalilBinaryOutRBV_;
@@ -449,6 +458,8 @@ private:
   epicsTimeStamp begin_begint_;		//Used to track length of time motor begin takes
 
   bool movesDeferred_;			//Should moves be deferred for this controller
+  double analogInPosted_[ANALOG_PORTS+2];//Analog input values posted to upper layers		
+  double analogOutRbvPosted_[ANALOG_PORTS+2]; //Analog output rbv values posted to upper layers
 
   long maxAcceleration_;		//Maximum acceleration on this model
 

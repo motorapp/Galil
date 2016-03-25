@@ -111,7 +111,7 @@ void GalilPoller::run(void)
                          //records for first 8 banks only
                          //Cant call GalilAxis->poll
                          if (i < MAX_GALIL_AXES)
-                            pC_->callParamCallbacks(i); 
+                            pC_->callParamCallbacks(i);
                          }
                       else				
                          pAxis->poll(&moving);		//Update GalilAxis, and upper layers, using retrieved datarecord

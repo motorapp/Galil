@@ -439,17 +439,18 @@ asynStatus GalilAxis::setAccelVelocity(double acceleration, double velocity)
    double distance;		//Used for kinematic calcs
    long decceleration;		//limits deceleration final value sent to controller
    double deccel;		//double version of above
-   long maxAcceleration;	//Max acceleration/decceleration for this model
    double accel;		//Adjusted acceleration/deceleration for normal moves
    double vel;			//Velocity final value sent to controller
    int status;
 
    //Set acceleration and deceleration for normal moves
+   //Find closest hardware setting
    accel = (long)lrint(acceleration/1024.0) * 1024;
-   vel = (long)lrint(velocity/2.0) * 2;
    sprintf(pC_->cmd_, "AC%c=%.0lf;DC%c=%.0lf", axisName_, accel, axisName_, accel);
    status = pC_->sync_writeReadController();
    //Set velocity
+   //Find closest hardware setting
+   vel = (long)lrint(velocity/2.0) * 2;
    sprintf(pC_->cmd_, "SP%c=%.0lf", axisName_, vel);
    status |= pC_->sync_writeReadController();
 
@@ -464,10 +465,9 @@ asynStatus GalilAxis::setAccelVelocity(double acceleration, double velocity)
    //Find closest hardware setting
    decceleration = (long)(lrint(deccel/1024.0) * 1024);
    //Ensure decceleration is within maximum for this model
-   maxAcceleration = 67107840;
-   if (pC_->model_[0] == 'D' && pC_->model_[3] == '4')
-	maxAcceleration = 1073740800;
-   decceleration = (decceleration > maxAcceleration) ? maxAcceleration : decceleration;
+   decceleration = (decceleration > pC_->maxAcceleration_) ? pC_->maxAcceleration_ : decceleration;
+   //Store limit deceleration
+   limdc_ = (double)decceleration;
    sprintf(pC_->cmd_, "limdc%c=%ld", axisName_, decceleration);
    status = pC_->sync_writeReadController();
 
@@ -713,13 +713,13 @@ asynStatus GalilAxis::beginCheck(const char *functionName, double maxVelocity)
 	}
 
   //Dont start if wlp is on, and its been activated
-  if (wlp && wlpactive)
+  /*if (wlp && wlpactive)
 	{
 	sprintf(mesg, "%s failed, wrong limit protect active for axis %c", functionName, axisName_);
 	//Set controller error mesg monitor
 	pC_->setCtrlError(mesg);
 	return asynError;  //Nothing to do 
-	}
+	}*/
 
   //Dont start if velocity 0
   if (lrint(maxVelocity) == 0)
@@ -791,6 +791,11 @@ asynStatus GalilAxis::stop(double acceleration)
   //Stop the axis
   sprintf(pC_->cmd_, "ST%c", axisName_);
   pC_->sync_writeReadController();
+
+  //After stop, set deceleration specified
+  //In emergency stop circumstances
+  //The caller may have specified a different (limdc) deceleration
+  setAccelVelocity(acceleration, 0);
 
   /* Clear defer move flag for this axis. */
   deferredMove_ = false;
@@ -1059,8 +1064,11 @@ asynStatus GalilAxis::getStatus(void)
    char src[MAX_GALIL_STRING_SIZE]="\0";	//data source to retrieve
    int offonerror, motoron;			//paramList items to update
    int connected;				//paramList items to update
+   int connectedlast;				//paramList items to update
+   double userData;				//paramList items to update
    double error;				//paramList items to update
    double velocity;				//paramList items to update
+   double userDataDeadb;			//UserData dead band
    double eres;					//Motor encoder resolution
    unsigned digport = 0;			//paramList items to update.  Used for brake status
    unsigned mask;				//Mask used to calc brake port status
@@ -1073,6 +1081,7 @@ asynStatus GalilAxis::getStatus(void)
 	//If connected, then proceed
 	if (pC_->connected_)
 		{
+		//extract relevant axis data from GalilController record, store in asynParamList
 		//aux encoder data
 		sprintf(src, "_TD%c", axisName_);
 		motor_position_ = pC_->sourceValue(pC_->recdata_, src);
@@ -1100,10 +1109,27 @@ asynStatus GalilAxis::getStatus(void)
 		sprintf(src, "JG%c-", axisName_);
 		direction_ = (bool)(pC_->sourceValue(pC_->recdata_, src) == 1) ? 0 : 1;
 
-		//extract relevant axis data from GalilController record, store in asynParamList
 		//motor connected status
+		pC_->getIntegerParam(axisNo_, pC_->GalilMotorConnected_, &connectedlast);
 		connected = (rev_ && fwd_) ? 0 : 1;
 		setIntegerParam(pC_->GalilMotorConnected_, connected);
+		//If motor just connected, then limits are not
+		//confirmed consistent with motor direction yet
+		if (!connectedlast && connected)
+			limitsDirState_ = unknown;
+
+		//User data
+		sprintf(src, "_ZA%c", axisName_);
+		userData = pC_->sourceValue(pC_->recdata_, src);
+		//User data dead band
+		pC_->getDoubleParam(pC_->GalilUserDataDeadb_, &userDataDeadb);
+		if ((userData < (userDataPosted_ - userDataDeadb)) || (userData > (userDataPosted_ + userDataDeadb)))
+			{
+			//user data is outside dead band, so post it to upper layers
+			setDoubleParam(pC_->GalilUserData_, userData);
+			userDataPosted_ = userData;
+			}
+
 		//Off on error
 		sprintf(src, "_OE%c", axisName_);
 		offonerror = (int)pC_->sourceValue(pC_->recdata_, src);
@@ -1254,7 +1280,7 @@ void GalilAxis::wrongLimitProtection(void)
 
    //Retrieve wrong limit protection setting
    pC_->getIntegerParam(axisNo_, pC_->GalilWrongLimitProtection_, &wlp);
-   if (wlp)
+   if (wlp && limitsDirState_ != consistent)
       {
       if ((!done_ && direction_ && rev_) || (!done_ && !direction_ && fwd_))
          {
@@ -1270,6 +1296,8 @@ void GalilAxis::wrongLimitProtection(void)
             sprintf(message, "Wrong limit protect stop motor %c", axisName_);
             //Set controller error mesg monitor
             pC_->setCtrlError(message);
+            //Set limit status to not_consistent
+            limitsDirState_ = not_consistent;
             }
          }
       else if (!done_)
@@ -1380,7 +1408,7 @@ void GalilAxis::pollServices(void)
                                 epicsThreadSleep(.2);  //Wait as controller may still issue move upto this time after
                                                        //Setting home to 0 (cancel home)
                                 //break; Delibrate fall through to MOTOR_STOP
-        case MOTOR_STOP: stop(1);
+        case MOTOR_STOP: stop(limdc_); 
                          break;
         case MOTOR_POST: if (pC_->getStringParam(axisNo_, pC_->GalilPost_, (int)sizeof(post), post) == asynSuccess)
                             {
@@ -1745,6 +1773,13 @@ asynStatus GalilAxis::poll(bool *moving)
    //check ssi encoder connect status
    set_ssi_connectflag();
 
+   //Check limits consistent with motor direction
+   if (rev_ && !direction_ && inmotion_)
+      limitsDirState_ = consistent;
+
+   if (fwd_ && direction_ && inmotion_)
+      limitsDirState_ = consistent;
+  
    //Enforce wrong limit protection if enabled
    wrongLimitProtection();
 

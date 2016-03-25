@@ -42,6 +42,11 @@ static const int MOTOR_HOMED = 3;
 static const int MOTOR_CANCEL_HOME = 4;
 static const int MOTOR_BRAKE_ON = 5;
 
+typedef enum limitsState
+   {
+   unknown, consistent, not_consistent
+   } limitsState;
+
 class GalilAxis : public asynMotorAxis
 {
 public:
@@ -99,7 +104,7 @@ public:
   void wrongLimitProtection(void);
   //Sets time motor has been stopped for in GalilAxis::stopped_time_
   void setStopTime(void);
-  //Reset homing if stopped_time_ great than
+  //Reset homing if stopped_time_ great than HOMING_TIMEOUT
   void checkHoming(void);
   //Service slow and infrequent requests from poll thread to write to the controller
   //We do this in a separate thread so the poll thread is not slowed
@@ -173,6 +178,9 @@ private:
   int deferredMode_;			//Sync start and stop, or sync start only
   bool axisReady_;			//Have motor record fields been pushed into driver
 
+  double limdc_;			//Deceleration on limit active
+  double userDataPosted_;		//User data posted to upper layers
+
   epicsTimeStamp begin_nowt_;		//Used to track length of time motor begin takes
   epicsTimeStamp begin_begint_;		//Used to track length of time motor begin takes
  
@@ -189,6 +197,8 @@ private:
   int stop_code_;			//Axis stop code from controller
   bool fwd_;				//Forward limit status
   bool rev_;				//Reverse limit status
+  
+  limitsState limitsDirState_;		//Status of limits consistency with motor direction
   bool home_;				//Home switch raw status direct from data record
   int done_;				//Motor done status passed to motor record
   int last_done_;			//Backup of done status at end of each poll.  Used to detect stop
@@ -212,7 +222,7 @@ private:
   bool cancelHomeSent_;			//Cancel home process message sent to pollServices
 
   bool restoreProfile_;			//Should profileBackupPositions_ be copied into profilePositions_ after orofile built complete? 
-                                //True for all GalilAxis involved in CSAxis profile build, set false at built end
+                                	//True for all GalilAxis involved in CSAxis profile build, set false at built end
   double *profileBackupPositions_;	//Profile positions backup for this axis, restored after profile is built
   double *calculatedPositions_;         //Real motor profile positions in egu calculated from CSAxis profile
 
