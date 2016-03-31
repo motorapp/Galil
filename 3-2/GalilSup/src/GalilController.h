@@ -45,8 +45,8 @@
 #define HEADER_BYTES 4 
 #define COORDINATE_SYSTEMS 2
 #define ANALOG_PORTS 8
-#define BINARYIN_BYTES 7
-#define BINARYOUT_WORDS 5
+#define BINARYIN_BYTES 3
+#define BINARYOUT_WORDS 2
 #define LIMIT_CODE_LEN 80000
 #define INP_CODE_LEN 80000
 #define THREAD_CODE_LEN 80000
@@ -109,15 +109,12 @@
 
 #define GalilMotorStopGoString		"MOTOR_STOPGO"
 #define GalilSSIConnectedString		"MOTOR_SSI_CONNECTED"
-#define GalilEncoderStallString		"MOTOR_ENCODER_STALL"
 #define GalilEncoderStallTimeString	"MOTOR_ENCODER_STALL_TIME"
 #define GalilStepSmoothString		"MOTOR_STEPSMOOTH"
 #define GalilMotorTypeString		"MOTOR_TYPE"
-#define GalilMotorOnString		"MOTOR_ONOFF"
 #define GalilMotorConnectedString	"MOTOR_MCONN"
 #define GalilAfterLimitString		"MOTOR_EGUAFTLIMIT"
 #define GalilHomeValueString		"MOTOR_HOMEVAL"
-#define GalilHomedString		"MOTOR_HOMED"
 #define GalilWrongLimitProtectionString	"MOTOR_WLP"
 #define GalilWrongLimitProtectionActiveString	"MOTOR_WLP_ACTIVE"
 #define GalilUserOffsetString		"MOTOR_OFF"
@@ -359,15 +356,12 @@ protected:
   int GalilCSMotorReverseH_;
 
   int GalilMotorStopGo_;
-  int GalilEStall_;
   int GalilEStallTime_;
   int GalilStepSmooth_;
   int GalilMotorType_;
-  int GalilMotorOn_;
   int GalilMotorConnected_;
   int GalilAfterLimit_;
   int GalilHomeValue_;
-  int GalilHomed_;
   int GalilWrongLimitProtection_;
   int GalilWrongLimitProtectionActive_;
   int GalilUserOffset_;
@@ -452,7 +446,6 @@ private:
   double updatePeriod_;			//Period between data records in ms
   bool async_records_;			//Are the data records obtained async(DR), or sync (QR)
   bool try_async_;			//Should we even try async udp (DR) before going to synchronous tcp (QR) mode
-  bool serial_;				//Connection is serial?
 
   epicsTimeStamp begin_nowt_;		//Used to track length of time motor begin takes
   epicsTimeStamp begin_begint_;		//Used to track length of time motor begin takes
@@ -462,8 +455,6 @@ private:
   double analogOutRbvPosted_[ANALOG_PORTS+2]; //Analog output rbv values posted to upper layers
 
   long maxAcceleration_;		//Maximum acceleration on this model
-
-  bool coordSysStopping_[2];		//Coordinate system stopping status.  Used to process limit status for csaxes
 
   epicsEventId profileExecuteEvent_;	//Event for executing motion profiles
   bool profileAbort_;			//Abort profile request flag.  Aborts profile when set true

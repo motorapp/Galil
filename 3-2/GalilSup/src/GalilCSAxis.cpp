@@ -130,8 +130,6 @@ asynStatus GalilCSAxis::setDefaults(void)
   //const char *functionName = "GalilCSAxis::setDefaults";
   unsigned i;
 
-  //Set encoder stall flag to false
-  setIntegerParam(pC_->GalilEStall_, 0);
   //Store axis in ParamList
   setIntegerParam(pC_->GalilAxis_, axisNo_);
   //We assume motor with encoder

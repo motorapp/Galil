@@ -190,8 +190,9 @@ private:
   int motorType_;			//MotorType set for this poll cycle
   double motor_position_;		//aux encoder or step count register
   double encoder_position_;		//main encoder register
-  double last_motor_position_;		//aux encoder or step count register stored from previous poll.  Used to detect movement.
   double last_encoder_position_;	//main encoder register stored from previous poll.  Used to detect movement.
+  double velocity_;			//Motor velocity
+  double error_;			//Position error
   int direction_;			//Movement direction
   bool inmotion_;			//Axis in motion status from controller
   int stop_code_;			//Axis stop code from controller

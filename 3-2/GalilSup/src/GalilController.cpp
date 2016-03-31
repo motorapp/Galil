@@ -135,9 +135,14 @@
 //                  Improved wrongLimitProtection logic
 //                  Added axis user data to motor extras
 //                  pollServices stop changed to emergency (limit stop) stop
-// 23/23/10 M.Davis
+// 23/03/16 M.Davis
 //                  Further fixes to extractEthAddr
 //                  Fixed further issues with readDataRecord header on some models
+// 30/03/16 M.Clift
+//                  Rewrote readDataRecord again to decrease CPU load
+//                  Optimized poller cycle to reduce CPU load
+//                  Optimized profile buffering to reduce CPU load
+//                  Removed some unnecessary asynParams
 
 #include <stdio.h>
 #include <math.h>
@@ -294,18 +299,15 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilMotorStopGoString, asynParamInt32, &GalilMotorStopGo_);
 
   createParam(GalilSSIConnectedString, asynParamInt32, &GalilSSIConnected_);	
-  createParam(GalilEncoderStallString, asynParamInt32, &GalilEStall_);
   createParam(GalilEncoderStallTimeString, asynParamFloat64, &GalilEStallTime_);
 
   createParam(GalilStepSmoothString, asynParamFloat64, &GalilStepSmooth_);
   createParam(GalilMotorTypeString, asynParamInt32, &GalilMotorType_);
 
-  createParam(GalilMotorOnString, asynParamInt32, &GalilMotorOn_);
   createParam(GalilMotorConnectedString, asynParamInt32, &GalilMotorConnected_);
 
   createParam(GalilAfterLimitString, asynParamFloat64, &GalilAfterLimit_);
   createParam(GalilHomeValueString, asynParamFloat64, &GalilHomeValue_);
-  createParam(GalilHomedString, asynParamInt32, &GalilHomed_);
   createParam(GalilWrongLimitProtectionString, asynParamInt32, &GalilWrongLimitProtection_);
   createParam(GalilWrongLimitProtectionActiveString, asynParamInt32, &GalilWrongLimitProtectionActive_);
 
@@ -474,8 +476,6 @@ void GalilController::connect(void)
   sprintf(syncPort_, "GALILSYNC%d", controller_number_);
   if (address.find("COM") == string::npos && address.find("ttyS") == string::npos)
      {
-     //Controller address is not serial, so it must be ethernet
-     serial_ = false;
      //Open Synchronous ethernet connection
      //Append Telnet port, and TCP directive to provided address
      sprintf(address_string,"%s:23 TCP", address_);
@@ -501,12 +501,13 @@ void GalilController::connect(void)
         pasynManager->isConnected(pasynUserAsyncGalil_, &async_connected);
         //Flag async records true
         async_records_ = true;
+        //For tracing/debugging async communications
+        //asynSetTraceMask(asyncPort_,-1,0xFF);
+        //asynSetTraceIOMask(asyncPort_,-1,0xFF);
         }
      }
   else
      {
-     //Open Synchronous serial connection
-     serial_ = true;
      //Connect to the device, and configure Asyn Interpose to do end of string processing
      drvAsynSerialPortConfigure(syncPort_, address_, epicsThreadPriorityMax, 0, 0);
      //Flag async records false for serial connections
@@ -531,6 +532,9 @@ void GalilController::connect(void)
   pasynOctetSyncIO->setOutputEos(pasynUserSyncGalil_, "\r", 1);
   //Retrieve synchronous connection status from asyn
   pasynManager->isConnected(pasynUserSyncGalil_, &sync_connected);
+  //For tracing/debugging sync communications
+  //asynSetTraceMask(syncPort_,-1,0xFF);
+  //asynSetTraceIOMask(syncPort_,-1,0xFF);
 
   //Set an EPICS exit handler that will shut down polling before exit
   //Must be done after drvAsyn port configure so our exit handler is called before asyn one at epics exit
@@ -538,10 +542,6 @@ void GalilController::connect(void)
 
   //Set default timeout at connect
   timeout_ = 1;
-
-  //Debugging
-  //asynSetTraceMask(asyncPort_,-1,0xFF);
-  //asynSetTraceIOMask(asyncPort_,-1,0xFF);
  
   //GalilConnector will now check for response to query and set connection status flag
   if (sync_connected && async_connected)
@@ -2239,9 +2239,9 @@ asynStatus GalilController::runProfile()
   int segprocessed;			//Segments processed by coordsys
   int pmoving;				//Moving status of the profile
   int coordsys;				//Coordinate system S(0) or T(1)
+  char coordName;			//Coordinate system S or T
   int maxsegs;				//Maximum number of segments
   int startsegs;			//Segments to buffer before starting
-  char coordName;			//Coordinate system S or T
   int retval;				//Return value from file read
   bool bufferNext = true;		//Controller ready to buffer next segment
   double startp[MAX_GALIL_AXES];	//Motor start positions from file
@@ -2286,10 +2286,6 @@ asynStatus GalilController::runProfile()
 
   //Default number of segments to buffer before start
   startsegs = maxsegs;
-
-  //If connection serial, then fill buffer before start
-  if (serial_)
-     startsegs = maxsegs;
 
   //Execute the profile
   //Loop till file downloaded to buffer, or error, or abort
@@ -2343,7 +2339,7 @@ asynStatus GalilController::runProfile()
 				epicsThreadSleep(.2);
 				lock();
 				abortProfile();
-				strcpy(message, "Error downloading segment");
+				sprintf(message, "Error downloading segment %d", segsent + 1);
 				setStringParam(profileExecuteMessage_, message);
 				}
 			else	
@@ -2381,6 +2377,20 @@ asynStatus GalilController::runProfile()
 			status = asynError;
 			}
 
+		
+		//Check profile start condition
+		if ((segsent - segprocessed) >= startsegs && !status && !profileAbort_)
+			{
+			//Buffered startsegs number of segments
+			//Case where motors were moving to start position, and now complete, profile is not started.
+			if (!profStarted && atStart && !status && !profileAbort_)
+				{
+				//Start the profile
+				status = beginProfileMotion(coordsys, coordName);
+				profStarted = (status) ? false : true;
+				}
+			}
+
 		//Default bufferNext true before checking buffer
 		bufferNext = true;
 		//Check buffer, and abort status
@@ -2398,21 +2408,6 @@ asynStatus GalilController::runProfile()
 				epicsThreadSleep(profileTimes_[segprocessed]);
 				bufferNext = false;
 				lock();
-				}
-			}
-		//Check profile start condition
-		if ((segsent - segprocessed) >= startsegs && !status && !profileAbort_)
-			{
-			//Buffered startsegs number of segments
-			//Case where motors were moving to start position, and now complete, profile is not started.
-			if (!profStarted && atStart && !status && !profileAbort_)
-				{
-				//Start the profile
-				status = beginProfileMotion(coordsys, coordName);
-				profStarted = (status) ? false : true;
-				//Buffer next if started ok
-				if (!status)
-					bufferNext = true;
 				}
 			}
 		}
@@ -2475,16 +2470,14 @@ asynStatus GalilController::runProfile()
 		while (pmoving)
 			{
 			//Retrieve moving status, and segments processed
-			profileGetSegsMoving(profStarted, coordsys, &pmoving, &segprocessed); 
+			profileGetSegsMoving(profStarted, coordsys, &pmoving, &segprocessed);
 			//Restrict loop frequency
 			unlock();
-			epicsThreadSleep(.01);
+			//Sleep for time equal to currently processing segment
+			epicsThreadSleep(profileTimes_[segprocessed]);
 			lock();
 			}
 		}
-
-	//Retrieve moving status, and segments processed
-	profileGetSegsMoving(profStarted, coordsys, &pmoving, &segprocessed); 
 
 	//Were all segments processed by controller
 	if (segprocessed == segsent)
@@ -2983,8 +2976,11 @@ asynStatus GalilController::readInt32(asynUser *pasynUser, epicsInt32 *value)
 	status = get_integer(GalilCoordSys_, value);
 	if (!status)
 		*value = (*value > 0) ? 1 : 0;
-        //Set any external changes in coordsys in paramList
-	setIntegerParam(0, GalilCoordSys_, *value);
+	}
+  else if (function == GalilOffOnError_)
+	{
+	sprintf(cmd_, "MG _OE%c", pAxis->axisName_);
+	status = get_integer(GalilOffOnError_, value);
 	}
    else 
 	status = asynPortDriver::readInt32(pasynUser, value);
@@ -3214,14 +3210,6 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 		//Write setting to controller
 		status = sync_writeReadController();
 		}
-	}
-  else if (function == GalilMotorOn_)
-	{
-	if (value)
-		status = pAxis->setClosedLoop(true);
-	else
-		status = pAxis->setClosedLoop(false);
-	//printf("GalilMotorOn_ cmd:%s value=%d\n", cmd_, value);
 	}
   else if (function == GalilBrake_)
 	{
@@ -3649,10 +3637,8 @@ void GalilController::processUnsolicitedMesgs(void)
                   pAxis->pollRequest_.send((void*)&MOTOR_HOMED, sizeof(int));
                   pAxis->homedSent_ = true;
                   }
-               //Set homed status for this axis
-               pAxis->setIntegerParam(GalilHomed_, value);
-               //Set motorRecord MSTA bit 15 motorStatusHomed_ too
-               //Homed is not part of Galil data record, we support it using Galil code and unsolicited messages over tcp instead
+               //Set motorRecord MSTA bit 15 motorStatusHomed_
+               //Homed is not part of Galil data record, we support it using Galil code and unsolicited messages instead
                //We must use asynMotorAxis version of setIntegerParam to set MSTA bits for this MotorAxis
                pAxis->setIntegerParam(motorStatusHomed_, value);
                callParamCallbacks();
@@ -3676,8 +3662,6 @@ void GalilController::getStatus(void)
    char src[MAX_GALIL_STRING_SIZE]="\0";	//data source to retrieve
    int addr;					//addr or byte of IO
    int start, end;				//start, and end of analog numbering for this controller
-   int coordsys;				//Coordinate system currently selected
-   int profstate;				//Profile running state
    double paramDouble;				//For passing asynFloat64 to ParamList
    double analogIndeadb;			//Analog in deadband
    double analogOutRBVdeadb;			//Analog out deadband
@@ -3763,24 +3747,21 @@ void GalilController::getStatus(void)
 			setDoubleParam(addr, GalilAnalogIn_, paramDouble);
 			analogInPosted_[addr] = paramDouble;
 			}
-		//Analog output readbacks for rio
-		sprintf(src, "@AO[%d]", addr);
-		paramDouble = (double)sourceValue(recdata_, src);
-		if ((paramDouble < (analogOutRbvPosted_[addr] - analogOutRBVdeadb)) || (paramDouble > (analogOutRbvPosted_[addr] + analogOutRBVdeadb)))
+		if (rio_)
 			{
-			setDoubleParam(addr, GalilAnalogOutRBV_, paramDouble);
-			analogOutRbvPosted_[addr] = paramDouble;
+			//Analog output readbacks for rio
+			sprintf(src, "@AO[%d]", addr);
+			paramDouble = (double)sourceValue(recdata_, src);
+			if ((paramDouble < (analogOutRbvPosted_[addr] - analogOutRBVdeadb)) || (paramDouble > (analogOutRbvPosted_[addr] + analogOutRBVdeadb)))
+				{
+				setDoubleParam(addr, GalilAnalogOutRBV_, paramDouble);
+				analogOutRbvPosted_[addr] = paramDouble;
+				}
 			}
 		}
 
 	//Process unsolicited mesgs from controller
 	processUnsolicitedMesgs();
-
-	//Retrieve currently selected coordinate system 
-	getIntegerParam(GalilCoordSys_, &coordsys);
-
-	//Retrieve profile execute status
-	getIntegerParam(profileExecuteState_, &profstate);
 
 	//Coordinate system status
 	for (addr=0;addr<COORDINATE_SYSTEMS;addr++)
@@ -3792,10 +3773,6 @@ void GalilController::getStatus(void)
 		//Segment count
 		sprintf(src, "_CS%c", (addr) ? 'T' : 'S');
 		setIntegerParam(addr, GalilCoordSysSegments_, (int)sourceValue(recdata_, src));
-
-		//Coordinate system stopping status
-		sprintf(src, "ST%c", (addr) ? 'T' : 'S');
-		coordSysStopping_[addr] = (sourceValue(recdata_, src) > 0) ? true : false;
 		}
 	}
 }
@@ -3821,30 +3798,14 @@ asynStatus GalilController::poll(void)
 //Send unsolicited message to queue
 asynStatus GalilController::sendUnsolicitedMessage(char *mesg)
 {
-  unsigned i;				//General counter
-  int unsolicited_ok = 1;	//Unsolicited mesg health flag
-
-  for (i = 0; i < (unsigned)strlen(mesg); i++)
-     {
-     //Decode the mesg
-     mesg[i] = (unsigned char)mesg[i] - 128;
-     //Make sure the result is ascii
-     if (!my_isascii((int)mesg[i]))
-        unsolicited_ok = 0;
-     }
-  if (unsolicited_ok)
-     {
-     //Remove any unwanted characters
-     string message = mesg;
-     message.erase (std::remove(message.begin(), message.end(), ':'), message.end());
-     strcpy(mesg, message.c_str());
-     //Send the unsolicited message to the queue
-     unsolicitedQueue_.trySend((void *)mesg, (unsigned)strlen(mesg));
-     //Success
-     return asynSuccess;
-     }
-  //Fail
-  return asynError;
+  //Remove any unwanted characters
+  string message = mesg;
+  message.erase (std::remove(message.begin(), message.end(), ':'), message.end());
+  strcpy(mesg, message.c_str());
+  //Send the unsolicited message to the queue
+  unsolicitedQueue_.trySend((void *)mesg, (unsigned)strlen(mesg));
+  //Success
+  return asynSuccess;
 }
 
 //Below function supplied for Cygwin, MingGw
@@ -3864,7 +3825,6 @@ bool GalilController::my_isascii(int c)
   */ 
 asynStatus GalilController::readDataRecord(asynUser *pasynUser, char *input, unsigned bytesize)
 {
-  int done = false;	//Break read loop
   asynStatus status;	//Asyn status
   size_t nread = 0;	//Asyn read bytes
   int eomReason;	//Asyn end of message reason
@@ -3876,83 +3836,71 @@ asynStatus GalilController::readDataRecord(asynUser *pasynUser, char *input, uns
   unsigned char value;	//Used for type conversion
   unsigned i = 0;	//Looping
   unsigned j = 0;	//Unsolicited byte counter
-  unsigned databytes = 0; //Number of datarecord bytes found in read
-  unsigned datastart = 0; //Datarecord data start index in buffer
+  unsigned headerstart = 0;//Datarecord header start index in buffer
 
-  while (!done)
+  //Read bytesize
+  status = pasynOctetSyncIO->read(pasynUser, input, bytesize, timeout_, &nread, &eomReason);
+  if (!status && eomReason == ASYN_EOM_CNT && nread == bytesize)
      {
-     //Read HEADER_BYTES
-     status = pasynOctetSyncIO->read(pasynUser, buf, HEADER_BYTES, timeout_, &nread, &eomReason);
-     if (!status && eomReason == ASYN_EOM_CNT && nread == HEADER_BYTES)
+     //Read returned ok
+     //Look for record header at expected location in buffer
+     check = (unsigned char)input[3] << 8;
+     check = (unsigned char)input[2] + check;
+     if (check == datarecsize_)
+        return status;//Found record at expected location, job done
+
+     if (!recstart)
         {
-        //Read returned ok
-        //Look for record header
-        if (!recstart)
+        //Didn't find header at expected location due to unsolicted message, so
+        //scan thru provided buffer looking for datarec header
+        for (i = 0; i < bytesize; i++)
            {
-           for (i = 0; i < HEADER_BYTES; i++)
+           //Set previous byte
+           if (i != 0)
+              previous = input[i - 1];
+           //Calculate record size using this byte, and previous
+           check = (unsigned char)input[i] << 8;
+           check = (unsigned char)previous + check;
+           //Compare calculated size against datarecsize we are searching for
+           if (check == datarecsize_)
               {
-              //Set previous byte
-              if (i != 0)
-                 previous = buf[i - 1];
-              //Calculate record size using this byte, and previous
-              check = (unsigned char)buf[i] << 8;
-              check = (unsigned char)previous + check;
-              //Compare calculated size against datarecsize we are searching for
-              if (check == datarecsize_)
-                 {
-                 //Found matching header
-                 recstart = true;
-                 //The number of datarecord data bytes in this read
-                 databytes = HEADER_BYTES - (i + 1);
-                 //Buffer index where datarecord data bytes start
-                 datastart = i + 1;
-                 }
+              //Found matching header
+              recstart = true;
+              //Buffer index where datarecord header starts
+              headerstart = i - HEADER_BYTES + 1;
               }
-           //Store last byte received for next cycle
-           if (!recstart)
-              previous = buf[HEADER_BYTES - 1];
            }
 
-        //If record header has been received, then read the record data
-        if (recstart)
+        //Extract the unsolicited message and read rest of datarecord
+        if (headerstart > 0)
            {
-           //Copy data record into supplied buffer
-           for (i = datastart; i < databytes; i++)
-              input[HEADER_BYTES + i - datastart] = buf[i];
-
-           //Read the data record contents
-           status = pasynOctetSyncIO->read(pasynUser, buf, bytesize - HEADER_BYTES - databytes, timeout_, &nread, &eomReason);
-           if (!status && eomReason == ASYN_EOM_CNT)
+           //Extract unsolictied message
+           for (i = 0; i < headerstart; i++)
               {
-              //Copy data record into supplied buffer
-              for (i = 0; i < bytesize - HEADER_BYTES - databytes; i++)
-                 input[HEADER_BYTES + databytes + i] = buf[i];
-              }
-           //Data record read, finish up
-           done = true;
-           }
-
-        //Header not found, see if bytes look like an unsolicited message
-        if (!done)
-           {
-           for (i = 0; i < HEADER_BYTES; i++)
-              {
-              value = (unsigned char)(buf[i] - 0x80);
-              if (((buf[i] & 0x80) == 0x80) && (my_isascii((int)value)))
+              value = (unsigned char)(input[i] - 0x80);
+              if (((input[i] & 0x80) == 0x80) && (my_isascii((int)value)))
                  {
                  //Byte looks like an unsolicited packet
                  //Check for overrun
                  if (j > MAX_GALIL_DATAREC_SIZE - 2)
                     return asynError;//No unsolicited message should be this long return error
                  //Copy potential unsolicited byte into mesg buffer
-                 mesg[j++] = buf[i];
+                 mesg[j++] = (unsigned char)value;
                  mesg[j] = '\0';
                  }
               }
+
+           //Remove unsolicited message from buffer
+           for (i = headerstart; i < bytesize; i++)
+              input[i - headerstart] = input[i];
+
+           //Read rest of datarecord
+           status = pasynOctetSyncIO->read(pasynUser, buf, headerstart, timeout_, &nread, &eomReason);
+           if (!status && eomReason == ASYN_EOM_CNT)
+              for (i = 0; i < headerstart; i++)//Copy tail end of data record into supplied buffer
+                 input[bytesize - headerstart + i] = buf[i];
            }
         }
-     else  //Couldn't read HEADER_BYTES number of bytes
-        done = true;
      }
 
   //Send unsolicited mesg to queue
@@ -3967,15 +3915,14 @@ void GalilController::acquireDataRecord(string cmd)
 {
   //const char *functionName="acquireDataRecord";
   size_t nwrite = 0;		//Asyn written bytes
-  epicsTimeStamp endt_;		//Used for debugging, and tracking overall performance
-  epicsTimeStamp startt_;	//Used for debugging, and tracking overall performance
-  double time_taken;		//Used for debugging, and tracking overall performance
-  unsigned i;			//General counter
+  //epicsTimeStamp endt_;	//Used for debugging, and tracking overall performance
+  //epicsTimeStamp startt_;	//Used for debugging, and tracking overall performance
+  //double time_taken;		//Used for debugging, and tracking overall performance
 
   if (connected_)
      {
      //Get acquisition start time
-     epicsTimeGetCurrent(&startt_);
+     //epicsTimeGetCurrent(&startt_);
      if (cmd == "QR")
         { //Synchronous poll
         //Need the lock for synchronous poll
@@ -3992,11 +3939,11 @@ void GalilController::acquireDataRecord(string cmd)
         recstatus_ = readDataRecord(pasynUserAsyncGalil_, asyncresp_, datarecsize_); //Get the record
 
      //Get acquisition end time
-     epicsTimeGetCurrent(&endt_);
+     //epicsTimeGetCurrent(&endt_);
      //Calculate acquistion time
-     time_taken = epicsTimeDiffInSeconds(&endt_, &startt_);
+     //time_taken = epicsTimeDiffInSeconds(&endt_, &startt_);
      //if (time_taken > 0.01)
-     //printf("%s GalilController::acquire %2.3lfs read=%d eom=%d stat %d fail %d\n", model_, time_taken, nread, eomReason, recstatus_, fail);
+     //printf("%s GalilController::acquire %2.6lfs stat %d\n", model_, time_taken, recstatus_);
      }
 
   //Track timeouts
@@ -4012,17 +3959,11 @@ void GalilController::acquireDataRecord(string cmd)
      {
      //No errors
      consecutive_timeouts_ = 0;
-     //Clear contents from last cycle
-     recdata_.clear();
      //Copy the returned data record into GalilController
-     for (i = 0; i < datarecsize_; i++)
-        {
-        if (cmd == "QR")
-          recdata_.push_back((unsigned char)resp_[i]);  //Synchronous data record
-        else
-          recdata_.push_back((unsigned char)asyncresp_[i]);  //Asynchronous data record
-        //printf("%x ", (unsigned char)recdata_[i]);
-        }
+     if (cmd == "QR")
+        recdata_.assign(resp_, resp_ + datarecsize_);
+     else
+        recdata_.assign(asyncresp_, asyncresp_ + datarecsize_);
      }
 }
 
@@ -4459,10 +4400,8 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
                                                         pAxis = getAxis(i);	//GalilAxis
 							if (pAxis)
 								{
-								//Set homed status for this axis
-								pAxis->setIntegerParam(GalilHomed_, homed[i]);
-								//Set motorRecord MSTA bit 15 motorStatusHomed_ too
-								//Homed is not part of Galil data record, we support it using Galil code and unsolicited messages over tcp instead
+								//Set motorRecord MSTA bit 15 motorStatusHomed_
+								//Homed is not part of Galil data record, we support it using Galil code and unsolicited messages instead
 								//We must use asynMotorAxis version of setIntegerParam to set MSTA bits for this MotorAxis
 								pAxis->setIntegerParam(motorStatusHomed_, homed[i]);
 								}

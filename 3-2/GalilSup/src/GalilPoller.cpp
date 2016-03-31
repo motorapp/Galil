@@ -84,7 +84,7 @@ void GalilPoller::run(void)
 
                    //if (time_taken > 0.02)
                    //	{
-                   //   printf("%s GalilPoller %2.4lfs\n", pC_->model_, time_taken);
+                   //   printf("%s GalilPoller %2.6lfs\n", pC_->model_, time_taken);
                    //	}
 
                    //Update the GalilAxis status, using datarecord from GalilController
@@ -113,7 +113,7 @@ void GalilPoller::run(void)
                          if (i < MAX_GALIL_AXES)
                             pC_->callParamCallbacks(i);
                          }
-                      else				
+                      else
                          pAxis->poll(&moving);		//Update GalilAxis, and upper layers, using retrieved datarecord
 							//Update records with analog/binary data
                       }

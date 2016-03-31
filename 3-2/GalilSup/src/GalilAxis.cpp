@@ -113,7 +113,6 @@ GalilAxis::GalilAxis(class GalilController *pC, //Pointer to controller instance
   setIntegerParam(pC->GalilWrongLimitProtectionActive_, 0);
   //Default stall/following error status
   setIntegerParam(pC_->motorStatusSlip_, 0);
-  setIntegerParam(pC_->GalilEStall_, 0);
   callParamCallbacks();
 }
 
@@ -145,9 +144,6 @@ asynStatus GalilAxis::setDefaults(int limit_as_home, char *enables_string, int s
 	//Possible encoder stall not detected
 	pestall_detected_ = false;
 
-	//Set encoder stall flag to false
-	setIntegerParam(pC_->GalilEStall_, 0);
-
 	//This axis is not performing a deferred move
 	deferredMove_ = false;
 
@@ -156,7 +152,7 @@ asynStatus GalilAxis::setDefaults(int limit_as_home, char *enables_string, int s
 
 	//Give default readback values for positions, movement direction
 	motor_position_ = 0;
-	last_motor_position_ = 0;
+	last_encoder_position_ = 0;
 	encoder_position_ = 0;
 	direction_ = 1;
 
@@ -396,9 +392,7 @@ void GalilAxis::gen_homecode(char c,			//GalilAxis::axisName_ used very often
 		//Controller does know homed variable
 		//Extract its current value
 		int value = atoi(pC_->resp_);
-		//Set homed status for this axis
-		setIntegerParam(pC_->GalilHomed_, value);
-		//Set motorRecord MSTA bit 15 motorStatusHomed_ too
+		//Set motorRecord MSTA bit 15 motorStatusHomed_
 		//Homed is not part of Galil data record, we support it using Galil code and unsolicited messages over tcp instead
 		//We must use asynMotorAxis version of setIntegerParam to set MSTA bits for this MotorAxis
 		setIntegerParam(pC_->motorStatusHomed_, value);
@@ -603,10 +597,8 @@ asynStatus GalilAxis::setupHome(double maxVelocity, int forwards)
    sprintf(pC_->cmd_, "homed%c=0\n", axisName_);
    pC_->sync_writeReadController();
 
-   //Set homed status for this axis
-   setIntegerParam(pC_->GalilHomed_, 0);
-   //Set motorRecord MSTA bit 15 motorStatusHomed_ too
-   //Homed is not part of Galil data record, we support it using Galil code and unsolicited messages over tcp instead
+   //Set motorRecord MSTA bit 15 motorStatusHomed_
+   //Homed is not part of Galil data record, we support it using Galil code and unsolicited messages instead
    //We must use asynMotorAxis version of setIntegerParam to set MSTA bits for this MotorAxis
    setIntegerParam(pC_->motorStatusHomed_, 0);
 
@@ -1062,12 +1054,12 @@ void GalilAxis::restoreProfileData(void)
 asynStatus GalilAxis::getStatus(void)
 {
    char src[MAX_GALIL_STRING_SIZE]="\0";	//data source to retrieve
-   int offonerror, motoron;			//paramList items to update
+   int motoron;					//paramList items to update
    int connected;				//paramList items to update
    int connectedlast;				//paramList items to update
    double userData;				//paramList items to update
-   double error;				//paramList items to update
-   double velocity;				//paramList items to update
+   double errorlast;				//paramList items to update
+   double velocitylast;				//paramList items to update
    double userDataDeadb;			//UserData dead band
    double eres;					//Motor encoder resolution
    unsigned digport = 0;			//paramList items to update.  Used for brake status
@@ -1082,20 +1074,45 @@ asynStatus GalilAxis::getStatus(void)
 	if (pC_->connected_)
 		{
 		//extract relevant axis data from GalilController record, store in asynParamList
-		//aux encoder data
-		sprintf(src, "_TD%c", axisName_);
-		motor_position_ = pC_->sourceValue(pC_->recdata_, src);
-		//main encoder data
-		sprintf(src, "_TP%c", axisName_);
-		encoder_position_ = pC_->sourceValue(pC_->recdata_, src);
-
 		//moving status
 		sprintf(src, "_BG%c", axisName_);
 		inmotion_ = (bool)(pC_->sourceValue(pC_->recdata_, src) == 1) ? 1 : 0;
 		//Stop code
 		sprintf(src, "_SC%c", axisName_);
 		stop_code_ = (int)pC_->sourceValue(pC_->recdata_, src);
-                 
+		//direction
+		if (inmotion_)
+			{
+			sprintf(src, "JG%c-", axisName_);
+			direction_ = (bool)(pC_->sourceValue(pC_->recdata_, src) == 1) ? 0 : 1;
+			}
+		//Motor error
+		sprintf(src, "_TE%c", axisName_);
+		error_ = pC_->sourceValue(pC_->recdata_, src);
+		pC_->getDoubleParam(axisNo_, pC_->GalilError_, &errorlast);
+		if (error_ != errorlast)
+			pC_->setDoubleParam(axisNo_, pC_->GalilError_, error_);
+		//Servo motor velocity
+		sprintf(src, "_TV%c", axisName_);
+		velocity_ = pC_->sourceValue(pC_->recdata_, src);
+		pC_->getDoubleParam(axisNo_, pC_->GalilMotorVelocityRAW_, &velocitylast);
+		if (velocity_ != velocitylast)
+			{
+			pC_->setDoubleParam(axisNo_, pC_->GalilMotorVelocityRAW_, velocity_);
+			pC_->getDoubleParam(axisNo_, pC_->GalilEncoderResolution_, &eres);
+			pC_->setDoubleParam(axisNo_, pC_->GalilMotorVelocityEGU_, velocity_ * eres);
+			}
+		//Motor on
+		sprintf(src, "_MO%c", axisName_);
+		motoron = (pC_->sourceValue(pC_->recdata_, src) == 1) ? 0 : 1;
+		//Set motorRecord status
+		setIntegerParam(pC_->motorStatusPowerOn_, motoron);
+		//aux encoder data
+		sprintf(src, "_TD%c", axisName_);
+		motor_position_ = pC_->sourceValue(pC_->recdata_, src);
+		//main encoder data
+		sprintf(src, "_TP%c", axisName_);
+		encoder_position_ = pC_->sourceValue(pC_->recdata_, src);
 		//reverse limit
 		sprintf(src, "_LR%c", axisName_);
 		rev_ = (bool)(pC_->sourceValue(pC_->recdata_, src) == 1) ? 0 : 1;
@@ -1105,19 +1122,15 @@ asynStatus GalilAxis::getStatus(void)
 		//home switch
 		sprintf(src, "_HM%c", axisName_);
 		home_ = (bool)(pC_->sourceValue(pC_->recdata_, src) == 1) ? 0 : 1;
-		//direction
-		sprintf(src, "JG%c-", axisName_);
-		direction_ = (bool)(pC_->sourceValue(pC_->recdata_, src) == 1) ? 0 : 1;
-
 		//motor connected status
 		pC_->getIntegerParam(axisNo_, pC_->GalilMotorConnected_, &connectedlast);
 		connected = (rev_ && fwd_) ? 0 : 1;
-		setIntegerParam(pC_->GalilMotorConnected_, connected);
+		if (connectedlast != connected)
+			pC_->setIntegerParam(axisNo_, pC_->GalilMotorConnected_, connected);
 		//If motor just connected, then limits are not
 		//confirmed consistent with motor direction yet
 		if (!connectedlast && connected)
 			limitsDirState_ = unknown;
-
 		//User data
 		sprintf(src, "_ZA%c", axisName_);
 		userData = pC_->sourceValue(pC_->recdata_, src);
@@ -1126,44 +1139,22 @@ asynStatus GalilAxis::getStatus(void)
 		if ((userData < (userDataPosted_ - userDataDeadb)) || (userData > (userDataPosted_ + userDataDeadb)))
 			{
 			//user data is outside dead band, so post it to upper layers
-			setDoubleParam(pC_->GalilUserData_, userData);
+			pC_->setDoubleParam(axisNo_, pC_->GalilUserData_, userData);
 			userDataPosted_ = userData;
 			}
-
-		//Off on error
-		sprintf(src, "_OE%c", axisName_);
-		offonerror = (int)pC_->sourceValue(pC_->recdata_, src);
-		setIntegerParam(pC_->GalilOffOnError_, offonerror);
-		//Motor on
-		sprintf(src, "_MO%c", axisName_);
-		motoron = (pC_->sourceValue(pC_->recdata_, src) == 1) ? 0 : 1;
-		//Set motorRecord status
-		setIntegerParam(pC_->motorStatusPowerOn_, motoron);
-		//Set galil motor on status
-		setIntegerParam(pC_->GalilMotorOn_, motoron);
-		//Motor error
-		sprintf(src, "_TE%c", axisName_);
-		error = pC_->sourceValue(pC_->recdata_, src);
-		setDoubleParam(pC_->GalilError_, error);
-		//Servo motor velocity
-		sprintf(src, "_TV%c", axisName_);
-		velocity = pC_->sourceValue(pC_->recdata_, src);
-		setDoubleParam(pC_->GalilMotorVelocityRAW_, velocity);
-		pC_->getDoubleParam(axisNo_, pC_->GalilEncoderResolution_, &eres);
-		setDoubleParam(pC_->GalilMotorVelocityEGU_, velocity * eres);
 		//Brake port status
-		strcpy(src, "_OP0");
-		digport = (unsigned)pC_->sourceValue(pC_->recdata_, src);
 		//Retrieve the brake port used for this axis
 		pC_->getIntegerParam(axisNo_, pC_->GalilBrakePort_, &brakeport);
-                if (brakeport >= 0)
-                   {
-		   mask = (unsigned)(pow(2.0, (double)(brakeport - 1)));
-		   digport = digport & mask;
-		   //Calculate brake status
-		   digport = (digport == mask) ? 0 : 1;
-                   }
-		pC_->setIntegerParam(axisNo_, pC_->GalilBrake_, digport);
+		if (brakeport >= 0)
+			{
+			strcpy(src, "_OP0");
+			digport = (unsigned)pC_->sourceValue(pC_->recdata_, src);
+			mask = (unsigned)(pow(2.0, (double)(brakeport - 1)));
+			digport = digport & mask;
+			//Calculate brake status
+			digport = (digport == mask) ? 0 : 1;
+			pC_->setIntegerParam(axisNo_, pC_->GalilBrake_, digport);
+			}
 		}
 	}
   return pC_->recstatus_;
@@ -1241,7 +1232,6 @@ void GalilAxis::checkEncoder(void)
             {
             //Pass stall status to higher layers
             setIntegerParam(pC_->motorStatusSlip_, 1);
-            setIntegerParam(pC_->GalilEStall_, 1);
             //stop the motor
             pollRequest_.send((void*)&MOTOR_STOP, sizeof(int));
             //Flag the motor has been stopped
@@ -1258,7 +1248,6 @@ void GalilAxis::checkEncoder(void)
       //Reset stalled encoder flag when moving ok
       //Pass stall status to higher layers
       setIntegerParam(pC_->motorStatusSlip_, 0);
-      setIntegerParam(pC_->GalilEStall_, 0);
       //possible encoder stall not detected
       pestall_detected_ = false;
       }
@@ -1287,7 +1276,7 @@ void GalilAxis::wrongLimitProtection(void)
          if (!stopSent_)
             {
             //Wrong limit protection actively stopping this motor now
-            setIntegerParam(pC_->GalilWrongLimitProtectionActive_, 1);
+            pC_->setIntegerParam(axisNo_, pC_->GalilWrongLimitProtectionActive_, 1);
             //Stop the motor if the wrong limit is active, AND wlp protection active
             pollRequest_.send((void*)&MOTOR_STOP, sizeof(int));
             //Flag the motor has been stopped
@@ -1303,11 +1292,11 @@ void GalilAxis::wrongLimitProtection(void)
       else if (!done_)
          {
          //Wrong limit protection is NOT actively stopping this motor now
-  	 setIntegerParam(pC_->GalilWrongLimitProtectionActive_, 0);
+         pC_->setIntegerParam(axisNo_, pC_->GalilWrongLimitProtectionActive_, 0);
          }
       }
    else
-      setIntegerParam(pC_->GalilWrongLimitProtectionActive_, 0); //NOT actively stopping this motor now
+      pC_->setIntegerParam(axisNo_, pC_->GalilWrongLimitProtectionActive_, 0); //NOT actively stopping this motor now
 }
 
 //Called by poll
@@ -1931,18 +1920,18 @@ void GalilAxis::set_ssi_connectflag(void)
           for (i = 0; i < (ssitotalbits - ssierrbits); i++)
              {
              if (i % 2)
-                disconnect_valtmp |= (long)pow(2.0,i);
+                disconnect_valtmp |= (long) 1 << i;
              }
           if (!(invert_ssi_))
              disconnect_val = (double)disconnect_valtmp;
           else
-             disconnect_val = (pow(2.0,ssitotalbits - ssierrbits) - 1) - disconnect_valtmp;
+             disconnect_val = ((1 << (ssitotalbits - ssierrbits)) - 1) - disconnect_valtmp;
           }
        else
           {
           //last we do binary code encoders
           if (!(invert_ssi_))
-             disconnect_val = (pow(2.0,ssitotalbits - ssierrbits) - 1);
+             disconnect_val = (1 << (ssitotalbits - ssierrbits)) - 1;
           else
              disconnect_val = 0;
           }
@@ -1955,10 +1944,10 @@ void GalilAxis::set_ssi_connectflag(void)
           ssi_connect = (encoder_position_ == disconnect_val) ? 0 : 1;
        if (ssiinput == 2)	//Aux encoder
           ssi_connect = (motor_position_ == disconnect_val) ? 0 : 1;
-       setIntegerParam(pC_->GalilSSIConnected_, ssi_connect);
+       pC_->setIntegerParam(axisNo_, pC_->GalilSSIConnected_, ssi_connect);
        }
     else
-	setIntegerParam(pC_->GalilSSIConnected_, 0);
+       pC_->setIntegerParam(axisNo_, pC_->GalilSSIConnected_, 0);
 }
 
 /*-----------------------------------------------------------------------------------*/

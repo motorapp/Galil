@@ -50,7 +50,7 @@ record(bi,"$(P):$(M)_ESTALL_STATUS")
   	field(ONAM, "Stalled")
   	field(OSV,  "MAJOR")
 
-   	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_ENCODER_STALL")
+   	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_STATUS_SLIP")
 }
 
 #Time encoder stopped before declaring stall
@@ -74,21 +74,6 @@ record(ao,"$(P):$(M)_ESTALLTIME_SP")
 	field(PINI, "YES")
 	field(OUT, "@asyn($(PORT),$(ADDR))MOTOR_ENCODER_STALL_TIME")
 	field(FLNK,"$(P):$(M)_ESTALLTIME_MON")
-}
-
-#This function also populates mr MSTA bit 15 homed.
-record(bi,"$(P):$(M)_HOMED_STATUS")
-{
-	field(DESC, "homed status")
-	field(DTYP, "asynInt32")
-	field(SCAN, "I/O Intr")
-	field(ZNAM, "No")
-   	field(ZSV,  "MINOR")
-
-  	field(ONAM, "Yes")
-  	field(OSV,  "NO_ALARM")
-
-   	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_HOMED")
 }
 
 record(ai,"$(P):$(M)_STEPSMOOTH_MON")
@@ -501,7 +486,7 @@ record(mbbi,"$(P):$(M)_OFFONERR_STATUS")
 {
 	field(DESC, "error limit")
 	field(PINI, "YES")
-	field(SCAN, "I/O Intr")
+	field(SCAN, "$(SCAN)")
 	field(DTYP, "asynInt32")
 	field(ZRST, "Off")
 	field(ONST, "Position error")
@@ -872,7 +857,7 @@ record(bi,"$(P):$(M)_ON_STATUS")
    	field(ZSV,  "MINOR")
   	field(ONAM, "On")
   	field(OSV,  "NO_ALARM")
-   	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_ONOFF")
+   	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_STATUS_POWERED")
 }
 
 #This mbbi/mbbo is deliberately last, so motor on/off function is 
@@ -887,7 +872,7 @@ record(mbbo,"$(P):$(M)_ON_CMD")
 	field(ONVL, "1")
 	field(PINI, "YES")
 	field(VAL,  "$(MTRON)")
-	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_ONOFF")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_CLOSED_LOOP")
 	field(FLNK, "$(P):$(M)_ON_STATUS")
 }
 
