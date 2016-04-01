@@ -2248,7 +2248,7 @@ asynStatus GalilController::runProfile()
   char coordName;			//Coordinate system S or T
   int maxsegs;				//Maximum number of segments
   int startsegs;			//Segments to buffer before starting
-  int retval;				//Return value from file read
+  int retval = 1;			//Return value from file read
   bool bufferNext = true;		//Controller ready to buffer next segment
   double startp[MAX_GALIL_AXES];	//Motor start positions from file
   FILE *profFile = NULL;		//File handle to trajectory file
