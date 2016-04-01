@@ -1234,9 +1234,20 @@ asynStatus GalilCSAxis::poll(bool *moving)
    //If limit struck whilst moving, we must issue stop for all motors in CSAxis
    if ((csrev || csfwd) && *moving)
       {
+      //Sync start only mode and stop not yet issued
       if (!deferredMode_ && !stop_issued_)
          {
-         stop(1);
+         //Stop the real motors in the CSAxis
+         for (i = 0; i < strlen(revaxes_); i++)
+            {
+            //Retrieve the axis
+            pAxis = pC_->getAxis(revaxes_[i] - AASCII);
+            //Process or skip
+            if (!pAxis) continue;
+            //stop the motor
+            pAxis->pollRequest_.send((void*)&MOTOR_STOP, sizeof(int));
+            }
+         //Flag stop has been issued
          stop_issued_ = true;
          }
       }

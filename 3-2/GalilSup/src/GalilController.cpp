@@ -143,6 +143,10 @@
 //                  Optimized poller cycle to reduce CPU load
 //                  Optimized profile buffering to reduce CPU load
 //                  Removed some unnecessary asynParams
+// 01/04/16 M.Clift
+//                  Fixed runProfile time base issue in sleep code
+//                  Fixed runProfile motors at start test issue
+//                  CSAxis in sync start only mode stop on limit changed to emergency stop type
 
 #include <stdio.h>
 #include <math.h>
@@ -1011,11 +1015,11 @@ bool GalilController::motorsAtStart(double startp[])
 	//Calculate motor position in egu
 	position = (ueip) ? (enc_pos * eres) : (mtr_pos * mres);
 	//Calculate the desired start position target in egu
-	target = (ueip) ? (startp[axisNo] * eres) : (startp[axisNo] * mres);
+	target = startp[axisNo] * mres;
 	//Determine result
 	if ((!moving && (position < target - rdbd || position > target + rdbd)) || (rev || fwd)) 
 		{
-		atStart = false; 
+		atStart = false;
 		break;
 		}
 	}
@@ -1557,9 +1561,9 @@ asynStatus GalilController::buildProfileFile()
 		{
 		//Write the segment command to profile file
 		if (proftype) //PVT
-			fprintf(profFile,"%s", moves);
+			fprintf(profFile,"%lf %s", profileTimes_[i], moves);
 		else	//Linear
-			fprintf(profFile,"%s\n", moves);
+			fprintf(profFile,"%lf %s\n", profileTimes_[i], moves);
 		}
   	}
   
@@ -2232,6 +2236,8 @@ asynStatus GalilController::runProfile()
   int segsent;				//Segments loaded to controller so far
   char moves[MAX_GALIL_STRING_SIZE];	//Segment move command assembled for controller
   char message[MAX_GALIL_STRING_SIZE];	//Profile execute message
+  vector<double> profileTimes;		//Profile time base read from file
+  double profileTime;			//Profile time for segment being buffered to controller
   unsigned i;				//Axes index for PVT profiles
   unsigned nmotors = 0;			//Number of axis in PVT profile
   bool profStarted = false;		//Has profile execution started
@@ -2293,8 +2299,14 @@ asynStatus GalilController::runProfile()
   //PVT is nmotor loops per segment
   while (retval != EOF && !status && !profileAbort_)
 	{
-	if (bufferNext)		//Read the segment
-		retval = fscanf(profFile, "%s\n", moves);
+	if (bufferNext)
+		{
+		//Read the segment
+		retval = fscanf(profFile, "%lf %s\n", &profileTime, moves);
+		//Store profile time
+		profileTimes.push_back(profileTime);
+		}
+
 	lock();
 	//Process segment if didnt hit EOF
 	if (retval != EOF)
@@ -2377,7 +2389,6 @@ asynStatus GalilController::runProfile()
 			status = asynError;
 			}
 
-		
 		//Check profile start condition
 		if ((segsent - segprocessed) >= startsegs && !status && !profileAbort_)
 			{
@@ -2405,7 +2416,7 @@ asynStatus GalilController::runProfile()
 				{
 				unlock();
 				//Sleep for time equal to currently processing segment
-				epicsThreadSleep(profileTimes_[segprocessed]);
+				epicsThreadSleep(profileTimes[segprocessed]);
 				bufferNext = false;
 				lock();
 				}
@@ -2474,7 +2485,7 @@ asynStatus GalilController::runProfile()
 			//Restrict loop frequency
 			unlock();
 			//Sleep for time equal to currently processing segment
-			epicsThreadSleep(profileTimes_[segprocessed]);
+			epicsThreadSleep(profileTimes[segprocessed]);
 			lock();
 			}
 		}

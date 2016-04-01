@@ -1397,7 +1397,7 @@ void GalilAxis::pollServices(void)
                                 epicsThreadSleep(.2);  //Wait as controller may still issue move upto this time after
                                                        //Setting home to 0 (cancel home)
                                 //break; Delibrate fall through to MOTOR_STOP
-        case MOTOR_STOP: stop(limdc_); 
+        case MOTOR_STOP: stop(limdc_);
                          break;
         case MOTOR_POST: if (pC_->getStringParam(axisNo_, pC_->GalilPost_, (int)sizeof(post), post) == asynSuccess)
                             {
