@@ -29,7 +29,7 @@ struct CSTargets
         double ncspos[MAX_GALIL_AXES];		//The new position setpoints for the related CSAxis Units=Steps
         double ncsvel[MAX_GALIL_AXES];		//The velocity required for the related CSAxis Units=Steps/s
         double ncsaccel[MAX_GALIL_AXES];	//The acceleration required for the related CSAxis Units=Steps/s/s
-        char csaxes[MAX_GALIL_CSAXES] = {0};	//List of related csaxis that also have new position setpoints
+        char csaxes[MAX_GALIL_CSAXES];		//List of related csaxis that also have new position setpoints
 	};
 
 class GalilCSAxis : public asynMotorAxis

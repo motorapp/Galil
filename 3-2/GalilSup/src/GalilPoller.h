@@ -32,8 +32,8 @@ public:
 private:
   GalilController *pC_;			//The GalilController we poll for
   bool pollerSleep_;			//Tell poller to sleep
-  epicsTimeStamp pollnowt_;		//Used for debugging, and tracking overall poll performance
-  epicsTimeStamp polllastt_;		//Used for debugging, and tracking overall poll performance
+  epicsTimeStamp pollstartt_;		//Used to calculate sleep time in synchronous mode
+  epicsTimeStamp pollendt_;		//Used to calculate sleep time in synchronous mode
 
   epicsEventId pollerSleepEventId_;    	//Poller sleep event
   epicsEventId pollerWakeEventId_;    	//Poller Wake event

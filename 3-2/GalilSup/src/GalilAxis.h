@@ -179,6 +179,7 @@ private:
   bool axisReady_;			//Have motor record fields been pushed into driver
 
   double limdc_;			//Deceleration on limit active
+  double userDataDeadb_;		//User data deadband value
   double userDataPosted_;		//User data posted to upper layers
 
   epicsTimeStamp begin_nowt_;		//Used to track length of time motor begin takes

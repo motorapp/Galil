@@ -147,6 +147,16 @@
 //                  Fixed runProfile time base issue in sleep code
 //                  Fixed runProfile motors at start test issue
 //                  CSAxis in sync start only mode stop on limit changed to emergency stop type
+// 19/04/16 M.Clift
+//                  Further poller optimizations
+//                  Changed communications from asynOctetSyncIO to asynOctet for reduced CPU load
+//                  Updates to readDataRecord for tcp forced synchronous and serial modes
+//                  Communications updates due to asynOctet use
+//                  Fixed poller sleep time issue in synchronous mode
+//                  Updated communication connection code
+//                  Minor changes to wrong limit protection
+//                  Updated SSI messages
+//                  Fix for PWM motor selection readback
 
 #include <stdio.h>
 #include <math.h>
@@ -179,6 +189,7 @@ using namespace std; //cout ostringstream vector string
 
 #include <asynOctetSyncIO.h>
 #include <asynCommonSyncIO.h>
+#include <asynOctet.h>
 #include <asynShellCommands.h>
 
 #include "GalilController.h"
@@ -224,6 +235,7 @@ extern "C" void myHookFunction(initHookState state)
 static void connectCallback(asynUser *pasynUser, asynException exception)
 {
    GalilController* pC_ = (GalilController*)pasynUser->userData;
+   char mesg[MAX_GALIL_STRING_SIZE];
    int connected;
 
    pC_->lock();
@@ -235,8 +247,18 @@ static void connectCallback(asynUser *pasynUser, asynException exception)
        if (connected)
           epicsEventSignal(pC_->connectEvent_);  //GalilConnector will now check for response to query
        else
-          //If asyn connected = 0 device wont respond so go ahead and set GalilController connected_ false
-          pC_->connected_ = false;
+          {
+          //Inform user of disconnect only if GalilController connected_ is true
+          if (pC_->connected_)
+             {
+             pC_->setIntegerParam(pC_->GalilCommunicationError_, 1);//Update connection status pv
+             //If asyn connected = 0 device wont respond so go ahead and set GalilController connected_ false
+             pC_->connected_ = false;
+             //Give disconnect message
+             sprintf(mesg, "Disconnected from %s at %s", pC_->model_, pC_->address_);
+             pC_->setCtrlError(mesg);
+             }
+          }
        }
    pC_->unlock();
 }
@@ -451,9 +473,6 @@ GalilController::GalilController(const char *portName, const char *address, doub
 	strcpy(motor_enables->disablestates, "");
 	}
 
-  //Establish the initial connection to controller
-  connect();
-
   //Thread to acquire datarecord for a single GalilController
   //We write our own because communications with controller is rather unique
   poller_ = new GalilPoller(this);
@@ -461,6 +480,9 @@ GalilController::GalilController(const char *portName, const char *address, doub
   //Put, and wait until poller is in sleep mode
   //Also stop async records from controller
   poller_->sleepPoller();
+
+  //Establish the initial connection to controller
+  connect();
 
   //Static count of controllers.  Used to derive communications port names
   controller_num++;
@@ -476,6 +498,9 @@ void GalilController::connect(void)
   int async_connected = 1;		//Is the asynchronous communication connected according to asyn
   std::string address = address_;	//Convert address into std::string for easy inspection
 
+  //Set default timeout at connect
+  timeout_ = 1;
+
   //Construct the asyn port name that will be used for synchronous communication
   sprintf(syncPort_, "GALILSYNC%d", controller_number_);
   if (address.find("COM") == string::npos && address.find("ttyS") == string::npos)
@@ -483,8 +508,8 @@ void GalilController::connect(void)
      //Open Synchronous ethernet connection
      //Append Telnet port, and TCP directive to provided address
      sprintf(address_string,"%s:23 TCP", address_);
-     //Connect to the device, and configure Asyn Interpose to do end of string processing
-     drvAsynIPPortConfigure(syncPort_, address_string, epicsThreadPriorityMedium, 0, 0);
+     //Connect to the device, we don't want end of string processing
+     drvAsynIPPortConfigure(syncPort_, address_string, epicsThreadPriorityMedium, 0, 1);
 
      if (try_async_)
         {
@@ -493,14 +518,15 @@ void GalilController::connect(void)
         sprintf(asyncPort_, "GALILASYNC%d", controller_number_);
         //Construct address to use for udp server
         sprintf(address_string,"%s:60007 udp", address_);
-        //Connect to the device, and configure Asyn Interpose to do end of string processing
-        drvAsynIPPortConfigure(asyncPort_, address_string, epicsThreadPriorityMax, 0, 0);
+        //Connect to the device, we don't want end of string processing
+        drvAsynIPPortConfigure(asyncPort_, address_string, epicsThreadPriorityMax, 0, 1);
         //Connect to asyn communications port created above and return pasynUser for async communication
         pasynOctetSyncIO->connect(asyncPort_, 0, &pasynUserAsyncGalil_, NULL);
-        //Store GalilController instance in asynUser for later access
-        pasynUserAsyncGalil_->userData = this;
-        //Configure output end of string characters
-        pasynOctetSyncIO->setOutputEos(pasynUserAsyncGalil_, "\r", 1);
+        //Retrieve async octet interface for reading the data record
+        pasynInterface = pasynManager->findInterface(pasynUserAsyncGalil_, asynOctetType, 1);
+        //Store the asyn octet interface for async connection in GalilController
+        pAsyncOctet_ = (asynOctet *)pasynInterface->pinterface;
+        pAsyncOctetPvt_ = pasynInterface->drvPvt;
         //Retrieve asynchronous connection status from asyn
         pasynManager->isConnected(pasynUserAsyncGalil_, &async_connected);
         //Flag async records true
@@ -512,8 +538,8 @@ void GalilController::connect(void)
      }
   else
      {
-     //Connect to the device, and configure Asyn Interpose to do end of string processing
-     drvAsynSerialPortConfigure(syncPort_, address_, epicsThreadPriorityMax, 0, 0);
+     //Connect to the device, we don't want end of string processing
+     drvAsynSerialPortConfigure(syncPort_, address_, epicsThreadPriorityMax, 0, 1);
      //Flag async records false for serial connections
      async_records_ = false;
      //Flag try_async_ records false for serial connections
@@ -531,9 +557,11 @@ void GalilController::connect(void)
   //Store the asyn common interface for sync in GalilController instance for use during forced disconnect
   pasynCommon_ = (asynCommon *)pasynInterface->pinterface;
   pcommonPvt_ = pasynInterface->drvPvt;
-  //Configure end of string characters
-  pasynOctetSyncIO->setInputEos(pasynUserSyncGalil_, "", 0);
-  pasynOctetSyncIO->setOutputEos(pasynUserSyncGalil_, "\r", 1);
+  //Retrieve sync octet interface for reading the data record
+  pasynInterface = pasynManager->findInterface(pasynUserSyncGalil_, asynOctetType, 1);
+  //Store the asyn octet interface for sync connection in GalilController
+  pSyncOctet_ = (asynOctet *)pasynInterface->pinterface;
+  pSyncOctetPvt_ = pasynInterface->drvPvt;
   //Retrieve synchronous connection status from asyn
   pasynManager->isConnected(pasynUserSyncGalil_, &sync_connected);
   //For tracing/debugging sync communications
@@ -544,9 +572,6 @@ void GalilController::connect(void)
   //Must be done after drvAsyn port configure so our exit handler is called before asyn one at epics exit
   epicsAtExit(shutdownCallback, this);
 
-  //Set default timeout at connect
-  timeout_ = 1;
- 
   //GalilConnector will now check for response to query and set connection status flag
   if (sync_connected && async_connected)
      epicsEventSignal(connectEvent_);
@@ -555,28 +580,21 @@ void GalilController::connect(void)
   epicsThreadSleep(.5);
 }
 
-//Called when sync_writeReadController fails
-//Forces asyn to disconnect from hardware
+//Called when async poll fails
+//Forces asyn to disconnect/reconnect
 void GalilController::disconnect(void)
 {
    int connected;
-   char mesg[MAX_GALIL_STRING_SIZE];
 
    //Retrieve asyn connected status
    pasynManager->isConnected(pasynUserSyncGalil_, &connected);
    //Disconnect asyn from device if asyn connected = 1
    if (connected)
       {
-      //Inform user of disconnect only if GalilController connected_ is true
-      if (connected_)
-         setIntegerParam(GalilCommunicationError_, 1);//Update connection status pv
       //Inform asyn we are going to disconnect
       pasynManager->exceptionDisconnect(pasynUserSyncGalil_);
       //Disconnect from the controller.  This will cause connectCallback
       pasynCommon_->disconnect(pcommonPvt_, pasynUserSyncGalil_);
-      //Give disconnect message
-      sprintf(mesg, "Disconnected from %s at %s", model_, address_);
-      setCtrlError(mesg);
       }
 }
 
@@ -631,9 +649,17 @@ void GalilController::shutdownController()
         }
       }
 
-   //Asyn exit handler will do disconnect from here
+   //Asyn exit handler will disconnect sync connection from here
    if (connected_)  //We just print message to tell user Asyn epicsAtExit callback is running (next) and will close connection
+      {
+      if (async_records_)
+         {
+         //Close all udp async connections
+         strcpy(cmd_, "IHT=>-1");
+         sync_writeReadController();
+         }
       cout << "Disconnecting from " << model_ << " at " << address_ << endl;
+      }
 }
 
 GalilController::~GalilController()
@@ -935,13 +961,13 @@ GalilCSAxis* GalilController::getCSAxis(int axisNo)
 bool GalilController::anyMotorMoving()
 {
   int moving = 0;	//Moving status
-  int j;		//Looping
+  int i;		//Looping
 
   //Look through motor list, if any moving return true
-  for (j = 0; j < (int)strlen(profileAxes_); j++)
+  for (i = 0; profileAxes_[i] != '\0'; i++)
 	{
 	//Determine axis number
-	getIntegerParam(profileAxes_[j] - AASCII, motorStatusMoving_, &moving);
+	getIntegerParam(profileAxes_[i] - AASCII, motorStatusMoving_, &moving);
 	if (moving) return true;
 	}
 
@@ -955,13 +981,13 @@ bool GalilController::anyMotorMoving()
 bool GalilController::allMotorsMoving()
 {
   int moving = 0;	//Moving status
-  int j;		//Looping
+  int i;		//Looping
 
   //Look through motor list, if any not moving return false
-  for (j = 0; j < (int)strlen(profileAxes_); j++)
+  for (i = 0; profileAxes_[i] != '\0'; i++)
 	{
 	//Determine moving status
-	getIntegerParam(profileAxes_[j] - AASCII, motorStatusMoving_, &moving);
+	getIntegerParam(profileAxes_[i] - AASCII, motorStatusMoving_, &moving);
 	if (!moving) return false;
 	}
 
@@ -988,16 +1014,16 @@ bool GalilController::motorsAtStart(double startp[])
   double target;	//Desired start position in egu
   double eres, mres;	//Encoder, and motor resolution
   double rdbd;		//Motor record retry deadband
-  int j;		//Looping
+  int i;		//Looping
 
   //Wait an update period so that readbacks are more settled
   epicsThreadSleep(updatePeriod_/1000.0);
 
   //Look through motor list
-  for (j = 0; j < (int)strlen(profileAxes_); j++)
+  for (i = 0; profileAxes_[i] != '\0'; i++)
 	{
 	//Determine axis number
-	axisNo = profileAxes_[j] - AASCII;
+	axisNo = profileAxes_[i] - AASCII;
 	//Retrieve GalilProfileMoveMode_ from ParamList
 	getIntegerParam(axisNo, GalilProfileMoveMode_, &moveMode);
 	//If moveMode = Relative skip the axis
@@ -1027,7 +1053,7 @@ bool GalilController::motorsAtStart(double startp[])
   if (!atStart)
 	{
 	//Store message in paramList
-	sprintf(message, "Profile motor %c did not reach start position within retry deadband", axisNo + AASCII);
+	sprintf(message, "Profile motor %c at %lf did not reach start %lf within retry deadband %lf", axisNo + AASCII, position, target, rdbd);
 	setStringParam(profileExecuteMessage_, message);
 	}
 
@@ -1510,7 +1536,7 @@ asynStatus GalilController::buildProfileFile()
 			//Check timebase is multiple of 2ms
 			temp_time = profileTimes_[i] * 1000.0;
 			//PVT has 2 sample minimum
-			if ((int)(rint)(temp_time) % 2 != 0)
+			if ((int)(rint(temp_time)) % 2 != 0)
 				{
 				sprintf(message, "Profile time base must be multiple of 2ms in PVT mode");
 				buildOK = false;
@@ -1725,7 +1751,7 @@ void GalilController::executePrem(const char *axes)
    GalilAxis *pAxis;		//GalilAxis
     
    //Iterate thru motor list and execute prem command for each
-   for (i = 0; i < (int)strlen(axes); i++)
+   for (i = 0; axes[i] != '\0'; i++)
       {
       //Determine axis number
       axisNo = axes[i] - AASCII;
@@ -1754,7 +1780,7 @@ void GalilController::executeAutoOnBrakeOff(const char *axes)
    bool workdone = false;	//Did work to turn a motor on, or brake off
 
    //Iterate thru motor list and execute AutoOn for each axis
-   for (i = 0; i < (int)strlen(axes); i++)
+   for (i = 0; axes[i] != '\0'; i++)
       {
       //Determine axis number
       axisNo = axes[i] - AASCII;
@@ -1789,7 +1815,7 @@ void GalilController::executeAutoOnBrakeOff(const char *axes)
             }
 
          //Query brake status direct from controller
-         if (brakeport >= 0)
+         if (brakeport > 0)
             {
             sprintf(cmd_, "MG @OUT[%d]\n", brakeport);
             sync_writeReadController();
@@ -1821,7 +1847,7 @@ void GalilController::executeAutoOnBrakeOff(const char *axes)
      }
 
   //Allow auto off again now we have lock again
-  for (i = 0; i < (int)strlen(axes); i++)
+  for (i = 0; axes[i] != '\0'; i++)
       {
       //Determine axis number
       axisNo = axes[i] - AASCII;
@@ -1844,10 +1870,9 @@ void GalilController::executeAutoOnBrakeOff(const char *axes)
 asynStatus GalilController::motorsToProfileStartPosition(FILE *profFile, double startp[], bool move = true)
 {
   GalilAxis *pAxis;			//GalilAxis
-  int j;				//Axis looping
+  int i;				//Axis looping
   int axisNo;				//Axis number
   int moveMode[MAX_GALIL_AXES];  	//Move mode absolute or relative
-  int ueip;				//Required mr attributes
   double rdbd;				//Required mr attributes
   double accl, velo, mres, eres;	//Required mr attributes
   double velocity, acceleration;	//Used to move motors to start
@@ -1864,10 +1889,10 @@ asynStatus GalilController::motorsToProfileStartPosition(FILE *profFile, double 
 	}
 
   //If mode absolute, send motors to start position or stop them moving to start position
-  for (j = 0; j < (int)strlen(profileAxes_); j++)
+  for (i = 0; profileAxes_[i] != '\0'; i++)
   	{
 	//Determine the axis number mentioned in profFile
-	axisNo = profileAxes_[j] - AASCII;
+	axisNo = profileAxes_[i] - AASCII;
 	//Retrieve GalilProfileMoveMode_ from ParamList
 	getIntegerParam(axisNo, GalilProfileMoveMode_, &moveMode[axisNo]);
 	if (move) //Read profile start positions from file
@@ -1884,9 +1909,8 @@ asynStatus GalilController::motorsToProfileStartPosition(FILE *profFile, double 
 	getDoubleParam(axisNo, motorResolution_, &mres);
 	getDoubleParam(axisNo, GalilMotorRdbd_, &rdbd);
 	getDoubleParam(axisNo, GalilEncoderResolution_, &eres);
-	getIntegerParam(axisNo, GalilUseEncoder_, &ueip);
-	//Calculate deadband in steps
-	rdbd = (ueip) ? (rdbd/eres) : (rdbd/mres);
+	//Calculate deadband in motor steps
+	rdbd = rdbd/mres;
 	//Calculate velocity and acceleration in steps
 	velocity = fabs(velo/mres);
 	acceleration = velocity/accl;
@@ -1971,7 +1995,7 @@ asynStatus GalilController::beginPVTProfileMotion()
   executePrem(profileAxes_);
 
   //Set accel/decel for profileAxes_
-  for (i = 0; i < strlen(profileAxes_); i++)
+  for (i = 0; profileAxes_[i] != '\0'; i++)
      {
      //Set acceleration/deceleration
      sprintf(cmd_, "AC%c=%ld;DC%c=%ld", profileAxes_[i], maxAcceleration_, profileAxes_[i], maxAcceleration_);
@@ -2127,7 +2151,7 @@ asynStatus GalilController::prepRunProfile(FILE **profFile, int *coordsys, char 
      fscanf(*profFile, "%s\n", profileAxes_);
      //Loop through the axes list
      //Ensure all motors are enabled
-     for (i = 0; i < strlen(profileAxes_); i++)
+     for (i = 0; profileAxes_[i] != '\0'; i++)
         {
         //Retrieve axis specified in axes list
         pAxis = getAxis(profileAxes_[i] - AASCII);
@@ -2172,7 +2196,7 @@ asynStatus GalilController::prepRunProfile(FILE **profFile, int *coordsys, char 
   else if (!status)
     {
     //PVT profile
-    for (i = 0; i < strlen(profileAxes_); i++)
+    for (i = 0; profileAxes_[i] != '\0'; i++)
        {
        //Clear any segments in the pvt buffer(s)
        sprintf(cmd_, "PV%c=0,0,-1", profileAxes_[i]);
@@ -2440,7 +2464,7 @@ asynStatus GalilController::runProfile()
   else
      {
      //End PVT mode
-     for (i = 0; i < strlen(profileAxes_); i++)
+     for (i = 0; profileAxes_[i] != '\0'; i++)
         {
         sprintf(cmd_, "PV%c=0,0,0", profileAxes_[i]);
         sync_writeReadController();
@@ -2590,7 +2614,7 @@ asynStatus GalilController::beginSyncStartStopMove(int coordsys, char *axes, cha
 
   //Loop through the axes list for this coordinate system
   //Turn off deferredMove_ for these axis as coordinated move has been started
-  for (index = 0; index < strlen(axes); index++)
+  for (index = 0; axes[index] != '\0'; index++)
     {
     //Retrieve axis specified in axes list
     pAxis = getAxis(axes[index] - AASCII);
@@ -2760,7 +2784,7 @@ asynStatus GalilController::beginSyncStartOnlyMove(char *axes)
   status = beginGroupMotion(axes);
   //Loop through the axes list for this move
   //Turn off deferredMove_ for these axis as move has been started
-  for (i = 0; i < strlen(axes); i++)
+  for (i = 0; axes[i] != '\0'; i++)
 	{
 	//Retrieve axis specified in axes list
 	pAxis = getAxis(axes[i] - AASCII);
@@ -2949,7 +2973,7 @@ asynStatus GalilController::readInt32(asynUser *pasynUser, epicsInt32 *value)
 		motorType = (float)atof(resp_);
 		//Upscale by factor 10 to create integer representing motor type 
 		*value = (int)(motorType * 10.0);
-		//Translate motor type into 0-5 value for mbbi record
+		//Translate motor type into 0-7 value for mbbi record
 		switch (*value)
 			{
 			case 10:   *value = 0;
@@ -2963,6 +2987,10 @@ asynStatus GalilController::readInt32(asynUser *pasynUser, epicsInt32 *value)
 			case -25:  *value = 4;
 				   break;
 			case 25:   *value = 5;
+				   break;
+			case 15:   *value = 6;
+				   break;
+			case -15:  *value = 7;
 				   break;
 			default:   break;
 			}
@@ -3319,7 +3347,7 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 	}
   else if (function == GalilUseEncoder_)
 	{
-	if (pAxis)
+	if (pAxis && pAxis->axisNo_ < MAX_GALIL_AXES)
 		{
 		sprintf(cmd_, "ueip%c=%d", pAxis->axisName_, value);
 		//Write setting to controller
@@ -3384,7 +3412,7 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
         getStringParam(addr, GalilCoordSysMotors_, MAX_GALIL_AXES, axes);
 	//Stop/Go all motors in the list
 	//This is done to stop motor backlash correction after coordsys stop
-	for (i=0;i<strlen(axes);i++)
+	for (i = 0; axes[i] != '\0'; i++)
 		{
 		//Stop/go the motor
 		setIntegerParam(axes[i] - AASCII, GalilMotorStopGo_, motor_spmg);
@@ -3445,6 +3473,21 @@ asynStatus GalilController::writeFloat64(asynUser *pasynUser, epicsFloat64 value
         //printf("GalilErrorLimit_ cmd:%s value %lf\n", cmd, value);
         status = sync_writeReadController();
         }
+     }
+  else if (function == GalilUserDataDeadb_)
+     {
+     if (pAxis)//Store user data deadband value for use in GalilPoller
+        pAxis->userDataDeadb_ = value;
+     }
+  else if (function == GalilAnalogInDeadb_)
+     {
+     if (addr >= 0 && addr <= ANALOG_PORTS)
+        analogIndeadb_[addr] = value;
+     }
+  else if (function == GalilAnalogOutRBVDeadb_)
+     {
+     if (addr >= 0 && addr <= ANALOG_PORTS)
+        analogOutRBVdeadb_[addr] = value;
      }
   else if (function == GalilAnalogOut_)
      {
@@ -3674,8 +3717,6 @@ void GalilController::getStatus(void)
    int addr;					//addr or byte of IO
    int start, end;				//start, and end of analog numbering for this controller
    double paramDouble;				//For passing asynFloat64 to ParamList
-   double analogIndeadb;			//Analog in deadband
-   double analogOutRBVdeadb;			//Analog out deadband
    unsigned paramUDig;				//For passing UInt32Digital to ParamList
    unsigned in = 0, out = 0;			//For passing digital in/out for DMC30000 only
    int i;					//Looping
@@ -3693,7 +3734,8 @@ void GalilController::getStatus(void)
 		for (i = 1; i <= 8; i++)
 			{
 			//Digital input bit
-			sprintf(src, "@IN[%d]", i);
+			strcpy(src, "@IN[x]");
+			src[4] = i + 48;
 			paramUDig = (unsigned)sourceValue(recdata_, src);
 			in += paramUDig << (i - 1);
 			//Digital output bits
@@ -3701,7 +3743,8 @@ void GalilController::getStatus(void)
 				{
 				//Database records are arranged by word
 				//ValueMask = 0xFFFF because a word is 16 bits
-				sprintf(src, "@OUT[%d]", i);
+				strcpy(src, "@OUT[x]");
+				src[5] = i + 48;
 				paramUDig = (unsigned)sourceValue(recdata_, src);
 				out += paramUDig << (i - 1);
 				}
@@ -3720,7 +3763,8 @@ void GalilController::getStatus(void)
 		//digital inputs in banks of 8 bits for all models except DMC30000 series
 		for (addr=0;addr<BINARYIN_BYTES;addr++)
 			{
-			sprintf(src, "_TI%d", addr);
+			strcpy(src, "_TIx");
+			src[3] = addr + 48;
 			paramUDig = (unsigned)sourceValue(recdata_, src);
 			//ValueMask = 0xFF because a byte is 8 bits
 			//Callbacks happen on value change
@@ -3731,7 +3775,8 @@ void GalilController::getStatus(void)
 		//data record has digital outputs in banks of 16 bits for dmc, 8 bits for rio
 		for (addr=0;addr<BINARYOUT_WORDS;addr++)
 			{
-			sprintf(src, "_OP%d", addr);
+			strcpy(src, "_OPx");
+			src[3] = addr + 48;
 			paramUDig = (unsigned)sourceValue(recdata_, src);
 			//ValueMask = 0xFFFF because a word is 16 bits
 			//Callbacks happen on value change
@@ -3747,13 +3792,11 @@ void GalilController::getStatus(void)
 
 	for (addr = start;addr < end;addr++)
 		{
-		//Retrieve user set deadbands for analog channel
-		getDoubleParam(addr ,GalilAnalogInDeadb_, &analogIndeadb);
-		getDoubleParam(addr ,GalilAnalogOutRBVDeadb_, &analogOutRBVdeadb);
 		//Analog inputs
-		sprintf(src, "@AN[%d]", addr);
+		strcpy(src, "@AN[x]");
+		src[4] = addr + 48;
 		paramDouble = (double)sourceValue(recdata_, src);
-		if ((paramDouble < (analogInPosted_[addr] - analogIndeadb)) || (paramDouble > (analogInPosted_[addr] + analogIndeadb)))
+		if ((paramDouble < (analogInPosted_[addr] - analogIndeadb_[addr])) || (paramDouble > (analogInPosted_[addr] + analogIndeadb_[addr])))
 			{
 			setDoubleParam(addr, GalilAnalogIn_, paramDouble);
 			analogInPosted_[addr] = paramDouble;
@@ -3761,9 +3804,10 @@ void GalilController::getStatus(void)
 		if (rio_)
 			{
 			//Analog output readbacks for rio
-			sprintf(src, "@AO[%d]", addr);
+			strcpy(src, "@AO[x]");
+			src[4] = addr + 48;
 			paramDouble = (double)sourceValue(recdata_, src);
-			if ((paramDouble < (analogOutRbvPosted_[addr] - analogOutRBVdeadb)) || (paramDouble > (analogOutRbvPosted_[addr] + analogOutRBVdeadb)))
+			if ((paramDouble < (analogOutRbvPosted_[addr] - analogOutRBVdeadb_[addr])) || (paramDouble > (analogOutRbvPosted_[addr] + analogOutRBVdeadb_[addr])))
 				{
 				setDoubleParam(addr, GalilAnalogOutRBV_, paramDouble);
 				analogOutRbvPosted_[addr] = paramDouble;
@@ -3778,11 +3822,13 @@ void GalilController::getStatus(void)
 	for (addr=0;addr<COORDINATE_SYSTEMS;addr++)
 		{
 		//Move/done status
-		sprintf(src, "_BG%c", (addr) ? 'T' : 'S');
+		strcpy(src, "_BGx");
+		src[3] = (addr) ? 'T' : 'S';
 		setIntegerParam(addr, GalilCoordSysMoving_, (int)sourceValue(recdata_, src));
 
 		//Segment count
-		sprintf(src, "_CS%c", (addr) ? 'T' : 'S');
+		strcpy(src, "_CSx");
+		src[3] = (addr) ? 'T' : 'S';
 		setIntegerParam(addr, GalilCoordSysSegments_, (int)sourceValue(recdata_, src));
 		}
 	}
@@ -3794,10 +3840,7 @@ void GalilController::getStatus(void)
 asynStatus GalilController::poll(void)
 {
         //Acquire a data record
-	if (async_records_)
-		acquireDataRecord("DR");  //Asynchronous, just read incoming record
-	else
-		acquireDataRecord("QR");  //Synchronous, poll controller for record
+	acquireDataRecord();
 
 	//Extract controller data from data record, store in GalilController, and ParamList
 	getStatus();
@@ -3815,6 +3858,8 @@ asynStatus GalilController::sendUnsolicitedMessage(char *mesg)
   strcpy(mesg, message.c_str());
   //Send the unsolicited message to the queue
   unsolicitedQueue_.trySend((void *)mesg, (unsigned)strlen(mesg));
+  //empty mesg buffer
+  mesg[0] = '\0';
   //Success
   return asynSuccess;
 }
@@ -3833,96 +3878,138 @@ bool GalilController::my_isascii(int c)
   * pasynUser [in] - pasynUser for the synchronous or asynchronous connection 
   * input [out] - The caller supplied buffer to put data into
   * bytesize [in] - The data record size expected
-  */ 
-asynStatus GalilController::readDataRecord(asynUser *pasynUser, char *input, unsigned bytesize)
+  */
+asynStatus GalilController::readDataRecord(char *input, unsigned bytesize)
 {
   asynStatus status;	//Asyn status
   size_t nread = 0;	//Asyn read bytes
   int eomReason;	//Asyn end of message reason
-  char buf[MAX_GALIL_DATAREC_SIZE];//Bytes read
+  char buf[MAX_GALIL_DATAREC_SIZE];//Temporary buffer to hold data record in some circumstances
   char mesg[MAX_GALIL_STRING_SIZE] = {0x0};//Unsolicited mesg buffer
   unsigned check;	//Check record size upon receipt
-  bool recstart = false;//We found the record header bytes 2, and 3
   char previous = 0;	//Byte read in previous cycle
   unsigned char value;	//Used for type conversion
   unsigned i = 0;	//Looping
   unsigned j = 0;	//Unsolicited byte counter
-  unsigned headerstart = 0;//Datarecord header start index in buffer
+  unsigned k = HEADER_BYTES;//Record byte counter
+  bool recstart = false;//Header found
+  unsigned readsize = bytesize;//Requested number of bytes may vary in tcp sync mode when unsolicited mesg
 
-  //Read bytesize
-  status = pasynOctetSyncIO->read(pasynUser, input, bytesize, timeout_, &nread, &eomReason);
-  if (!status && eomReason == ASYN_EOM_CNT && nread == bytesize)
+  for (;;)
      {
-     //Read returned ok
-     //Look for record header at expected location in buffer
-     check = (unsigned char)input[3] << 8;
-     check = (unsigned char)input[2] + check;
-     if (check == datarecsize_)
-        return status;//Found record at expected location, job done
+     //Read bytesize using octet interface and user supplied buffer
+     if (async_records_)
+        status = pAsyncOctet_->read(pAsyncOctetPvt_, pasynUserAsyncGalil_, input, readsize, &nread, &eomReason);
+     else
+        status = pSyncOctet_->read(pSyncOctetPvt_, pasynUserSyncGalil_, input, readsize, &nread, &eomReason);
 
-     if (!recstart)
+     //Serial mode characters arrive with nread = 1
+     //UDP async mode unsolicited mesg always cause read (above) to return with nread set to mesg length
+     //TCP sync mode unsolicited mesg sometimes cause read to return with nread set to mesg length
+     //TCP sync mode unsolicited mesg mostly cause read to return with nread = readsize
+     //Readsize varies when reading data record tail in tcp sync with unsolicited message
+
+     if (nread == bytesize && eomReason == ASYN_EOM_CNT)
         {
-        //Didn't find header at expected location due to unsolicted message, so
-        //scan thru provided buffer looking for datarec header
-        for (i = 0; i < bytesize; i++)
-           {
-           //Set previous byte
-           if (i != 0)
-              previous = input[i - 1];
-           //Calculate record size using this byte, and previous
-           check = (unsigned char)input[i] << 8;
-           check = (unsigned char)previous + check;
-           //Compare calculated size against datarecsize we are searching for
-           if (check == datarecsize_)
-              {
-              //Found matching header
-              recstart = true;
-              //Buffer index where datarecord header starts
-              headerstart = i - HEADER_BYTES + 1;
-              }
-           }
+        //Read returned ok, with expected bytes
+        //Look for record header at expected location in buffer
+        //In both tcp sync, and udp async mode, when no unsolicited message
+        //Record header can be found here
+        //Record header cannot be found here in rs232 mode
+        check = (unsigned char)input[3] << 8;
+        check = (unsigned char)input[2] + check;
+        if (check == datarecsize_)
+           return status;//Found record at expected location, job done
+        }
 
-        //Extract the unsolicited message and read rest of datarecord
-        if (headerstart > 0)
+     if (!status && nread > 0)
+        {
+        //Read returned ok, either record header not found, or less than bytesize bytes returned
+        //Scan through bytes read looking for record header, unsolicited mesg, and data record body/tail
+        for (i = 0; i < nread; i++)
            {
-           //Extract unsolictied message
-           for (i = 0; i < headerstart; i++)
+           if (!recstart)
               {
-              value = (unsigned char)(input[i] - 0x80);
-              if (((input[i] & 0x80) == 0x80) && (my_isascii((int)value)))
+              //Data record has not started
+              //Check for record header
+              //Calculate record size using this byte, and previous
+              //Set previous byte
+              if (i != 0)
+                 previous = input[i - 1];
+              check = (unsigned char)input[i] << 8;
+              check = (unsigned char)previous + check;
+              //Compare calculated size against datarecsize we are searching for
+              if (check == datarecsize_)
                  {
-                 //Byte looks like an unsolicited packet
-                 //Check for overrun
-                 if (j > MAX_GALIL_DATAREC_SIZE - 2)
-                    return asynError;//No unsolicited message should be this long return error
-                 //Copy potential unsolicited byte into mesg buffer
-                 mesg[j++] = (unsigned char)value;
-                 mesg[j] = '\0';
+                 //Detected record header
+                 recstart = true;
+                 if (nread == bytesize && eomReason == ASYN_EOM_CNT)
+                    {
+                    //Received expected number of bytes, but didn't find header at expected location
+                    //Not a serial connection, so it must be synchronous tcp
+                    //This means the header is not at expected location due to unsolicited message
+                    //Store buffer index where datarecord header starts
+                    //Which is also number of data record bytes remaining (tail) to read
+                    readsize = i - HEADER_BYTES + 1;
+                    }
+                 }
+              if (!recstart)
+                 {
+                 //Extract unsolictied message
+                 value = (unsigned char)(input[i] - 0x80);
+                 if (((input[i] & 0x80) == 0x80) && (my_isascii((int)value)))
+                    {
+                    //Byte looks like an unsolicited packet
+                    //Check for overrun
+                    if (j > MAX_GALIL_DATAREC_SIZE - 2)
+                       return asynError;//No unsolicited message should be this long return error
+                    //Copy potential unsolicited byte into mesg buffer
+                    mesg[j++] = (unsigned char)value;
+                    mesg[j] = '\0';
+                    //Send unsolicited message if last char was line feed
+                    if (mesg[j - 1] == '\n')
+                       {
+                       sendUnsolicitedMessage(mesg);
+                       mesg[0] = '\0';
+                       j = 0;
+                       }
+                    }
                  }
               }
-
-           //Remove unsolicited message from buffer
-           for (i = headerstart; i < bytesize; i++)
-              input[i - headerstart] = input[i];
-
-           //Read rest of datarecord
-           status = pasynOctetSyncIO->read(pasynUser, buf, headerstart, timeout_, &nread, &eomReason);
-           if (!status && eomReason == ASYN_EOM_CNT)
-              for (i = 0; i < headerstart; i++)//Copy tail end of data record into supplied buffer
-                 input[bytesize - headerstart + i] = buf[i];
+           else
+              {
+              //Data record receipt has started
+              //Data record received here in tcp synchronous mode when unsolicited mesg
+              //Data record received here in serial mode
+              //Copy data record into temp buffer
+              //Check for overrun
+              if (k > MAX_GALIL_DATAREC_SIZE - 2)
+                 return asynError;//Datarecord should not be this long return error
+              buf[k++] = input[i];
+              //Terminate the buffer
+              buf[k]='\0';
+              //Reached expected bytes?
+              if (k == bytesize)
+                 {
+                 //Data record read complete
+                 //Copy data record into user supplied buffer
+                 memcpy(input, buf, bytesize);
+                 return status;
+                 }
+              }
            }
+
+        //Store last byte received this read for next cycle
+        previous = input[nread - 1];
+        //Loop back and keep reading until we get the data record or error
         }
+     else if ((nread == 0 && eomReason == 0) || status)
+        return asynError;//Return any asyn error encountered during read
      }
-
-  //Send unsolicited mesg to queue
-  if (j != 0) //Reciever will respond to valid messages only
-     sendUnsolicitedMessage(mesg);
-
-  return status;
 }
 
 //Acquire data record from controller
-void GalilController::acquireDataRecord(string cmd)
+void GalilController::acquireDataRecord(void)
 {
   //const char *functionName="acquireDataRecord";
   size_t nwrite = 0;		//Asyn written bytes
@@ -3934,20 +4021,21 @@ void GalilController::acquireDataRecord(string cmd)
      {
      //Get acquisition start time
      //epicsTimeGetCurrent(&startt_);
-     if (cmd == "QR")
-        { //Synchronous poll
+     if (!async_records_)
+        { 
+        //Synchronous poll
         //Need the lock for synchronous poll
         lock();
         //Prepare QR command
-        strcpy(cmd_, cmd.c_str());
+        strcpy(cmd_, "QR\r");
         //Write the QR query to controller
-        recstatus_ = pasynOctetSyncIO->write(pasynUserSyncGalil_, cmd_, strlen(cmd_), timeout_, &nwrite);
+        recstatus_ = pSyncOctet_->write(pSyncOctetPvt_, pasynUserSyncGalil_, cmd_, 3, &nwrite);
         if (!recstatus_) //Solicited data record includes an extra colon at the end
-           recstatus_ = readDataRecord(pasynUserSyncGalil_, resp_, datarecsize_ + 1); //Get the record
+           recstatus_ = readDataRecord(resp_, datarecsize_ + 1); //Get the record
         unlock();
         }
      else //Asynchronous poll
-        recstatus_ = readDataRecord(pasynUserAsyncGalil_, asyncresp_, datarecsize_); //Get the record
+        recstatus_ = readDataRecord(asyncresp_, datarecsize_); //Get the record
 
      //Get acquisition end time
      //epicsTimeGetCurrent(&endt_);
@@ -3958,7 +4046,7 @@ void GalilController::acquireDataRecord(string cmd)
      }
 
   //Track timeouts
-  if (recstatus_ == asynTimeout)
+  if (recstatus_ != asynSuccess)
      consecutive_timeouts_++;
 
   //Force disconnect if any errors
@@ -3971,7 +4059,7 @@ void GalilController::acquireDataRecord(string cmd)
      //No errors
      consecutive_timeouts_ = 0;
      //Copy the returned data record into GalilController
-     if (cmd == "QR")
+     if (!async_records_)
         recdata_.assign(resp_, resp_ + datarecsize_);
      else
         recdata_.assign(asyncresp_, asyncresp_ + datarecsize_);
@@ -3980,65 +4068,19 @@ void GalilController::acquireDataRecord(string cmd)
 
 /** Writes a string to the GalilController controller and reads the response using synchronous communications
   * Calls sync_writeReadController() with default locations of the input and output strings
-  * and GalilController timeout. This function is for testing communicationsn only, and ignores
-  * the connected flag*/ 
-asynStatus GalilController::synctest_writeReadController(void)
-{
-  const char *functionName="synctest_writeReadController";
-  size_t nread;
-  int status;
-  static const char* debug_file_name = macEnvExpand("$(GALIL_DEBUG_FILE=)");
-  static FILE* debug_file = ( (debug_file_name != NULL && strlen(debug_file_name) > 0) ? fopen(debug_file_name, "at") : NULL);
-
-  asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, 
-          "%s: controller=\"%s\" command=\"%s\"\n", functionName, address_, cmd_);
-
-  //Write command, and retrieve response
-  status = sync_writeReadController(cmd_, resp_, MAX_GALIL_STRING_SIZE, &nread, timeout_);
-
-  //Remove any unwanted characters
-  string resp = resp_;
-  resp.erase(resp.find_last_not_of(" \n\r\t:")+1);
-  resp.erase (std::remove(resp.begin(), resp.end(), ':'), resp.end());
-  resp.erase (std::remove(resp.begin(), resp.end(), '\r'), resp.end());
-  resp.erase (std::remove(resp.begin(), resp.end(), '\n'), resp.end());
-  strcpy(resp_, resp.c_str());
-
-   //Debugging
-   asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DRIVER, 
-          "%s: controller=\"%s\" command=\"%s\", response=\"%s\", status=%s\n", 
-		      functionName, address_, cmd_, resp_, (status == asynSuccess ? "OK" : "ERROR"));
-
-   if (debug_file != NULL)
-   	{
-	time_t now;
-	//Use line buffering, then flush
-	setvbuf(debug_file, NULL, _IOLBF, BUFSIZ);
-	time(&now);
-	char time_buffer[64];
-	strftime(time_buffer, sizeof(time_buffer), "%Y-%m-%d %H:%M:%S", localtime(&now));
-	fprintf(debug_file, "%s (%d) %s: controller=\"%s\" command=\"%s\", response=\"%s\", status=%s\n", 
-	      time_buffer, getpid(), functionName, address_, cmd_, resp_, (status == asynSuccess ? "OK" : "ERROR"));
-	}
-
-  return (asynStatus)status;
-}
-
-
-/** Writes a string to the GalilController controller and reads the response using synchronous communications
-  * Calls sync_writeReadController() with default locations of the input and output strings
   * and GalilController timeout. */ 
-asynStatus GalilController::sync_writeReadController(void)
+asynStatus GalilController::sync_writeReadController(bool testQuery)
 {
   const char *functionName="sync_writeReadController";
   size_t nread;
   int status;
+  size_t len;
   static const char* debug_file_name = macEnvExpand("$(GALIL_DEBUG_FILE=)");
   static FILE* debug_file = ( (debug_file_name != NULL && strlen(debug_file_name) > 0) ? fopen(debug_file_name, "at") : NULL);
 
   //Simply return asynSuccess if not connected
   //Asyn module corrupts ram if we try write/read with no connection
-  if (!connected_)
+  if (!connected_ && !testQuery)
      {
      strcpy(resp_, "");
      return asynSuccess;
@@ -4047,30 +4089,43 @@ asynStatus GalilController::sync_writeReadController(void)
   asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, 
           "%s: controller=\"%s\" command=\"%s\"\n", functionName, address_, cmd_);
 
+  //Append carriage return to provided cmd
+  len = strlen(cmd_);
+  if (len < MAX_GALIL_STRING_SIZE - 2)
+     {
+     cmd_[len] = '\r';
+     cmd_[len+1] = '\0';
+     }
+  else //Command too long
+     return asynError;
+
   //Write command, and retrieve response
   status = sync_writeReadController(cmd_, resp_, MAX_GALIL_STRING_SIZE, &nread, timeout_);
+
+  //Remove trailing \r we added earlier
+  cmd_[len] = '\0';
 
   //Remove any unwanted characters
   string resp = resp_;
   resp.erase(resp.find_last_not_of(" \n\r\t:")+1);
   strcpy(resp_, resp.c_str());
 
-   //Debugging
-   asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DRIVER, 
-          "%s: controller=\"%s\" command=\"%s\", response=\"%s\", status=%s\n", 
-		      functionName, address_, cmd_, resp_, (status == asynSuccess ? "OK" : "ERROR"));
+  //Debugging
+  asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DRIVER, 
+         "%s: controller=\"%s\" command=\"%s\", response=\"%s\", status=%s\n", 
+	      functionName, address_, cmd_, resp_, (status == asynSuccess ? "OK" : "ERROR"));
 
-   if (debug_file != NULL)
-   	{
-	time_t now;
-	//Use line buffering, then flush
-	setvbuf(debug_file, NULL, _IOLBF, BUFSIZ);
-	time(&now);
-	char time_buffer[64];
-	strftime(time_buffer, sizeof(time_buffer), "%Y-%m-%d %H:%M:%S", localtime(&now));
-	fprintf(debug_file, "%s (%d) %s: controller=\"%s\" command=\"%s\", response=\"%s\", status=%s\n", 
+  if (debug_file != NULL)
+     {
+     time_t now;
+     //Use line buffering, then flush
+     setvbuf(debug_file, NULL, _IOLBF, BUFSIZ);
+     time(&now);
+     char time_buffer[64];
+     strftime(time_buffer, sizeof(time_buffer), "%Y-%m-%d %H:%M:%S", localtime(&now));
+     fprintf(debug_file, "%s (%d) %s: controller=\"%s\" command=\"%s\", response=\"%s\", status=%s\n", 
 	      time_buffer, getpid(), functionName, address_, cmd_, resp_, (status == asynSuccess ? "OK" : "ERROR"));
-	}
+     }
 
   return (asynStatus)status;
 }
@@ -4089,7 +4144,7 @@ asynStatus GalilController::sync_writeReadController(const char *output, char *i
   size_t nwrite;	//Bytes written
   asynStatus status = asynSuccess;//Asyn status
   int eomReason;	//End of message reason
-  char buf;		//Character buffer when reading byte by byte
+  char buf[MAX_GALIL_DATAREC_SIZE] = "";	//Receive buffer
   char mesg[MAX_GALIL_DATAREC_SIZE] = "";	//Unsolicited buffer
   char resp[MAX_GALIL_DATAREC_SIZE] = "";	//Solicited buffer
 				//Sometimes caller puts many commands on one line separated by ; so we must
@@ -4097,69 +4152,86 @@ asynStatus GalilController::sync_writeReadController(const char *output, char *i
   int target_terminators = (int)count(out_string.begin(), out_string.end(), ';') + 1;
   int found_terminators = 0;	//Terminator characters found so far
   unsigned char value;		//Used to identify unsolicited traffic
- 
-  //Write the command
-  status = pasynOctetSyncIO->write(pasynUserSyncGalil_, output, strlen(output), timeout_, &nwrite);
+  bool done = false;		//Read complete?
 
-  //Read the response
+  //Null user supplied input buffer
+  strcpy(input, "");
+  //Set timeout for Sync connection
+  pasynUserSyncGalil_->timeout = timeout_;
+  //Write the command
+  status = pSyncOctet_->write(pSyncOctetPvt_, pasynUserSyncGalil_, output, strlen(output), &nwrite);
+  //If write ok
   if (!status)
      {
-     //Clear the input string
-     input[0] = '\0';
-     while (1)
+     while (!done)
         {
         //Read any response
-        status = pasynOctetSyncIO->read(pasynUserSyncGalil_, &buf, 1, timeout_, nread, &eomReason);
-        if (!status && nread != 0)
+        status = pSyncOctet_->read(pSyncOctetPvt_, pasynUserSyncGalil_, buf, MAX_GALIL_STRING_SIZE, nread, &eomReason);
+        //If read successful, search for terminator characters
+        if (!status && *nread > 0)
            {
-           //Controller responds with ? or : for each command separated by ;
-           if (buf == '?')
+           //Search for terminating characters
+           for (i = 0; i < *nread; i++)
               {
-              //Look for command fail prompts
-              found_terminators++;
-              //Controller could not honour command
-              status = asynError;
+              //Controller responds with ? or : for each command separated by ;
+              if (buf[i] == '?')
+                 {
+                 //Look for command fail prompts
+                 found_terminators++;
+                 //Controller could not honour command
+                 status = asynError;
+                 }
+              //Look for command success prompts
+              if (buf[i] == ':')
+                 found_terminators++;
+              //Split received byte stream into solicited, and unsolicited messages
+              //Unsolicited messages are received here only in synchronous mode
+              value = (unsigned char)buf[i] - 128;
+              if (((buf[i] & 0x80) == 0x80) && (my_isascii((int)value)))
+                 {
+                 //Byte looks like an unsolicited packet
+                 //Check for overrun
+                 if (j > MAX_GALIL_DATAREC_SIZE - 2)
+                    return asynError;//No unsolicited message should be this long return error
+                 //Copy potential unsolicited byte into mesg buffer
+                 mesg[j++] = (unsigned char)value;
+                 //Terminate the buffers
+                 mesg[j] = '\0';
+                 }
+              else
+                 {
+                 //Byte looks like a solicited packet
+                 //Check for overrun
+                 if (k > MAX_GALIL_DATAREC_SIZE - 2)
+                    return asynError;//No solicited message should be this long return error
+                 resp[k++] = buf[i];//Byte is part of solicited message
+                 //Terminate the buffer
+                 resp[k] = '\0';
+                 }
+              //If received all expected terminators, read is complete
+              if (found_terminators == target_terminators)
+                 {
+                 //Don't attempt any more reads
+                 done = true;
+                 //stop searching this read, and return the resp, then send unsolicited mesg
+                 break;
+                 }
               }
-           //Look for command success prompts
-           if (buf == ':')
-              found_terminators++;
-           //Break if the expected number of terminators has been received
-           if (found_terminators == target_terminators)
-              break;
-           //Copy received character into buffer
-           input[i++] = buf;
-           input[i] = '\0';
+           //Copy solicited response back into input buffer supplied
+           if (k != 0)
+              {
+              sprintf(input, "%s%s", input, resp);
+              resp[0] = '\0';
+              k = 0;
+              }
            }
-        else //Break if any asyn error
-           break;
-        }
-     }
-
-  if (!status)
-     {
-     //Set number of characters read
-     *nread = i;
-
-     //Split received bytes into unsolicited, and solicited buffers
-     for (i = 0; i < *nread; i++)
-        {
-        value = (unsigned char)input[i] - 128;
-        if ((input[i] & 0x80) == 0x80 && (isalnum((int)value) || isspace((int)value) || ispunct((int)value)))
-           mesg[j++] = input[i];	//Byte is part of unsolicited message
-        else
-           resp[k++] = input[i];	//Byte is part of solicited message
-        }
-     //Terminate the buffers
-     mesg[j] = '\0';
-     resp[k] = '\0';
-     //Copy solicited response back into input buffer supplied
-     strcpy(input, resp);
-
+        else //Stop read if any asyn error
+           return asynError;
+        }//while (!done)
      //Send unsolicited mesg to queue
      if (j != 0)
         sendUnsolicitedMessage(mesg);
-     }
-
+     }//write ok
   return status;
 }
 
@@ -4214,20 +4286,20 @@ asynStatus GalilController::programDownload(string prog)
   if (connected_)
      {
      //Request download
-     status = pasynOctetSyncIO->write(pasynUserSyncGalil_, "DL", 2, timeout_, &nwrite);
+     status = pSyncOctet_->write(pSyncOctetPvt_, pasynUserSyncGalil_, "DL\r", 3, &nwrite);
      //Insert download terminate character at program end
      prog.push_back('\\');
      //Download the program
      if (!status)
         {
-        status = pasynOctetSyncIO->write(pasynUserSyncGalil_, prog.c_str(), prog.length(), timeout_, &nwrite);
+        status = pSyncOctet_->write(pSyncOctetPvt_, pasynUserSyncGalil_, prog.c_str(), prog.length(), &nwrite);
         if (!status)  //Read "::" response that controller gives
-           status = pasynOctetSyncIO->read(pasynUserSyncGalil_, (char *)buf, 2, timeout_, &nread, &eomReason);
+           status = pSyncOctet_->read(pSyncOctetPvt_, pasynUserSyncGalil_, (char *)buf, 2, &nread, &eomReason);
         if (buf[0] == '?' || buf[1] == '?')
            status = asynError;  //Controller didn't like the program
         }
-     return status;
      }
+
   return status;
 }
 
@@ -4239,28 +4311,54 @@ asynStatus GalilController::programUpload(string *prog)
   size_t nread;
   asynStatus status = asynError;
   int eomReason;
-  char buf[CODE_LENGTH];
+  bool done = false;
+  unsigned i;
+  char buf[MAX_GALIL_STRING_SIZE];
+
+  //Clear program buffer
+  prog->clear();
+
+  //Set timeout for Sync connection
+  pasynUserSyncGalil_->timeout = timeout_;
 
   if (connected_)
      {
      //Request upload
-     status = pasynOctetSyncIO->write(pasynUserSyncGalil_, "UL", 2, timeout_, &nwrite);
+     status = pSyncOctet_->write(pSyncOctetPvt_, pasynUserSyncGalil_, "UL\r", 3, &nwrite);
+
      //Read the response only if write ok
      if (!status)
         {
-        //Change Sync InputEos to :
-        pasynOctetSyncIO->setInputEos(pasynUserSyncGalil_, ":", 1);
-        //Read any response
-        status = pasynOctetSyncIO->read(pasynUserSyncGalil_, buf, CODE_LENGTH, timeout_, &nread, &eomReason);
-        //Change Sync InputEos back to nothing
-        pasynOctetSyncIO->setInputEos(pasynUserSyncGalil_, "", 0);
-        //Did read get EOS and at least 1 byte
-        if (!status && nread != 0 && eomReason == ASYN_EOM_EOS)
+        while (!done)
            {
-           //Copy the uploaded program into provided buffer
-           prog->assign(buf);
+           //Read any response
+           status = pSyncOctet_->read(pSyncOctetPvt_, pasynUserSyncGalil_, buf, MAX_GALIL_STRING_SIZE, &nread, &eomReason);
+           //Return any asyn error encountered during read
+           if ((nread == 0 && eomReason == 0) || status)
+              {
+              status = asynError;
+              done = true;
+              }
+           else if (!status && nread > 0)
+              {
+              //Search for terminating : character
+              for (i = 0; i < nread; i++)
+                 {
+                 done = (buf[i] == ':') ? true : false;
+                 if (done)
+                    break; //Upload complete
+                 }
+              //Append the upload to prog buffer
+              prog->append(buf, i);
+              }
+           }
+
+        //Upload complete, finish up
+        if (!status && done && prog->length() > 0)
+           {
+           //Upload appears successful
            //Trim uploaded program
-           prog->erase(prog->length()-2);
+           prog->erase(prog->length()-3);
            }
         }
      }
@@ -4319,7 +4417,7 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
 			thread_mask_ = 0;  //Forced to use generated code
 
 		//Dump card_code_ to file
-		write_gen_codefile("");
+		write_gen_codefile("_prd");
 		}
 
 	/*print out the generated/user code for the controller*/
@@ -4597,7 +4695,14 @@ void GalilController::gen_card_codeend(void)
 					
       //Add command error handler
       sprintf(thread_code_, "%s#CMDERR\nerrstr=_ED;errcde=_TC;cmderr=cmderr+1\nEN\n", thread_code_);
-	
+
+      //Add tcp error handler
+      sprintf(thread_code_, "%s#TCPERR\ntcpcde=_TC;tcperr=tcperr+1\nRE\n", thread_code_);
+
+      //Set tcperr counter to 0
+      sprintf(cmd_, "tcperr=0");
+      sync_writeReadController();
+
       //Set cmderr counter to 0
       sprintf(cmd_, "cmderr=0");
       sync_writeReadController();

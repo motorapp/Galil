@@ -15,8 +15,7 @@
 include GALILRELEASE
 MASTER_FILES = GALILRELEASE
 
-include CONFIG
-include $(EPICS_BASE)/config/CONFIG_COMMON
+include $(EPICS_BASE)/configure/CONFIG_COMMON
 
 ###### 1st Tier Modules - Only Depend on EPICS BASE ######
 

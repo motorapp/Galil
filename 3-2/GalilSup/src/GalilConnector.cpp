@@ -79,27 +79,39 @@ void GalilConnector::run(void)
 			//Test synchronous communication
 			//Query controller for synchronous connection handle
 			strcpy(pC_->cmd_, "WH");
-			sync_status = pC_->synctest_writeReadController();
+			sync_status = pC_->sync_writeReadController(true);
+			//Store the handle controller used for sync
 			if (!sync_status)
-				pC_->syncHandle_ = pC_->resp_[2];	//Store the handle controller used for sync
-			//Check asynchronous communication
-			if (pC_->try_async_)
 				{
-				//Need to change terminator for handle discovery query on udp connection
-				pasynOctetSyncIO->setInputEos(pC_->pasynUserAsyncGalil_, ":", 1);
-				//Retrieve controller connection handle used for async udp
-				strcpy(pC_->asynccmd_, "WH");
+				if (strncmp(pC_->resp_, "IH", 2) == 0)
+					pC_->syncHandle_ = pC_->resp_[2];//TCP
+				else if (strncmp(pC_->resp_, "RS", 2) == 0)
+					pC_->syncHandle_ = 'S';//Serial
+				else//Bad response from controller
+					sync_status = asynError;
+				}
+			//Check asynchronous communication
+			if (pC_->try_async_ && !sync_status)
+				{
+				//Ensure data record transmission is off
+				strcpy(pC_->cmd_, "DR 0");
+				sync_status = pC_->sync_writeReadController(true);
+				//Close all other connections on controller
+				strcpy(pC_->cmd_, "IHT=>-3");
+				sync_status = pC_->sync_writeReadController(true);
+				//Open UDP connection, and retrieve connection handle
+				strcpy(pC_->asynccmd_, "WH\r");
 				async_status = pC_->async_writeReadController();
-				//Change terminator back to that required for receiving unsolicted messages
-				pasynOctetSyncIO->setInputEos(pC_->pasynUserAsyncGalil_, "", 0);
-
+				async_status = (strncmp(pC_->asyncresp_, "IH", 2) == 0) ? async_status : asynError;
+				//Store the handle controller used for udp
 				if (!async_status)
 					{
-					pC_->udpHandle_ = pC_->asyncresp_[2];	//Store the handle controller used for udp
-					pC_->async_records_ = true;	//Udp connection is responsive to query
+					//Udp connection is responsive to query
+					pC_->udpHandle_ = pC_->asyncresp_[2];
+					pC_->async_records_ = true;
 					}
-				else
-					pC_->async_records_ = false;	//Error when querying udp handle
+				else//Error when querying udp handle
+					pC_->async_records_ = false;
 				}
 			//Work out what to do
 			if (!sync_status && !async_status)	//Response received

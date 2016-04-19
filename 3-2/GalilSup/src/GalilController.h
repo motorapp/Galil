@@ -46,11 +46,10 @@
 #define COORDINATE_SYSTEMS 2
 #define ANALOG_PORTS 8
 #define BINARYIN_BYTES 3
-#define BINARYOUT_WORDS 2
+#define BINARYOUT_WORDS 3
 #define LIMIT_CODE_LEN 80000
 #define INP_CODE_LEN 80000
 #define THREAD_CODE_LEN 80000
-#define CODE_LENGTH 80000
 //Stop codes
 #define MOTOR_STOP_FWD 2
 #define MOTOR_STOP_REV 3
@@ -203,6 +202,8 @@ public:
   //These variables need to be accessible from static callbacks
   epicsEventId connectEvent_;		//Connection event
   int connected_;			//Is the synchronous communication socket connected according to asyn.  Async UDP is connectionless
+  char address_[MAX_GALIL_STRING_SIZE];	//address string
+  char model_[MAX_GALIL_STRING_SIZE];	//model string
 
   //Class constructor
   GalilController(const char *portName, const char *address, double updatePeriod);
@@ -211,8 +212,7 @@ public:
   asynStatus async_writeReadController(void);
 
   asynStatus sync_writeReadController(const char *output, char *input, size_t maxChars, size_t *nread, double timeout);
-  asynStatus sync_writeReadController(void);
-  asynStatus synctest_writeReadController(void);
+  asynStatus sync_writeReadController(bool testQuery = false);
 
   asynStatus sendUnsolicitedMessage(char *mesg);
   bool my_isascii(int c);
@@ -268,8 +268,8 @@ public:
   void connect(void);
   void disconnect(void);
   void connected(void);
-  void acquireDataRecord(string cmd);
-  asynStatus readDataRecord(asynUser *pasynUser, char *input, unsigned bytesize);
+  void acquireDataRecord(void);
+  asynStatus readDataRecord(char *input, unsigned bytesize);
   void getStatus(void);
   void setParamDefaults(void);
   void gen_card_codeend(void);
@@ -314,7 +314,6 @@ public:
   void shutdownController();
   ~GalilController();
 
-protected:
   #define FIRST_GALIL_PARAM GalilAddress_
   int GalilAddress_;
   int GalilModel_;
@@ -434,8 +433,6 @@ private:
   GalilPoller *poller_;			//GalilPoller to acquire a datarecord
   GalilConnector *connector_;		//GalilConnector to manage connection status flags
 
-  char address_[MAX_GALIL_STRING_SIZE];	//address string
-  char model_[MAX_GALIL_STRING_SIZE];	//model string
   bool rio_;				//Is controller a RIO
   char code_file_[MAX_FILENAME_LEN];	//Code file(s) that user gave to GalilStartController
 
@@ -451,6 +448,10 @@ private:
   epicsTimeStamp begin_begint_;		//Used to track length of time motor begin takes
 
   bool movesDeferred_;			//Should moves be deferred for this controller
+
+  double analogIndeadb_[ANALOG_PORTS+2];//Analog input dead bands
+  double analogOutRBVdeadb_[ANALOG_PORTS+2]; //Analog output rbv dead bands
+
   double analogInPosted_[ANALOG_PORTS+2];//Analog input values posted to upper layers		
   double analogOutRbvPosted_[ANALOG_PORTS+2]; //Analog output rbv values posted to upper layers
 
@@ -482,16 +483,22 @@ private:
   int timeout_;				//Timeout for communications
   int controller_number_;		//The controller number as counted in GalilCreateController
   epicsMessageQueue unsolicitedQueue_;	//Unsolicted messages recieved are placed here initially
+
+  unsigned datarecsize_;			//Calculated size of controller datarecord based on response from QZ command
   
   char syncPort_[MAX_GALIL_STRING_SIZE];	//The name of the asynPort created for synchronous communication with controller
-  char asyncPort_[MAX_GALIL_STRING_SIZE];	//The name of the asynPort created for asynchronous communication with controller
-  char udpHandle_;				//Handle on controller used for udp
   char syncHandle_;				//Handle on controller used for synchronous communication (ie. tcp or serial)
-  unsigned datarecsize_;			//Calculated size of controller datarecord based on response from QZ command
   asynUser *pasynUserSyncGalil_;		//Asyn user for synchronous communication
   asynCommon *pasynCommon_;			//asynCommon interface for synchronous communication
   void *pcommonPvt_;				//asynCommon drvPvt for synchronous communication
+  asynOctet *pSyncOctet_;			//Asyn octet interface for synchronous communication
+  void *pSyncOctetPvt_;				//Asyn octet private data for synchronous communication
+
+  char asyncPort_[MAX_GALIL_STRING_SIZE];	//The name of the asynPort created for asynchronous communication with controller
+  char udpHandle_;				//Handle on controller used for udp
   asynUser *pasynUserAsyncGalil_;		//Asyn user for asynchronous communication
+  asynOctet *pAsyncOctet_;			//Asyn octet interface for asynchronous communication
+  void *pAsyncOctetPvt_;			//Asyn octet private data for asynchronous communication
 
   struct Galilmotor_enables motor_enables_[MAX_GALIL_AXES];//Stores the motor enable disable interlock digital IO setup, only first 8 digital in ports supported
 

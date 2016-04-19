@@ -58,10 +58,6 @@ void GalilPoller::run(void)
   double time_taken;	//Time taken last polll cycle
   double sleep_time;	//Calculated time to sleep in synchronous mode
 
-  //Read current time
-  epicsTimeGetCurrent(&pollnowt_);
-  epicsTimeGetCurrent(&polllastt_);
-
   //Loop until shutdown
   while (true) 
 	{
@@ -72,20 +68,11 @@ void GalilPoller::run(void)
 		//Poll only if connected
 		if (pC_->connected_)
                    {
+                   //Read start time
+                   epicsTimeGetCurrent(&pollstartt_);
+
                    //Get the data record, update controller related information in GalilController, and ParamList.  callBacks not called
                    pC_->poll();
-                   //Read current time
-                   epicsTimeGetCurrent(&pollnowt_);
-                   //Calculate cycle time
-                   time_taken = epicsTimeDiffInSeconds(&pollnowt_, &polllastt_);
-                   //Store current time for next cycle
-                   polllastt_.secPastEpoch = pollnowt_.secPastEpoch;
-                   polllastt_.nsec = pollnowt_.nsec;
-
-                   //if (time_taken > 0.02)
-                   //	{
-                   //   printf("%s GalilPoller %2.6lfs\n", pC_->model_, time_taken);
-                   //	}
 
                    //Update the GalilAxis status, using datarecord from GalilController
                    //Do callbacks for GalilController, GalilAxis records
@@ -117,6 +104,12 @@ void GalilPoller::run(void)
                          pAxis->poll(&moving);		//Update GalilAxis, and upper layers, using retrieved datarecord
 							//Update records with analog/binary data
                       }
+
+                   //Read end time
+                   epicsTimeGetCurrent(&pollendt_);
+                   //Calculate cycle time
+                   time_taken = epicsTimeDiffInSeconds(&pollendt_, &pollstartt_);
+
                    //No async, so wait updatePeriod_ rather than relying on async record delivery frequency
                    if (!pC_->async_records_)
                       {
@@ -190,6 +183,8 @@ void GalilPoller::sleepPoller(void)
 //Wake poller and re-start async records if desired
 void GalilPoller::wakePoller(bool restart_async)
 {
+	int status;
+
 	//Only if poller sleeping now
 	if (pollerSleep_)
 		{
@@ -197,10 +192,11 @@ void GalilPoller::wakePoller(bool restart_async)
 		pollerSleep_ = false;
 		epicsEventSignal(pollerWakeEventId_);
 		//Tell controller to re-start async record transmission
-		if (pC_->async_records_ && pC_->connected_ && restart_async)
+		if (pC_->try_async_ && pC_->connected_ && restart_async)
 			{
 			sprintf(pC_->cmd_, "DR %.0f, %d", pC_->updatePeriod_, pC_->udpHandle_ - AASCII);
-			pC_->sync_writeReadController();
+			status = pC_->sync_writeReadController();
+			pC_->async_records_ = (status) ? false : true;
 			}
 		}
 }
