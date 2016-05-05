@@ -157,6 +157,9 @@
 //                  Minor changes to wrong limit protection
 //                  Updated SSI messages
 //                  Fix for PWM motor selection readback
+// 05/05/16 M.Clift
+//                  Additional comments added
+//                  Put unsolicited mesg settings back to factory default at exit
 
 #include <stdio.h>
 #include <math.h>
@@ -604,17 +607,6 @@ void GalilController::shutdownController()
    GalilAxis *pAxis;
    GalilCSAxis *pCSAxis;
 
-   //Burn parameters on exit ensuring controller has correct settings at next power on
-   //This effects motor type, soft limits, limit configuration etc
-   //It does not effect the galil program on the controller
-   //Obtain the lock
-   lock();
-   sprintf(cmd_, "BN");
-   sync_writeReadController();
-
-   //Release the lock
-   unlock();
-
    //Destroy the poller for this GalilController.
    if (poller_ != NULL)
       {
@@ -649,15 +641,32 @@ void GalilController::shutdownController()
         }
       }
 
-   //Asyn exit handler will disconnect sync connection from here
-   if (connected_)  //We just print message to tell user Asyn epicsAtExit callback is running (next) and will close connection
+   //Burn parameters, and cleanup
+   if (connected_)
       {
+      //Obtain the lock
+      lock();
+      //Burn parameters on exit ensuring controller has correct settings at next power on
+      //This effects motor type, soft limits, limit configuration etc
+      //It does not effect the galil program on the controller
+      sprintf(cmd_, "BN");
+      sync_writeReadController();
+      //Configure serial for unsolicited at exit as per factory default
+      strcpy(cmd_, "CF S");
+      sync_writeReadController();
+      //Configure to not set MSB for unsolicited messages at exit as per factory default
+      strcpy(cmd_, "CW 2");
+      sync_writeReadController();
       if (async_records_)
          {
          //Close all udp async connections
          strcpy(cmd_, "IHT=>-1");
          sync_writeReadController();
          }
+      //Release the lock
+      unlock();
+      //Asyn exit handler will disconnect sync connection from here
+      //We just print message to tell user Asyn epicsAtExit callback is running (next) and will close connection
       cout << "Disconnecting from " << model_ << " at " << address_ << endl;
       }
 }

@@ -26,6 +26,9 @@
 # BYTE - Hardware byte to read
 # MASK - Mask for this bit
 
+# Digital IO naming
+# $(P)$(R)<Byte or word num><Type Bo or Bi><Bit>
+
 file "$(GALIL)/GalilSup/Db/galil_digital_in_bit.template"
 {
 pattern {P,      R,          PORT,  BYTE,  MASK,     ZNAM,  ONAM,  ZSV,        OSV         }
