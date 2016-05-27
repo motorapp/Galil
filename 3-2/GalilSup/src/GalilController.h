@@ -314,6 +314,7 @@ public:
   void shutdownController();
   ~GalilController();
 
+protected:
   #define FIRST_GALIL_PARAM GalilAddress_
   int GalilAddress_;
   int GalilModel_;
@@ -506,6 +507,7 @@ private:
   friend class GalilCSAxis;
   friend class GalilPoller;
   friend class GalilConnector;
+  friend void connectCallback(asynUser *pasynUser, asynException exception);
 };
 #define NUM_GALIL_PARAMS (&LAST_GALIL_PARAM - &FIRST_GALIL_PARAM + 1)
 #endif  // GalilController_H

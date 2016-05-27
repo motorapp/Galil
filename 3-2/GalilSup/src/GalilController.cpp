@@ -160,6 +160,9 @@
 // 05/05/16 M.Clift
 //                  Additional comments added
 //                  Put unsolicited mesg settings back to factory default at exit
+// 05/05/16 M.Davis & M.Clift
+//                  Minor change to connectCallback
+//                  Minor change to programUpload, and readDataRecord
 
 #include <stdio.h>
 #include <math.h>
@@ -235,7 +238,7 @@ extern "C" void myHookFunction(initHookState state)
 }
 
 //Connection status
-static void connectCallback(asynUser *pasynUser, asynException exception)
+void connectCallback(asynUser *pasynUser, asynException exception)
 {
    GalilController* pC_ = (GalilController*)pasynUser->userData;
    char mesg[MAX_GALIL_STRING_SIZE];
@@ -4012,8 +4015,8 @@ asynStatus GalilController::readDataRecord(char *input, unsigned bytesize)
         previous = input[nread - 1];
         //Loop back and keep reading until we get the data record or error
         }
-     else if ((nread == 0 && eomReason == 0) || status)
-        return asynError;//Return any asyn error encountered during read
+     else
+        return asynError;//Stop if any asyn error
      }
 }
 
@@ -4342,13 +4345,7 @@ asynStatus GalilController::programUpload(string *prog)
            {
            //Read any response
            status = pSyncOctet_->read(pSyncOctetPvt_, pasynUserSyncGalil_, buf, MAX_GALIL_STRING_SIZE, &nread, &eomReason);
-           //Return any asyn error encountered during read
-           if ((nread == 0 && eomReason == 0) || status)
-              {
-              status = asynError;
-              done = true;
-              }
-           else if (!status && nread > 0)
+           if (!status && nread > 0)
               {
               //Search for terminating : character
               for (i = 0; i < nread; i++)
@@ -4360,6 +4357,8 @@ asynStatus GalilController::programUpload(string *prog)
               //Append the upload to prog buffer
               prog->append(buf, i);
               }
+           else
+              return asynError; //Stop read if any asyn error
            }
 
         //Upload complete, finish up
