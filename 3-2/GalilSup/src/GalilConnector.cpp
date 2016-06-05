@@ -26,6 +26,7 @@
 #include <epicsThread.h>
 #include <asynOctetSyncIO.h>
 #include <asynCommonSyncIO.h>
+#include <algorithm> //std::count
 
 using namespace std; //cout ostringstream vector string
 
@@ -62,8 +63,9 @@ GalilConnector::~GalilConnector()
 //We maintain our own connected_ flag outside of asyn
 void GalilConnector::run(void)
 {
-	int sync_status;
-	int async_status = asynSuccess;
+	int sync_status;		//Synchronous communication status
+	int async_status = asynSuccess; //Asynchronous communication status
+	string resp;			//For checking controller response
 
 	//Check if Galil actually responds to query
 	while ( true )
@@ -89,6 +91,21 @@ void GalilConnector::run(void)
 					pC_->syncHandle_ = 'S';//Serial
 				else//Bad response from controller
 					sync_status = asynError;
+				//Check response to QZ command
+				if (!sync_status)
+					{
+					strcpy(pC_->cmd_, "QZ");
+					sync_status = pC_->sync_writeReadController(true);
+					//Check response from controller
+					if (!sync_status)
+						{
+						//Copy response to std::string for convenience
+						resp = pC_->resp_;
+						//QZ response should contain 3 comma's
+						if (count(resp.begin(), resp.end(), ',') != 3)
+							sync_status = asynError; //Bad response
+						}
+					}
 				}
 			//Check asynchronous communication
 			if (pC_->try_async_ && !sync_status)

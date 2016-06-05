@@ -163,6 +163,8 @@
 // 05/05/16 M.Davis & M.Clift
 //                  Minor change to connectCallback
 //                  Minor change to programUpload, and readDataRecord
+// 05/05/16 M.Davis & M.Clift
+//                  Stricter synchronous communication test added to GalilConnector
 
 #include <stdio.h>
 #include <math.h>
