@@ -349,7 +349,7 @@ void GalilAxis::gen_homecode(char c,			//GalilAxis::axisName_ used very often
 	else
 		{
 		//Stop motor once home activated
-		sprintf(axis_thread_code,"%sIF ((_HM%c=hswact%c) & (hjog%c=0) & (_BG%c=1))\nST%c;ENDIF\n",axis_thread_code,c,c,c,c,c);
+		sprintf(axis_thread_code,"%sIF ((_HM%c=hswact%c) & (hjog%c=0) & (_BG%c=1))\nST%c;DC%c=limdc%c;ENDIF\n",axis_thread_code,c,c,c,c,c,c,c);
 		//Code to jog off home
 		sprintf(axis_thread_code,"%sIF ((home%c=1) & (_MO%c=0) & (_HM%c=hswact%c) & (hjog%c=0) & (_BG%c=0))\nspeed%c=_SP%c;DC%c=hjgdc%c;JG%c=hjgsp%c;WT10;BG%c;hjog%c=1;ENDIF\n",axis_thread_code,c,c,c,c,c,c,c,c,c,c,c,c,c,c);
 		//Stop motor once off home
@@ -426,7 +426,7 @@ void GalilAxis::gen_homecode(char c,			//GalilAxis::axisName_ used very often
 /*  Sets acceleration and velocity for this axis
   * \param[in] acceleration Units=steps/sec/sec.
   * \param[in] velocity Units=steps/sec.*/
-asynStatus GalilAxis::setAccelVelocity(double acceleration, double velocity)
+asynStatus GalilAxis::setAccelVelocity(double acceleration, double velocity, bool setVelocity)
 {
    double mres;			//MotorRecord mres
    double egu_after_limit;	//Egu after limit parameter
@@ -442,6 +442,11 @@ asynStatus GalilAxis::setAccelVelocity(double acceleration, double velocity)
    accel = (long)lrint(acceleration/1024.0) * 1024;
    sprintf(pC_->cmd_, "AC%c=%.0lf;DC%c=%.0lf", axisName_, accel, axisName_, accel);
    status = pC_->sync_writeReadController();
+
+   //Are we done here?
+   if (!setVelocity)
+      return (asynStatus)status;
+
    //Set velocity
    //Find closest hardware setting
    vel = (long)lrint(velocity/2.0) * 2;
@@ -787,7 +792,7 @@ asynStatus GalilAxis::stop(double acceleration)
   //After stop, set deceleration specified
   //In emergency stop circumstances
   //The caller may have specified a different (limdc) deceleration
-  setAccelVelocity(acceleration, 0);
+  setAccelVelocity(acceleration, 0, false);
 
   /* Clear defer move flag for this axis. */
   deferredMove_ = false;

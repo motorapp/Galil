@@ -165,6 +165,12 @@
 //                  Minor change to programUpload, and readDataRecord
 // 05/05/16 M.Davis & M.Clift
 //                  Stricter synchronous communication test added to GalilConnector
+// 19/06/16 M.Clift
+//                  Removed unused parameter GalilStopEvent
+// 27/06/16 M.Clift
+//                  Stop on home switch during homing now uses limit deceleration
+//                  Stop on motor inhibit now uses limit deceleration
+//                  Fixed axis speed change on stop
 
 #include <stdio.h>
 #include <math.h>
@@ -385,8 +391,6 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilAnalogOutString, asynParamFloat64, &GalilAnalogOut_);
   createParam(GalilAnalogOutRBVString, asynParamFloat64, &GalilAnalogOutRBV_);
   createParam(GalilAnalogOutRBVDeadbString, asynParamFloat64, &GalilAnalogOutRBVDeadb_);
-
-  createParam(GalilStopEventString, asynParamInt32, &GalilStopEvent_);
 
   createParam(GalilDirectionString, asynParamInt32, &GalilDirection_);
   createParam(GalilSSICapableString, asynParamInt32, &GalilSSICapable_);
@@ -4382,14 +4386,14 @@ asynStatus GalilController::programUpload(string *prog)
 /*--------------------------------------------------------------*/
 void GalilController::GalilStartController(char *code_file, int burn_program, int display_code, unsigned thread_mask)
 {
-	asynStatus status;				//Status
-	GalilAxis *pAxis;				//GalilAxis
-	int homed[MAX_GALIL_AXES];			//Backup of homed status
-	unsigned i;					//General purpose looping
-	bool start_ok = true;				//Have the controller threads started ok
-	bool download_ok = true;			//Was user specified code delivered successfully
-	string uc;					//Uploaded code from controller
-	string dc;					//Code to download to controller
+	asynStatus status;		//Status
+	GalilAxis *pAxis;		//GalilAxis
+	int homed[MAX_GALIL_AXES];	//Backup of homed status
+	unsigned i;			//General purpose looping
+	bool start_ok = true;		//Have the controller threads started ok
+	bool download_ok = true;	//Was user specified code delivered successfully
+	string uc;			//Uploaded code from controller
+	string dc;			//Code to download to controller
 
 	//Backup parameters used by developer for later re-start attempts of this controller
 	//This allows full recovery after disconnect of controller
@@ -4731,6 +4735,7 @@ void GalilController::gen_motor_enables_code(void)
 	int i,j;
 	struct Galilmotor_enables *motor_enables = NULL;  //Convenience pointer to GalilController motor_enables[digport]
 	bool any;
+	char c;
 
 	//Assume no digital interlock specified
 	any = false;
@@ -4748,8 +4753,9 @@ void GalilController::gen_motor_enables_code(void)
 			//Scan through all motors associated with the port
 			for (j=0;j<(int)strlen(motor_enables->motors);j++)
 				{
+				c = motor_enables->motors[j];
 				//Add code to stop the motors when digital input state matches that specified
-				sprintf(digital_code_,"%sST%c;", digital_code_, motor_enables->motors[j]);
+				sprintf(digital_code_,"%sST%c;DC%c=limdc%c;", digital_code_, c, c, c);
 				}
 			//Manipulate interrupt flag to turn off the interrupt on this port for one threadA cycle
 			sprintf(digital_code_,"%sdpoff=dpoff-%d;ENDIF\n", digital_code_, (int)pow(2.0,i));

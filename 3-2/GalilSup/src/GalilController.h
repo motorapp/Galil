@@ -152,7 +152,6 @@
 #define GalilBinaryInString		"BINARY_IN"
 #define GalilBinaryOutString		"BINARY_OUT"
 #define GalilBinaryOutRBVString		"BINARY_OUTRBV"
-#define GalilStopEventString		"CONTROLLER_STOPE"
 #define GalilSSICapableString		"CONTROLLER_SSICAPABLE"
 #define GalilSSIInputString		"MOTOR_SSIINPUT"
 #define GalilSSITotalBitsString		"MOTOR_SSITOTBITS"
@@ -397,7 +396,6 @@ protected:
   int GalilBinaryIn_;
   int GalilBinaryOut_;
   int GalilBinaryOutRBV_;
-  int GalilStopEvent_;
   int GalilDirection_;
   int GalilSSIConnected_;
   int GalilSSICapable_;

@@ -93,7 +93,7 @@ public:
   //Get SSI setting from controller
   asynStatus get_ssi(int function, epicsInt32 *value);
   //Set acceleration and velocity
-  asynStatus setAccelVelocity(double acceleration, double velocity);
+  asynStatus setAccelVelocity(double acceleration, double velocity, bool setVelocity = true);
   //Extract axis data from GalilController data record
   asynStatus getStatus(void);
   //Set poller status variables bassed on GalilController data record info
