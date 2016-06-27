@@ -1,4 +1,4 @@
-#!../../bin/linux-x86/GalilTestApp
+#!../../bin/linux-x86-debug/GalilTestApp
 
 < envPaths
 
@@ -29,5 +29,5 @@ iocInit()
 # Save motor positions every 5 seconds
 create_monitor_set("galilTestApp_positions.req", 5,"P=DMC01:")
 # Save motor settings every 30 seconds
-create_monitor_set("galilTestApp_settings.req", 30,"P=DMC01:")
+create_monitor_set("galilTestApp_settings.req", 30,"P1=DMC01:, P2=RIO01:")
 

@@ -263,7 +263,7 @@ public:
   //asynStatus readbackProfile();
 
   /* These are the methods that are new to this class */
-  void GalilStartController(char *code_file, int eeprom_write, int display_code, unsigned thread_mask);
+  void GalilStartController(char *code_file, int eeprom_write, unsigned thread_mask);
   void connect(void);
   void disconnect(void);
   void connected(void);

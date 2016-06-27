@@ -14,4 +14,4 @@ export EPICS_DISPLAY_PATH=$motorpath:$galilpath:$sscanpath
 # R = Record name for digital IO not including byte/word, and bit number
 # Digital IO naming
 # $(DMC)$(R)<Byte or word num><Type Bo or Bi><Bit>
-medm -x -macro "P=RIO01:, R=Galil" galil_ctrl_io.adl &
+medm -x -macro "R=Galil,RIO=RIO01:" galil_rio_ctrl.adl &

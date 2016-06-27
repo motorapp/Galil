@@ -1,0 +1,114 @@
+# $File: //ASP/Dev/SBS/4_Controls/4_3_Network_Infrastructure/4_3_1_Comms_Common_Services/sw/device_drivers/Galil/1-5/galilSup/Db/galil_ctrl_extras.template $
+# $Revision: #2 $
+# $DateTime: 2012/03/22 11:20:44 $
+# $Author: cliftm $
+#
+# Description
+# Template file for RIO controller
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# Licence as published by the Free Software Foundation; either
+# version 2.1 of the Licence, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public Licence for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# Licence along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Contact details:
+# mark.clift@synchrotron.org.au
+# 800 Blackburn Road, Clayton, Victoria 3168, Australia.
+#
+
+record(stringin,"$(P):MODEL_MON")
+{
+	field(DESC, "Ctrl model")
+	field(DTYP, "asynOctetRead")
+	field(SCAN, "I/O Intr")
+   	field(INP,  "@asyn($(PORT),0)CONTROLLER_MODEL")
+}
+
+record(stringin,"$(P):ADDRESS_MON")
+{
+	field(DESC, "Ctrl address")
+	field(DTYP, "asynOctetRead")
+	field(PINI, "YES")
+	field(SCAN, "I/O Intr")
+   	field(INP,  "@asyn($(PORT),0)CONTROLLER_ADDRESS")
+}
+
+record(stringin,"$(P):ETHADDR_MON")
+{
+	field(DESC, "Ctrl Ethernet address")
+	field(DTYP, "asynOctetRead")
+	field(PINI, "YES")
+	field(SCAN, "I/O Intr")
+   	field(INP,  "@asyn($(PORT),0)CONTROLLER_ETHADDR")
+}
+
+record(stringin,"$(P):SERIALNUM_MON")
+{
+	field(DESC, "Ctrl Serial Number")
+	field(DTYP, "asynOctetRead")
+	field(PINI, "YES")
+	field(SCAN, "I/O Intr")
+   	field(INP,  "@asyn($(PORT),0)CONTROLLER_SERIALNUM")
+}
+
+record(bi,"$(P):COMMERR_STATUS")
+{
+	field(DESC, "Comm err")
+	field(DTYP, "asynInt32")
+	field(SCAN, "I/O Intr")
+	field(ONAM, "Error")
+   	field(OSV,  "MAJOR")
+  	field(ZNAM, "OK")
+  	field(ZSV,  "NO_ALARM")
+   	field(INP,  "@asyn($(PORT),0)CONTROLLER_COMMERR")
+}
+
+#Controller message records
+record(waveform,"$(P):ERROR_MON")
+{
+	field(SCAN, "I/O Intr")
+	field(DESC, "Controller error")
+	field(DTYP, "asynOctetRead")
+	field(FTVL, "CHAR")
+	field(NELM, "256")
+	field(INP,  "@asyn($(PORT),0)CONTROLLER_ERROR")
+}
+
+#Command console records
+record(stringout,"$(P):SEND_STR_CMD")
+{
+	field(DESC, "Send Any Command to Controller")
+	field(OMSL, "supervisory")
+	field(DTYP, "asynOctetWrite")
+	field(OUT,  "@asyn($(PORT),0)USER_OCTET")
+}
+
+record(waveform,"$(P):SEND_STR_MON")
+{
+	field(SCAN, "I/O Intr")
+	field(DESC, "Output of last SEND_CMD_STR")
+	field(DTYP, "asynOctetRead")
+	field(FTVL, "CHAR")
+	field(NELM, "256")
+	field(INP,  "@asyn($(PORT),0)USER_OCTET")
+}
+
+record(ai,"$(P):SEND_STRVAL_MON")
+{
+	field(SCAN, "I/O Intr")
+	field(PREC, "$(PREC)")
+	field(DESC, "Output of last SEND_CMD_STR")
+	field(DTYP, "asynFloat64")
+	field(INP,  "@asyn($(PORT),0)USER_OCTET_VAL")
+}
+
+#end

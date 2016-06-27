@@ -1,8 +1,11 @@
 #Load motor records for real and coordinate system (CS) motors
 dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_motors.substitutions")
 
-#Load extra features that have controller wide scope (eg.  Limit switch type, home switch type, output compare, message consoles)
-dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_ctrl_extras.substitutions")
+#Load DMC controller features (eg.  Limit switch type, home switch type, output compare, message consoles)
+dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_dmc_ctrl.substitutions")
+
+#Load RIO controller features (eg.  Model, IP address, message consoles)
+dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_rio_ctrl.substitutions")
 
 #Load extra features for real axis/motors (eg. Motor type, encoder type)
 dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_motor_extras.substitutions")
@@ -37,7 +40,7 @@ dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_profileMoveAxis.substitutions")
 GalilCreateController("Galil", "192.168.0.67", 8)
 
 # Create a Galil controller
-GalilCreateController("RIO", "192.168.0.51", 2)
+GalilCreateController("RIO", "192.168.0.9", 2)
 
 # GalilCreateAxis command parameters are:
 #
@@ -73,12 +76,11 @@ GalilCreateCSAxes("Galil")
 #             0 = transfer code if differs from eeprom, dont burn code to eeprom, then finally execute code thread 0
 #             1 = transfer code if differs from eeprom, burn code to eeprom, then finally execute code thread 0
 #             It is asssumed thread 0 starts all other required threads
-# 4. int   display code. Set bit 1 to display generated code and or the code file specified.  Set bit 2 to display uploaded code
-# 5. int   Thread mask.  Check these threads are running after controller code start.  Bit 0 = thread 0 and so on
+# 4. int   Thread mask.  Check these threads are running after controller code start.  Bit 0 = thread 0 and so on
 #             if thread mask = 0 and GalilCreateAxis appears > 0 then threads 0 to number of GalilCreateAxis is checked (good when using the generated code)
 
 # Start the controller
-GalilStartController("Galil", "", 1, 0, 0)
+GalilStartController("Galil", "", 1, 0)
 
 # Start the controller
 # Example using homing routine template assembly

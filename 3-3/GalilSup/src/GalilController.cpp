@@ -167,10 +167,12 @@
 //                  Stricter synchronous communication test added to GalilConnector
 // 19/06/16 M.Clift
 //                  Removed unused parameter GalilStopEvent
+//                  Added main screen for RIO controllers
 // 27/06/16 M.Clift
 //                  Stop on home switch during homing now uses limit deceleration
 //                  Stop on motor inhibit now uses limit deceleration
 //                  Fixed axis speed change on stop
+//                  Removed display code parameter from GalilStartController
 
 #include <stdio.h>
 #include <math.h>
@@ -870,7 +872,7 @@ void GalilController::connected(void)
      poller_->sleepPoller();
      lock();
      //Deliver and start the code on controller
-     GalilStartController(code_file_, burn_program_, 0, thread_mask_);
+     GalilStartController(code_file_, burn_program_, thread_mask_);
      }
   else
      {
@@ -4384,7 +4386,7 @@ asynStatus GalilController::programUpload(string *prog)
 /*--------------------------------------------------------------*/
 /* Start the card requested by user   */
 /*--------------------------------------------------------------*/
-void GalilController::GalilStartController(char *code_file, int burn_program, int display_code, unsigned thread_mask)
+void GalilController::GalilStartController(char *code_file, int burn_program, unsigned thread_mask)
 {
 	asynStatus status;		//Status
 	GalilAxis *pAxis;		//GalilAxis
@@ -4394,6 +4396,9 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
 	bool download_ok = true;	//Was user specified code delivered successfully
 	string uc;			//Uploaded code from controller
 	string dc;			//Code to download to controller
+	int display_code = 0;		//For debugging
+					//Set bit 1 to display generated code and or the code file specified
+					//Set bit 2 to display uploaded code
 
 	//Backup parameters used by developer for later re-start attempts of this controller
 	//This allows full recovery after disconnect of controller
@@ -5913,13 +5918,11 @@ extern "C" asynStatus GalilCreateCSAxes(const char *portName)
   * \param[in] portName          The name of the asyn port that has already been created for this driver
   * \param[in] code_file      	 Code file to deliver to hardware
   * \param[in] burn_program      Burn program to EEPROM
-  * \param[in] display_code	 Display code options
   * \param[in] thread_mask	 Indicates which threads to expect running after code file has been delivered and thread 0 has been started. Bit 0 = thread 0 etc.
   */
 extern "C" asynStatus GalilStartController(const char *portName,        	//specify which controller by port name
 					   const char *code_file,
 					   int burn_program,
-					   int display_code, 
 					   unsigned thread_mask)
 {
   GalilController *pC;
@@ -5935,7 +5938,7 @@ extern "C" asynStatus GalilStartController(const char *portName,        	//speci
   }
   pC->lock();
   //Call GalilController::GalilStartController to do the work
-  pC->GalilStartController((char *)code_file, burn_program, display_code, thread_mask);
+  pC->GalilStartController((char *)code_file, burn_program, thread_mask);
   pC->unlock();
   return asynSuccess;
 }
@@ -6024,19 +6027,17 @@ static void GalilCreateProfileCallFunc(const iocshArgBuf *args)
 static const iocshArg GalilStartControllerArg0 = {"Controller Port name", iocshArgString};
 static const iocshArg GalilStartControllerArg1 = {"Code file", iocshArgString};
 static const iocshArg GalilStartControllerArg2 = {"Burn program", iocshArgInt};
-static const iocshArg GalilStartControllerArg3 = {"Display code", iocshArgInt};
-static const iocshArg GalilStartControllerArg4 = {"Thread mask", iocshArgInt};
+static const iocshArg GalilStartControllerArg3 = {"Thread mask", iocshArgInt};
 static const iocshArg * const GalilStartControllerArgs[] = {&GalilStartControllerArg0,
                                                             &GalilStartControllerArg1,
                                                             &GalilStartControllerArg2,
-                                                            &GalilStartControllerArg3,
-                                                            &GalilStartControllerArg4};
+                                                            &GalilStartControllerArg3};
                                                              
-static const iocshFuncDef GalilStartControllerDef = {"GalilStartController", 5, GalilStartControllerArgs};
+static const iocshFuncDef GalilStartControllerDef = {"GalilStartController", 4, GalilStartControllerArgs};
 
 static void GalilStartControllerCallFunc(const iocshArgBuf *args)
 {
-  GalilStartController(args[0].sval, args[1].sval, args[2].ival, args[3].ival, (unsigned)args[4].ival);
+  GalilStartController(args[0].sval, args[1].sval, args[2].ival, (unsigned)args[3].ival);
 }
 
 //Construct GalilController iocsh function register

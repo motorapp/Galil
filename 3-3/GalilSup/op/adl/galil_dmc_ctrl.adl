@@ -1,11 +1,11 @@
 
 file {
-	name="/home/ics/git/Galil-3-0/3-2/GalilSup/op/adl/galil_ctrl_extras.adl"
+	name="/home/ics/git/Galil-3-0/3-2/GalilSup/op/adl/galil_dmc_ctrl.adl"
 	version=030105
 }
 display {
 	object {
-		x=1015
+		x=988
 		y=135
 		width=410
 		height=615
@@ -109,7 +109,7 @@ text {
 	"basic attribute" {
 		clr=14
 	}
-	textix="Galil controller"
+	textix="DMC controller"
 	align="horiz. centered"
 }
 text {
