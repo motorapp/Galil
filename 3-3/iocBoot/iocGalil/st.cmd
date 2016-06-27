@@ -1,4 +1,4 @@
-#!../../bin/linux-x86-debug/GalilTestApp
+#!../../bin/linux-x86/GalilTestApp
 
 < envPaths
 
