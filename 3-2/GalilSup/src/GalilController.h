@@ -33,6 +33,7 @@
 #define SCALCARGS 16
 //Number of communication retries
 #define ALLOWED_TIMEOUTS 2
+#define MAX_UPDATE_PERIOD 200
 #define MAX_GALIL_UNSOLICTED_SIZE 29
 #define MAX_GALIL_STRING_SIZE 768
 #define MAX_GALIL_DATAREC_SIZE 768

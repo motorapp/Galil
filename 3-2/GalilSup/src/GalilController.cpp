@@ -171,6 +171,9 @@
 //                  Stop on home switch during homing now uses limit deceleration
 //                  Stop on motor inhibit now uses limit deceleration
 //                  Fixed axis speed change on stop
+// 29/06/16 M.Clift
+//                  Fixed issue in programUpload method
+//                  Limit update period to 200ms maximum
 
 #include <stdio.h>
 #include <math.h>
@@ -293,6 +296,7 @@ GalilController::GalilController(const char *portName, const char *address, doub
   numAxes_(0), unsolicitedQueue_(MAX_GALIL_AXES, MAX_GALIL_STRING_SIZE)
 {
   struct Galilmotor_enables *motor_enables = NULL;	//Convenience pointer to GalilController motor_enables[digport]
+  char mesg[MAX_GALIL_STRING_SIZE];			//Connected mesg
   unsigned i;
 
   // Create controller-specific parameters
@@ -428,6 +432,13 @@ GalilController::GalilController(const char *portName, const char *address, doub
   code_assembled_ = false;
   //We have not recieved a timeout yet
   consecutive_timeouts_ = 0;
+  //Parse update period
+  if (fabs(updatePeriod) > MAX_UPDATE_PERIOD)
+     {
+     sprintf(mesg, "Limiting UpdatePeriod to %dms maximum, ignoring specified updatePeriod", MAX_UPDATE_PERIOD);
+     setCtrlError(mesg);
+     updatePeriod = (updatePeriod < 0) ? -MAX_UPDATE_PERIOD : MAX_UPDATE_PERIOD;
+     }
   //Store period in ms between data records
   updatePeriod_ = fabs(updatePeriod);
   //Assume sync tcp mode will be used for now
@@ -4356,7 +4367,8 @@ asynStatus GalilController::programUpload(string *prog)
               //Search for terminating : character
               for (i = 0; i < nread; i++)
                  {
-                 done = (buf[i] == ':') ? true : false;
+                 if (i > 0)
+                    done = (buf[i-1] == 26 && buf[i] == ':') ? true : false;
                  if (done)
                     break; //Upload complete
                  }
