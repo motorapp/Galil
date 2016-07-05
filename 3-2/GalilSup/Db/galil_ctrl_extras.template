@@ -156,19 +156,6 @@ record(bi,"$(P):PVTCAPABLE_STATUS")
    	field(INP,  "@asyn($(PORT),0)CONTROLLER_PVTCAPABLE")
 }
 
-record(bi,"$(P):STOPE_STATUS")
-{
-	field(DESC, "Stop event")
-	field(DTYP, "asynInt32")
-	field(PINI, "YES")
-	field(SCAN, "I/O Intr")
-	field(ONAM, "Yes")
-   	field(OSV,  "NO_ALARM")
-  	field(ZNAM, "No")
-  	field(ZSV,  "NO_ALARM")
-   	field(INP,  "@asyn($(PORT),0)CONTROLLER_STOPE")
-}
-
 #Defered moves support
 record(bi,"$(P):DEFER_STATUS")
 {

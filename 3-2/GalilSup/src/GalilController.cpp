@@ -174,6 +174,8 @@
 // 29/06/16 M.Clift
 //                  Fixed issue in programUpload method
 //                  Limit update period to 200ms maximum
+// 05/07/16 M.Clift
+//                  Fixed time base issue in multi axis PVT profile move
 
 #include <stdio.h>
 #include <math.h>
@@ -1561,7 +1563,7 @@ asynStatus GalilController::buildProfileFile()
 		else
 			{
 			//PVT mode
-			sprintf(moves, "%s%.0lf,%.0lf,%.0lf\n", moves, rint(incmove), velocity[j], rint(profileTimes_[i]*1000.0));
+			sprintf(moves, "%s%lf %.0lf,%.0lf,%.0lf\n", moves, profileTimes_[i], rint(incmove), velocity[j], rint(profileTimes_[i]*1000.0));
 			//Check timebase is multiple of 2ms
 			temp_time = profileTimes_[i] * 1000.0;
 			//PVT has 2 sample minimum
@@ -1616,7 +1618,7 @@ asynStatus GalilController::buildProfileFile()
 		{
 		//Write the segment command to profile file
 		if (proftype) //PVT
-			fprintf(profFile,"%lf %s", profileTimes_[i], moves);
+			fprintf(profFile,"%s", moves);
 		else	//Linear
 			fprintf(profFile,"%lf %s\n", profileTimes_[i], moves);
 		}
