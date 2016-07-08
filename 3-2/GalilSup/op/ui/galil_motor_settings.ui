@@ -764,7 +764,7 @@
                     </font>
                    </property>
                    <property name="variable" stdset="0">
-                    <string>DMC01:$(M).BVEL</string>
+                    <string>$(DMC)$(M).BVEL</string>
                    </property>
                    <property name="addUnits">
                     <bool>true</bool>
@@ -814,7 +814,7 @@
                     </font>
                    </property>
                    <property name="variable" stdset="0">
-                    <string>DMC01:$(M).BDST</string>
+                    <string>$(DMC)$(M).BDST</string>
                    </property>
                    <property name="addUnits">
                     <bool>true</bool>
@@ -924,7 +924,7 @@
                     </font>
                    </property>
                    <property name="variable" stdset="0">
-                    <string>DMC01:$(M).JAR</string>
+                    <string>$(DMC)$(M).JAR</string>
                    </property>
                    <property name="addUnits">
                     <bool>true</bool>
@@ -984,7 +984,7 @@
                     </font>
                    </property>
                    <property name="variable" stdset="0">
-                    <string>DMC01:$(M).BACC</string>
+                    <string>$(DMC)$(M).BACC</string>
                    </property>
                    <property name="addUnits">
                     <bool>true</bool>
@@ -1040,7 +1040,7 @@
                     </font>
                    </property>
                    <property name="variable" stdset="0">
-                    <string>DMC01:$(M).RTRY</string>
+                    <string>$(DMC)$(M).RTRY</string>
                    </property>
                    <property name="addUnits">
                     <bool>false</bool>
@@ -1100,7 +1100,7 @@
                     </font>
                    </property>
                    <property name="variable" stdset="0">
-                    <string>DMC01:$(M).RDBD</string>
+                    <string>$(DMC)$(M).RDBD</string>
                    </property>
                    <property name="addUnits">
                     <bool>true</bool>
@@ -1281,7 +1281,7 @@
                     </font>
                    </property>
                    <property name="variable" stdset="0">
-                    <string>DMC01:$(M).HLM</string>
+                    <string>$(DMC)$(M).HLM</string>
                    </property>
                    <property name="addUnits">
                     <bool>true</bool>
@@ -1331,7 +1331,7 @@
                     </font>
                    </property>
                    <property name="variable" stdset="0">
-                    <string>DMC01:$(M).LLM</string>
+                    <string>$(DMC)$(M).LLM</string>
                    </property>
                    <property name="addUnits">
                     <bool>true</bool>
@@ -1488,7 +1488,7 @@
                   </font>
                  </property>
                  <property name="variable" stdset="0">
-                  <string>DMC01:$(M).PCOF</string>
+                  <string>$(DMC)$(M).PCOF</string>
                  </property>
                  <property name="addUnits">
                   <bool>false</bool>
@@ -1538,7 +1538,7 @@
                   </font>
                  </property>
                  <property name="variable" stdset="0">
-                  <string>DMC01:$(M).ICOF</string>
+                  <string>$(DMC)$(M).ICOF</string>
                  </property>
                  <property name="addUnits">
                   <bool>false</bool>
@@ -1598,7 +1598,7 @@
                   </font>
                  </property>
                  <property name="variable" stdset="0">
-                  <string>DMC01:$(M).DCOF</string>
+                  <string>$(DMC)$(M).DCOF</string>
                  </property>
                  <property name="addUnits">
                   <bool>false</bool>
@@ -1788,7 +1788,7 @@
                   </font>
                  </property>
                  <property name="variable" stdset="0">
-                  <string>DMC01:$(M).SET</string>
+                  <string>$(DMC)$(M).SET</string>
                  </property>
                 </widget>
                </item>
@@ -1841,7 +1841,7 @@
                   </font>
                  </property>
                  <property name="variable" stdset="0">
-                  <string>DMC01:$(M).DIR</string>
+                  <string>$(DMC)$(M).DIR</string>
                  </property>
                 </widget>
                </item>
@@ -1901,7 +1901,7 @@
                   </font>
                  </property>
                  <property name="variable" stdset="0">
-                  <string>DMC01:$(M).FOFF</string>
+                  <string>$(DMC)$(M).FOFF</string>
                  </property>
                 </widget>
                </item>
@@ -1954,7 +1954,7 @@
                   </font>
                  </property>
                  <property name="variable" stdset="0">
-                  <string>DMC01:$(M).OFF</string>
+                  <string>$(DMC)$(M).OFF</string>
                  </property>
                  <property name="addUnits">
                   <bool>true</bool>
@@ -2109,7 +2109,7 @@
                   </font>
                  </property>
                  <property name="variable" stdset="0">
-                  <string>DMC01:$(M).UEIP</string>
+                  <string>$(DMC)$(M).UEIP</string>
                  </property>
                 </widget>
                </item>
@@ -2156,7 +2156,7 @@
                   </font>
                  </property>
                  <property name="variable" stdset="0">
-                  <string>DMC01:$(M).URIP</string>
+                  <string>$(DMC)$(M).URIP</string>
                  </property>
                 </widget>
                </item>
