@@ -178,6 +178,13 @@
 //                  Limit update period to 200ms maximum
 // 05/07/16 M.Clift
 //                  Fixed time base issue in multi axis PVT profile move
+// 09/07/16 M.Clift
+//                  Fix communication issue when using BA cmd with external amplifier
+// 18/07/16 M.Clift
+//                  Fix encoded stepper motor velocity calulation in coordinated moves
+//                  Add encoded stepper auxillary register synchronization with main encoder after Auto amp off delay time
+//                  Fix encoded stepper motors to profile start
+//                  Fix issue with acceleration transform
 
 #include <stdio.h>
 #include <math.h>
@@ -786,6 +793,21 @@ void GalilController::connected(void)
   //Determine if controller is dmc or rio
   rio_ = (strncmp(model_, "RIO",3) == 0) ? true : false;
 
+  //Determine max number of axes the controller supports
+  //Note Galil BA command will reduce axis on a controller, and alter
+  //the returned model revision string
+  if (!rio_)
+     {
+     if (model_[3] == '5') //DMC50000 series
+        numAxesMax_ = model_[6] - ZEROASCII;
+     else if (model_[3] == '3') //DMC30000 series
+        numAxesMax_ = 1;
+     else //DMC21x3, DMC41x3, DMC40x0
+        numAxesMax_ = model_[5] - ZEROASCII;
+     }
+  else //RIO PLC
+     numAxesMax_ = 0;
+
   //Give connect message
   sprintf(mesg, "Connected to %s at %s", model_, address_);
   setCtrlError(mesg);
@@ -799,15 +821,6 @@ void GalilController::connected(void)
   strcpy(cmd_, "MG _BN");
   sync_writeReadController();
   setStringParam(GalilSerialNum_, resp_);
-
-  //Read max number of axes the controller supports
-  strcpy(cmd_, "MG _BV");
-  sync_writeReadController();
-  //Store max axes controller supports
-  numAxesMax_ = atoi(resp_);
-
-  //adjust numAxesMax_ when model is RIO.
-  numAxesMax_ = (rio_)? 0 : numAxesMax_;
 
   //Determine if controller is SSI capable
   if (strstr(model_, "SSI") != NULL || strstr(model_, "SER") != NULL)
@@ -989,19 +1002,29 @@ GalilCSAxis* GalilController::getCSAxis(int axisNo)
 }
 
 /** Returns true if any motor in the provided list is moving
+  * Motors stopped less than offdelay are still considered as moving here
   * \param[in] Motor list
   */
 bool GalilController::anyMotorMoving()
 {
+  GalilAxis *pAxis;	//GalilAxis instance
   int moving = 0;	//Moving status
   int i;		//Looping
+  double offdelay = 0.0;//Motor off delay
 
   //Look through motor list, if any moving return true
   for (i = 0; profileAxes_[i] != '\0'; i++)
 	{
+	//Retrieve the axis
+	pAxis = getAxis(profileAxes_[i] - AASCII);
+	//Process or skip
+	if (!pAxis) continue;
 	//Determine axis number
 	getIntegerParam(profileAxes_[i] - AASCII, motorStatusMoving_, &moving);
-	if (moving) return true;
+	//Retrieve motor off delay
+	getDoubleParam(pAxis->axisNo_, GalilAutoOffDelay_, &offdelay);
+	//Motor considered stopped only if stopped time > offdelay seconds
+	if (moving || (!moving && pAxis->stopped_time_ <= offdelay)) return true;
 	}
 
   //None of the motors were moving
@@ -1009,19 +1032,29 @@ bool GalilController::anyMotorMoving()
 }
 
 /** Returns true if all motors in the provided list are moving
+  * Motors stopped less than off delay are still considered as moving here
   * \param[in] Motor list
   */
 bool GalilController::allMotorsMoving()
 {
   int moving = 0;	//Moving status
+  GalilAxis *pAxis;	//GalilAxis instance
   int i;		//Looping
+  double offdelay = 0.0;//Motor off delay
 
   //Look through motor list, if any not moving return false
   for (i = 0; profileAxes_[i] != '\0'; i++)
 	{
+	//Retrieve the axis
+	pAxis = getAxis(profileAxes_[i] - AASCII);
+	//Process or skip
+	if (!pAxis) continue;
 	//Determine moving status
 	getIntegerParam(profileAxes_[i] - AASCII, motorStatusMoving_, &moving);
-	if (!moving) return false;
+	//Retrieve motor off delay
+	getDoubleParam(pAxis->axisNo_, GalilAutoOffDelay_, &offdelay);
+	//Motor considered stopped only if stopped time > offdelay seconds
+	if (!moving && pAxis->stopped_time_ > offdelay) return false;
 	}
 
   //All the motors were moving
@@ -1035,28 +1068,29 @@ bool GalilController::allMotorsMoving()
 bool GalilController::motorsAtStart(double startp[])
 {
   char message[MAX_GALIL_STRING_SIZE];	//Profile execute message
+  GalilAxis *pAxis;	//Real motor instance
   bool atStart = true;	//Are all motors in axes list moving or stopped without limit
   int moveMode;		//Move mode absolute or relative
   int moving;		//Axis moving status
   int fwd, rev;		//Axis fwd, rev limit status
   int axisNo;		//Axis number
-  int ueip;		//Motor record ueip
   double mtr_pos;	//Motor position
   double enc_pos;	//Encoder position
-  double position;	//Axis position in egu
-  double target;	//Desired start position in egu
+  double readback;	//Axis position readback in egu
+  double start;		//Desired motor start position in egu
   double eres, mres;	//Encoder, and motor resolution
   double rdbd;		//Motor record retry deadband
   int i;		//Looping
-
-  //Wait an update period so that readbacks are more settled
-  epicsThreadSleep(updatePeriod_/1000.0);
 
   //Look through motor list
   for (i = 0; profileAxes_[i] != '\0'; i++)
 	{
 	//Determine axis number
 	axisNo = profileAxes_[i] - AASCII;
+	//Retrieve the axis
+	pAxis = getAxis(axisNo);
+	//Process or skip
+	if (!pAxis) continue;
 	//Retrieve GalilProfileMoveMode_ from ParamList
 	getIntegerParam(axisNo, GalilProfileMoveMode_, &moveMode);
 	//If moveMode = Relative skip the axis
@@ -1065,18 +1099,18 @@ bool GalilController::motorsAtStart(double startp[])
 	getIntegerParam(axisNo, motorStatusMoving_, &moving);
 	getIntegerParam(axisNo, motorStatusLowLimit_, &rev);
 	getIntegerParam(axisNo, motorStatusHighLimit_, &fwd);
-	getIntegerParam(axisNo, GalilUseEncoder_, &ueip);
 	getDoubleParam(axisNo, motorResolution_, &mres);
 	getDoubleParam(axisNo, GalilEncoderResolution_, &eres);
 	getDoubleParam(axisNo, GalilMotorRdbd_, &rdbd);
 	getDoubleParam(axisNo, motorPosition_, &mtr_pos);
 	getDoubleParam(axisNo, motorEncoderPosition_, &enc_pos);
-	//Calculate motor position in egu
-	position = (ueip) ? (enc_pos * eres) : (mtr_pos * mres);
-	//Calculate the desired start position target in egu
-	target = startp[axisNo] * mres;
+	//Calculate axis readback in egu
+	//Is controller using main or auxillary encoder register
+	readback = (pAxis->ctrlUseMain_) ? (enc_pos * eres) : (mtr_pos * mres);
+	//Calculate the desired motor start position in egu
+	start = startp[axisNo] * mres;
 	//Determine result
-	if ((!moving && (position < target - rdbd || position > target + rdbd)) || (rev || fwd)) 
+	if ((!moving && (readback < start - rdbd || readback > start + rdbd)) || (rev || fwd)) 
 		{
 		atStart = false;
 		break;
@@ -1086,7 +1120,7 @@ bool GalilController::motorsAtStart(double startp[])
   if (!atStart)
 	{
 	//Store message in paramList
-	sprintf(message, "Profile motor %c at %lf did not reach start %lf within retry deadband %lf", axisNo + AASCII, position, target, rdbd);
+	sprintf(message, "Profile motor %c at %lf did not reach start %lf within retry deadband %lf", axisNo + AASCII, readback, start, rdbd);
 	setStringParam(profileExecuteMessage_, message);
 	}
 
@@ -1140,9 +1174,9 @@ asynStatus GalilController::setOutputCompare(int oc)
 	if ((!encoder_setting || encoder_setting == 5 || encoder_setting == 10 || encoder_setting == 15) && !paramstatus)
 		encoders_ok = true;
 	//If motor is a servo, and encoder settings match, no paramlist error, and no command error
-	if ((abs(motor) == 1) && encoders_ok && !paramstatus && !comstatus)
+	if ((abs(motor) == 1 || abs(motor) == 1.5) && encoders_ok && !paramstatus && !comstatus)
 		{
-		//Passed motor configuration checks.  Motor is servo, ueip = 1, and encoder setting is ok
+		//Passed motor configuration checks.  Motor is servo, and encoder setting is ok
 		//Retrieve output compare start, and increment values
 		paramstatus = getDoubleParam(oc, GalilOutputCompareStart_, &ocstart);
 		paramstatus |= getDoubleParam(oc, GalilOutputCompareIncr_, &ocincr);
@@ -1926,10 +1960,10 @@ asynStatus GalilController::motorsToProfileStartPosition(FILE *profFile, double 
   	{
 	//Determine the axis number mentioned in profFile
 	axisNo = profileAxes_[i] - AASCII;
-	//Retrieve GalilProfileMoveMode_ from ParamList
-	getIntegerParam(axisNo, GalilProfileMoveMode_, &moveMode[axisNo]);
 	if (move) //Read profile start positions from file
 		fscanf(profFile, "%lf,", &startp[axisNo]);
+	//Retrieve GalilProfileMoveMode_ from ParamList
+	getIntegerParam(axisNo, GalilProfileMoveMode_, &moveMode[axisNo]);
 	//If moveMode = Relative skip move to start
 	if (!moveMode[axisNo]) continue;
 	//Retrieve axis instance
@@ -1944,15 +1978,13 @@ asynStatus GalilController::motorsToProfileStartPosition(FILE *profFile, double 
 	getDoubleParam(axisNo, GalilEncoderResolution_, &eres);
 	//Calculate deadband in motor steps
 	rdbd = rdbd/mres;
-	//Calculate velocity and acceleration in steps
+	//Calculate velocity and acceleration in motor steps
 	velocity = fabs(velo/mres);
-	acceleration = velocity/accl;
+	acceleration = fabs(velocity/accl);
 	if (move) //Move to first position in profile if moveMode = Absolute
 		{
-		readback = pAxis->motor_position_;
-		//If motor is servo and ueip_ = 1 then controller uses encoder_position_ for positioning
-		if (pAxis->ueip_ && (pAxis->motorType_ == 0 || pAxis->motorType_ == 1))
-			readback = pAxis->encoder_position_;
+		//Is controller using main or auxillary encoder register
+		readback = (pAxis->ctrlUseMain_) ? pAxis->encoder_position_ : pAxis->motor_position_;
 		if (!(startp[axisNo] >= readback - rdbd && startp[axisNo] <= readback + rdbd))
 			status = pAxis->move(startp[axisNo], 0, 0, velocity, acceleration);
 		}
@@ -3330,30 +3362,33 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 		}
 
 	//Change motor type
-    	sprintf(cmd_, "MT%c=%1.1f", pAxis->axisName_, newmtr);
-    	//printf("GalilMotorType_ cmd:%s value %d\n", cmd_, value);
-    	//Write setting to controller
-    	status = sync_writeReadController();
+	sprintf(cmd_, "MT%c=%1.1f", pAxis->axisName_, newmtr);
+	//printf("GalilMotorType_ cmd:%s value %d\n", cmd_, value);
+	//Write setting to controller
+	status = sync_writeReadController();
 
-    	//IF motor was servo, and now stepper
-    	//Galil hardware MAY push main encoder to aux encoder (stepper count reg)
-    	//We re-do this, but apply encoder/motor scaling
-    	if (fabs(oldmotor) == 1.0 && value > 1)
+	//Determine if controller will use main or auxillary register with selected motor type
+	pAxis->ctrlUseMain_ = (value < 2 || value > 5) ? true : false;
+
+	//IF motor was servo, and now stepper
+	//Galil hardware MAY push main encoder to aux encoder (stepper count reg)
+	//We re-do this, but apply encoder/motor scaling
+	if (fabs(oldmotor) <= 1.5 && value > 1 && value < 6)
 		{
 		getDoubleParam(pAxis->axisNo_, GalilEncoderResolution_, &eres);
 		getDoubleParam(pAxis->axisNo_, motorResolution_, &mres);
-                if (mres != 0.000000)
-                   {
-		   //Calculate step count from existing encoder_position, construct mesg to controller_
-		   sprintf(cmd_, "DP%c=%.0lf", pAxis->axisName_, pAxis->encoder_position_ * (eres/mres));
-		   //Write setting to controller
-		   status = sync_writeReadController();
-                   }
+		if (mres != 0.000000)
+			{
+			//Calculate step count from existing encoder_position, construct mesg to controller_
+			sprintf(cmd_, "DP%c=%.0lf", pAxis->axisName_, pAxis->encoder_position_ * (eres/mres));
+			//Write setting to controller
+			status = sync_writeReadController();
+			}
 		}
 
 	//IF motor was stepper, and now servo
 	//Set reference position equal to main encoder, which sets initial error to 0
-	if (fabs(oldmotor) > 1.0 && value < 2)
+	if (fabs(oldmotor) > 1.5 && (value < 2 || value > 5))
 		{
 		//Calculate step count from existing encoder_position, construct mesg to controller_
 		sprintf(cmd_, "DP%c=%.0lf", pAxis->axisName_, pAxis->encoder_position_);
@@ -5048,7 +5083,10 @@ void GalilController::InitializeDataRecord(void)
      strcpy(resp, resp_);
      //Extract number of axes
      charstr = epicsStrtok_r(resp, ",", &tokSave);
-     axes = atoi(charstr);
+     //Ignore above result as QZ reports axes number incorrectly
+     //when user issues BA command and uses external amplifier
+     //Determine number axes on controller
+     axes = numAxesMax_;
      //Extract number of general status bytes
      charstr = epicsStrtok_r(NULL, ",", &tokSave);
      general_b = atoi(charstr);

@@ -30,6 +30,7 @@
 #define AASCII 65
 #define IASCII 73
 #define QASCII 81
+#define ZEROASCII 48
 #define SCALCARGS 16
 //Number of communication retries
 #define ALLOWED_TIMEOUTS 2

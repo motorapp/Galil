@@ -41,6 +41,7 @@ static const int MOTOR_OFF = 2;
 static const int MOTOR_HOMED = 3;
 static const int MOTOR_CANCEL_HOME = 4;
 static const int MOTOR_BRAKE_ON = 5;
+static const int MOTOR_STEP_SYNC = 6;
 
 typedef enum limitsState
    {
@@ -100,6 +101,8 @@ public:
   void setStatus(bool *moving);
   //Verify encoder operation whilst moving for safety
   void checkEncoder(void);
+  //Synchronize aux register with encoder
+  void syncEncodedStepper(void);
   //Stop motor if wrong limit activated and wrongLimitProtection is enabled
   void wrongLimitProtection(void);
   //Sets time motor has been stopped for in GalilAxis::stopped_time_
@@ -187,8 +190,9 @@ private:
  
   epicsTimeStamp pestall_nowt_;		//Used to track length of time encoder has been stalled for
   epicsTimeStamp pestall_begint_;	//Time when possible encoder stall first detected
-  int ueip_;				//motorRecord ueip
-  int motorType_;			//MotorType set for this poll cycle
+
+  int ueip_;				//motorRecord ueip.  User wants to read main encoder if true, aux if false
+  bool ctrlUseMain_;			//Based on selected motor type controller will use main or aux encoder register for positioning
   double motor_position_;		//aux encoder or step count register
   double encoder_position_;		//main encoder register
   double last_encoder_position_;	//main encoder register stored from previous poll.  Used to detect movement.
@@ -222,6 +226,7 @@ private:
   bool homedSent_;			//Homed message sent to pollServices
   bool homedExecuted_;			//Homed message has been executed by pollServices
   bool cancelHomeSent_;			//Cancel home process message sent to pollServices
+  bool syncEncodedStepperSent_;		//Synchronize stepper with encoder message sent to pollServices
 
   bool restoreProfile_;			//Should profileBackupPositions_ be copied into profilePositions_ after orofile built complete? 
                                 	//True for all GalilAxis involved in CSAxis profile build, set false at built end

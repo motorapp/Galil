@@ -170,9 +170,9 @@ asynStatus GalilCSAxis::checkMotorVelocities(double npos[], double nvel[])
 {
   unsigned i;				//Looping
   double incmove[MAX_GALIL_AXES];	//Real motor relative move distances
+  GalilAxis *pAxis;			//Real motor instance
   char mesg[MAX_GALIL_STRING_SIZE];	//Controller error mesg
-  double mres, eres;			//Motor record mres, eres
-  int ueip;				//Motor record ueip
+  double mres;				//Motor record mres
   double mpos, epos;			//Motor position, encoder position for real motor
   double vectorVelocity = 0;		//Computed vector velocity
   double vectorDistance = 0;		//Computed vector distance
@@ -186,13 +186,17 @@ asynStatus GalilCSAxis::checkMotorVelocities(double npos[], double nvel[])
      //Loop thru all real motors, calculate vector distance and velocity
      for (i = 0; revaxes_[i] != '\0'; i++)
         {
+        //Retrieve the axis instance
+        pAxis = pC_->getAxis(revaxes_[i] - AASCII);
+        //Process or skip
+        if (!pAxis) continue;
         //Get the readbacks for the axis
         pC_->getDoubleParam(revaxes_[i] - AASCII, pC_->motorEncoderPosition_, &epos);
         pC_->getDoubleParam(revaxes_[i] - AASCII, pC_->motorPosition_, &mpos);
-        //Retrieve needed motor record fields
-        pC_->getIntegerParam(revaxes_[i] - AASCII, pC_->GalilUseEncoder_, &ueip);
         //Calculate incremental move distance in steps
-        incmove[i] = (ueip) ? npos[i] - epos : npos[i] - mpos;
+        //Here we must use the register the controller uses for positioning
+        //This may differ from the real axis motor record readback as set by ueip
+        incmove[i] = (pAxis->ctrlUseMain_) ? npos[i] - epos : npos[i] - mpos;
         //Sum vector distance, velocity for non zero move increments
         if (fabs(incmove[i]) != 0.0)
            {
@@ -213,12 +217,10 @@ asynStatus GalilCSAxis::checkMotorVelocities(double npos[], double nvel[])
         {
         //Retrieve needed motor record fields
         pC_->getDoubleParam(revaxes_[i] - AASCII, pC_->GalilMotorVmax_, &vmax);
-        pC_->getIntegerParam(revaxes_[i] - AASCII, pC_->GalilUseEncoder_, &ueip);
         pC_->getDoubleParam(revaxes_[i] - AASCII, pC_->motorResolution_, &mres);
-        pC_->getDoubleParam(revaxes_[i] - AASCII, pC_->GalilEncoderResolution_, &eres);
         //Calculate this motors actual velocity in egu
-        vel = (incmove[i]/vectorDistance) * vectorVelocity;
-        vel = (ueip) ? vel * eres : vel * mres;
+        vel = (incmove[i]/vectorDistance) * vectorVelocity * mres;
+        //Is motor velocity within allowed limit vmax
         if (fabs(vel) > fabs(vmax))
            {
            sprintf(mesg, "Move failed, axis %c velocity %lf > VMAX %lf\n", revaxes_[i], fabs(vel), fabs(vmax));
@@ -235,11 +237,10 @@ asynStatus GalilCSAxis::checkMotorVelocities(double npos[], double nvel[])
        {
        //Retrieve needed motor record fields
        pC_->getDoubleParam(revaxes_[i] - AASCII, pC_->GalilMotorVmax_, &vmax);
-       pC_->getIntegerParam(revaxes_[i] - AASCII, pC_->GalilUseEncoder_, &ueip);
        pC_->getDoubleParam(revaxes_[i] - AASCII, pC_->motorResolution_, &mres);
-       pC_->getDoubleParam(revaxes_[i] - AASCII, pC_->GalilEncoderResolution_, &eres);
        //Calculate requested velocity in egu
-       vel = (ueip) ? nvel[i] * eres : nvel[i] * mres;
+       vel = nvel[i] * mres;
+       //Is motor velocity within allowed limit vmax
        if (fabs(vel) > fabs(vmax))
            {
            sprintf(mesg, "Move failed, axis %c velocity %2.21lf > VMAX %2.21lf\n", revaxes_[i], fabs(vel), fabs(vmax));
@@ -863,24 +864,28 @@ asynStatus GalilCSAxis::packReadbackArgs(char *axes, double mrargs[])
   unsigned i;			//Looping
   double mpos, epos;		//Motor, and encoder readback data
   double mres, eres;		//Motor record mres, eres
-  int ueip;			//Use encoder if present setting
+  GalilAxis *pAxis;		//Motor axis instance
   int status = asynSuccess;
 
   //Retrieve readbacks for all axis and pack into mrargs
   //equation provided by user
   for (i = 0; axes[i] != '\0'; i++)
      {
+     //Retrieve the axis
+     pAxis = pC_->getAxis(revaxes_[i] - AASCII);
+     if (!pAxis) continue;
      //Get the readbacks for the axis
      status |= pC_->getDoubleParam(axes[i] - AASCII, pC_->motorEncoderPosition_, &epos);
      status |= pC_->getDoubleParam(axes[i] - AASCII, pC_->motorPosition_, &mpos);
      //Retrieve needed motor record fields
      status |= pC_->getDoubleParam(axes[i] - AASCII, pC_->motorResolution_, &mres);
      status |= pC_->getDoubleParam(axes[i] - AASCII, pC_->GalilEncoderResolution_, &eres);
-     status |= pC_->getIntegerParam(axes[i] - AASCII, pC_->GalilUseEncoder_, &ueip);
 
      //Pack motor readbacks for calc in egu dial coordinates
+     //Here we use position register for the real axis motor record as set by user via ueip field
+     //This may be different from the register the controller uses for positioning
      if (!status)
-        mrargs[axes[i] - AASCII] = (ueip) ? (epos * eres) : (mpos * mres);
+        mrargs[axes[i] - AASCII] = (pAxis->ueip_) ? (epos * eres) : (mpos * mres);
      }
 
   return (asynStatus)status;
@@ -898,11 +903,13 @@ asynStatus GalilCSAxis::packReadbackArgs(char *axes, double mrargs[])
 asynStatus GalilCSAxis::reverseTransform(double pos, double vel, double accel, CSTargets *targets, double npos[], double nvel[], double naccel[])
 {
   double mres, eres;		//Motor record mres, eres
-  int ueip;			//Motor record use encoder if present setting
   double ctargs[SCALCARGS];	//Coordinate transform arguments
   double vtargs[SCALCARGS];	//Velocity transform arguments
   double atargs[SCALCARGS];	//Acceleration transform arguments
   double value;			//Kinematic arg value
+  double lowest_accel = 99999999;
+  long lowest_accelhw;
+  double accel_ratio;
   unsigned i, j;
   int status = asynSuccess;
 
@@ -934,7 +941,6 @@ asynStatus GalilCSAxis::reverseTransform(double pos, double vel, double accel, C
   //Retrieve needed motor record parameters for this CSAxis
   status |= pC_->getDoubleParam(axisName_ - AASCII, pC_->motorResolution_, &mres);
   status |= pC_->getDoubleParam(axisName_ - AASCII, pC_->GalilEncoderResolution_, &eres);
-  status |= pC_->getIntegerParam(axisName_ - AASCII, pC_->GalilUseEncoder_, &ueip);
 
   //Substitute new motor position received for this CSAxis, instead of using readback
   //Convert new position from steps into egu dial coordinates
@@ -975,7 +981,23 @@ asynStatus GalilCSAxis::reverseTransform(double pos, double vel, double accel, C
 		//given csaxis move acceleration
 		status |= doCalc(reverse_[i], atargs, &naccel[i]);
 		//Convert acceleration value back into steps for move
-		naccel[i] = naccel[i]/mres;
+		naccel[i] = fabs(naccel[i]/mres);
+		//Find highest acceleration in the group
+		if (naccel[i] < lowest_accel)
+			lowest_accel = naccel[i];
+		}
+	}
+
+  //Refactor acceleration given limited acceleration resolution on controller
+  if (!status)
+	{
+	//Find closest hardware setting for lowest acceleration found
+	lowest_accelhw = (long)lrint(lowest_accel/1024.0) * 1024;
+	//Now refactor real motor acceleration
+	for (i = 0; revaxes_[i] != '\0'; i++)
+		{
+		accel_ratio = naccel[i]/lowest_accel;
+		naccel[i] = lowest_accelhw * accel_ratio;
 		}
 	}
 	
@@ -1052,8 +1074,8 @@ asynStatus GalilCSAxis::forwardTransform(void)
   unsigned i;
   double mrargs[SCALCARGS];	//Motor readback args in egu used in the forward transform
   double value;			//Kinematic arg value
+  double position;		//CSAxis readback position
   double mres, eres;		//Motor record mres, and eres
-  int ueip;			//Motor record use encoder if present
   int status = asynSuccess;	//Asyn paramList return code
 
   //Pack position readback args for reverse axes (ie. real motor readbacks)
@@ -1070,28 +1092,20 @@ asynStatus GalilCSAxis::forwardTransform(void)
 		mrargs[fwdsubs_[i] - AASCII] = value;
 	}
 
-  //Perform forward kinematic calc to get csaxis readback data
+  //Perform forward kinematic calc to get csaxis readback
   if (!status)
 	{
 	//Retrieve needed motor record fields
 	status |= pC_->getDoubleParam(axisName_ - AASCII, pC_->motorResolution_, &mres);
 	status |= pC_->getDoubleParam(axisName_ - AASCII, pC_->GalilEncoderResolution_, &eres);
-	status |= pC_->getIntegerParam(axisName_ - AASCII, pC_->GalilUseEncoder_, &ueip);
 	//Calculate motor position readback data in dial coordinates
 	if (!status)
 		{
-		if (ueip)
-			{
-			status |= doCalc(forward_, mrargs, &encoder_position_);
-			//Convert from dial to steps for interaction with motor record
-			encoder_position_ = encoder_position_/eres;
-			}
-		else
-			{
-			status |= doCalc(forward_, mrargs, &motor_position_);
-			//Convert from dial to steps for interaction with motor record
-			motor_position_ = motor_position_/mres;
-			}
+		status |= doCalc(forward_, mrargs, &position);
+		//Convert from dial to steps for interaction with motor record
+		encoder_position_ = position/eres;
+		//Convert from dial to steps for interaction with motor record
+		motor_position_ = position/mres;
 		}
 	}
 
