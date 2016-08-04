@@ -448,7 +448,7 @@ asynStatus GalilCSAxis::stop(double acceleration)
   return asynSuccess;
 }
 
-/** Move the motors to the home position.
+/** Move the motors to the home position.  Attempt simultaneous start (useSwitch=true)
   * \param[in] minVelocity The initial velocity, often called the base velocity. Units=steps/sec.
   * \param[in] maxVelocity The maximum velocity, often called the slew velocity. Units=steps/sec.
   * \param[in] acceleration The acceleration value. Units=steps/sec/sec.
@@ -457,15 +457,27 @@ asynStatus GalilCSAxis::stop(double acceleration)
 asynStatus GalilCSAxis::home(double minVelocity, double maxVelocity, double acceleration, int forwards)
 {
    static const char *functionName = "GalilCSAxis::home";
-   unsigned i;		//Looping
-   GalilAxis *pAxis;	//GalilAxis
+   unsigned i;						//Looping
+   unsigned j = 0, k = 0;			//Build axes lists
+   GalilAxis *pAxis;				//GalilAxis
    double npos[MAX_GALIL_AXES];		//Real axis position targets
    double nvel[MAX_GALIL_AXES];		//Real axis velocity targets
    double naccel[MAX_GALIL_AXES];	//Real axis acceleration targets
+   char maxes[MAX_GALIL_AXES];		//List of axis that we move home
+   char paxes[MAX_GALIL_AXES];		//List of axis that we prepare to move home
    int dir;				//Reverse axis home direction
    int hometypeallowed;			//Home type allowed
+   int useSwitch;			//Use switch when homing
+   int ssiinput;			//SSI encoder register
+   int ssicapable;			//SSI capable
+   int ssiconnect;			//SSI connected status
    int status;				//Driver status
    char mesg[MAX_GALIL_STRING_SIZE];	//Controller error mesg
+
+   //Default list of axes we move home
+   strcpy(maxes, "");
+   //Default list of axes we prepare to move home
+   strcpy(paxes, "");
 
    //Perform reverse transform to get real motor accelerations and velocities
    //We dont care about position here (arbitary 100)
@@ -481,11 +493,15 @@ asynStatus GalilCSAxis::home(double minVelocity, double maxVelocity, double acce
          //Process or skip
          if (!pAxis) continue;
 
-         //Ensure motor is good to go
-         if (pAxis->beginCheck(functionName, nvel[i])) return asynError;
-
          //Retrieve home type allowed for this axis
          pC_->getIntegerParam(pAxis->axisNo_, pC_->GalilHomeAllowed_, &hometypeallowed);
+         //Retrieve use switch for this axis
+         pC_->getIntegerParam(pAxis->axisNo_, pC_->GalilUseSwitch_, &useSwitch);
+         //Retrieve SSI encoder config
+         pC_->getIntegerParam(axisNo_, pC_->GalilSSIInput_, &ssiinput);
+         pC_->getIntegerParam(pC_->GalilSSICapable_, &ssicapable);
+         pC_->getIntegerParam(axisNo_, pC_->GalilSSIConnected_, &ssiconnect);
+
          //Work out direction to home this axis
          //CSAxis home is forward
          if (forwards)
@@ -511,37 +527,78 @@ asynStatus GalilCSAxis::home(double minVelocity, double maxVelocity, double acce
                   dir = 1;
                }
             }
-         //Home axis in direction we worked out above
+         //Set homing parameters for direction we worked out above
          if (hometypeallowed)
             {
-            //set acceleration, velocity is ignored here
-            pAxis->setAccelVelocity(naccel[i], maxVelocity);
-            //Set home velocity, direction.  We dont use return hvel here
-            pAxis->setupHome(nvel[i], dir);
+            if (ssiinput && ssicapable && ssiconnect)
+               {
+               //Nothing to do
+               sprintf(mesg, "%c axis has no home process because of SSI encoder", pAxis->axisName_);
+               //Set controller error mesg monitor
+               pC_->setCtrlError(mesg);
+               }
+            else
+               {
+               //Ensure motor is good to go
+               if (!i)
+                  status = pAxis->beginCheck(functionName, nvel[i]);
+               else
+                  status = pAxis->beginCheck(functionName, nvel[i], false);
+               if (status) return asynError; //Return if any problem
+               //set acceleration, velocity is ignored here
+               pAxis->setAccelVelocity(naccel[i], maxVelocity);
+               //Set home velocity, direction
+               pAxis->setupHome(nvel[i], dir);
+               //Create two lists of axes
+               if (useSwitch)
+                  {
+                  //Move axes.  List we jog toward switch
+                  maxes[j++] = revaxes_[i];
+                  maxes[j] = '\0';
+                  }
+               else
+                  {
+                  //Prepare axes.  List we prepare for move
+                  paxes[k++] = revaxes_[i];
+                  paxes[k] = '\0';
+                  }
+               }
             }
          else
             {//This reverse axis does not allow homing at all
             sprintf(mesg, "%c axis extra settings do not allow homing", pAxis->axisName_);
             pC_->setCtrlError(mesg);
-            return asynSuccess;
             }
-         }
-   
+         }//for loop
+
       //Start motors simultanously
-      pC_->beginGroupMotion(revaxes_);
+      pC_->beginGroupMotion(maxes, paxes);
+      //Create list containing both move, and prepare to move motors
+      strcat(maxes, paxes);
       
-      //Loop thru real motor list, and set home flags
-      for (i = 0; revaxes_[i] != '\0'; i++)
+      //Loop thru the axes lists, and set home flags
+      //Which starts home program on controller
+      for (i = 0; maxes[i] != '\0'; i++)
          {
          //Retrieve axis
-         pAxis = pC_->getAxis(revaxes_[i] - AASCII);
+         pAxis = pC_->getAxis(maxes[i] - AASCII);
          //Process or skip
          if (!pAxis) continue;
          //Retrieve home type allowed for this axis
          pC_->getIntegerParam(pAxis->axisNo_, pC_->GalilHomeAllowed_, &hometypeallowed);
+         //Retrieve use switch for this axis
+         pC_->getIntegerParam(pAxis->axisNo_, pC_->GalilUseSwitch_, &useSwitch);
          //If revaxes allows homing, set flags now home jog has started
          if (hometypeallowed)
             {
+            if (!useSwitch)
+               {
+               //Because we are calling galil code before motion begins (useSwitch=false)
+               //Reset stopped time, so homing doesn't timeout immediately
+               pAxis->resetStoppedTime_ = true;  //Request poll thread reset stopped time if done
+               //Wait for poller to reset stopped time on this axis
+               epicsEventWaitWithTimeout(pAxis->stoppedTimeResetEventId_, pC_->updatePeriod_/1000.0);
+               }
             pAxis->homing_ = true;  //Start was successful
             pAxis->cancelHomeSent_ = false;  //Homing has not been cancelled yet
             //tell controller which axis we are doing a home on
@@ -982,7 +1039,7 @@ asynStatus GalilCSAxis::reverseTransform(double pos, double vel, double accel, C
 		status |= doCalc(reverse_[i], atargs, &naccel[i]);
 		//Convert acceleration value back into steps for move
 		naccel[i] = fabs(naccel[i]/mres);
-		//Find highest acceleration in the group
+		//Find lowest acceleration in the group
 		if (naccel[i] < lowest_accel)
 			lowest_accel = naccel[i];
 		}
@@ -1170,7 +1227,9 @@ asynStatus GalilCSAxis::poll(bool *moving)
    int done;			//Done status
    int slipstall, csslipstall;	//Encoder slip stall following error for each motor, and overall cs axis 
    int rev, fwd;		//Real motor rev and fwd limit status
+   int homed;			//Real motor homed status
    int csrev, csfwd;		//Determined cs axis limit status
+   int cshomed;			//Determined cs axis homed status
    int rmoving, csmoving;	//Real axis moving status, coordinate system axis moving status derived from real axis moving status
    int status;			//Communication status with controller
    unsigned i;			//Looping
@@ -1186,6 +1245,8 @@ asynStatus GalilCSAxis::poll(bool *moving)
    csrev = csfwd = 0;
    //Default moving status
    csmoving = rmoving = 0;
+   //Default homed status
+   cshomed = homed = 0;
 
    //Perform forward kinematic transform using real axis readback data, variable values, and
    //store results in GalilCSAxis, or asyn ParamList
@@ -1223,7 +1284,7 @@ asynStatus GalilCSAxis::poll(bool *moving)
    else if (motor_position_ < last_motor_position_ && *moving)
 	direction_ = 0;
 
-   //Get axis limits, and work out what to propagate to the cs axis
+   //Get axis limits, homed status, and work out what to propagate to the cs axis
    for (i = 0; revaxes_[i] != '\0'; i++)
 	{
 	//Retrieve the axis
@@ -1237,6 +1298,8 @@ asynStatus GalilCSAxis::poll(bool *moving)
 	//Retrieve limit status
 	status |= pC_->getIntegerParam(revaxes_[i] - AASCII, pC_->motorStatusLowLimit_, &rev);
 	status |= pC_->getIntegerParam(revaxes_[i] - AASCII, pC_->motorStatusHighLimit_, &fwd);
+	//Retrieve homed status
+	status |= pC_->getIntegerParam(revaxes_[i] - AASCII, pC_->motorStatusHomed_, &homed);
 	if (!status)
 		{
 		//Check cs axis reverse limit
@@ -1245,6 +1308,11 @@ asynStatus GalilCSAxis::poll(bool *moving)
 		//Check cs axis forward limit
 		if (direction_ && stop_onlimit_ && (fwd || rev))
 			csfwd |= 1;
+		//Check cs axis homed status
+		if (!i)
+			cshomed = homed;
+		else
+			cshomed &= homed;
 		}
 	}
 
@@ -1295,6 +1363,8 @@ skip:
     //Set cs axis limit status
     setIntegerParam(pC_->motorStatusLowLimit_, csrev);
     setIntegerParam(pC_->motorStatusHighLimit_, csfwd);
+    //Set homed status
+    setIntegerParam(pC_->motorStatusHomed_, cshomed);
     //Pass stall status to higher layers
     setIntegerParam(pC_->motorStatusSlip_, csslipstall);
     //Pass direction to motorRecord

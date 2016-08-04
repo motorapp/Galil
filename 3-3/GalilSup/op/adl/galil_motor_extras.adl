@@ -1,6 +1,6 @@
 
 file {
-	name="/home/ics/git/Galil-3-0/3-2/GalilSup/op/adl/galil_motor_extras.adl"
+	name="/home/ics/git/Galil-3-0/3-3/GalilSup/op/adl/galil_motor_extras.adl"
 	version=030105
 }
 display {
@@ -8,7 +8,7 @@ display {
 		x=554
 		y=67
 		width=425
-		height=617
+		height=632
 	}
 	clr=14
 	bclr=4
@@ -896,21 +896,6 @@ text {
 	limits {
 	}
 }
-"text entry" {
-	object {
-		x=164
-		y=469
-		width=135
-		height=19
-	}
-	control {
-		chan="$(P)$(M)_HOMEVAL_SP"
-		clr=14
-		bclr=51
-	}
-	limits {
-	}
-}
 text {
 	object {
 		x=2
@@ -941,163 +926,12 @@ text {
 "text update" {
 	object {
 		x=309
-		y=471
-		width=81
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M)_HOMEVAL_MON"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=309
 		y=432
 		width=81
 		height=13
 	}
 	monitor {
 		chan="$(P)$(M)_EGUAFTLIMIT_MON"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-text {
-	object {
-		x=2
-		y=471
-		width=69
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Home value (EGU)"
-}
-"choice button" {
-	object {
-		x=164
-		y=488
-		width=135
-		height=18
-	}
-	control {
-		chan="$(P)$(M)_UINDEX_CMD"
-		clr=14
-		bclr=51
-	}
-	stacking="column"
-}
-text {
-	object {
-		x=2
-		y=490
-		width=69
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Use index when homing"
-}
-"text entry" {
-	object {
-		x=164
-		y=524
-		width=135
-		height=19
-	}
-	control {
-		chan="$(P)$(M)_JAHV_SP"
-		clr=14
-		bclr=51
-	}
-	limits {
-	}
-}
-text {
-	object {
-		x=2
-		y=508
-		width=69
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Jog after home"
-}
-text {
-	object {
-		x=2
-		y=527
-		width=69
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Jog after home to (EGU)"
-}
-"choice button" {
-	object {
-		x=164
-		y=506
-		width=135
-		height=18
-	}
-	control {
-		chan="$(P)$(M)_JAH_CMD"
-		clr=14
-		bclr=51
-	}
-	stacking="column"
-}
-"text update" {
-	object {
-		x=309
-		y=490
-		width=81
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M)_UINDEX_STATUS"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=309
-		y=508
-		width=81
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M)_JAH_STATUS"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=309
-		y=525
-		width=81
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M)_JAHV_MON"
 		clr=54
 		bclr=4
 	}
@@ -1147,120 +981,6 @@ menu {
 composite {
 	object {
 		x=2
-		y=582
-		width=388
-		height=32
-	}
-	"composite name"=""
-	children {
-		composite {
-			object {
-				x=2
-				y=599
-				width=388
-				height=15
-			}
-			"composite name"=""
-			children {
-				text {
-					object {
-						x=2
-						y=601
-						width=69
-						height=13
-					}
-					"basic attribute" {
-						clr=14
-					}
-					textix="Servo velocity (EGU/s)"
-				}
-				"text update" {
-					object {
-						x=309
-						y=599
-						width=81
-						height=13
-					}
-					monitor {
-						chan="$(P)$(M)_VELOCITYEGU_MON"
-						clr=54
-						bclr=4
-					}
-					limits {
-					}
-				}
-			}
-		}
-		composite {
-			object {
-				x=2
-				y=582
-				width=388
-				height=14
-			}
-			"composite name"=""
-			children {
-				text {
-					object {
-						x=2
-						y=583
-						width=69
-						height=13
-					}
-					"basic attribute" {
-						clr=14
-					}
-					textix="Servo velocity (cts/s)"
-				}
-				"text update" {
-					object {
-						x=309
-						y=582
-						width=81
-						height=13
-					}
-					monitor {
-						chan="$(P)$(M)_VELOCITYRAW_MON"
-						clr=54
-						bclr=4
-					}
-					limits {
-					}
-				}
-			}
-		}
-	}
-}
-text {
-	object {
-		x=2
-		y=546
-		width=69
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="User data deadband"
-}
-"text entry" {
-	object {
-		x=164
-		y=543
-		width=135
-		height=19
-	}
-	control {
-		chan="$(P)$(M)_USERDATADEADB_SP"
-		clr=14
-		bclr=51
-	}
-	limits {
-	}
-}
-composite {
-	object {
-		x=2
 		y=359
 		width=365
 		height=15
@@ -1299,27 +1019,370 @@ composite {
 text {
 	object {
 		x=2
-		y=564
-		width=97
+		y=471
+		width=69
 		height=13
 	}
 	"basic attribute" {
 		clr=14
 	}
-	textix="User data"
+	textix="Home value (EGU)"
+}
+"text entry" {
+	object {
+		x=164
+		y=469
+		width=135
+		height=19
+	}
+	control {
+		chan="$(P)$(M)_HOMEVAL_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
 }
 "text update" {
 	object {
 		x=309
-		y=566
-		width=58
+		y=471
+		width=81
 		height=13
 	}
 	monitor {
-		chan="$(P)$(M)_USERDATA_MON"
+		chan="$(P)$(M)_HOMEVAL_MON"
 		clr=54
 		bclr=4
 	}
 	limits {
+	}
+}
+text {
+	object {
+		x=2
+		y=489
+		width=69
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Use switch when homing"
+}
+"choice button" {
+	object {
+		x=164
+		y=487
+		width=135
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_USWITCH_CMD"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+"text update" {
+	object {
+		x=309
+		y=489
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_USWITCH_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+composite {
+	object {
+		x=2
+		y=504
+		width=388
+		height=126
+	}
+	"composite name"=""
+	children {
+		"text entry" {
+			object {
+				x=164
+				y=540
+				width=135
+				height=19
+			}
+			control {
+				chan="$(P)$(M)_JAHV_SP"
+				clr=14
+				bclr=51
+			}
+			limits {
+			}
+		}
+		text {
+			object {
+				x=2
+				y=524
+				width=69
+				height=13
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="Jog after home"
+		}
+		text {
+			object {
+				x=2
+				y=543
+				width=69
+				height=13
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="Jog after home to (EGU)"
+		}
+		"choice button" {
+			object {
+				x=164
+				y=522
+				width=135
+				height=18
+			}
+			control {
+				chan="$(P)$(M)_JAH_CMD"
+				clr=14
+				bclr=51
+			}
+			stacking="column"
+		}
+		"text update" {
+			object {
+				x=309
+				y=524
+				width=81
+				height=13
+			}
+			monitor {
+				chan="$(P)$(M)_JAH_STATUS"
+				clr=54
+				bclr=4
+			}
+			limits {
+			}
+		}
+		"text update" {
+			object {
+				x=309
+				y=541
+				width=81
+				height=13
+			}
+			monitor {
+				chan="$(P)$(M)_JAHV_MON"
+				clr=54
+				bclr=4
+			}
+			limits {
+			}
+		}
+		composite {
+			object {
+				x=2
+				y=598
+				width=388
+				height=32
+			}
+			"composite name"=""
+			children {
+				composite {
+					object {
+						x=2
+						y=615
+						width=388
+						height=15
+					}
+					"composite name"=""
+					children {
+						text {
+							object {
+								x=2
+								y=617
+								width=69
+								height=13
+							}
+							"basic attribute" {
+								clr=14
+							}
+							textix="Servo velocity (EGU/s)"
+						}
+						"text update" {
+							object {
+								x=309
+								y=615
+								width=81
+								height=13
+							}
+							monitor {
+								chan="$(P)$(M)_VELOCITYEGU_MON"
+								clr=54
+								bclr=4
+							}
+							limits {
+							}
+						}
+					}
+				}
+				composite {
+					object {
+						x=2
+						y=598
+						width=388
+						height=14
+					}
+					"composite name"=""
+					children {
+						text {
+							object {
+								x=2
+								y=599
+								width=69
+								height=13
+							}
+							"basic attribute" {
+								clr=14
+							}
+							textix="Servo velocity (cts/s)"
+						}
+						"text update" {
+							object {
+								x=309
+								y=598
+								width=81
+								height=13
+							}
+							monitor {
+								chan="$(P)$(M)_VELOCITYRAW_MON"
+								clr=54
+								bclr=4
+							}
+							limits {
+							}
+						}
+					}
+				}
+			}
+		}
+		text {
+			object {
+				x=2
+				y=562
+				width=69
+				height=13
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="User data deadband"
+		}
+		"text entry" {
+			object {
+				x=164
+				y=559
+				width=135
+				height=19
+			}
+			control {
+				chan="$(P)$(M)_USERDATADEADB_SP"
+				clr=14
+				bclr=51
+			}
+			limits {
+			}
+		}
+		text {
+			object {
+				x=2
+				y=580
+				width=97
+				height=13
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="User data"
+		}
+		"text update" {
+			object {
+				x=309
+				y=582
+				width=58
+				height=13
+			}
+			monitor {
+				chan="$(P)$(M)_USERDATA_MON"
+				clr=54
+				bclr=4
+			}
+			limits {
+			}
+		}
+		composite {
+			object {
+				x=2
+				y=504
+				width=388
+				height=18
+			}
+			"composite name"=""
+			children {
+				text {
+					object {
+						x=2
+						y=506
+						width=69
+						height=13
+					}
+					"basic attribute" {
+						clr=14
+					}
+					textix="Use index when homing"
+				}
+				"choice button" {
+					object {
+						x=164
+						y=504
+						width=135
+						height=18
+					}
+					control {
+						chan="$(P)$(M)_UINDEX_CMD"
+						clr=14
+						bclr=51
+					}
+					stacking="column"
+				}
+				"text update" {
+					object {
+						x=309
+						y=506
+						width=81
+						height=13
+					}
+					monitor {
+						chan="$(P)$(M)_UINDEX_STATUS"
+						clr=54
+						bclr=4
+					}
+					limits {
+					}
+				}
+			}
+		}
 	}
 }

@@ -128,9 +128,9 @@ public:
   //Execute auto motor power off
   void executeAutoOff(void);
   //Check velocity and wlp protection
-  asynStatus beginCheck(const char *functionName, double maxVelocity);
+  asynStatus beginCheck(const char *functionName, double maxVelocity, bool resetCtrlMessage = true);
   //Begin motor motion
-  asynStatus beginMotion(const char *caller);
+  asynStatus beginMotion(const char *caller, bool move = true);
   //Set axis brake state
   asynStatus setBrake(bool enable);
   //Restore the motor brake status after axisReady_
@@ -141,7 +141,7 @@ public:
   void restoreProfileData(void);
 
   /* These are the methods we override from the base class */
-  asynStatus move(double position, int relative, double minVelocity, double maxVelocity, double acceleration);
+  asynStatus move(double position, int relative, double minVelocity, double maxVelocity, double acceleration, bool resetCtrlMessage = true);
   asynStatus moveVelocity(double minVelocity, double maxVelocity, double acceleration);
   asynStatus home(double minVelocity, double maxVelocity, double acceleration, int forwards);
   asynStatus stop(double acceleration);
@@ -211,7 +211,9 @@ private:
   bool homing_;				//Is motor homing now
   epicsTimeStamp stop_nowt_;		//Used to track length of motor stopped for.
   epicsTimeStamp stop_begint_;		//Used to track length of motor stopped for.
-  double stopped_time_;			//Time motor has been stopped for
+  double stoppedTime_;			//Time motor has been stopped for
+  bool resetStoppedTime_;		//Request poll thread reset stopped time if done true
+  epicsEventId stoppedTimeResetEventId_;//Signal that poller has completed reset stop time request
   bool encDirOk_;			//Encoder direction ok flag
   bool encoderMove_;			//Encoder move status
   bool pestall_detected_;		//Possible encoder stall detected flag
@@ -227,6 +229,7 @@ private:
   bool homedExecuted_;			//Homed message has been executed by pollServices
   bool cancelHomeSent_;			//Cancel home process message sent to pollServices
   bool syncEncodedStepperSent_;		//Synchronize stepper with encoder message sent to pollServices
+  bool encoderSwapped_;			//Have the main, and auxiliary encoders been swapped by DFx=1
 
   bool restoreProfile_;			//Should profileBackupPositions_ be copied into profilePositions_ after orofile built complete? 
                                 	//True for all GalilAxis involved in CSAxis profile build, set false at built end

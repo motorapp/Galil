@@ -124,6 +124,7 @@
 #define GalilUseEncoderString		"MOTOR_UEIP"
 #define GalilPremString			"MOTOR_PREM"
 #define GalilPostString			"MOTOR_POST"
+#define GalilUseSwitchString 		"MOTOR_USESWITCH"
 #define GalilUseIndexString		"MOTOR_USEINDEX"
 #define GalilJogAfterHomeString		"MOTOR_JOG_AHOME"
 #define GalilJogAfterHomeValueString	"MOTOR_JOG_AHOME_VALUE"
@@ -283,7 +284,7 @@ public:
   void profileThread();
   asynStatus setOutputCompare(int oc);
   asynStatus beginLinearGroupMotion(int coordsys, char coordName, const char *axes, bool profileAbort);
-  asynStatus beginGroupMotion(char *axes);
+  asynStatus beginGroupMotion(char *maxes, char *paxes = (char *)"");
   //Execute motor record prem function for motor list
   void executePrem(const char *axes);
   //Execute auto motor power on, and brake off 
@@ -370,6 +371,7 @@ protected:
   int GalilUseEncoder_;
   int GalilPrem_;
   int GalilPost_;
+  int GalilUseSwitch_;
   int GalilUseIndex_;
   int GalilJogAfterHome_;
   int GalilJogAfterHomeValue_;

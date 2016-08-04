@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1044</width>
-    <height>731</height>
+    <width>1017</width>
+    <height>540</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,7 +16,7 @@
   <property name="frameShape">
    <enum>QFrame::NoFrame</enum>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,1">
    <property name="spacing">
     <number>1</number>
    </property>
@@ -32,15 +32,43 @@
       <string>galil_motor_basic.ui</string>
      </property>
      <property name="number">
-      <number>16</number>
+      <number>8</number>
      </property>
      <property name="columns">
-      <number>4</number>
+      <number>2</number>
      </property>
      <property name="gridOrder">
       <enum>QEFormGrid::ColMajor</enum>
      </property>
      <property name="slotNumberWidth">
+      <number>1</number>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QEFormGrid" name="qeformgrid_2">
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="uiFile">
+      <string>galil_csmotor_basic.ui</string>
+     </property>
+     <property name="number">
+      <number>8</number>
+     </property>
+     <property name="columns">
+      <number>2</number>
+     </property>
+     <property name="gridOrder">
+      <enum>QEFormGrid::ColMajor</enum>
+     </property>
+     <property name="slotNumberOffset" stdset="0">
+      <number>9</number>
+     </property>
+     <property name="slotNumberWidth">
+      <number>1</number>
+     </property>
+     <property name="colNumberOffset" stdset="0">
       <number>1</number>
      </property>
     </widget>

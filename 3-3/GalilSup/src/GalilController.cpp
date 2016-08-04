@@ -181,10 +181,17 @@
 // 09/07/16 M.Clift
 //                  Fix communication issue when using BA cmd with external amplifier
 // 18/07/16 M.Clift
-//                  Fix encoded stepper motor velocity calulation in coordinated moves
+//                  Fix encoded stepper motor velocity calculation in coordinated moves
 //                  Add encoded stepper auxillary register synchronization with main encoder after Auto amp off delay time
 //                  Fix encoded stepper motors to profile start
 //                  Fix issue with acceleration transform
+// 01/08/16 M.Clift
+//                  Add use switch when homing parameter to motor extras
+//                  Some stages don't have limit switches. eg. rotary
+//                  Simplify axis home program produced by code generator
+//                  SSI encoder connect detection now checks DF setting
+//                  Add set homed status true on axis with a configured and connected SSI encoder
+//                  Add CSAxis homed status
 
 #include <stdio.h>
 #include <math.h>
@@ -373,6 +380,7 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilPremString, asynParamOctet, &GalilPrem_);
   createParam(GalilPostString, asynParamOctet, &GalilPost_);
 
+  createParam(GalilUseSwitchString, asynParamInt32, &GalilUseSwitch_);
   createParam(GalilUseIndexString, asynParamInt32, &GalilUseIndex_);
   createParam(GalilJogAfterHomeString, asynParamInt32, &GalilJogAfterHome_);
   createParam(GalilJogAfterHomeValueString, asynParamFloat64, &GalilJogAfterHomeValue_);
@@ -1024,7 +1032,7 @@ bool GalilController::anyMotorMoving()
 	//Retrieve motor off delay
 	getDoubleParam(pAxis->axisNo_, GalilAutoOffDelay_, &offdelay);
 	//Motor considered stopped only if stopped time > offdelay seconds
-	if (moving || (!moving && pAxis->stopped_time_ <= offdelay)) return true;
+	if (moving || (!moving && pAxis->stoppedTime_ <= offdelay)) return true;
 	}
 
   //None of the motors were moving
@@ -1054,7 +1062,7 @@ bool GalilController::allMotorsMoving()
 	//Retrieve motor off delay
 	getDoubleParam(pAxis->axisNo_, GalilAutoOffDelay_, &offdelay);
 	//Motor considered stopped only if stopped time > offdelay seconds
-	if (!moving && pAxis->stopped_time_ > offdelay) return false;
+	if (!moving && pAxis->stoppedTime_ > offdelay) return false;
 	}
 
   //All the motors were moving
@@ -2772,10 +2780,11 @@ asynStatus GalilController::prepSyncStartStopMoves(void)
 
 /**
  * Start a group of motors in independent mode simultanously
- * @param [in] axes - The list of axis/motors in the move (eg. "ABCD")
+ * @param [in] maxes - The list of axis/motors that are moved (eg. "ABCD")
+ * @param [in] paxes - The list of axis/motors that are prepared for a move (eg. "ABCD")
  * @return motor driver status code.
  */
-asynStatus GalilController::beginGroupMotion(char *axes)
+asynStatus GalilController::beginGroupMotion(char *maxes, char *paxes)
 {
   const char *functionName = "beginMotionGroup";
   GalilAxis *pAxis;			//GalilAxis instance
@@ -2784,21 +2793,25 @@ asynStatus GalilController::beginGroupMotion(char *axes)
   double begin_time = 0;		//Time taken to begin
   bool fail = false;			//Fail flag
   asynStatus status;			//Return status
+  char allaxes[MAX_GALIL_AXES];		//Move axes, and prepareAxes list concatenated
 
   //Retrieve 1st motor GalilAxis instance
-  pAxis = getAxis(axes[0] - AASCII);
+  pAxis = getAxis(maxes[0] - AASCII);
   if (!pAxis) return asynError;
 
+  //Concatenate list of move axes, and prepare to move axes
+  sprintf(allaxes,"%s%s", maxes, paxes);
+
   //Execute motor auto on and brake off function
-  executeAutoOnBrakeOff(axes);
+  executeAutoOnBrakeOff(allaxes);
 
   //Execute motor record prem
-  executePrem(axes);
+  executePrem(allaxes);
 
-  //Begin the move
+  //For move axes only, begin the move
   //Get time when attempt motor begin
   epicsTimeGetCurrent(&begin_begint_);
-  sprintf(cmd_, "BG %s", axes);
+  sprintf(cmd_, "BG %s", maxes);
   if (sync_writeReadController() == asynSuccess)
      {
      unlock();
@@ -2815,7 +2828,7 @@ asynStatus GalilController::beginGroupMotion(char *axes)
            }
 
         //Retrieve moving status
-        getIntegerParam(axes[0] - AASCII, motorStatusMoving_, &moving);
+        getIntegerParam(maxes[0] - AASCII, motorStatusMoving_, &moving);
         }
      lock();
      }

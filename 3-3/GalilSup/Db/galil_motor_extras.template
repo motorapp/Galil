@@ -82,7 +82,6 @@ record(ai,"$(P):$(M)_STEPSMOOTH_MON")
 	field(DTYP,"asynFloat64")
 	field(SCAN,"$(SCAN)")
 	field(PREC,"$(PREC)")
-	field(EGU, "$(EGU)")
 	field(INP, "@asyn($(PORT),$(ADDR))MOTOR_STEPSMOOTH")
 }
 
@@ -136,6 +135,33 @@ record(bo,"$(P):$(M)_UINDEX_CMD")
 	field(OSV, "NO_ALARM")
 	field(OUT, "@asyn($(PORT),$(ADDR))MOTOR_USEINDEX")
 	field(FLNK,"$(P):$(M)_UINDEX_STATUS")
+}
+
+record(bi,"$(P):$(M)_USWITCH_STATUS")
+{
+	field(DESC, "use switch")
+	field(PINI, "YES")
+	field(DTYP, "asynInt32")
+	field(SCAN, "$(SCAN)")
+	field(ZNAM, "No")
+	field(ZSV,  "NO_ALARM")
+	field(ONAM, "Yes")
+	field(OSV,  "NO_ALARM")
+	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_USESWITCH")
+}
+
+record(bo,"$(P):$(M)_USWITCH_CMD")
+{
+	field(DESC,"use switch")
+	field(DTYP,"asynInt32")
+	field(VAL, "1")
+	field(PINI,"YES")
+	field(ZNAM,"No")
+	field(ZSV, "NO_ALARM")
+	field(ONAM,"Yes")
+	field(OSV, "NO_ALARM")
+	field(OUT, "@asyn($(PORT),$(ADDR))MOTOR_USESWITCH")
+	field(FLNK,"$(P):$(M)_USWITCH_STATUS")
 }
 
 record(ai,"$(P):$(M)_USERDATA_MON")

@@ -1474,7 +1474,7 @@
             <number>1</number>
            </property>
            <item>
-            <layout class="QVBoxLayout" name="verticalLayout_19" stretch="3,3,3,3,3,3,0">
+            <layout class="QVBoxLayout" name="verticalLayout_19" stretch="3,3,3,3,3,3,3,3">
              <property name="spacing">
               <number>1</number>
              </property>
@@ -1782,6 +1782,51 @@
                  </property>
                  <property name="shift">
                   <number>4</number>
+                 </property>
+                 <property name="variable" stdset="0">
+                  <string>$(DMC)$(M).MSTA</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_22">
+               <property name="spacing">
+                <number>1</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="label_41">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>80</width>
+                   <height>24</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <family>Abyssinica SIL</family>
+                   <pointsize>9</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Homed</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QEBitStatus" name="qebitstatus_10">
+                 <property name="numberOfBits">
+                  <number>1</number>
+                 </property>
+                 <property name="shift">
+                  <number>14</number>
                  </property>
                  <property name="variable" stdset="0">
                   <string>$(DMC)$(M).MSTA</string>
