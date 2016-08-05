@@ -483,7 +483,7 @@ asynStatus GalilAxis::setAccelVelocity(double acceleration, double velocity, boo
   * \param[in] maxVelocity The maximum velocity, often called the slew velocity. Units=steps/sec.
   * \param[in] acceleration The acceleration value. Units=steps/sec/sec.
   * \param[in] resetCtrlMessage Reset controller message at beginCheck */
-asynStatus GalilAxis::move(double position, int relative, double minVelocity, double maxVelocity, double acceleration, bool resetCtrlMessage)
+asynStatus GalilAxis::move(double position, int relative, double minVelocity, double maxVelocity, double acceleration)
 {
   static const char *functionName = "move";
   char mesg[MAX_GALIL_STRING_SIZE];		//Error mesg
@@ -513,7 +513,7 @@ asynStatus GalilAxis::move(double position, int relative, double minVelocity, do
 	{
 	//Moves are not deferred
 	//Ensure motor is ok to go
-	if (!beginCheck(functionName, maxVelocity, resetCtrlMessage))
+	if (!beginCheck(functionName, maxVelocity))
  		{
 		//Set absolute or relative move
 		if (relative)
@@ -1546,7 +1546,7 @@ void GalilAxis::pollServices(void)
                             //Calculate position in steps from jog after home value in user coordinates
                             position = (double)((jahv - off)/mres) * dirm;
                             //Do the move
-                            move(position, 0, 0, velocity, acceleration, false);
+                            move(position, 0, 0, velocity, acceleration);
                             }
 
                          //Homed pollService completed

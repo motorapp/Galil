@@ -192,6 +192,8 @@
 //                  SSI encoder connect detection now checks DF setting
 //                  Add set homed status true on axis with a configured and connected SSI encoder
 //                  Add CSAxis homed status
+// 04/08/15 M.Clift
+//                  Fixed move issue introduced in last commit
 
 #include <stdio.h>
 #include <math.h>

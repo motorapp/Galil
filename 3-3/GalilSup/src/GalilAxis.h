@@ -141,7 +141,7 @@ public:
   void restoreProfileData(void);
 
   /* These are the methods we override from the base class */
-  asynStatus move(double position, int relative, double minVelocity, double maxVelocity, double acceleration, bool resetCtrlMessage = true);
+  asynStatus move(double position, int relative, double minVelocity, double maxVelocity, double acceleration);
   asynStatus moveVelocity(double minVelocity, double maxVelocity, double acceleration);
   asynStatus home(double minVelocity, double maxVelocity, double acceleration, int forwards);
   asynStatus stop(double acceleration);
