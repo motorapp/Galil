@@ -192,8 +192,12 @@
 //                  SSI encoder connect detection now checks DF setting
 //                  Add set homed status true on axis with a configured and connected SSI encoder
 //                  Add CSAxis homed status
-// 04/08/15 M.Clift
+// 04/08/16 M.Clift
 //                  Fixed move issue introduced in last commit
+// 07/08/16 M.Clift
+//                  Adjust update period to at least controller minimum
+// 19/08/16 M.Clift
+//                  Fix PID parameters autosave restoration
 
 #include <stdio.h>
 #include <math.h>
@@ -453,7 +457,7 @@ GalilController::GalilController(const char *portName, const char *address, doub
   code_assembled_ = false;
   //We have not recieved a timeout yet
   consecutive_timeouts_ = 0;
-  //Parse update period
+  //Limit maximum update period
   if (fabs(updatePeriod) > MAX_UPDATE_PERIOD)
      {
      sprintf(mesg, "Limiting UpdatePeriod to %dms maximum, ignoring specified updatePeriod", MAX_UPDATE_PERIOD);
@@ -461,13 +465,13 @@ GalilController::GalilController(const char *portName, const char *address, doub
      updatePeriod = (updatePeriod < 0) ? -MAX_UPDATE_PERIOD : MAX_UPDATE_PERIOD;
      }
   //Store period in ms between data records
-  updatePeriod_ = fabs(updatePeriod);
+  updatePeriod_ = updatePeriod;
   //Assume sync tcp mode will be used for now
   async_records_ = false;
   //Determine if we should even try async udp before going to synchronous tcp mode 
   try_async_ = (updatePeriod < 0) ? false : true;
   //Code generator has not been initialized
-  codegen_init_ = false;		
+  codegen_init_ = false;	
   digitalinput_init_ = false;
   //Deferred moves off at start-up
   movesDeferred_ = false;
@@ -786,6 +790,7 @@ void GalilController::connected(void)
   //static const char *functionName = "connected";
   char RV[] = {0x12,0x16,0x0};  //Galil command string for model and firmware version query
   int status;
+  double minUpdatePeriod;		//Min update period given model
   char mesg[MAX_GALIL_STRING_SIZE];	//Connected mesg
   unsigned i;
 
@@ -803,6 +808,10 @@ void GalilController::connected(void)
   //Determine if controller is dmc or rio
   rio_ = (strncmp(model_, "RIO",3) == 0) ? true : false;
 
+  //Give connect message
+  sprintf(mesg, "Connected to %s at %s", model_, address_);
+  setCtrlError(mesg);
+
   //Determine max number of axes the controller supports
   //Note Galil BA command will reduce axis on a controller, and alter
   //the returned model revision string
@@ -818,10 +827,14 @@ void GalilController::connected(void)
   else //RIO PLC
      numAxesMax_ = 0;
 
-  //Give connect message
-  sprintf(mesg, "Connected to %s at %s", model_, address_);
-  setCtrlError(mesg);
-
+  //Parse provided updatePeriod given model minimum
+  if ((model_[3] == '2' || model_[3] == '4') && model_[4] == '1' && !rio_)
+     minUpdatePeriod = 8; //Econo series controllers 8 ms min
+  else
+     minUpdatePeriod = 2; //All others 2 ms min
+  if (fabs(updatePeriod_) < minUpdatePeriod)//Re-adjust update time to controller min if necessary
+     updatePeriod_ = (updatePeriod_ < 0) ? -minUpdatePeriod : minUpdatePeriod;
+  
   //Read Ethernet handle details
   strcpy(cmd_, "TH");
   sync_writeReadController();
@@ -4818,7 +4831,7 @@ void GalilController::gen_motor_enables_code(void)
 		if (strlen(motor_enables->motors) > 0)
 			{
 			any = true;
-			sprintf(digital_code_,"%sIF ((@IN[%d]=%d)\n", digital_code_, (i + 1), (int)motor_enables->disablestates[0]);
+			sprintf(digital_code_,"%sIF (@IN[%d]=%d)\n", digital_code_, (i + 1), (int)motor_enables->disablestates[0]);
 			//Scan through all motors associated with the port
 			for (j=0;j<(int)strlen(motor_enables->motors);j++)
 				{
@@ -4827,7 +4840,7 @@ void GalilController::gen_motor_enables_code(void)
 				sprintf(digital_code_,"%sST%c;DC%c=limdc%c;", digital_code_, c, c, c);
 				}
 			//Manipulate interrupt flag to turn off the interrupt on this port for one threadA cycle
-			sprintf(digital_code_,"%sdpoff=dpoff-%d;ENDIF\n", digital_code_, (int)pow(2.0,i));
+			sprintf(digital_code_,"%s\ndpoff=dpoff-%d;ENDIF\n", digital_code_, (int)pow(2.0,i));
 			}
 		}
 	/* Re-enable input interrupt for all except the digital port(s) just serviced during interrupt routine*/

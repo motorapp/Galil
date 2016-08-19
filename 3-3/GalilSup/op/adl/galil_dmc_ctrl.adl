@@ -1,6 +1,6 @@
 
 file {
-	name="/home/ics/git/Galil-3-0/3-2/GalilSup/op/adl/galil_dmc_ctrl.adl"
+	name="/home/ics/git/Galil-3-0/3-3/GalilSup/op/adl/galil_dmc_ctrl.adl"
 	version=030105
 }
 display {
@@ -491,9 +491,9 @@ text {
 }
 "text update" {
 	object {
-		x=32
+		x=11
 		y=545
-		width=372
+		width=395
 		height=13
 	}
 	monitor {

@@ -297,7 +297,7 @@ void GalilAxis::initialize_codegen(char axis_thread_code[],
 		{
 		//Insert digital input program label #ININT
 		strcpy(axis_digital_code, axis_digital_label);
-		// Insert code to initialize dpoff (digital ports off) used for motor interlocks management
+		//Insert code to initialize dpoff (digital ports off) used for motor interlocks management
 		sprintf(axis_digital_code,"%sdpoff=dpon\n",axis_digital_code);
 		//Digital input label has been inserted
 		pC_->digitalinput_init_ = true;

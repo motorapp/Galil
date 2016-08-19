@@ -34,10 +34,10 @@ dbLoadRecords("$(AUTOSAVE)/asApp/Db/save_restoreStatus.db","P=IOC01:")
 
 save_restoreSet_CAReconnect(1)
 
-# restore positions at pass 0 so motors don't move
+# restore positions in pass 0 so motors don't move
 set_pass0_restoreFile("galilTestApp_positions.sav")
-# restore settings at pass 0
-set_pass0_restoreFile("galilTestApp_settings.sav")
+# restore settings in pass 1
+set_pass1_restoreFile("galilTestApp_settings.sav")
 
 ## End of autosave set-up
 ####################################################

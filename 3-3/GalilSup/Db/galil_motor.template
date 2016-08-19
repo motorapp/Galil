@@ -76,6 +76,33 @@ record(bo,"$(P):$(M)_able") {
 
 #Below records are used to extract data from MR
 #and pass to driver
+record(ao,"$(P):$(M)_PCOF_SP") {
+	field(DESC, "Motor PCOF")
+	field(DOL,  "$(P):$(M).PCOF CP MS")
+	field(OMSL, "closed_loop")
+	field(DTYP, "asynFloat64")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_PGAIN")
+	field(PREC, "$(PREC)")
+}
+
+record(ao,"$(P):$(M)_ICOF_SP") {
+	field(DESC, "Motor ICOF")
+	field(DOL,  "$(P):$(M).ICOF CP MS")
+	field(OMSL, "closed_loop")
+	field(DTYP, "asynFloat64")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_IGAIN")
+	field(PREC, "$(PREC)")
+}
+
+record(ao,"$(P):$(M)_DCOF_SP") {
+	field(DESC, "Motor DCOF")
+	field(DOL,  "$(P):$(M).DCOF CP MS")
+	field(OMSL, "closed_loop")
+	field(DTYP, "asynFloat64")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_DGAIN")
+	field(PREC, "$(PREC)")
+}
+
 record(ao,"$(P):$(M)_ACCL_SP") {
 	field(DESC, "Motor record ACCL")
 	field(DOL,  "$(P):$(M).ACCL CP MS")
