@@ -182,6 +182,17 @@ record(bo,"$(P):DEFER_CMD")
 	field(FLNK, "$(P):DEFER_STATUS")
 }
 
+record(bo,"$(P):UPLOAD_CMD")
+{
+	field(DESC, "Upload user arrays")
+	field(DTYP, "asynInt32")
+	field(ZNAM, "Upload")
+	field(ZSV,  "NO_ALARM")
+	field(ONAM, "Upload")
+	field(OSV,  "NO_ALARM")
+	field(OUT,  "@asyn($(PORT),0)CONTROLLER_UARRAY_UPLOAD")
+}
+
 #Defered move mode
 record(bi,"$(P):DEFER_MODE_STATUS")
 {

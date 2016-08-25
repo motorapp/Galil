@@ -1,4 +1,4 @@
-Galil-3-0
+Galil-3-3
 =========
 
 ASYN based EPICS driver for Galil products

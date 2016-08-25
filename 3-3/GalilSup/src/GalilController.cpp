@@ -198,6 +198,10 @@
 //                  Adjust update period to at least controller minimum
 // 19/08/16 M.Clift
 //                  Fix PID parameters autosave restoration
+// 25/08/16 M.Clift
+//                  Fix autosave position restore issue
+//                  Add PWM servo to output compare, setPosition
+//                  Add user array upload facility components
 
 #include <stdio.h>
 #include <math.h>
@@ -347,6 +351,9 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilProfileMoveModeString, asynParamInt32, &GalilProfileMoveMode_);
   createParam(GalilProfileTypeString, asynParamInt32, &GalilProfileType_);
   createParam(GalilProfileCalculatedString, asynParamFloat64Array, &GalilProfileCalculated_);
+
+  createParam(GalilUserArrayUploadString, asynParamInt32, &GalilUserArrayUpload_);
+  createParam(GalilUserArrayString, asynParamFloat64Array, &GalilUserArray_);
 
   createParam(GalilOutputCompare1AxisString, asynParamInt32, &GalilOutputCompareAxis_);
   createParam(GalilOutputCompare1StartString, asynParamFloat64, &GalilOutputCompareStart_);
@@ -1262,7 +1269,7 @@ asynStatus GalilController::setOutputCompare(int oc)
 		sprintf(cmd_, "MT%c=?", i + AASCII);
 		comstatus = sync_writeReadController();
 		motor = atoi(resp_);
-		if (abs(motor) == 1)
+		if (abs(motor) == 1 || abs(motor) == 1.5)
 			{
 			axis = i;
 			break;
@@ -3519,6 +3526,10 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 	{
 	status = setOutputCompare(addr);
 	}
+  else if (function == GalilUserArrayUpload_)
+	{
+	arrayUpload();
+	}
   else 
 	{
 	/* Call base class method */
@@ -4397,6 +4408,74 @@ asynStatus GalilController::programDownload(string prog)
      }
 
   return status;
+}
+
+asynStatus GalilController::arrayUpload(void)
+{
+  size_t nwrite;
+  size_t nread;
+  asynStatus status = asynError;
+  int eomReason;
+  bool done;
+  string arrayData;
+  string numbers = "0123456789";
+  unsigned i, j;
+  char cmd[MAX_GALIL_STRING_SIZE];
+  char buf[MAX_GALIL_STRING_SIZE];
+
+  if (1)
+     {
+     for (j = 0;j < 8; j++)
+        {
+        //Request upload
+        sprintf(cmd, "QU array%d[]\r", j);
+        status = pSyncOctet_->write(pSyncOctetPvt_, pasynUserSyncGalil_, cmd, 12, &nwrite);
+        done = false;
+        //Read the response only if write ok
+        if (!status)
+           {
+           while (!done)
+              {
+              //Read any response
+              status = pSyncOctet_->read(pSyncOctetPvt_, pasynUserSyncGalil_, buf, MAX_GALIL_STRING_SIZE, &nread, &eomReason);
+              if (!status && nread > 0)
+                 {
+                 //Search for error and terminating characters
+                 for (i = 0; i < nread; i++)
+                    {
+                    if (buf[i] == '?')
+                       {
+                       //Error
+                       done = true;
+                       status = asynError;
+                       }
+                    if (i > 0)//terminating characters
+                       done = (buf[i-1] == 26 && buf[i] == ':') ? true : false;
+                    if (done)
+                       break; //Upload complete
+                    }
+                 if (!status)
+                    {
+                    //Append the upload to arrayData buffer
+                    arrayData.append(buf, i);
+                    printf("array data done nread=%d\n", nread);
+                    }
+                 else
+                    printf("array not found\n");
+                 }
+              else
+                 done = true; //Stop if any asyn error
+              }//While
+           if (!status)
+              {
+              
+              }
+           }
+        }//For
+     }
+
+   //Return status to caller
+   return status;
 }
 
 /** Uploads program on controller and returns as std::string to caller

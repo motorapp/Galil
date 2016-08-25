@@ -841,7 +841,7 @@ asynStatus GalilAxis::setPosition(double position)
 
   //output motor position (step count) to aux encoder register on controller
   //DP and DE command function is different depending on motor type
-  if (abs(motor) == 1)
+  if (abs(motor) == 1 || abs(motor) == 1.5)
 	sprintf(pC_->cmd_, "DE%c=%.0lf", axisName_, position);  //Servo motor, use aux register for step count
   else
 	sprintf(pC_->cmd_, "DP%c=%.0lf", axisName_, position);  //Stepper motor, aux register for step count
@@ -849,6 +849,10 @@ asynStatus GalilAxis::setPosition(double position)
   
   //Set encoder position
   setEncoderPosition(enc_pos);
+
+  //Give poller time to update motor record with new readback data
+  //This allows motor record to set correct val for restored position
+  epicsThreadSleep(pC_->updatePeriod_*2/1000.0);
 
   //Always return success. Dont need more error mesgs
   return asynSuccess;
@@ -868,7 +872,7 @@ asynStatus GalilAxis::setEncoderPosition(double position)
 
   //output encoder counts to main encoder register on controller
   //DP and DE command function is different depending on motor type
-  if (abs(motor) == 1)
+  if (abs(motor) == 1 || abs(motor) == 1.5)
   	sprintf(pC_->cmd_, "DP%c=%.0lf", axisName_, position);   //Servo motor, encoder is main register
   else
 	sprintf(pC_->cmd_, "DE%c=%.0lf", axisName_, position);   //Stepper motor, encoder is main register
@@ -885,6 +889,7 @@ asynStatus GalilAxis::setEncoderRatio(double ratio)
   //setEncoder is called during IocInit/Autosave for position restore, and when user changes 
   //eres, mres, ueip or position is changed
   //Store the ratio in GalilAxis instance
+  //Motor settings must be autsave/restored in pass 0, to ensure ratio is set properly by devMotorAsyn.c init_controller
   encmratio_ = ratio;
   encmratioset_ = true;
 
@@ -918,7 +923,6 @@ asynStatus GalilAxis::setLowLimit(double lowLimit)
   //Always return success. Dont need more error mesgs
   return asynSuccess;
 }
-
 
 /** Set the proportional gain of the motor.
   * \param[in] pGain The new proportional gain. */

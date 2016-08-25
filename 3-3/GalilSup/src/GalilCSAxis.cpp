@@ -1343,7 +1343,7 @@ asynStatus GalilCSAxis::poll(bool *moving)
    last_done_ = done;
 
    //Show axis as moving until 1 cycle after axis ready
-   //This is done so correct setpoint is given in motor record at startup
+   //This is done so correct setpoint is given in motor record postProcess at startup
    if (!lastaxisReady_)
       {
       *moving = true;

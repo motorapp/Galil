@@ -34,10 +34,10 @@ dbLoadRecords("$(AUTOSAVE)/asApp/Db/save_restoreStatus.db","P=IOC01:")
 
 save_restoreSet_CAReconnect(1)
 
+# restore settings in pass 0 so encoder ratio is set correctly for position restore in device support init
+set_pass0_restoreFile("galilTestApp_settings.sav")
 # restore positions in pass 0 so motors don't move
 set_pass0_restoreFile("galilTestApp_positions.sav")
-# restore settings in pass 1
-set_pass1_restoreFile("galilTestApp_settings.sav")
 
 ## End of autosave set-up
 ####################################################

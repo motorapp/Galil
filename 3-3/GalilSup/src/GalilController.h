@@ -92,6 +92,9 @@
 #define GalilProfileTypeString		"GALIL_PROFILE_TYPE"
 #define GalilProfileCalculatedString    "GALIL_PROFILE_CALCULATED"
 
+#define GalilUserArrayUploadString	"CONTROLLER_UARRAY_UPLOAD"
+#define GalilUserArrayString		"CONTROLLER_UARRAY"
+
 #define GalilOutputCompare1AxisString	"OUTPUT_COMPARE_AXIS"
 #define GalilOutputCompare1StartString	"OUTPUT_COMPARE_START"
 #define GalilOutputCompare1IncrString	"OUTPUT_COMPARE_INCR"
@@ -218,6 +221,7 @@ public:
 
   asynStatus sendUnsolicitedMessage(char *mesg);
   bool my_isascii(int c);
+  asynStatus arrayUpload(void);
   asynStatus programUpload(string *prog);
   asynStatus programDownload(string prog);
   
@@ -340,6 +344,9 @@ protected:
   int GalilProfileMoveMode_;
   int GalilProfileType_;
   int GalilProfileCalculated_;
+
+  int GalilUserArrayUpload_;
+  int GalilUserArray_;
 
   int GalilOutputCompareAxis_;
   int GalilOutputCompareStart_;
