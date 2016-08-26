@@ -597,7 +597,10 @@ asynStatus GalilCSAxis::home(double minVelocity, double maxVelocity, double acce
                //Reset stopped time, so homing doesn't timeout immediately
                pAxis->resetStoppedTime_ = true;  //Request poll thread reset stopped time if done
                //Wait for poller to reset stopped time on this axis
+               //ensure synchronous poller is not blocked
+               pC_->unlock();
                epicsEventWaitWithTimeout(pAxis->stoppedTimeResetEventId_, pC_->updatePeriod_/1000.0);
+               pC_->lock();
                }
             pAxis->homing_ = true;  //Start was successful
             pAxis->cancelHomeSent_ = false;  //Homing has not been cancelled yet

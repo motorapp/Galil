@@ -202,6 +202,13 @@
 //                  Fix autosave position restore issue
 //                  Add PWM servo to output compare, setPosition
 //                  Add user array upload facility components
+// 26/08/16 M.Clift
+//                  Modification to how motorUpdateStatus request is handled
+//                  Changes to QEGUI screens
+//                  Changes to updatePeriod parsing
+//                  Custom code can now have windows or linux line ending
+//                  Thread mask can now be used to specify no thread checking
+//                  Fix autosave position restore when using synchronous poller
 
 #include <stdio.h>
 #include <math.h>
@@ -464,19 +471,19 @@ GalilController::GalilController(const char *portName, const char *address, doub
   code_assembled_ = false;
   //We have not recieved a timeout yet
   consecutive_timeouts_ = 0;
-  //Limit maximum update period
-  if (fabs(updatePeriod) > MAX_UPDATE_PERIOD)
-     {
-     sprintf(mesg, "Limiting UpdatePeriod to %dms maximum, ignoring specified updatePeriod", MAX_UPDATE_PERIOD);
-     setCtrlError(mesg);
-     updatePeriod = (updatePeriod < 0) ? -MAX_UPDATE_PERIOD : MAX_UPDATE_PERIOD;
-     }
-  //Store period in ms between data records
-  updatePeriod_ = updatePeriod;
   //Assume sync tcp mode will be used for now
   async_records_ = false;
   //Determine if we should even try async udp before going to synchronous tcp mode 
   try_async_ = (updatePeriod < 0) ? false : true;
+  //Store absolute period in ms between data records
+  updatePeriod_ = fabs(updatePeriod);
+  //Limit maximum update period
+  if (updatePeriod_ > MAX_UPDATE_PERIOD)
+     {
+     sprintf(mesg, "Capping UpdatePeriod to %dms maximum", MAX_UPDATE_PERIOD);
+     setCtrlError(mesg);
+     updatePeriod_ = MAX_UPDATE_PERIOD;
+     }
   //Code generator has not been initialized
   codegen_init_ = false;	
   digitalinput_init_ = false;
@@ -584,8 +591,6 @@ void GalilController::connect(void)
         pAsyncOctetPvt_ = pasynInterface->drvPvt;
         //Retrieve asynchronous connection status from asyn
         pasynManager->isConnected(pasynUserAsyncGalil_, &async_connected);
-        //Flag async records true
-        async_records_ = true;
         //For tracing/debugging async communications
         //asynSetTraceMask(asyncPort_,-1,0xFF);
         //asynSetTraceIOMask(asyncPort_,-1,0xFF);
@@ -595,8 +600,6 @@ void GalilController::connect(void)
      {
      //Connect to the device, we don't want end of string processing
      drvAsynSerialPortConfigure(syncPort_, address_, epicsThreadPriorityMax, 0, 1);
-     //Flag async records false for serial connections
-     async_records_ = false;
      //Flag try_async_ records false for serial connections
      try_async_ = false;
      }
@@ -839,8 +842,12 @@ void GalilController::connected(void)
      minUpdatePeriod = 8; //Econo series controllers 8 ms min
   else
      minUpdatePeriod = 2; //All others 2 ms min
-  if (fabs(updatePeriod_) < minUpdatePeriod)//Re-adjust update time to controller min if necessary
-     updatePeriod_ = (updatePeriod_ < 0) ? -minUpdatePeriod : minUpdatePeriod;
+  if (updatePeriod_ < minUpdatePeriod)//Re-adjust update time to controller min if necessary
+     {
+     sprintf(mesg, "Restricting UpdatePeriod to %.0lfms minimum", minUpdatePeriod);
+     setCtrlError(mesg);
+     updatePeriod_ = minUpdatePeriod;
+     }
   
   //Read Ethernet handle details
   strcpy(cmd_, "TH");
@@ -934,7 +941,7 @@ void GalilController::connected(void)
      {
      //This is initial connect
      //Try async udp mode unless user specfically wants sync tcp mode
-     if (async_records_)
+     if (try_async_)
         {
         //Start async data record transmission on controller
         sprintf(cmd_, "DR %.0f, %d", updatePeriod_, udpHandle_ - AASCII);
@@ -944,6 +951,8 @@ void GalilController::connected(void)
            async_records_ = false; //Something went wrong
            setCtrlError("Asynchronous UDP failed, switching to TCP synchronous");
            }
+        else
+           async_records_ = true; //All ok
         }
      }
 
@@ -3301,7 +3310,14 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
   //GalilPoller is designed to be a constant and fast poller
   //So we dont honour motorUpdateStatus as it will cause threading issues
   if (function == motorUpdateStatus_)
+	{
+	//Dont block synchronous poller
+	unlock();
+	//Give poller time to provide status update to mr, then we're done
+	epicsThreadSleep(updatePeriod_*2.0/1000.0);
+	lock();
 	return asynSuccess;
+	}
 
   status = getAddress(pasynUser, &addr);
   if (status != asynSuccess) return(status);
@@ -4542,7 +4558,7 @@ asynStatus GalilController::programUpload(string *prog)
 /*--------------------------------------------------------------*/
 /* Start the card requested by user   */
 /*--------------------------------------------------------------*/
-void GalilController::GalilStartController(char *code_file, int burn_program, unsigned thread_mask)
+void GalilController::GalilStartController(char *code_file, int burn_program, int thread_mask)
 {
 	asynStatus status;		//Status
 	GalilAxis *pAxis;		//GalilAxis
@@ -4632,7 +4648,9 @@ void GalilController::GalilStartController(char *code_file, int burn_program, un
 		//Download code
 		//Copy card_code_ into download code buffer
 		dc = card_code_;
-		//Change \n to \r (Galil Communications Library expects \r separated lines)
+		//Remove the \r characters from download code
+		dc.erase (std::remove(dc.begin(), dc.end(), '\r'), dc.end());
+		//Change \n to \r for controller
 		std::replace(dc.begin(), dc.end(), '\n', '\r');
 
 		/*If code we wish to download differs from controller current code then download the new code*/
@@ -4733,11 +4751,11 @@ void GalilController::GalilStartController(char *code_file, int burn_program, un
 			epicsThreadSleep(1);
 			
 			//Check threads on controller
-			if (thread_mask != 0) //user specified a thread mask, only check for these threads
+			if (thread_mask_ > 0) //user specified a thread mask, only check for these threads
 				{
 				for (i=0; i<32; ++i)
 					{
-					if ( (thread_mask & (1 << i)) != 0 )
+					if ( (thread_mask_ & (1 << i)) != 0 )
 						{
 						/*check that code is running*/
 						sprintf(cmd_, "MG _XQ%d", i);
@@ -4745,14 +4763,14 @@ void GalilController::GalilStartController(char *code_file, int burn_program, un
 							{
 							if (atoi(resp_) == -1)
 								{
-								start_ok = 0;
+								start_ok = false;
 								errlogPrintf("\nThread %d failed to start on model %s, address %s\n", i, model_, address_);
 								}
 							}
 						}
 					}
 				}
-			else if (numAxes_ > 0) //Check code is running for all created GalilAxis
+			else if (numAxes_ > 0 && thread_mask_ == 0) //Check code is running for all created GalilAxis
 				{
 				for (i=0;i<numAxes_;i++)
 					{		
@@ -4762,14 +4780,14 @@ void GalilController::GalilStartController(char *code_file, int burn_program, un
 						{
 						if (atoi(resp_) == -1)
 							{
-							start_ok = 0;
+							start_ok = false;
 							errlogPrintf("\nThread %d failed to start on model %s, address %s\n",i, model_, address_);
 							}
 						}
 					}
 				}
 		
-			if (start_ok == 0 && !rio_)
+			if (!start_ok && !rio_)
 				{
 				/*stop all motors on the crashed controller*/
 				sprintf(cmd_, "AB 1");
@@ -4938,7 +4956,7 @@ void GalilController::write_gen_codefile(const char* suffix)
 	int i = 0;
 	char filename[100];
 	
-	sprintf(filename,"./%s%s.gmc",address_, suffix);
+	sprintf(filename,"./%s%s.dmc",address_, suffix);
 	
 	fp = fopen(filename,"wt");
 
@@ -6082,7 +6100,7 @@ extern "C" asynStatus GalilCreateCSAxes(const char *portName)
 extern "C" asynStatus GalilStartController(const char *portName,        	//specify which controller by port name
 					   const char *code_file,
 					   int burn_program,
-					   unsigned thread_mask)
+					   int thread_mask)
 {
   GalilController *pC;
   static const char *functionName = "GalilStartController";
@@ -6196,7 +6214,7 @@ static const iocshFuncDef GalilStartControllerDef = {"GalilStartController", 4, 
 
 static void GalilStartControllerCallFunc(const iocshArgBuf *args)
 {
-  GalilStartController(args[0].sval, args[1].sval, args[2].ival, (unsigned)args[3].ival);
+  GalilStartController(args[0].sval, args[1].sval, args[2].ival, args[3].ival);
 }
 
 //Construct GalilController iocsh function register

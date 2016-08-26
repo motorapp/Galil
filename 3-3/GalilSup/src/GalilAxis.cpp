@@ -683,7 +683,10 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
            //Reset stopped time, so homing doesn't timeout immediately
            resetStoppedTime_ = true;  //Request poll thread reset stopped time if done
            //Wait for poller to reset stopped time on this axis
+           //ensure synchronous poller is not blocked
+           pC_->unlock();
            epicsEventWaitWithTimeout(stoppedTimeResetEventId_, pC_->updatePeriod_/1000.0);
+           pC_->lock();
            }
         homing_ = true;  //Start was successful
         cancelHomeSent_ = false;  //Homing has not been cancelled yet
@@ -852,7 +855,10 @@ asynStatus GalilAxis::setPosition(double position)
 
   //Give poller time to update motor record with new readback data
   //This allows motor record to set correct val for restored position
-  epicsThreadSleep(pC_->updatePeriod_*2/1000.0);
+  //Release lock so synchronous poller is not blocked
+  pC_->unlock();
+  epicsThreadSleep(pC_->updatePeriod_*2.0/1000.0);
+  pC_->lock();
 
   //Always return success. Dont need more error mesgs
   return asynSuccess;

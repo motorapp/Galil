@@ -81,6 +81,7 @@ GalilCreateCSAxes("Galil")
 #             1 = transfer code if differs from eeprom, burn code to eeprom, then finally execute code thread 0
 #             It is asssumed thread 0 starts all other required threads
 # 4. int   Thread mask.  Check these threads are running after controller code start.  Bit 0 = thread 0 and so on
+#             if thread mask < 0 nothing is checked
 #             if thread mask = 0 and GalilCreateAxis appears > 0 then threads 0 to number of GalilCreateAxis is checked (good when using the generated code)
 
 # Start the controller

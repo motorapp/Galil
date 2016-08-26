@@ -270,7 +270,7 @@ public:
   //asynStatus readbackProfile();
 
   /* These are the methods that are new to this class */
-  void GalilStartController(char *code_file, int eeprom_write, unsigned thread_mask);
+  void GalilStartController(char *code_file, int eeprom_write, int thread_mask);
   void connect(void);
   void disconnect(void);
   void connected(void);
@@ -472,7 +472,7 @@ private:
   char profileAxes_[MAX_GALIL_AXES+1];	//Running profile axes list
   int profileType_;			//Running profile type 0=linear, 1=pvt
 
-  unsigned thread_mask_;		//Mask detailing which threads are expected to be running after program download Bit 0 = thread 0 etc
+  int thread_mask_;			//Mask detailing which threads are expected to be running after program download Bit 0 = thread 0 etc
 
   vector<char> recdata_;		//Data record from controller
   asynStatus recstatus_;		//Status of last record acquisition

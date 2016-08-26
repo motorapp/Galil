@@ -1021,6 +1021,12 @@
               <property name="variableAsToolTip">
                <bool>true</bool>
               </property>
+              <property name="userLevelVisibility" stdset="0">
+               <enum>QEPushButton::Scientist</enum>
+              </property>
+              <property name="userLevelEnabled" stdset="0">
+               <enum>QEPushButton::Scientist</enum>
+              </property>
              </widget>
             </item>
            </layout>
@@ -1087,6 +1093,12 @@
             </property>
             <property name="variableAsToolTip">
              <bool>true</bool>
+            </property>
+            <property name="userLevelVisibility" stdset="0">
+             <enum>QEPushButton::Scientist</enum>
+            </property>
+            <property name="userLevelEnabled" stdset="0">
+             <enum>QEPushButton::Scientist</enum>
             </property>
            </widget>
           </item>
