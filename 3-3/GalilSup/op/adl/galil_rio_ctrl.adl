@@ -1,6 +1,6 @@
 
 file {
-	name="/home/ics/git/Galil-3-0/3-2/GalilSup/op/adl/galil_rio_ctrl.adl"
+	name="/home/ics/git/Galil-3-0/3-3/GalilSup/op/adl/galil_rio_ctrl.adl"
 	version=030105
 }
 display {
@@ -8,7 +8,7 @@ display {
 		x=258
 		y=131
 		width=410
-		height=225
+		height=238
 	}
 	clr=14
 	bclr=4
@@ -221,98 +221,171 @@ text {
 	clr=14
 	bclr=51
 }
-"text update" {
+composite {
 	object {
-		x=32
+		x=5
 		y=149
-		width=372
-		height=13
+		width=399
+		height=81
 	}
-	monitor {
-		chan="$(RIO)ERROR_MON"
-		clr=14
-		bclr=56
-	}
-	format="string"
-	limits {
+	"composite name"=""
+	children {
+		"text update" {
+			object {
+				x=32
+				y=165
+				width=372
+				height=13
+			}
+			monitor {
+				chan="$(RIO)ERROR_MON"
+				clr=14
+				bclr=56
+			}
+			format="string"
+			limits {
+			}
+		}
+		text {
+			object {
+				x=5
+				y=180
+				width=65
+				height=13
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="Command console"
+		}
+		"text entry" {
+			object {
+				x=32
+				y=197
+				width=372
+				height=20
+			}
+			control {
+				chan="$(RIO)SEND_STR_CMD"
+				clr=14
+				bclr=51
+			}
+			limits {
+			}
+		}
+		"text update" {
+			object {
+				x=32
+				y=217
+				width=372
+				height=13
+			}
+			monitor {
+				chan="$(RIO)SEND_STR_MON"
+				clr=14
+				bclr=56
+			}
+			format="string"
+			limits {
+			}
+		}
+		text {
+			object {
+				x=5
+				y=199
+				width=65
+				height=13
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="Cmd"
+		}
+		text {
+			object {
+				x=5
+				y=216
+				width=65
+				height=13
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="Resp"
+		}
+		text {
+			object {
+				x=5
+				y=149
+				width=65
+				height=13
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="Controller mesg"
+		}
 	}
 }
 text {
 	object {
-		x=5
-		y=164
+		x=9
+		y=131
 		width=65
 		height=13
 	}
 	"basic attribute" {
 		clr=14
 	}
-	textix="Command console"
+	textix="User array"
 }
-"text entry" {
+"related display" {
 	object {
-		x=32
-		y=181
-		width=372
-		height=20
+		x=150
+		y=132
+		width=15
+		height=15
 	}
-	control {
-		chan="$(RIO)SEND_STR_CMD"
-		clr=14
-		bclr=51
+	display[0] {
+		label="User array0"
+		name="galil_user_array.adl"
+		args="P=$(RIO), R=0, Y=$(RIO)UARRAY0_MON"
 	}
-	limits {
+	display[1] {
+		label="User array1"
+		name="galil_user_array.adl"
+		args="P=$(RIO), R=1, Y=$(RIO)UARRAY1_MON"
 	}
-}
-"text update" {
-	object {
-		x=32
-		y=201
-		width=372
-		height=13
+	display[2] {
+		label="User array2"
+		name="galil_user_array.adl"
+		args="P=$(RIO), R=2, Y=$(RIO)UARRAY2_MON"
 	}
-	monitor {
-		chan="$(RIO)SEND_STR_MON"
-		clr=14
-		bclr=56
+	display[3] {
+		label="User array3"
+		name="galil_user_array.adl"
+		args="P=$(RIO), R=3, Y=$(RIO)UARRAY3_MON"
 	}
-	format="string"
-	limits {
+	display[4] {
+		label="User array4"
+		name="galil_user_array.adl"
+		args="P=$(RIO), R=4, Y=$(RIO)UARRAY4_MON"
 	}
-}
-text {
-	object {
-		x=5
-		y=183
-		width=65
-		height=13
+	display[5] {
+		label="User array5"
+		name="galil_user_array.adl"
+		args="P=$(RIO), R=5, Y=$(RIO)UARRAY5_MON"
 	}
-	"basic attribute" {
-		clr=14
+	display[6] {
+		label="User array6"
+		name="galil_user_array.adl"
+		args="P=$(RIO), R=6, Y=$(RIO)UARRAY6_MON"
 	}
-	textix="Cmd"
-}
-text {
-	object {
-		x=5
-		y=200
-		width=65
-		height=13
+	display[7] {
+		label="User array7"
+		name="galil_user_array.adl"
+		args="P=$(RIO), R=7, Y=$(RIO)UARRAY7_MON"
 	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Resp"
-}
-text {
-	object {
-		x=5
-		y=133
-		width=65
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Controller mesg"
+	clr=14
+	bclr=51
 }

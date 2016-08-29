@@ -1,6 +1,10 @@
 # Controller settings that motorRecord does not support
 file "galil_dmc_ctrl.req" P=$(P1)
 
+# User array names
+file "galil_user_array.req" P=$(P1)
+file "galil_user_array.req" P=$(P2)
+
 # Motor record settings
 # Real motors
 file "motor_settings.req" P=$(P1), M=A

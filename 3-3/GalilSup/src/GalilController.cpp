@@ -209,6 +209,9 @@
 //                  Custom code can now have windows or linux line ending
 //                  Thread mask can now be used to specify no thread checking
 //                  Fix autosave position restore when using synchronous poller
+// 29/08/16 M.Clift
+//                  Add user array upload implementation completed
+//                  Reduced memory requirements of profile moves
 
 #include <stdio.h>
 #include <math.h>
@@ -250,6 +253,7 @@ using namespace std; //cout ostringstream vector string
 static const char *driverName = "GalilController";
 
 static void GalilProfileThreadC(void *pPvt);
+static void GalilArrayUploadThreadC(void *pPvt);
 
 //Block read functions during Iocinit
 //Prevent normal behaviour of output records getting/reading initial value at iocInit from driver
@@ -361,6 +365,7 @@ GalilController::GalilController(const char *portName, const char *address, doub
 
   createParam(GalilUserArrayUploadString, asynParamInt32, &GalilUserArrayUpload_);
   createParam(GalilUserArrayString, asynParamFloat64Array, &GalilUserArray_);
+  createParam(GalilUserArrayNameString, asynParamOctet, &GalilUserArrayName_);
 
   createParam(GalilOutputCompare1AxisString, asynParamInt32, &GalilOutputCompareAxis_);
   createParam(GalilOutputCompare1StartString, asynParamFloat64, &GalilOutputCompareStart_);
@@ -518,12 +523,21 @@ GalilController::GalilController(const char *portName, const char *address, doub
 
   // Create the event that wakes up the thread for profile moves
   profileExecuteEvent_ = epicsEventMustCreate(epicsEventEmpty);
+
+  // Create the event that wakes up the thread for array upload
+  arrayUploadEvent_ = epicsEventMustCreate(epicsEventEmpty);
   
   // Create the thread that will execute profile moves
-  epicsThreadCreate("GalilProfile", 
+  epicsThreadCreate("GalilProfile",
                     epicsThreadPriorityLow,
                     epicsThreadGetStackSize(epicsThreadStackMedium),
                     (EPICSTHREADFUNC)GalilProfileThreadC, (void *)this);
+
+  // Create the thread that will upload arrays
+  epicsThreadCreate("GalilArrayUpload",
+                    epicsThreadPriorityLow,
+                    epicsThreadGetStackSize(epicsThreadStackMedium),
+                    (EPICSTHREADFUNC)GalilArrayUploadThreadC, (void *)this);
                     
   //Initialize the motor enables struct in GalilController instance
   for (i=0;i<8;i++)
@@ -1846,6 +1860,22 @@ asynStatus GalilController::abortProfile()
     }
 
   return asynSuccess;
+}
+
+/* C Function which runs the array upload thread */ 
+static void GalilArrayUploadThreadC(void *pPvt)
+{
+  GalilController *pC = (GalilController*)pPvt;
+  pC->arrayUploadThread();
+}
+
+/* Array upload function runs in its own thread */ 
+void GalilController::arrayUploadThread()
+{
+  while (true) {
+    epicsEventWait(arrayUploadEvent_);
+    arrayUpload();
+  }
 }
 
 //Execute prem for motor list
@@ -3306,6 +3336,7 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
   float oldmotor;				//Motor type before changing it.  Use Galil numbering
   unsigned i;					//Looping
   float oldmtr_abs, newmtr_abs;			//Track motor changes
+  int uploading;				//Array uploading status
 
   //GalilPoller is designed to be a constant and fast poller
   //So we dont honour motorUpdateStatus as it will cause threading issues
@@ -3331,7 +3362,12 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
      {
      if (!pCSAxis) return asynError;
      }
-   
+
+  //Protect against calling upload array whilst status is uploading
+  getIntegerParam(GalilUserArrayUpload_, &uploading);
+  if (uploading && function == GalilUserArrayUpload_)//User requesting upload, but its still running
+     return asynSuccess;
+
   /* Set the parameter and readback in the parameter library.  This may be overwritten when we read back the
    * status at the end, but that's OK */
   status = setIntegerParam(addr, function, value);
@@ -3544,7 +3580,7 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 	}
   else if (function == GalilUserArrayUpload_)
 	{
-	arrayUpload();
+	epicsEventSignal(arrayUploadEvent_);
 	}
   else 
 	{
@@ -3774,6 +3810,7 @@ void GalilController::processUnsolicitedMesgs(void)
    char axisName;		//Axis number message is for
    int value;			//The value contained in the message
    char *tokSave = NULL;	//Remaining tokens
+   int uploading;		//Array uploading status
    int len;			//length of received message
 
    //Collect unsolicited message from controller
@@ -3788,47 +3825,63 @@ void GalilController::processUnsolicitedMesgs(void)
       charstr = epicsStrtok_r(rawbuf, " \r\n", &tokSave);
       while (charstr != NULL)
          {
-         //Determine axis message is for
-         axisName = (char)charstr[strlen(charstr)-1];
          //Extract the message
-         strncpy(mesg, charstr, strlen(charstr)-1);
+         strncpy(mesg, charstr, strlen(charstr));
          //Null terminate the message
-         mesg[strlen(charstr)-1] = '\0';
-         //Retrieve GalilAxis instance for the correct axis
-         pAxis = getAxis(axisName - AASCII);
-         //Retrieve the value
-         charstr = epicsStrtok_r(NULL, " \r\n", &tokSave);
-         if (charstr != NULL && pAxis)
+         mesg[strlen(charstr)] = '\0';
+
+         //Array upload controller message
+         if (!abs(strcmp(mesg, "Upload")))//Wake up array upload thread
             {
-            value = atoi(charstr);
-            //Process known messages
-
-            //Motor homed message
-            if (!abs(strcmp(mesg, "homed")))
-               {
-               //Send homed message to pollServices only if homed%c=1
-               if (value)
-                  {
-                  //Send homed message to pollServices
-                  pAxis->homedExecuted_ = false;
-                  pAxis->pollRequest_.send((void*)&MOTOR_HOMED, sizeof(int));
-                  pAxis->homedSent_ = true;
-                  }
-               //Set motorRecord MSTA bit 15 motorStatusHomed_
-               //Homed is not part of Galil data record, we support it using Galil code and unsolicited messages instead
-               //We must use asynMotorAxis version of setIntegerParam to set MSTA bits for this MotorAxis
-               pAxis->setIntegerParam(motorStatusHomed_, value);
-               callParamCallbacks();
-               }
-
-            //Motor homing status message
-            if (!abs(strcmp(mesg, "home")))
-               pAxis->homing_ = false;
+            //Protect against calling upload array whilst status is uploading
+            getIntegerParam(GalilUserArrayUpload_, &uploading);
+            if (!uploading)
+               epicsEventSignal(arrayUploadEvent_);
             }
+         else
+            {
+            //Determine axis message is for
+            axisName = (char)charstr[strlen(charstr)-1];
+            //Extract the message
+            strncpy(mesg, charstr, strlen(charstr)-1);
+            //Null terminate the message
+            mesg[strlen(charstr)-1] = '\0';
 
+            //Retrieve GalilAxis instance for the correct axis
+            pAxis = getAxis(axisName - AASCII);
+            //Retrieve the value
+            charstr = epicsStrtok_r(NULL, " \r\n", &tokSave);
+            if (charstr != NULL && pAxis)
+               {
+               value = atoi(charstr);
+
+               //Process known messages
+               //Motor homed message
+               if (!abs(strcmp(mesg, "homed")))
+                  {
+                  //Send homed message to pollServices only if homed%c=1
+                  if (value)
+                     {
+                     //Send homed message to pollServices
+                     pAxis->homedExecuted_ = false;
+                     pAxis->pollRequest_.send((void*)&MOTOR_HOMED, sizeof(int));
+                     pAxis->homedSent_ = true;
+                     }
+                  //Set motorRecord MSTA bit 15 motorStatusHomed_
+                  //Homed is not part of Galil data record, we support it using Galil code and unsolicited messages instead
+                  //We must use asynMotorAxis version of setIntegerParam to set MSTA bits for this MotorAxis
+                  pAxis->setIntegerParam(motorStatusHomed_, value);
+                  callParamCallbacks();
+                  }
+
+               //Motor homing status message
+               if (!abs(strcmp(mesg, "home")))
+                  pAxis->homing_ = false;
+               }
+            }//Axis messages
          //Retrieve next mesg
          charstr = epicsStrtok_r(NULL, " \r\n", &tokSave);
-         }
+         }//while
       }
 }
 
@@ -4426,25 +4479,37 @@ asynStatus GalilController::programDownload(string prog)
   return status;
 }
 
+/** Reads array data from controller, and pushes it to database waveform records
+*/
 asynStatus GalilController::arrayUpload(void)
 {
-  size_t nwrite;
-  size_t nread;
-  asynStatus status = asynError;
-  int eomReason;
-  bool done;
-  string arrayData;
-  string numbers = "0123456789";
-  unsigned i, j;
-  char cmd[MAX_GALIL_STRING_SIZE];
-  char buf[MAX_GALIL_STRING_SIZE];
+  size_t nwrite;		//Number of characters written
+  size_t nread;			//Number of characters read
+  asynStatus status = asynError;//Status
+  int eomReason;		//End of message reason
+  bool done;			//Done reading this array
+  string arrayData;		//Data read from controller
+  unsigned i, j;		//Looping
+  char cmd[MAX_GALIL_STRING_SIZE];//Array upload command
+  char buf[MAX_GALIL_STRING_SIZE];//Array upload raw data
+  char arrayName[MAX_FILENAME_LEN];//Array name on controller to upload
 
-  if (1)
+  //Update arrayUpload status in paramList
+  setIntegerParam(GalilUserArrayUpload_, 1);
+  callParamCallbacks();
+
+  if (connected_)
      {
+     //Loop through arrays
      for (j = 0;j < 8; j++)
         {
+        getStringParam(j, GalilUserArrayName_, (int)sizeof(arrayName), arrayName);
+        //Decide to skip or process
+        if (!strlen(arrayName)) continue;
         //Request upload
-        sprintf(cmd, "QU array%d[]\r", j);
+        sprintf(cmd, "QU %s[]\r", arrayName);
+        //Called without lock
+        lock();
         status = pSyncOctet_->write(pSyncOctetPvt_, pasynUserSyncGalil_, cmd, 12, &nwrite);
         done = false;
         //Read the response only if write ok
@@ -4471,27 +4536,38 @@ asynStatus GalilController::arrayUpload(void)
                        break; //Upload complete
                     }
                  if (!status)
-                    {
-                    //Append the upload to arrayData buffer
-                    arrayData.append(buf, i);
-                    printf("array data done nread=%d\n", nread);
-                    }
-                 else
-                    printf("array not found\n");
+                    arrayData.append(buf, i);//Append the upload to arrayData buffer
                  }
               else
+                 {
                  done = true; //Stop if any asyn error
+                 status = asynError;
+                 }
               }//While
+           //Release the mutex whilst converting the data
+           unlock();
            if (!status)
               {
-              
+              //Convert \r separated string of numbers into array of doubles
+              stringstream ss(arrayData);
+              vector<double> uarray;
+              double num;
+              while (ss >> num)
+                 uarray.push_back(num);
+              //Update user array waveform in database
+              doCallbacksFloat64Array(&uarray[0], uarray.size(), GalilUserArray_, j);
+              //Clear the array data buffer
+              arrayData.clear();
               }
            }
         }//For
      }
 
-   //Return status to caller
-   return status;
+  //Update arrayUpload status in paramList
+  setIntegerParam(GalilUserArrayUpload_, 0);
+  callParamCallbacks();
+  //Return status to caller
+  return status;
 }
 
 /** Uploads program on controller and returns as std::string to caller

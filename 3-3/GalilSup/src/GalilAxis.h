@@ -234,7 +234,6 @@ private:
   bool restoreProfile_;			//Should profileBackupPositions_ be copied into profilePositions_ after orofile built complete? 
                                 	//True for all GalilAxis involved in CSAxis profile build, set false at built end
   double *profileBackupPositions_;	//Profile positions backup for this axis, restored after profile is built
-  double *calculatedPositions_;         //Real motor profile positions in egu calculated from CSAxis profile
 
 friend class GalilController;
 friend class GalilCSAxis;

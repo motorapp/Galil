@@ -191,9 +191,6 @@ asynStatus GalilAxis::setDefaults(int limit_as_home, char *enables_string, int s
 	//So we use "use encoder if present" UEIP field to set axisReady_ to true
 	axisReady_ = false;
 
-	//Have not allocated calculated profile array
-	calculatedPositions_ = NULL;
-
 	//Have not allocated profile data backup array
 	//Data restored automatically after profile built
 	profileBackupPositions_ = NULL;
@@ -853,8 +850,9 @@ asynStatus GalilAxis::setPosition(double position)
   //Set encoder position
   setEncoderPosition(enc_pos);
 
+  //To compensate for a problem in devMotorAsyn.c upto motorR6-9
   //Give poller time to update motor record with new readback data
-  //This allows motor record to set correct val for restored position
+  //This allows motor record to set correct val for restored position at startup
   //Release lock so synchronous poller is not blocked
   pC_->unlock();
   epicsThreadSleep(pC_->updatePeriod_*2.0/1000.0);
@@ -1002,16 +1000,8 @@ asynStatus GalilAxis::setClosedLoop(bool closedLoop)
 /* These are the functions for profile moves */
 asynStatus GalilAxis::initializeProfile(size_t maxProfilePoints)
 {
-  if (profileBackupPositions_)    free(profileBackupPositions_);
-  profileBackupPositions_ =      (double *)calloc(maxProfilePoints, sizeof(double)); 
-  if (calculatedPositions_)    free(calculatedPositions_);
-  calculatedPositions_ =      (double *)calloc(maxProfilePoints, sizeof(double)); 
   if (profilePositions_)       free(profilePositions_);
   profilePositions_ =         (double *)calloc(maxProfilePoints, sizeof(double));
-//  if (profileReadbacks_)    free(profileReadbacks_);
-//  profileReadbacks_ =         (double *)calloc(maxProfilePoints, sizeof(double));
-//  if (profileFollowingErrors_) free(profileFollowingErrors_);
-//  profileFollowingErrors_ =   (double *)calloc(maxProfilePoints, sizeof(double));
   return asynSuccess;
 }
 
@@ -1070,6 +1060,9 @@ void GalilAxis::restoreProfileData(void)
      //Restore original GalilAxis profile data
      for (i = 0; i < (unsigned)nPoints; i++)
         profilePositions_[i] = profileBackupPositions_[i];
+     //Free the buffer used to backup axis profile data
+     free(profileBackupPositions_);
+     profileBackupPositions_ = NULL;
      //After restore, reset flag to false
      restoreProfile_ = false;
      }

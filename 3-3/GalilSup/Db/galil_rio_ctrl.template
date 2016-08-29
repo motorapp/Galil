@@ -51,6 +51,29 @@ record(stringin,"$(P):ETHADDR_MON")
    	field(INP,  "@asyn($(PORT),0)CONTROLLER_ETHADDR")
 }
 
+record(bo,"$(P):UPLOAD_CMD")
+{
+	field(DESC, "Upload user arrays")
+	field(DTYP, "asynInt32")
+	field(ZNAM, "Upload")
+	field(ZSV,  "NO_ALARM")
+	field(ONAM, "Upload")
+	field(OSV,  "NO_ALARM")
+	field(OUT,  "@asyn($(PORT),0)CONTROLLER_UARRAY_UPLOAD")
+}
+
+record(bi,"$(P):UPLOAD_STATUS")
+{
+	field(DESC, "Upload array status")
+	field(DTYP, "asynInt32")
+	field(ZNAM, "Idle")
+	field(ZSV,  "NO_ALARM")
+	field(ONAM, "Uploading")
+	field(OSV,  "NO_ALARM")
+	field(SCAN, "I/O Intr")
+   	field(INP,  "@asyn($(PORT),0)CONTROLLER_UARRAY_UPLOAD")
+}
+
 record(stringin,"$(P):SERIALNUM_MON")
 {
 	field(DESC, "Ctrl Serial Number")

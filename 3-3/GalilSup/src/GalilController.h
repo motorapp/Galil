@@ -33,7 +33,7 @@
 #define ZEROASCII 48
 #define SCALCARGS 16
 //Number of communication retries
-#define ALLOWED_TIMEOUTS 2
+#define ALLOWED_TIMEOUTS 3
 #define MAX_UPDATE_PERIOD 200
 #define MAX_GALIL_UNSOLICTED_SIZE 29
 #define MAX_GALIL_STRING_SIZE 768
@@ -94,6 +94,7 @@
 
 #define GalilUserArrayUploadString	"CONTROLLER_UARRAY_UPLOAD"
 #define GalilUserArrayString		"CONTROLLER_UARRAY"
+#define GalilUserArrayNameString	"CONTROLLER_UARRAY_NAME"
 
 #define GalilOutputCompare1AxisString	"OUTPUT_COMPARE_AXIS"
 #define GalilOutputCompare1StartString	"OUTPUT_COMPARE_START"
@@ -286,6 +287,7 @@ public:
   asynStatus get_integer(int function, epicsInt32 *value, int axisNo);
   asynStatus get_double(int function, epicsFloat64 *value, int axisNo);
   void profileThread();
+  void arrayUploadThread();
   asynStatus setOutputCompare(int oc);
   asynStatus beginLinearGroupMotion(int coordsys, char coordName, const char *axes, bool profileAbort);
   asynStatus beginGroupMotion(char *maxes, char *paxes = (char *)"");
@@ -347,6 +349,7 @@ protected:
 
   int GalilUserArrayUpload_;
   int GalilUserArray_;
+  int GalilUserArrayName_;
 
   int GalilOutputCompareAxis_;
   int GalilOutputCompareStart_;
@@ -471,6 +474,8 @@ private:
   bool profileAbort_;			//Abort profile request flag.  Aborts profile when set true
   char profileAxes_[MAX_GALIL_AXES+1];	//Running profile axes list
   int profileType_;			//Running profile type 0=linear, 1=pvt
+
+  epicsEventId arrayUploadEvent_;	//Event for uploading user arrays from controller
 
   int thread_mask_;			//Mask detailing which threads are expected to be running after program download Bit 0 = thread 0 etc
 

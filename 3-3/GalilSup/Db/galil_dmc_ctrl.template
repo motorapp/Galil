@@ -193,6 +193,18 @@ record(bo,"$(P):UPLOAD_CMD")
 	field(OUT,  "@asyn($(PORT),0)CONTROLLER_UARRAY_UPLOAD")
 }
 
+record(bi,"$(P):UPLOAD_STATUS")
+{
+	field(DESC, "Upload array status")
+	field(DTYP, "asynInt32")
+	field(ZNAM, "Idle")
+	field(ZSV,  "NO_ALARM")
+	field(ONAM, "Uploading")
+	field(OSV,  "NO_ALARM")
+	field(SCAN, "I/O Intr")
+   	field(INP,  "@asyn($(PORT),0)CONTROLLER_UARRAY_UPLOAD")
+}
+
 #Defered move mode
 record(bi,"$(P):DEFER_MODE_STATUS")
 {

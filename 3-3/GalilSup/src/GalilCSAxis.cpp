@@ -1076,6 +1076,7 @@ asynStatus GalilCSAxis::transformCSAxisProfile(void)
   int status;			//Return status
   int useCSAxis;		//useAxis flag for CSAxis
   int nPoints;			//Number of points in profile
+  vector<double> calculatedPositions; //Calculated profiles of real axis
 
   //Retrieve required attributes from ParamList
   pC_->getIntegerParam(0, pC_->profileNumPoints_, &nPoints);
@@ -1090,8 +1091,14 @@ asynStatus GalilCSAxis::transformCSAxisProfile(void)
      pAxis[i] = pC_->getAxis(revaxes_[i] - AASCII);
      if (!pAxis[i]) //Return error if any GalilAxis not instantiated
         return asynError;
-     else //Transform will proceed, and later restore is required for this GalilAxis
+     else
+        {
+        //Transform will proceed, and later restore is required for this GalilAxis
         pAxis[i]->restoreProfile_ = true;
+        //Allocate room to backup loaded profile for this real axis
+        if (pAxis[i]->profileBackupPositions_)    free(pAxis[i]->profileBackupPositions_);
+        pAxis[i]->profileBackupPositions_ =      (double *)calloc(pC_->maxProfilePoints_, sizeof(double));
+        }
      }
 
    //Transform this CSAxis, and create Axis profile data
@@ -1115,13 +1122,13 @@ asynStatus GalilCSAxis::transformCSAxisProfile(void)
       {
       //Retrieve needed motor record fields
       status |= pC_->getDoubleParam(revaxes_[i] - AASCII, pC_->motorResolution_, &mres);
+      //Clear the buffer
+      calculatedPositions.clear();
       //Copy profile into calculatedPositions array
       for (j = 0; j < (unsigned)nPoints; j++)
-         {
-         pAxis[i]->calculatedPositions_[j] = pAxis[i]->profilePositions_[j] * mres;
-         }
+         calculatedPositions.push_back(pAxis[i]->profilePositions_[j] * mres);
       //Update calculatedPositions record for this revaxis (real motor)
-      pC_->doCallbacksFloat64Array(pAxis[i]->calculatedPositions_, nPoints, pC_->GalilProfileCalculated_, revaxes_[i] - AASCII);
+      pC_->doCallbacksFloat64Array(&calculatedPositions[0], nPoints, pC_->GalilProfileCalculated_, revaxes_[i] - AASCII);
       }
 
   //All ok
@@ -1210,10 +1217,6 @@ asynStatus GalilCSAxis::initializeProfile(size_t maxProfilePoints)
 {
   if (profilePositions_)       free(profilePositions_);
   profilePositions_ =         (double *)calloc(maxProfilePoints, sizeof(double));
-  if (profileReadbacks_)    free(profileReadbacks_);
-  profileReadbacks_ =         (double *)calloc(maxProfilePoints, sizeof(double));
-  if (profileFollowingErrors_) free(profileFollowingErrors_);
-  profileFollowingErrors_ =   (double *)calloc(maxProfilePoints, sizeof(double));
   return asynSuccess;
 }
 

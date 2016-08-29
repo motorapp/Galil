@@ -38,5 +38,13 @@ record(waveform,"$(P):UARRAY$(ADDR)_MON")
 	field(INP,  "@asyn($(PORT),$(ADDR))CONTROLLER_UARRAY")
 }
 
-# end
+record(stringout,"$(P):UARRAYNAME$(ADDR)_SP")
+{
+	field(DESC, "User array $(ADDR) name")
+	field(PINI, "YES")
+	field(OMSL, "supervisory")
+	field(DTYP, "asynOctetWrite")
+	field(OUT,  "@asyn($(PORT),$(ADDR))CONTROLLER_UARRAY_NAME")
+}
 
+# end
