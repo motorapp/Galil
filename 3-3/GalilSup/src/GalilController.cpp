@@ -212,6 +212,8 @@
 // 29/08/16 M.Clift
 //                  Add user array upload implementation completed
 //                  Reduced memory requirements of profile moves
+// 30/08/16 M.Clift
+//                  Altered encoded open loop stepper synchronization is now performed immediately at motor stop
 
 #include <stdio.h>
 #include <math.h>

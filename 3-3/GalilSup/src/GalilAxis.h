@@ -229,6 +229,7 @@ private:
   bool homedExecuted_;			//Homed message has been executed by pollServices
   bool cancelHomeSent_;			//Cancel home process message sent to pollServices
   bool syncEncodedStepperSent_;		//Synchronize stepper with encoder message sent to pollServices
+  bool syncEncodedStepperExecuted_;	//Synchronize stepper with encoder execution complete
   bool encoderSwapped_;			//Have the main, and auxiliary encoders been swapped by DFx=1
 
   bool restoreProfile_;			//Should profileBackupPositions_ be copied into profilePositions_ after orofile built complete? 

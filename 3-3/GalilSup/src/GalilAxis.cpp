@@ -178,6 +178,9 @@ asynStatus GalilAxis::setDefaults(int limit_as_home, char *enables_string, int s
 	//Homed mesg not sent to pollServices thread
 	homedExecuted_ = homedSent_ = false;
 
+	//Sync encoded stepper message not sent to pollServices
+	syncEncodedStepperSent_ = syncEncodedStepperExecuted_ = false;
+
 	//Motor power auto on/off mesg not sent to pollServices thread yet
 	autooffSent_ = false;
 
@@ -1294,28 +1297,22 @@ void GalilAxis::checkEncoder(void)
 
 //Called by poll without lock
 //For encoded open loop steppers only
-//Copy encoder value to step count register if ueip = 1 and stopped longer
-//than off delay
+//Copy encoder value to step count register if ueip = 1 and motor just stopped
 void GalilAxis::syncEncodedStepper(void)
 {
-   double offdelay;
-   int status;
-
-   //Retrieve needed params
-   status = pC_->getDoubleParam(axisNo_, pC_->GalilAutoOffDelay_, &offdelay);
-   //If user wants encoder, but controller running in open loop, and motor stopped longer than off delay
-   if (!status)
+   //If user wants encoder, but controller running in open loop, and motor just stopped
+   if (ueip_ && !ctrlUseMain_ && done_ && !last_done_ && !syncEncodedStepperSent_ && !homing_)
       {
-      if (ueip_ && !ctrlUseMain_ && done_ && !syncEncodedStepperSent_ && !homing_ && stoppedTime_ > offdelay)
-         {
-         //Only for stopped encoded steppers with ueip = 1
-         //Request encoder value be copied to step register
-         pollRequest_.send((void*)&MOTOR_STEP_SYNC, sizeof(int));
-         //Flag that sync encoded stepper message has been sent
-         syncEncodedStepperSent_ = true;
-         }
-      if (!done_) //Encoder stepper not yet synchronized
-         syncEncodedStepperSent_ = false;
+      //Only for stopped encoded steppers with ueip = 1
+      //Request encoder value be copied to step register
+      pollRequest_.send((void*)&MOTOR_STEP_SYNC, sizeof(int));
+      //Flag that sync encoded stepper message has been sent
+      syncEncodedStepperSent_ = true;
+      }
+   if (!done_) //Encoder stepper not yet synchronized
+      {
+      syncEncodedStepperSent_ = false;
+      syncEncodedStepperExecuted_ = false;
       }
 }
 
@@ -1483,21 +1480,19 @@ void GalilAxis::pollServices(void)
                             setBrake(true);	//Execute the brake on command
                          break;
         case MOTOR_STEP_SYNC:
-                         //Block encoded stepper synchronization if again inmotion_ or auto on delay active
-                         if (!inmotion_ && autooffAllowed_)
+                         //Retrieve needed params
+                         status = pC_->getDoubleParam(axisNo_, pC_->motorResolution_, &mres);
+                         status |= pC_->getDoubleParam(axisNo_, pC_->GalilEncoderResolution_, &eres);
+                         status |= pC_->getDoubleParam(axisNo_, pC_->motorEncoderPosition_, &epos);
+                         if (!status)
                             {
-                            //Retrieve needed params
-                            status = pC_->getDoubleParam(axisNo_, pC_->motorResolution_, &mres);
-                            status |= pC_->getDoubleParam(axisNo_, pC_->GalilEncoderResolution_, &eres);
-                            status |= pC_->getDoubleParam(axisNo_, pC_->motorEncoderPosition_, &epos);
-                            if (!status)
-                               {
-                               //Calculate step count from existing encoder_position, construct mesg to controller
-                               sprintf(pC_->cmd_, "DP%c=%.0lf", axisName_, epos * (eres/mres));
-                               //Write command to controller
-                               pC_->sync_writeReadController();
-                               }
+                            //Calculate step count from existing encoder_position, construct mesg to controller
+                            sprintf(pC_->cmd_, "DP%c=%.0lf", axisName_, epos * (eres/mres));
+                            //Write command to controller
+                            pC_->sync_writeReadController();
                             }
+                         //Sync encoded stepper executed
+                         syncEncodedStepperExecuted_ = true;
                          break;
         case MOTOR_HOMED://Retrieve needed params
                          status = pC_->getDoubleParam(axisNo_, pC_->GalilJogAfterHomeValue_, &jahv);
@@ -1881,11 +1876,12 @@ skip:
    setIntegerParam(pC_->motorStatusHome_, home);
    //Pass direction to motorRecord
    setIntegerParam(pC_->motorStatusDirection_, direction_);
-   //Tell upper layers motor is moving whilst post, and homing requests are being executed
-   //This prevents new moves being initiated whilst post, homing requests are being executed
+   //Tell upper layers motor is moving whilst post, sync encoded stepper, and homing requests are being executed
+   //This prevents new moves being initiated whilst above functions are being executed
    //Also keeps HOMR and HOMF 1 until homing finished
    //Done late in poll to allow parallel execution with pollServices
-   if ((postSent_ && !postExecuted_) || (homedSent_ && !homedExecuted_) || homing_)
+   if ((postSent_ && !postExecuted_) || (homedSent_ && !homedExecuted_) || homing_ ||
+       (syncEncodedStepperSent_ && !syncEncodedStepperExecuted_))
       {
       *moving = true;
       done_ = 0;
@@ -1905,7 +1901,7 @@ skip:
    //Pass comms status to motorRecord
    setIntegerParam(pC_->motorStatusCommsError_, status ? 1:0);
    //Update motor status fields in upper layers using asynMotorAxis->callParamCallbacks
-   callParamCallbacks();   
+   callParamCallbacks();
    //Always return success. Dont need more error mesgs
    return asynSuccess;
 }
