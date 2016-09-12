@@ -41,7 +41,8 @@ static const int MOTOR_OFF = 2;
 static const int MOTOR_HOMED = 3;
 static const int MOTOR_CANCEL_HOME = 4;
 static const int MOTOR_BRAKE_ON = 5;
-static const int MOTOR_STEP_SYNC = 6;
+static const int MOTOR_STEP_SYNC_ATSTOP = 6;
+static const int MOTOR_STEP_SYNC_ATENC = 7;
 
 typedef enum limitsState
    {
@@ -146,6 +147,7 @@ public:
   asynStatus home(double minVelocity, double maxVelocity, double acceleration, int forwards);
   asynStatus stop(double acceleration);
   asynStatus poll(bool *moving);
+  asynStatus syncPosition(void);
   asynStatus setPosition(double position);
   asynStatus setEncoderPosition(double position);
   asynStatus setEncoderRatio(double ratio);
@@ -228,8 +230,9 @@ private:
   bool homedSent_;			//Homed message sent to pollServices
   bool homedExecuted_;			//Homed message has been executed by pollServices
   bool cancelHomeSent_;			//Cancel home process message sent to pollServices
-  bool syncEncodedStepperSent_;		//Synchronize stepper with encoder message sent to pollServices
-  bool syncEncodedStepperExecuted_;	//Synchronize stepper with encoder execution complete
+  bool syncEncodedStepperAtStopSent_;	//Synchronize stepper with encoder at stop message sent to pollServices
+  bool syncEncodedStepperAtStopExecuted_;//Synchronize stepper with encoder at stop execution complete
+  bool syncEncodedStepperAtEncSent_;	//Synchronize stepper with encoder at encoder move message sent
   bool encoderSwapped_;			//Have the main, and auxiliary encoders been swapped by DFx=1
 
   bool restoreProfile_;			//Should profileBackupPositions_ be copied into profilePositions_ after orofile built complete? 

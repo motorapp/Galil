@@ -214,6 +214,8 @@
 //                  Reduced memory requirements of profile moves
 // 30/08/16 M.Clift
 //                  Altered encoded open loop stepper synchronization is now performed immediately at motor stop
+// 31/08/16 M.Clift
+//                  Add encoded open loop stepper synchronized to encoder if stopped and encoder drifts more than retry deadband
 
 #include <stdio.h>
 #include <math.h>
