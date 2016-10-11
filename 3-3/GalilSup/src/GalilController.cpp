@@ -216,6 +216,8 @@
 //                  Altered encoded open loop stepper synchronization is now performed immediately at motor stop
 // 31/08/16 M.Clift
 //                  Add encoded open loop stepper synchronized to encoder if stopped and encoder drifts more than retry deadband
+// 11/10/16 M.Clift
+//                  Altered motor amplifiers are now only disabled at driver connect time if Amp auto on/off is set to on
 
 #include <stdio.h>
 #include <math.h>
@@ -916,7 +918,7 @@ void GalilController::connected(void)
      sync_writeReadController();
      }
 
-  //Stop all moving motors, and turn all motors off
+  //Stop all moving motors
   for (i=0;i<numAxesMax_;i++)
      {
      //Query moving status
@@ -927,15 +929,12 @@ void GalilController::connected(void)
         //Stop moving motor
         sprintf(cmd_, "ST%c", (i + AASCII));
         sync_writeReadController();
-	//Allow time for motor stop
+        //Allow time for motor stop
         epicsThreadSleep(1.0);
         //Ensure home process is stopped
         sprintf(cmd_, "home%c=0", (i + AASCII));
         sync_writeReadController();
         }
-     //Turn off motor
-     sprintf(cmd_, "MO%c", (i + AASCII));
-     sync_writeReadController();
      }
 
   //Initialize data record structures
