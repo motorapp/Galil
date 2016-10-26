@@ -218,6 +218,8 @@
 //                  Add encoded open loop stepper synchronized to encoder if stopped and encoder drifts more than retry deadband
 // 11/10/16 M.Clift
 //                  Altered motor amplifiers are now only disabled at driver connect time if Amp auto on/off is set to on
+// 26/10/16 M.Clift
+//                  Fixed maxAcceleration statistic calculated for profile motion details screen
 
 #include <stdio.h>
 #include <math.h>
@@ -1440,7 +1442,8 @@ asynStatus GalilController::buildProfileFile()
 {
   GalilAxis *pAxis;				//GalilAxis instance
   int nPoints;					//Number of points in profile
-  double velocity[MAX_GALIL_AXES];		//Motor velocity
+  double velocity[MAX_GALIL_AXES];		//Motor velocity for current segment
+  double velocityPrev[MAX_GALIL_AXES];		//Motor velocity for previous segment
   double maxAllowedVelocity[MAX_GALIL_AXES];    //Derived from MR VMAX to ensure motor velocities are within limits
   double maxProfileVelocity[MAX_GALIL_AXES];    //The highest velocity for each motor in the profile data
   double maxProfilePosition[MAX_GALIL_AXES];	//Maximum profile position in absolute mode
@@ -1516,7 +1519,9 @@ asynStatus GalilController::buildProfileFile()
 	//Decide to process this axis, or skip
 	if (!useAxis[i] || !pAxis) continue;
 	//Initialize accumulated position, and error
-	apos[i] = aerr[i] = velocity[i] = 0;
+	apos[i] = aerr[i] = 0;
+	//Initialize velocity
+	velocity[i] = velocityPrev[i] = 0;
 	//Construct axis list
 	sprintf(axes,"%s%c", axes, (char)(i + AASCII));
 	//Construct start positions list
@@ -1622,8 +1627,8 @@ asynStatus GalilController::buildProfileFile()
 			 minProfilePosition[j] = pAxis->profilePositions_[i]*mres;
 
 		//Find max profile acceleration for this motor
-		if (fabs(velocity[j]*mres)/profileTimes_[i] > maxProfileAcceleration[j])
-			maxProfileAcceleration[j] = fabs(velocity[j]*mres)/profileTimes_[i];
+		if (fabs((velocity[j] - velocityPrev[j])*mres)/profileTimes_[i] > maxProfileAcceleration[j])
+			maxProfileAcceleration[j] = fabs((velocity[j] - velocityPrev[j])*mres)/profileTimes_[i];
 
 		//Check position against software limits
 		if (pAxis->profilePositions_[i] < pAxis->lowLimit_ || 
@@ -1667,6 +1672,8 @@ asynStatus GalilController::buildProfileFile()
 			}
 		//Detect zero moves in this segment
 		zm_count =  (rint(incmove) == 0) ? zm_count+1 : zm_count;
+		//Store current segment velocity for this motor
+		velocityPrev[j] = velocity[j];
 		}
 
 	//Check for zero move segments
