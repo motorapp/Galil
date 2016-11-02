@@ -172,7 +172,7 @@
                 </property>
                 <property name="icon">
                  <iconset>
-                  <normaloff>../../../../../../../../../../../../beamline/perforce/Dev/SBS/3_Beamlines/Common/IOC_Support/pmacUtil/pmacUtilApp/opi/ui/popout.jpeg</normaloff>../../../../../../../../../../../../beamline/perforce/Dev/SBS/3_Beamlines/Common/IOC_Support/pmacUtil/pmacUtilApp/opi/ui/popout.jpeg</iconset>
+                  <normaloff>popout.jpeg</normaloff>popout.jpeg</iconset>
                 </property>
                 <property name="flat">
                  <bool>true</bool>
