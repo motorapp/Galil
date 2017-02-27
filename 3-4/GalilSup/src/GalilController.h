@@ -39,7 +39,9 @@
 #define MAX_GALIL_STRING_SIZE 768
 #define MAX_GALIL_DATAREC_SIZE 768
 #define MAX_GALIL_AXES 8
-#define MAX_GALIL_VARS 10
+//Number of parameter tables created
+//Meaning records can have address values 0-63
+#define MAX_ADDRESS 64
 #define MAX_GALIL_CSAXES 8
 #define MAX_FILENAME_LEN 2048
 #define MAX_LINEAR_SEGMENTS 511
@@ -271,6 +273,7 @@ public:
   //asynStatus readbackProfile();
 
   /* These are the methods that are new to this class */
+  int GalilInitializeVariables(bool burn_variables);
   void GalilStartController(char *code_file, int eeprom_write, int thread_mask);
   void connect(void);
   void disconnect(void);
@@ -475,6 +478,9 @@ private:
   char profileAxes_[MAX_GALIL_AXES+1];	//Running profile axes list
   int profileType_;			//Running profile type 0=linear, 1=pvt
 
+  vector<string> userVariables_;	//User defined variables
+  vector<int> userVariableAddresses_;	//Address of record that relates to the user defined variable
+
   epicsEventId arrayUploadEvent_;	//Event for uploading user arrays from controller
 
   int thread_mask_;			//Mask detailing which threads are expected to be running after program download Bit 0 = thread 0 etc
@@ -483,6 +489,8 @@ private:
   asynStatus recstatus_;		//Status of last record acquisition
   unsigned numAxesMax_;			//Number of axes actually supported by the controller
   unsigned numAxes_;			//Number of axes requested by developer
+  char axisList_[MAX_GALIL_AXES+1];	//Axes requested by developer
+
   unsigned numThreads_;			//Number of threads the controller supports
   bool codegen_init_;			//Has the code generator been initialised for this controller
   bool digitalinput_init_;		//Has the digital input label #ININT been included for this controller

@@ -28,15 +28,15 @@
 # 800 Blackburn Road, Clayton, Victoria 3168, Australia.
 #
 
-record(ai,"$(P):$(EPICSName)_MONITOR")
+record(ai,"$(P)$(EPICSNAME)_MONITOR")
 {
-	field(DESC,"$(EPICSName) monitor")
+	field(DESC,"$(EPICSNAME) monitor")
 	field(SCAN,"$(SCAN)")
 	field(DTYP,"asynFloat64")
 	field(PINI,"$(PINI)")
 	field(EGU, "$(EGU)")
-	field(FLNK,"$(P):$(EPICSName)_STATUS")
-	field(INP, "@asyn($(PORT),0)USER_$(DRVCMD) $(GalilStr)")
+	field(FLNK,"$(P)$(EPICSNAME)_STATUS")
+	field(INP, "@asyn($(PORT),$(ADDR))USER_$(DRVCMD) $(GALILSTR)")
 
 # Alarm thresholds
 	field(LOW,  "$(LOW)")
@@ -48,10 +48,10 @@ record(ai,"$(P):$(EPICSName)_MONITOR")
 # BI below provides status readback for the above monitor.
 # Bit 0 from the MONITOR (above) is the only one used for the STATUS PV (below).
 
-record(bi,"$(P):$(EPICSName)_STATUS")
+record(bi,"$(P)$(EPICSNAME)_STATUS")
 {
-	field(DESC,"$(EPICSName) status")
-	field(INP, "$(P):$(EPICSName)_MONITOR")
+	field(DESC,"$(EPICSNAME) status")
+	field(INP, "$(P)$(EPICSNAME)_MONITOR")
 
 # Alarm thresholds
 	field(ZNAM,"$(ZNAM)")
@@ -60,16 +60,16 @@ record(bi,"$(P):$(EPICSName)_STATUS")
 	field(OSV, "$(OSV)")
 }
 
-record(ao,"$(P):$(EPICSName)_SP")
+record(ao,"$(P)$(EPICSNAME)_SP")
 {
-	field(DESC,"$(EPICSName) setpoint")
+	field(DESC,"$(EPICSNAME) setpoint")
 	field(DTYP,"asynFloat64")
 	
 	field(EGU, "$(EGU)")
-	field(DOL, "$(P):$(EPICSName)_SP")
-	field(FLNK,"$(P):$(EPICSName)_MONITOR")
+	field(DOL, "$(P)$(EPICSNAME)_SP")
+	field(FLNK,"$(P)$(EPICSNAME)_MONITOR")
 	field(PINI,"$(PINI)")
-	field(OUT, "@asyn($(PORT),0)USER_$(DRVCMD) $(GalilStr)")
+	field(OUT, "@asyn($(PORT),$(ADDR))USER_$(DRVCMD) $(GALILSTR)")
 	
 # Set default value here.
 	field(VAL, "$(DEFAULT)")
@@ -85,11 +85,11 @@ record(ao,"$(P):$(EPICSName)_SP")
  	field(HSV,  "$(HSV)")
 }
 
-record(bo,"$(P):$(EPICSName)_CMD")
+record(bo,"$(P)$(EPICSNAME)_CMD")
 {
-	field(DESC,"$(EPICSName) cmd")
-	field(OUT, "$(P):$(EPICSName)_SP")
-	field(FLNK,"$(P):$(EPICSName)_SP")
+	field(DESC,"$(EPICSNAME) cmd")
+	field(OUT, "$(P)$(EPICSNAME)_SP")
+	field(FLNK,"$(P)$(EPICSNAME)_SP")
 
 # Alarm thresholds
 	field(ZNAM,"$(ZNAM)")

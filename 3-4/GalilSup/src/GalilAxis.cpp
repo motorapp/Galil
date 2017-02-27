@@ -63,16 +63,18 @@ GalilAxis::GalilAxis(class GalilController *pC, //Pointer to controller instance
   epicsTimeGetCurrent(&stop_begint_);
   stop_nowt_ = stop_begint_;
  
-  //Increment internal axis counter
-  //Used to check start status of galil thread (on hardware) for this GalilAxis
-  pC_->numAxes_++;
-
   //encoder ratio has not been set yet
   encmratioset_ = false;
 
-  //store axis details
   //Store axis name in axis class instance
   axisName_ = (char)(toupper(axisname[0]));
+
+  //Used to check thread status on controller
+  //Used to set galil code variables too
+  //Store axis name in axisList
+  pC_->axisList_[pC_->numAxes_] = axisName_;
+  //Increment internal axis counter
+  pC_->numAxes_++;
 
   //Create poller sleep event
   stoppedTimeResetEventId_ = epicsEventMustCreate(epicsEventEmpty);
@@ -320,14 +322,10 @@ void GalilAxis::gen_limitcode(char c,			 //GalilAxis::axisName_ used very often
 	//Determine axis that requires stop based on stop code and moving status
 	//Use user desired deceleration, stop motor, then put deceleration back to that for normal moves
 	sprintf(axis_limit_code,"%sIF (((_SC%c=2) | (_SC%c=3)) & (_BG%c=1))\noldecel%c=_DC%c;ocds=_VDS;ocdt=_VDT;DC%c=limdc%c;VDS=limdc%c;VDT=limdc%c;ST%c\n",axis_limit_code,c,c,c,c,c,c,c,c,c,c);
-        if (!limit_as_home_)	//Hitting limit when homing to home switch is a fail, cancel home process
+	if (!limit_as_home_)	//Hitting limit when homing to home switch is a fail, cancel home process
 		sprintf(axis_limit_code,"%sDC%c=oldecel%c;VDS=ocds;VDT=ocdt;home%c=0;MG \"home%c\",home%c;ENDIF\n",axis_limit_code,c,c,c,c,c);
 	else			//Hitting limit when homing to limit switch is normal
 		sprintf(axis_limit_code,"%sDC%c=oldecel%c;VDS=ocds;VDT=ocdt;ENDIF\n",axis_limit_code,c,c);
- 	
-	/*provide sensible default for limdc (limit deceleration) value*/
-	sprintf(pC_->cmd_, "limdc%c=67107840", c);
-	pC_->sync_writeReadController();
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -378,43 +376,6 @@ void GalilAxis::gen_homecode(char c,			//GalilAxis::axisName_ used very often
 	sprintf(axis_thread_code,"%sWT10;hjog%c=0;home%c=0\n", axis_thread_code,c,c);
 	//Send unsolicited messages to epics informing home and homed status
 	sprintf(axis_thread_code,"%shomed%c=1;MG \"homed%c\",homed%c;MG \"home%c\",home%c;ENDIF\nENDIF\n", axis_thread_code,c,c,c,c,c);
-	
-	//Initialize home related parameters on controller
-	//initialise home variable for this axis, set to not homming just yet.  Set to homming only when doing a home
-	sprintf(pC_->cmd_, "home%c=0", c);
-	pC_->sync_writeReadController();
-
-	//Ensure homed variable is defined on controller
-	sprintf(pC_->cmd_, "homed%c=?", c);
-	if (pC_->sync_writeReadController() != asynSuccess)
-		{
-		//Controller doesnt know homed variable.  Give it initial value only in this case
-		sprintf(pC_->cmd_, "homed%c=0", c);
-		pC_->sync_writeReadController();
-		}
-	else
-		{
-		//Controller does know homed variable
-		//Extract its current value
-		int value = atoi(pC_->resp_);
-		//Set motorRecord MSTA bit 15 motorStatusHomed_
-		//Homed is not part of Galil data record, we support it using Galil code and unsolicited messages over tcp instead
-		//We must use asynMotorAxis version of setIntegerParam to set MSTA bits for this MotorAxis
-		setIntegerParam(pC_->motorStatusHomed_, value);
-		callParamCallbacks();
-		}
-	
-	//Initialize home switch active value*/
-	sprintf(pC_->cmd_, "hswact%c=0", c);
-	pC_->sync_writeReadController();
-	
-	//Initialize home switch inactive value*/
-	sprintf(pC_->cmd_, "hswiact%c=1", c);
-	pC_->sync_writeReadController();
-
-	/*initialise home jogoff variable*/
-	sprintf(pC_->cmd_, "hjog%c=0", c);
-	pC_->sync_writeReadController();
 	
 	/*
 	//Add code that counts cpu cycles through thread 0
@@ -484,8 +445,7 @@ asynStatus GalilAxis::setAccelVelocity(double acceleration, double velocity, boo
   * \param[in] relative  Flag indicating relative move (1) or absolute move (0).
   * \param[in] minVelocity The initial velocity, often called the base velocity. Units=steps/sec.
   * \param[in] maxVelocity The maximum velocity, often called the slew velocity. Units=steps/sec.
-  * \param[in] acceleration The acceleration value. Units=steps/sec/sec.
-  * \param[in] resetCtrlMessage Reset controller message at beginCheck */
+  * \param[in] acceleration The acceleration value. Units=steps/sec/sec*/
 asynStatus GalilAxis::move(double position, int relative, double minVelocity, double maxVelocity, double acceleration)
 {
   static const char *functionName = "move";
@@ -710,6 +670,7 @@ asynStatus GalilAxis::beginCheck(const char *functionName, double maxVelocity, b
 {
   int wlp, wlpactive;			//Wrong limit protection.  When motor hits wrong limit
   char mesg[MAX_GALIL_STRING_SIZE];
+  int rev, fwd;				//Limit status
 
   //Retrieve wrong limit protection setting
   pC_->getIntegerParam(axisNo_, pC_->GalilWrongLimitProtection_, &wlp);
@@ -724,8 +685,17 @@ asynStatus GalilAxis::beginCheck(const char *functionName, double maxVelocity, b
 	sprintf(mesg, "%s failed, axis still initializing %c", functionName, axisName_);
 	//Set controller error mesg monitor
 	pC_->setCtrlError(mesg);
-	return asynError;  //Nothing to do 
+	return asynError;  //Nothing to do
 	}
+
+  //Used to support wrongLimitProtection
+  //Store if move begun whilst on a limit
+  pC_->getIntegerParam(axisNo_, pC_->motorStatusLowLimit_, &rev);
+  pC_->getIntegerParam(axisNo_, pC_->motorStatusHighLimit_, &fwd);
+  if (rev || fwd)
+     beginOnLimit_ = true;
+  else
+     beginOnLimit_ = false;
 
   //Dont start if wlp is on, and its been activated
   /*if (wlp && wlpactive)
@@ -1393,8 +1363,9 @@ void GalilAxis::wrongLimitProtection(void)
             sprintf(message, "Wrong limit protect stop motor %c", axisName_);
             //Set controller error mesg monitor
             pC_->setCtrlError(message);
-            //Set limit status to not_consistent
-            limitsDirState_ = not_consistent;
+            //Set direction limit state as not consistent if move did not begin on limit
+            if (!beginOnLimit_)   
+               limitsDirState_ = not_consistent;  //Set limit status to not_consistent
             }
          }
       else if (!done_)

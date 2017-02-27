@@ -24,16 +24,22 @@
 # mark.clift@synchrotron.org.au
 # 800 Blackburn Road, Clayton, Victoria 3168, Australia.
 
-# P:EPICSName_MONITOR
-# P:EPICSName_STATUS
-# P:EPICSName_SP
-# P:EPICSName_CMD
+# P - PV prefix
+# PORT - asyn port
+# ADDR 0 - 63
+# EPICSNAME - PV suffix
+# P:EPICSNAME_MONITOR
+# P:EPICSNAME_STATUS
+# P:EPICSNAME_SP
+# P:EPICSNAME_CMD
 
-# GalilStr is a galil command or variable 
+# GALILSTR - is a galil command or variable 
 # eg. TI0, SB 1, user variable name, etc
 
-# DRVCMD = VAR (GalilStr is a galil variable)
-# DRVCMD = CMD (GalilStr is a galil command)
+# DRVCMD = VAR (GALILSTR is a galil variable)
+# DRVCMD = CMD (GALILSTR is a galil command)
+# ADDR 0 - 63.  VAR and CMD are separately numbered from 0 - 63
+
 # SCAN = use I/O Intr when EPICS only will change the value.
 #        use Periodic scan when external will change value.
 # PINI = YES will push autosave or default value to controller at startup
@@ -42,10 +48,11 @@ file "$(GALIL)/GalilSup/Db/galil_userdef_records.template"
 {
 
 pattern
-{ P,               PORT,    EPICSName,        GalilStr, DRVCMD, SCAN,       DRVL, DRVH, LOW,  HIGH, LSV,     HSV,     ZNAM,      ONAM,  ZSV,      OSV,        DEFAULT, EGU,  PINI }
+{ P,               PORT,    ADDR,  EPICSNAME,        GALILSTR, DRVCMD, SCAN,       DRVL, DRVH, LOW,  HIGH, LSV,     HSV,     ZNAM,      ONAM,  ZSV,      OSV,        DEFAULT, EGU,  PINI }
 
- {"SR08ID01WFS01", "Galil", "EXPOSURE_TIME",  "expsT",  "VAR",  "I/O Intr", 1,    1000, 1,    1000, "MINOR", "MINOR", "Invalid", "Ok",  "MAJOR",  "NO_ALARM", "10",    "ms", "YES"}
- {"SR08ID01WFS01", "Galil", "DIGITAL_PORT0",  "TI",     "CMD",  "1 second", 1,    1000, 1,    1000, "MINOR", "MINOR", "Invalid", "Ok",  "MAJOR",  "NO_ALARM", "10",    "",   "YES"}
+ {"SR08ID01WFS01", "Galil",    0,  "BEGIN",          "begin",  "VAR",  "I/O Intr", 0,    1,    0,    1,    "MINOR", "MINOR", "Invalid", "Ok",  "MAJOR",  "NO_ALARM", "10",    "", "YES"}
+
+#{"SR08ID01WFS01", "Galil",    0,  "DIGITAL_PORT0",  "TI",     "CMD",  "1 second", 1,    1000, 1,    1000, "MINOR", "MINOR", "Invalid", "Ok",  "MAJOR",  "NO_ALARM", "10",    "",   "YES"}
 
 }
 

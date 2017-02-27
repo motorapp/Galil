@@ -207,6 +207,7 @@ private:
   bool rev_;				//Reverse limit status
   
   limitsState limitsDirState_;		//Status of limits consistency with motor direction
+  bool beginOnLimit_;			//Did move begin while on a limit switch
   bool home_;				//Home switch raw status direct from data record
   int done_;				//Motor done status passed to motor record
   int last_done_;			//Backup of done status at end of each poll.  Used to detect stop
