@@ -227,6 +227,8 @@
 //                  Fixed issue with wrong limit protection becoming inactive
 //                  Fixed issue with galil code variables not initialized at re-connect
 //                  Add I/O Intr support for user defined variables
+// 28/02/17 M.Clift
+//                  Fixed galil code home variables not set after controller re-connect
 
 #include <stdio.h>
 #include <math.h>
@@ -3514,12 +3516,6 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 	}
   else if (function == GalilUseEncoder_)
 	{
-	if (pAxis && pAxis->axisNo_ < MAX_GALIL_AXES)
-		{
-		sprintf(cmd_, "ueip%c=%d", pAxis->axisName_, value);
-		//Write setting to controller
-		status = sync_writeReadController();
-		}
 	//This is one of the last items pushed into driver at startup so flag
 	//Axis now ready for move commands
 	if (pAxis)
@@ -3531,13 +3527,6 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 		}
 	if (pCSAxis)
 		pCSAxis->axisReady_ = true;	//CS motor
-	}
-  else if (function == GalilUseIndex_)
-	{
-	sprintf(cmd_, "ui%c=%d", pAxis->axisName_, value);
-        //printf("GalilUseIndex_ %s value %d\n", cmd_, value);
-	//Write setting to controller
-	status = sync_writeReadController();
 	}
   else if (function >= GalilSSIInput_ && function <= GalilSSIData_)
 	{

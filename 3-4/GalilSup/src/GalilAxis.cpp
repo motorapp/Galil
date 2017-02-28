@@ -533,6 +533,8 @@ asynStatus GalilAxis::setupHome(double maxVelocity, int forwards)
    double hjgsp;		//home jog speed
    double hvel;			//Home velocity
    int useSwitch;		//Jog toward switch
+   int useIndex;		//Find encoder index
+   int useEncoder;		//Use encoder if present
 
    //Calculate direction of home jog
    home_direction = (forwards == 0) ? 1 : -1;
@@ -549,6 +551,16 @@ asynStatus GalilAxis::setupHome(double maxVelocity, int forwards)
 
    //Set Homed status to false
    sprintf(pC_->cmd_, "homed%c=0\n", axisName_);
+   pC_->sync_writeReadController();
+
+   //Set use encoder index
+   pC_->getIntegerParam(axisNo_, pC_->GalilUseIndex_, &useIndex);
+   sprintf(pC_->cmd_, "ui%c=%d", axisName_, useIndex);
+   pC_->sync_writeReadController();
+
+   //Set use encoder if present
+   pC_->getIntegerParam(axisNo_, pC_->GalilUseEncoder_, &useEncoder);
+   sprintf(pC_->cmd_, "ueip%c=%d", axisName_, useEncoder);
    pC_->sync_writeReadController();
 
    //Set motorRecord MSTA bit 15 motorStatusHomed_
