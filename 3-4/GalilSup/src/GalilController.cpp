@@ -229,6 +229,8 @@
 //                  Add I/O Intr support for user defined variables
 // 28/02/17 M.Clift
 //                  Fixed galil code home variables not set after controller re-connect
+// 09/03/17 M. Pearson
+//                  Provide ability to set TCP port number in controller address. If no port number specified then default is 23.
 
 #include <stdio.h>
 #include <math.h>
@@ -599,8 +601,13 @@ void GalilController::connect(void)
   if (address.find("COM") == string::npos && address.find("ttyS") == string::npos)
      {
      //Open Synchronous ethernet connection
-     //Append Telnet port, and TCP directive to provided address
-     sprintf(address_string,"%s:23 TCP", address_);
+     //If no port number is specified in the provided address, append Telnet port and TCP directive
+     //Otherwise just append the TCP directive
+     if (strchr(address_, ':') == NULL) {
+        sprintf(address_string,"%s:23 TCP", address_);
+     } else {
+        sprintf(address_string,"%s TCP", address_);
+     }
      //Connect to the device, we don't want end of string processing
      drvAsynIPPortConfigure(syncPort_, address_string, epicsThreadPriorityMedium, 0, 1);
 
