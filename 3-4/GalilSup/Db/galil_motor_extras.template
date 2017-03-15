@@ -70,7 +70,7 @@ record(ao,"$(P)$(M)_ESTALLTIME_SP")
 	field(DTYP,"asynFloat64")
 	field(PREC,"$(PREC)")
 	field(EGU, "Secs")
-	field(VAL, ".001")
+	field(VAL, ".2")
 	field(PINI, "YES")
 	field(OUT, "@asyn($(PORT),$(ADDR))MOTOR_ENCODER_STALL_TIME")
 	field(FLNK,"$(P)$(M)_ESTALLTIME_MON")
@@ -240,7 +240,7 @@ record(ai,"$(P)$(M)_EGUAFTLIMIT_MON")
 	field(DTYP,"asynFloat64")
 	field(SCAN,"$(SCAN)")
 	field(PREC,"$(PREC)")
-	field(INP, "@asyn($(PORT),$(ADDR))MOTOR_EGUAFTLIMIT")
+	field(INP, "@asyn($(PORT),$(ADDR))MOTOR_EGUAFTER_LIMIT")
 }
 
 record(ao,"$(P)$(M)_EGUAFTLIMIT_SP")
@@ -251,7 +251,7 @@ record(ao,"$(P)$(M)_EGUAFTLIMIT_SP")
 	field(PREC,"$(PREC)")
 	field(VAL, "0.001")
 	field(PINI, "YES")
-	field(OUT, "@asyn($(PORT),$(ADDR))MOTOR_EGUAFTLIMIT")
+	field(OUT, "@asyn($(PORT),$(ADDR))MOTOR_EGUAFTER_LIMIT")
 	field(FLNK,"$(P)$(M)_EGUAFTLIMIT_MON")
 }
 
@@ -440,6 +440,29 @@ record(mbbi,"$(P)$(M)_HOMEALLOWED_STATUS")
 	field(THVL, "3")
 	field(VAL,  "0")
 	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_HOME_ALLOWED")
+}
+
+#Motor stop delay
+record(ai,"$(P)$(M)_STOPDELAY_MON")
+{
+	field(DESC,"stop delay")
+	field(DTYP,"asynFloat64")
+	field(SCAN,"$(SCAN)")
+	field(PREC,"$(PREC)")
+	field(EGU, "Secs")
+	field(INP, "@asyn($(PORT),$(ADDR))MOTOR_STOP_DELAY")
+}
+
+record(ao,"$(P)$(M)_STOPDELAY_SP")
+{
+	field(DESC,"stop delay")
+	field(DTYP,"asynFloat64")
+	field(PREC,"$(PREC)")
+	field(EGU, "Secs")
+	field(VAL, "0.00")
+	field(PINI, "YES")
+	field(OUT, "@asyn($(PORT),$(ADDR))MOTOR_STOP_DELAY")
+	field(FLNK,"$(P)$(M)_STOPDELAY_MON")
 }
 
 record(ao,"$(P)$(M)_ERRLIMIT_SP")

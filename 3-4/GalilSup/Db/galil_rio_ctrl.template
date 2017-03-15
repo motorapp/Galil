@@ -95,6 +95,18 @@ record(bi,"$(P)COMMERR_STATUS")
    	field(INP,  "@asyn($(PORT),0)CONTROLLER_COMMERR")
 }
 
+record(bi,"$(P)START_STATUS")
+{
+	field(DESC, "start status")
+	field(DTYP, "asynInt32")
+	field(SCAN, "I/O Intr")
+	field(ONAM, "OK")
+   	field(OSV,  "NO_ALARM")
+  	field(ZNAM, "Error")
+  	field(ZSV,  "MAJOR")
+   	field(INP,  "@asyn($(PORT),0)CONTROLLER_START")
+}
+
 #Controller message records
 record(waveform,"$(P)ERROR_MON")
 {

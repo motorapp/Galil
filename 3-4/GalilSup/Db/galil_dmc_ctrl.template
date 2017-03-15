@@ -156,6 +156,18 @@ record(bi,"$(P)PVTCAPABLE_STATUS")
    	field(INP,  "@asyn($(PORT),0)CONTROLLER_PVTCAPABLE")
 }
 
+record(bi,"$(P)START_STATUS")
+{
+	field(DESC, "start status")
+	field(DTYP, "asynInt32")
+	field(SCAN, "I/O Intr")
+	field(ONAM, "OK")
+   	field(OSV,  "NO_ALARM")
+  	field(ZNAM, "Error")
+  	field(ZSV,  "MAJOR")
+   	field(INP,  "@asyn($(PORT),0)CONTROLLER_START")
+}
+
 #Defered moves support
 record(bi,"$(P)DEFER_STATUS")
 {

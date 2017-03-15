@@ -347,7 +347,7 @@ void GalilAxis::gen_homecode(char c,			//GalilAxis::axisName_ used very often
 		//Stop motor once off limit
 		sprintf(axis_thread_code,"%sIF ((_LR%c=1) & (_LF%c=1) & (hjog%c=1) & (_BG%c=1))\nST%c;ENDIF\n",axis_thread_code,c,c,c,c,c);
 		//Find encoder index 
-		sprintf(axis_thread_code,"%sIF ((_LR%c=1) & (_LF%c=1) & (hjog%c=1) & (_BG%c=0))\nIF ((_MO%c=0) & (ueip%c=1) & (ui%c=1))\nJG%c=hjgsp%c;DC%c=%ld;FI%c;WT10;BG%c;hjog%c=2\nELSE\n",axis_thread_code,c,c,c,c,c,c,c,c,c,c,pC_->maxAcceleration_,c,c,c);
+		sprintf(axis_thread_code,"%sIF ((_LR%c=1) & (_LF%c=1) & (hjog%c=1) & (_BG%c=0))\nIF ((_MO%c=0) & (ueip%c=1) & (ui%c=1))\nJG%c=hjgsp%c;FI%c;WT10;BG%c;hjog%c=2\nELSE\n",axis_thread_code,c,c,c,c,c,c,c,c,c,c,c,c);
 		}	
 	else
 		{
@@ -358,7 +358,7 @@ void GalilAxis::gen_homecode(char c,			//GalilAxis::axisName_ used very often
 		//Stop motor once off home
 		sprintf(axis_thread_code,"%sIF ((_HM%c=hswiact%c) & (hjog%c=1) & (_BG%c=1))\nST%c;ENDIF\n",axis_thread_code,c,c,c,c,c);
 		//Find encoder index
-		sprintf(axis_thread_code,"%sIF ((_HM%c=hswiact%c) & (hjog%c=1) & (_BG%c=0))\nIF ((_MO%c=0) & (ueip%c=1) & (ui%c=1))\nJG%c=hjgsp%c;DC%c=%ld;FI%c;WT10;BG%c;hjog%c=2\nELSE\n",axis_thread_code,c,c,c,c,c,c,c,c,c,c,pC_->maxAcceleration_,c,c,c);
+		sprintf(axis_thread_code,"%sIF ((_HM%c=hswiact%c) & (hjog%c=1) & (_BG%c=0))\nIF ((_MO%c=0) & (ueip%c=1) & (ui%c=1))\nJG%c=hjgsp%c;FI%c;WT10;BG%c;hjog%c=2\nELSE\n",axis_thread_code,c,c,c,c,c,c,c,c,c,c,c,c);
 		}
 
 	//Common homing code regardless of homing to limit or home switch
@@ -397,8 +397,8 @@ asynStatus GalilAxis::setAccelVelocity(double acceleration, double velocity, boo
    double mres;			//MotorRecord mres
    double egu_after_limit;	//Egu after limit parameter
    double distance;		//Used for kinematic calcs
-   long decceleration;		//limits deceleration final value sent to controller
-   double deccel;		//double version of above
+   long deceleration;		//limits deceleration final value sent to controller
+   double decel;		//double version of above
    double accel;		//Adjusted acceleration/deceleration for normal moves
    double vel;			//Velocity final value sent to controller
    int status;
@@ -426,14 +426,14 @@ asynStatus GalilAxis::setAccelVelocity(double acceleration, double velocity, boo
    //recalculate limit deceleration given velocity and allowed steps after home/limit activation
    distance = (egu_after_limit < fabs(mres)) ? fabs(mres) : egu_after_limit;
    //suvat equation for acceleration
-   deccel = fabs((velocity * velocity)/((distance/mres) * 2.0));
+   decel = fabs((velocity * velocity)/((distance/mres) * 2.0));
    //Find closest hardware setting
-   decceleration = (long)(lrint(deccel/1024.0) * 1024);
-   //Ensure decceleration is within maximum for this model
-   decceleration = (decceleration > pC_->maxAcceleration_) ? pC_->maxAcceleration_ : decceleration;
+   deceleration = (long)(lrint(decel/1024.0) * 1024);
+   //Ensure deceleration is within maximum for this model
+   deceleration = (deceleration > pC_->maxAcceleration_) ? pC_->maxAcceleration_ : deceleration;
    //Set limit deceleration
-   limdc_ = (double)decceleration;
-   sprintf(pC_->cmd_, "limdc%c=%ld", axisName_, decceleration);
+   limdc_ = (double)deceleration;
+   sprintf(pC_->cmd_, "limdc%c=%ld", axisName_, deceleration);
    status = pC_->sync_writeReadController();
 
    return (asynStatus)status;
@@ -1826,6 +1826,7 @@ asynStatus GalilAxis::poll(bool *moving)
    //static const char *functionName = "GalilAxis::poll";
    int home;			//Home status to give to motorRecord
    int status;			//Communication status with controller
+   double stopDelay;		//Delay stop reporting
 
    //Default communication status
    status = asynError;
@@ -1923,6 +1924,16 @@ skip:
          rev_ = 0;
          }
       }
+
+   //Retrieve the stopDelay
+   status = pC_->getDoubleParam(axisNo_, pC_->GalilStopDelay_, &stopDelay);
+   if (stoppedTime_ < stopDelay)
+      {
+      //Show motor record done only when stopDelay expired
+      *moving = true;
+      done_ = 0;
+      }
+
    //Pass limit status to motorRecord
    setIntegerParam(pC_->motorStatusLowLimit_, rev_);
    setIntegerParam(pC_->motorStatusHighLimit_, fwd_);

@@ -77,6 +77,7 @@
 #define GalilCommunicationErrorString	"CONTROLLER_COMMERR"
 #define GalilDeferredModeString		"CONTROLLER_DEFERRED_MODE"
 #define GalilPVTCapableString		"CONTROLLER_PVTCAPABLE"
+#define GalilStartString		"CONTROLLER_START"
 
 #define GalilCoordSysString		"COORDINATE_SYSTEM"
 #define GalilCoordSysMotorsString	"COORDINATE_SYSTEM_MOTORS"
@@ -120,7 +121,7 @@
 #define GalilStepSmoothString		"MOTOR_STEPSMOOTH"
 #define GalilMotorTypeString		"MOTOR_TYPE"
 #define GalilMotorConnectedString	"MOTOR_MCONN"
-#define GalilAfterLimitString		"MOTOR_EGUAFTLIMIT"
+#define GalilAfterLimitString		"MOTOR_EGUAFTER_LIMIT"
 #define GalilHomeValueString		"MOTOR_HOMEVAL"
 #define GalilWrongLimitProtectionString	"MOTOR_WLP"
 #define GalilWrongLimitProtectionActiveString	"MOTOR_WLP_ACTIVE"
@@ -142,6 +143,8 @@
 #define GalilBrakePortString		"MOTOR_BRAKEPORT"
 #define GalilBrakeString		"MOTOR_BRAKE"
 #define GalilHomeAllowedString		"MOTOR_HOME_ALLOWED"
+#define GalilStopDelayString		"MOTOR_STOP_DELAY"
+
 #define GalilUserDataString		"MOTOR_USER_DATA"
 #define GalilUserDataDeadbString	"MOTOR_USER_DATA_DEADB"
 
@@ -334,6 +337,7 @@ protected:
   int GalilCtrlError_;
   int GalilDeferredMode_;
   int GalilPVTCapable_;
+  int GalilStart_;
   int GalilCoordSys_;
   int GalilCoordSysMotors_;
   int GalilCoordSysMoving_;
@@ -396,6 +400,7 @@ protected:
   int GalilBrakePort_;
   int GalilBrake_;
   int GalilHomeAllowed_;
+  int GalilStopDelay_;
   int GalilUserData_;
   int GalilUserDataDeadb_;
 

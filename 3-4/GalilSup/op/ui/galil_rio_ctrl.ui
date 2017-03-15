@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>347</width>
-    <height>244</height>
+    <height>246</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -198,6 +198,51 @@
           </property>
           <property name="text">
            <string>Communication status</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="4,3">
+        <item>
+         <widget class="QLabel" name="label_5">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Abyssinica SIL</family>
+            <pointsize>9</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Controller start status</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QELabel" name="qelabel_5">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Abyssinica SIL</family>
+            <pointsize>9</pointsize>
+           </font>
+          </property>
+          <property name="variable" stdset="0">
+           <string>$(RIO)COMMERR_STATUS</string>
+          </property>
+          <property name="text">
+           <string>Controller start status</string>
           </property>
          </widget>
         </item>
