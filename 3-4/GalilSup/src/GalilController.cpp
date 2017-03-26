@@ -235,6 +235,9 @@
 //                  Changed default encoder stall time to .2 seconds
 //                  Add stop delay for heavy loads
 //                  Add controller start status PV
+// 25/03/17 M.Clift
+//                  Fix motor velocity readback when using custom time base
+//                  Add galil amplifier controls
 
 #include <stdio.h>
 #include <math.h>
@@ -444,6 +447,11 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilBrakeString, asynParamInt32, &GalilBrake_);
   createParam(GalilHomeAllowedString, asynParamInt32, &GalilHomeAllowed_);
   createParam(GalilStopDelayString, asynParamFloat64, &GalilStopDelay_);
+
+  createParam(GalilAmpGainString, asynParamInt32, &GalilAmpGain_);
+  createParam(GalilAmpCurrentLoopGainString, asynParamInt32, &GalilAmpCurrentLoopGain_);
+  createParam(GalilAmpLowCurrentString, asynParamInt32, &GalilAmpLowCurrent_);
+
   createParam(GalilUserDataString, asynParamFloat64, &GalilUserData_);
   createParam(GalilUserDataDeadbString, asynParamFloat64, &GalilUserDataDeadb_);
 
@@ -3193,7 +3201,22 @@ asynStatus GalilController::readInt32(asynUser *pasynUser, epicsInt32 *value)
 	sprintf(cmd_, "MG _OE%c", pAxis->axisName_);
 	status = get_integer(GalilOffOnError_, value);
 	}
-   else 
+  else if (function == GalilAmpGain_)
+	{
+	sprintf(cmd_, "MG _AG%c", pAxis->axisName_);
+	status = get_integer(GalilAmpGain_, value);
+	}
+  else if (function == GalilAmpCurrentLoopGain_)
+	{
+	sprintf(cmd_, "MG _AU%c", pAxis->axisName_);
+	status = get_integer(GalilAmpCurrentLoopGain_, value);
+	}
+  else if (function == GalilAmpLowCurrent_)
+	{
+	sprintf(cmd_, "MG _LC%c", pAxis->axisName_);
+	status = get_integer(GalilAmpLowCurrent_, value);
+	}
+  else 
 	status = asynPortDriver::readInt32(pasynUser, value);
 
    //Always return success. Dont need more error mesgs
@@ -3595,6 +3618,56 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
   else if (function == GalilUserArrayUpload_)
 	{
 	epicsEventSignal(arrayUploadEvent_);
+	}
+  else if (function == GalilAmpGain_)
+	{
+        int motorOff = 0;
+	//Retrieve motor off status
+	sprintf(cmd_, "MG _MO%c", pAxis->axisName_);
+	status = sync_writeReadController();
+	if (!status)
+		motorOff = atoi(resp_);
+	if (!motorOff)
+		{
+		//Motor must be off to change gain
+		sprintf(cmd_, "MO%c", pAxis->axisName_);
+		sync_writeReadController();
+		}
+	//Motor is now off, we can change gain
+	sprintf(cmd_, "AG%c=%d", pAxis->axisName_, value);
+	sync_writeReadController();
+	if (!motorOff)
+		{
+		//Motor was on at start, so turn it back on
+		sprintf(cmd_, "SH%c", pAxis->axisName_);
+		sync_writeReadController();
+		}
+	}
+  else if (function == GalilAmpCurrentLoopGain_)
+	{
+	float gainSetting = 0;
+	//Find the correct gain setting
+	if (value == 1)
+		gainSetting = 0.5;
+	else if (value == 2)
+		gainSetting = 1;
+	else if (value == 3)
+		gainSetting = 1.5;
+	else if (value == 4)
+		gainSetting = 2;
+	else if (value == 5)
+		gainSetting = 3;
+	else if (value == 6)
+		gainSetting = 4;
+	//Set current loop gain
+	sprintf(cmd_, "AU%c=%.1f", pAxis->axisName_, gainSetting);
+	sync_writeReadController();
+	}
+  else if (function == GalilAmpLowCurrent_)
+	{
+	//Set low current mode
+	sprintf(cmd_, "LC%c=%d", pAxis->axisName_, value);
+	sync_writeReadController();
 	}
   else 
 	{
@@ -5033,6 +5106,11 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
          if (!pAxis) continue;
          pAxis->limitsDirState_ = unknown;
          }
+
+      //Retrieve controller time base
+      sprintf(cmd_, "MG _TM");
+      if (sync_writeReadController() == asynSuccess)
+         timeMultiplier_ = DEFAULT_TIME / atof(resp_);
 
       //Decrease timeout now finished manipulating controller code
       timeout_ = 1;

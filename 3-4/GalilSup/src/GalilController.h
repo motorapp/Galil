@@ -57,6 +57,8 @@
 //Stop codes
 #define MOTOR_STOP_FWD 2
 #define MOTOR_STOP_REV 3
+//Time base
+#define DEFAULT_TIME 1000.0
 
 #include "macLib.h"
 #include "GalilAxis.h"
@@ -144,7 +146,9 @@
 #define GalilBrakeString		"MOTOR_BRAKE"
 #define GalilHomeAllowedString		"MOTOR_HOME_ALLOWED"
 #define GalilStopDelayString		"MOTOR_STOP_DELAY"
-
+#define GalilAmpGainString		"MOTOR_AMP_GAIN"
+#define GalilAmpCurrentLoopGainString	"MOTOR_AMP_CURRENTLOOP_GAIN"
+#define GalilAmpLowCurrentString	"MOTOR_AMP_LOWCURRENT"
 #define GalilUserDataString		"MOTOR_USER_DATA"
 #define GalilUserDataDeadbString	"MOTOR_USER_DATA_DEADB"
 
@@ -401,6 +405,9 @@ protected:
   int GalilBrake_;
   int GalilHomeAllowed_;
   int GalilStopDelay_;
+  int GalilAmpGain_;
+  int GalilAmpCurrentLoopGain_;
+  int GalilAmpLowCurrent_;
   int GalilUserData_;
   int GalilUserDataDeadb_;
 
@@ -453,6 +460,8 @@ private:
 
   GalilPoller *poller_;			//GalilPoller to acquire a datarecord
   GalilConnector *connector_;		//GalilConnector to manage connection status flags
+
+  double timeMultiplier_;		//Controller time base divided by default time base
 
   bool rio_;				//Is controller a RIO
   char code_file_[MAX_FILENAME_LEN];	//Code file(s) that user gave to GalilStartController

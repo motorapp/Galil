@@ -1129,6 +1129,8 @@ asynStatus GalilAxis::getStatus(void)
 		strcpy(src, "_TVx");
 		src[3] = axisName_;
 		velocity_ = pC_->sourceValue(pC_->recdata_, src);
+		//Adjust velocity given controller time base setting
+		velocity_ *= pC_->timeMultiplier_;
 		pC_->getDoubleParam(axisNo_, pC_->GalilMotorVelocityRAW_, &velocitylast);
 		if (velocity_ != velocitylast)
 			{
