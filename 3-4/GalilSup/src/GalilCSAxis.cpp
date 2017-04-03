@@ -399,10 +399,10 @@ asynStatus GalilCSAxis::moveVelocity(double minVelocity, double maxVelocity, dou
   //static const char *functionName = "GalilCSAxis::moveVelocity";
   double position;
 
-  //Choose large move distance to simulate jog function
+  //Choose large move increment to simulate jog function
   position = (maxVelocity > 0) ? 838860 : -838860;
 
-  //Convert position to relative
+  //Convert increment to absolute position
   position = motor_position_ + position;
 
   //Do the "jog"

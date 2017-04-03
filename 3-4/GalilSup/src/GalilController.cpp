@@ -238,6 +238,9 @@
 // 25/03/17 M.Clift
 //                  Fix motor velocity readback when using custom time base
 //                  Add galil amplifier controls
+// 31/03/17 M.Clift
+//                  Optimized generated code for limits handling and homing
+//                  Fixed motor enable/disable variables not being set correctly
 
 #include <stdio.h>
 #include <math.h>
@@ -525,6 +528,9 @@ GalilController::GalilController(const char *portName, const char *address, doub
   //Code generator has not been initialized
   codegen_init_ = false;	
   digitalinput_init_ = false;
+  //Motor enables defaults
+  digports_ = 0;
+  digvalues_ = 0;
   //Deferred moves off at start-up
   movesDeferred_ = false;
   //Store the controller number for later use
@@ -4776,6 +4782,13 @@ int GalilController::GalilInitializeVariables(bool burn_variables)
    sprintf(cmd_, "cmderr=0");
    status |= sync_writeReadController();
 
+   //Activate input interrupts for motor interlock function
+   if (digitalinput_init_ && digports_)
+      sprintf(cmd_, "dpon=%d;dvalues=%d;mlock=1", digports_, digvalues_);
+   else
+      sprintf(cmd_, "dpon=%d;dvalues=%d;mlock=0", digports_, digvalues_);
+   sync_writeReadController();
+
    //Before burning variables backup the commutation initialized, and homed status flags
    //Then set status flags to 0 ready for burn to eeprom
    //Done so commutation initialized and homed status is always 0 at controller power on
@@ -5149,7 +5162,6 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
 void GalilController::gen_card_codeend(void)
 {
    unsigned i;
-   int digports = 0, digvalues = 0;
    struct Galilmotor_enables *motor_enables = NULL;  //Convenience pointer to GalilController motor_enables[digport]
 
    //Calculate the digports and digvalues required for motor interlock function
@@ -5161,20 +5173,9 @@ void GalilController::gen_card_codeend(void)
       if (strlen(motor_enables->motors) > 0)
          {
          //Include the port
-         digports = digports | (1 << i);
+         digports_ = digports_ | (1 << i);
          //Include the disable value 
-         digvalues = digvalues | (motor_enables->disablestates[0] << i);
-         }
-      }
-
-   //Activate input interrupts for motor interlock function */
-   if (digitalinput_init_ == true)
-      {
-      if (digports != 0)
-         {
-         /*motor interlock.  output variable values to activate code embedded in thread A*/
-         sprintf(cmd_, "dpon=%d;dvalues=%d;mlock=1", digports, digvalues);
-         sync_writeReadController();
+         digvalues_ = digvalues_ | (motor_enables->disablestates[0] << i);
          }
       }
 
@@ -5184,16 +5185,17 @@ void GalilController::gen_card_codeend(void)
       // Add galil program termination code
       if (digitalinput_init_ == true)
          {
-         strcat(limit_code_, "RE 1\n");	/*we have written limit code, and we are done with LIMSWI but not prog end*/
+         //Limit code has been written, and we are done with LIMSWI but its not prog end
+         strcat(limit_code_, "RE 1\n");
          //Add controller wide motor interlock code to #ININT
-         if (digports != 0)
+         if (digports_ != 0)
             gen_motor_enables_code();
 	
          // Add code to end digital port interrupt routine, and end the prog
          strcat(digital_code_, "RI 1\nEN\n");	
          }
-      else
-         strcat(limit_code_, "RE 1\nEN\n");   /*we have written limit code, and we are done with LIMSWI and is prog end*/
+      else  //Limit code has been written, and we are done with LIMSWI and its prog end
+         strcat(limit_code_, "RE 1\nEN\n");
 					
       //Add command error handler
       sprintf(thread_code_, "%s#CMDERR\nerrstr=_ED;errcde=_TC;cmderr=cmderr+1\nEN\n", thread_code_);

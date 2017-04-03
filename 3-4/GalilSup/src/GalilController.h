@@ -463,6 +463,9 @@ private:
 
   double timeMultiplier_;		//Controller time base divided by default time base
 
+  int digports_;			//Digital ports used in motor enable/disable
+  int digvalues_;			//Digital port interrupt values
+
   bool rio_;				//Is controller a RIO
   char code_file_[MAX_FILENAME_LEN];	//Code file(s) that user gave to GalilStartController
 
