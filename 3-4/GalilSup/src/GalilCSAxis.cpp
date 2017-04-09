@@ -1373,6 +1373,7 @@ asynStatus GalilCSAxis::poller(void)
          csfwd |= 1;
       //Set axis stop code
       sc = pAxis->stop_code_;
+      //Sync start only mode
       //Set flag if an axis stops
       if ((sc == MOTOR_STOP_FWD || sc == MOTOR_STOP_REV) || (sc == MOTOR_STOP_STOP && pAxis->done_))
          stop_csaxis_ = true;
@@ -1395,7 +1396,6 @@ asynStatus GalilCSAxis::poller(void)
    else if (motor_position_ < last_motor_position_ - 1)
       direction_ = 0;
 
-   //Sync start only mode
    //Sync start only mode
    //Reset stop CSAXis flag when move started
    if (last_done_ && !done)
