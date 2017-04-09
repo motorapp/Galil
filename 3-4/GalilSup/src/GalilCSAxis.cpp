@@ -277,6 +277,9 @@ asynStatus GalilCSAxis::move(double position, int relative, double minVelocity, 
 
   //Clear list of other csaxes that have a move too
   targets.csaxes[0] = '\0';
+  //Reset stop CSAxis flags
+  stop_issued_ = false;
+  stop_csaxis_ = false;
 
   //Retrieve deferred moves mode
   pC_->getIntegerParam(pC_->GalilDeferredMode_, &deferredMode);
@@ -1386,18 +1389,17 @@ asynStatus GalilCSAxis::poller(void)
    //Done status
    done = (moving) ? false : true;
 
-   //Reset stop CSAXis flags when move just started
-   if (last_done_ && !done)
-      {
-      stop_issued_ = false;
-      stop_csaxis_ = false;
-      }
-
    //Calculate CSAxis direction
    if (motor_position_ > last_motor_position_ + 1)
       direction_ = 1;
    else if (motor_position_ < last_motor_position_ - 1)
       direction_ = 0;
+
+   //Sync start only mode
+   //Sync start only mode
+   //Reset stop CSAXis flag when move started
+   if (last_done_ && !done)
+      stop_csaxis_ = false;
 
    //Sync start only mode
    //Stop CSAxis if requested
