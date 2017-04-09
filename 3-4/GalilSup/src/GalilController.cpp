@@ -62,7 +62,7 @@
 //                  Fixed encoder stall when using deferred moves
 //                  Fixed SSI capability detection on 4xxx controllers
 //                  Fixed analog numbering for DMC controllers
-//                  Fixed threading issue in poller caused by motorStatusUpdate
+//                  Fixed threading issue in poller caused by motorUpdateStatus_
 //                  Fixed mixed open and closed loop motor in CSAxis
 //                  Fixed command console
 //                  Fixed coordsys selection problem in deferred moves
@@ -240,7 +240,11 @@
 //                  Add galil amplifier controls
 // 31/03/17 M.Clift
 //                  Optimized generated code for limits handling and homing
-//                  Fixed motor enable/disable variables not being set correctly
+//                  Fixed motor enable/disable interlock variables not being set correctly
+// 05/04/17 M.Clift
+//                  Fixed issue with motorUpdateStatus_ when using motor record set field
+//                  Fixed issue with CSAxis jog function in sync start and stop mode
+//                  Improved CSAxis limit handling
 
 #include <stdio.h>
 #include <math.h>
@@ -3394,18 +3398,6 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
   float oldmtr_abs, newmtr_abs;			//Track motor changes
   int uploading;				//Array uploading status
 
-  //GalilPoller is designed to be a constant and fast poller
-  //So we dont honour motorUpdateStatus as it will cause threading issues
-  if (function == motorUpdateStatus_)
-	{
-	//Dont block synchronous poller
-	unlock();
-	//Give poller time to provide status update to mr, then we're done
-	epicsThreadSleep(updatePeriod_*2.0/1000.0);
-	lock();
-	return asynSuccess;
-	}
-
   status = getAddress(pasynUser, &addr);
   if (status != asynSuccess) return(status);
 
@@ -3877,6 +3869,9 @@ asynStatus GalilController::writeOctet(asynUser *pasynUser, const char*  value, 
         if (!pCSAxis) continue;
         //Parse the transforms and place results in GalilCSAxis instance(s)
         status |= pCSAxis->parseTransforms();
+        //Flag kinematics have been altered
+        if (!status)
+           pCSAxis->kinematicsAltered_ = true;
         }
      //Tell user when success
      //Dont provide message during startup
@@ -4003,7 +3998,7 @@ void GalilController::processUnsolicitedMesgs(void)
                   valuef = atof(charstr);
                   //Update the record with the new value
                   setDoubleParam(addr, GalilUserVar_, valuef);
-                  callParamCallbacks();
+                  callParamCallbacks(addr);
                   }
                }
             }//User variable messages
@@ -4138,12 +4133,11 @@ void GalilController::getStatus(void)
 	}
 }
 
-//Override asynMotorController::poll
 //Acquire a data record from controller, store in GalilController instance
 //Called by GalilPoller::run
-asynStatus GalilController::poll(void)
+asynStatus GalilController::poller(void)
 {
-        //Acquire a data record
+	//Acquire a data record
 	acquireDataRecord();
 
 	//Extract controller data from data record, store in GalilController, and ParamList

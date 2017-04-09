@@ -1208,7 +1208,7 @@ asynStatus GalilAxis::getStatus(void)
 		//Brake port status
 		//Retrieve the brake port used for this axis
 		pC_->getIntegerParam(axisNo_, pC_->GalilBrakePort_, &brakeport);
-		//Only applies to DMC only, so port numbering begins at 1
+		//Applies to DMC only, so port numbering begins at 1
 		if (brakeport > 0)
 			{
 			strcpy(src, "_OP0");
@@ -1843,9 +1843,10 @@ asynStatus GalilAxis::beginMotion(const char *caller, bool move)
   * added.
   * It calls setIntegerParam() and setDoubleParam() for each item that it polls,
   * \param[out] moving A flag that is set indicating that the axis is moving (1) or done (0). */
-asynStatus GalilAxis::poll(bool *moving)
+asynStatus GalilAxis::poller(void)
 {
    //static const char *functionName = "GalilAxis::poll";
+   bool moving;			//Moving status
    int home;			//Home status to give to motorRecord
    int status;			//Communication status with controller
    double stopDelay;		//Delay stop reporting
@@ -1856,7 +1857,7 @@ asynStatus GalilAxis::poll(bool *moving)
    home = 0;
    //Default moving status
    done_ = 1;
-   *moving = false;
+   moving = false;
    
    //Retrieve the motorRecord use encoder if present (ueip) from ParamList
    status = pC_->getIntegerParam(axisNo_, pC_->GalilUseEncoder_, &ueip_);
@@ -1866,7 +1867,7 @@ asynStatus GalilAxis::poll(bool *moving)
    if (status) goto skip;
 
    //Set poll variables in GalilAxis based on data record info
-   setStatus(moving);
+   setStatus(&moving);
 
    //Set motor stop time
    setStopTime();
@@ -1937,7 +1938,7 @@ skip:
    if ((postSent_ && !postExecuted_) || (homedSent_ && !homedExecuted_) || homing_ ||
        (syncEncodedStepperAtStopSent_ && !syncEncodedStepperAtStopExecuted_))
       {
-      *moving = true;
+      moving = true;
       done_ = 0;
       //Dont show motor record limit status whilst homing
       if (homing_)
@@ -1952,7 +1953,7 @@ skip:
    if (stoppedTime_ < stopDelay)
       {
       //Show motor record done only when stopDelay expired
-      *moving = true;
+      moving = true;
       done_ = 0;
       }
 
@@ -1961,7 +1962,7 @@ skip:
    setIntegerParam(pC_->motorStatusHighLimit_, fwd_);
    //Pass moving status to motorRecord
    setIntegerParam(pC_->motorStatusDone_, done_);
-   setIntegerParam(pC_->motorStatusMoving_, *moving);
+   setIntegerParam(pC_->motorStatusMoving_, moving);
    //Pass comms status to motorRecord
    setIntegerParam(pC_->motorStatusCommsError_, status ? 1:0);
    //Update motor status fields in upper layers using asynMotorAxis->callParamCallbacks

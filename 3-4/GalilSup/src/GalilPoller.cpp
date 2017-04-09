@@ -53,8 +53,8 @@ GalilPoller::GalilPoller(GalilController *pcntrl)
 void GalilPoller::run(void)
 {
   unsigned i;
-  bool moving;		//Moving flag
-  asynMotorAxis *pAxis; //Axis structure
+  GalilAxis *pAxis; 	//Axis structure
+  GalilCSAxis *pCSAxis;	//CSAxis structure
   double time_taken;	//Time taken last polll cycle
   double sleep_time;	//Calculated time to sleep in synchronous mode
 
@@ -72,7 +72,7 @@ void GalilPoller::run(void)
                    epicsTimeGetCurrent(&pollstartt_);
 
                    //Get the data record, update controller related information in GalilController, and ParamList.  callBacks not called
-                   pC_->poll();
+                   pC_->poller();
 
                    //Update the GalilAxis status, using datarecord from GalilController
                    //Do callbacks for GalilController, GalilAxis records
@@ -84,25 +84,32 @@ void GalilPoller::run(void)
                          {
                          //Retrieve GalilAxis instance i
                          pAxis = pC_->getAxis(i);
+                         if (!pAxis)
+                            {
+                            //User did not call GalilCreateAxis for this axis number
+                            //Ensure callbacks are called to update upper layer analog/binary
+                            //Do this for first 8 addresses only to cover analog/binary
+                            //Cant call GalilAxis->poller
+                            pC_->callParamCallbacks(i);
+                            }
+                         else
+                            {
+                            //Update GalilAxis, and upper layers, using retrieved datarecord
+                            //Update records with analog/binary data
+                            pAxis->poller();
+                            }
                          }
                       else
                          {
                          //Retrieve GalilCSAxis instance i
-                         pAxis = pC_->getCSAxis(i);
+                         pCSAxis = pC_->getCSAxis(i);
+                         if (pCSAxis)
+                            {
+                            //Update GalilCSAxis, and upper layers, using retrieved datarecord
+                            //Update records with analog/binary data
+                            pCSAxis->poller();
+                            }
                          }
-					
-                      //Tolerate null GalilAxis object pointers
-                      if (!pAxis) //User did not call GalilCreateAxis for this axis number
-                         {
-                         //Ensure callbacks are called to update upper layer analog/binary
-                         //records for first 8 banks only
-                         //Cant call GalilAxis->poll
-                         if (i < MAX_GALIL_AXES)
-                            pC_->callParamCallbacks(i);
-                         }
-                      else
-                         pAxis->poll(&moving);		//Update GalilAxis, and upper layers, using retrieved datarecord
-							//Update records with analog/binary data
                       }
 
                    //Read end time

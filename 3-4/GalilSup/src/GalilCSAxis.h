@@ -40,6 +40,8 @@ public:
 		char axisname);			//The coordinate system axis name I-P
 
   //These are the methods that are new to this class
+  //Poller for CSAxis
+  asynStatus poller(void);
   //Store settings, and implement defaults
   asynStatus setDefaults(void);
   //Construct axes list from provided equation
@@ -54,7 +56,9 @@ public:
   asynStatus parseTransforms(void);
   //Calculate an expression with the given arguments
   asynStatus doCalc(const char *expr, double args[], double *result);
-  //Get motor readbacks for kinematic transform, and pack into mrargs (motor readback args)
+  //Calculate real axis orientation relative to this CSAxis
+  asynStatus calcAxisLimitOrientation(void);
+  //Get motor position readbacks for kinematic transform, and pack into mrargs (motor readback args)
   asynStatus packReadbackArgs(char *axes, double mrargs[]);
   //Peform forward kinematic transform using real axis readback data, and store results in GalilCSAxis
   asynStatus forwardTransform(void);
@@ -73,7 +77,6 @@ public:
   asynStatus home(double minVelocity, double maxVelocity, double acceleration, int forwards);
   asynStatus stop(double acceleration);
   asynStatus initializeProfile(size_t maxProfilePoints);
-  asynStatus poll(bool *moving);
 
   //asynStatus setHighLimit(double highLimit);
   //asynStatus setLowLimit(double lowLimit);
@@ -94,15 +97,16 @@ private:
   char **reverse_;			//Reverse transforms to calculate each axis position in the coordinate system
   char **revvars_;			//Reverse kinematic variables List of Q-Z
   char **revsubs_;			//Reverse kinematic substitutes List of A-P
-  bool stop_onlimit_;			//Is a real motor in the cs axis stopping on a limit
+  bool stop_csaxis_;			//Stop all motors in CSAxis
+  bool kinematicsAltered_;              //Have the kinematics equations been altered
+  limitsState limitOrientation_[MAX_GALIL_AXES];//Orientation of real axis limits relative to this CSAxis
   bool stop_issued_;			//CSAxis stop issued
-  bool move_started_;			//Has a move been initiated from this cs axis
   bool kinematic_error_reported_;	//Kinematic error has been reported to user
   int last_done_;			//Done status stored from previous poll cycle
   double motor_position_;		//aux encoder or step count register
   double encoder_position_;		//main encoder register
   double last_motor_position_;		//aux encoder or step count register stored from previous poll
-  int direction_;			//Direction of cs axis
+  int direction_;			//Direction of CSAxis
   int deferredCoordsys_;		//Coordinate system 0 (S) or 1 (T)
   double deferredAcceleration_;		//Coordinate system acceleration
   double deferredVelocity_;		//Coordinate system velocity

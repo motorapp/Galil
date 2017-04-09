@@ -60,6 +60,8 @@ public:
 	    int switch_type);			/*digital input to use to send away from home*/
 
   //These are the methods that are new to this class
+  //Poller for axis
+  asynStatus poller(void);
 
   //Store settings, and implement defaults
   asynStatus setDefaults(int limit_as_home, char *enables_string, int switch_type);
@@ -146,7 +148,6 @@ public:
   asynStatus moveVelocity(double minVelocity, double maxVelocity, double acceleration);
   asynStatus home(double minVelocity, double maxVelocity, double acceleration, int forwards);
   asynStatus stop(double acceleration);
-  asynStatus poll(bool *moving);
   asynStatus syncPosition(void);
   asynStatus setPosition(double position);
   asynStatus setEncoderPosition(double position);

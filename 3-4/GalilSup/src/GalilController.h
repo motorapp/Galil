@@ -39,6 +39,8 @@
 #define MAX_GALIL_STRING_SIZE 768
 #define MAX_GALIL_DATAREC_SIZE 768
 #define MAX_GALIL_AXES 8
+#define MAX_GALIL_LINEAR_INCREMENT 8388607
+#define MAX_GALIL_ABSOLUTE_MOVE 2147483647
 //Number of parameter tables created
 //Meaning records can have address values 0-63
 #define MAX_ADDRESS 64
@@ -57,6 +59,7 @@
 //Stop codes
 #define MOTOR_STOP_FWD 2
 #define MOTOR_STOP_REV 3
+#define MOTOR_STOP_STOP 4
 //Time base
 #define DEFAULT_TIME 1000.0
 
@@ -236,7 +239,6 @@ public:
   asynStatus programDownload(string prog);
   
   /* These are the methods that we override from asynMotorController */
-  asynStatus poll(void);
   asynStatus setDeferredMoves(bool deferMoves);
   asynStatus writeInt32(asynUser *pasynUser, epicsInt32 value);
   asynStatus writeFloat64(asynUser *pasynUser, epicsFloat64 value);
@@ -280,6 +282,7 @@ public:
   //asynStatus readbackProfile();
 
   /* These are the methods that are new to this class */
+  asynStatus poller(void);
   int GalilInitializeVariables(bool burn_variables);
   void GalilStartController(char *code_file, int eeprom_write, int thread_mask);
   void connect(void);
