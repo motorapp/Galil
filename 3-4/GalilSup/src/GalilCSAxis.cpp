@@ -150,10 +150,12 @@ asynStatus GalilCSAxis::setDefaults(void)
   setDoubleParam(pC_->motorEncoderPosition_, encoder_position_);
   //Pass default direction value to motorRecord
   setIntegerParam(pC_->motorStatusDirection_, direction_);
+  //Used to stop all motors in this CSAxis in Sync start only mode
   //Dont stop the CSAxis now
   stop_csaxis_ = false;
-  //Used to stop all motors in this CSAxis
-  stop_issued_ = false;
+  //Used to track whether stop request issued to all motors in this CSAxis
+  //Default is stop request already issued
+  stop_issued_ = true;
   //Axis not ready until necessary motor record fields have been pushed into driver
   //So we use "use encoder if present" UEIP field to set axisReady_ to true
   lastaxisReady_ = axisReady_ = false;
@@ -1019,6 +1021,7 @@ asynStatus GalilCSAxis::packReadbackArgs(char *axes, double mrargs[])
   for (i = 0; axes[i] != '\0'; i++)
      {
      //Get the readbacks for the axis
+     //These can be real, or other CSAxis
      status |= pC_->getDoubleParam(axes[i] - AASCII, pC_->motorEncoderPosition_, &epos);
      status |= pC_->getDoubleParam(axes[i] - AASCII, pC_->motorPosition_, &mpos);
      //Retrieve needed motor record fields
@@ -1415,8 +1418,11 @@ asynStatus GalilCSAxis::poller(void)
             pAxis = pC_->getAxis(revaxes_[i] - AASCII);
             //Process or skip
             if (!pAxis) continue;
-            //stop the motor
-            pAxis->pollRequest_.send((void*)&MOTOR_STOP, sizeof(int));
+            //Set axis stop code
+            sc = pAxis->stop_code_;
+            //stop the motor if it's not stopping already
+            if (!pAxis->done_ && sc != MOTOR_STOP_FWD && sc != MOTOR_STOP_REV && sc != MOTOR_STOP_STOP)
+               pAxis->pollRequest_.send((void*)&MOTOR_STOP, sizeof(int));
             }
          //Flag stop has been issued
          stop_issued_ = true;

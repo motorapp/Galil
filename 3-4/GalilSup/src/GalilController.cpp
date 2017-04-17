@@ -245,6 +245,8 @@
 //                  Fixed issue with motorUpdateStatus_ when using motor record set field
 //                  Fixed issue with CSAxis jog function in sync start and stop mode
 //                  Improved CSAxis limit handling
+// 17/04/17 M.Clift
+//                  Fixed motor wont move initially after IOC start when part of CSAxis
 
 #include <stdio.h>
 #include <math.h>
