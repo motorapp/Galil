@@ -1,0 +1,11 @@
+SUPPORT=/
+EPICS_BASE=/beamline/perforce/Dev/SBS/4_Controls/4_3_Network_Infrastructure/4_3_1_Comms_Common_Services/sw/epics/base-3-14-12-5
+AUTOSAVE=/beamline/perforce/Dev/SBS/4_Controls/4_3_Network_Infrastructure/4_3_1_Comms_Common_Services/sw/epics/autosave-5-5
+SNCSEQ=/beamline/perforce/Dev/SBS/4_Controls/4_3_Network_Infrastructure/4_3_1_Comms_Common_Services/sw/epics/seq/2-1-18
+SSCAN=/beamline/perforce/Dev/SBS/4_Controls/4_3_Network_Infrastructure/4_3_1_Comms_Common_Services/sw/epics/sscan-2-8-1
+CALC=/beamline/perforce/Dev/SBS/4_Controls/4_3_Network_Infrastructure/4_3_1_Comms_Common_Services/sw/epics/calc-3-6-1
+ASYN=/beamline/perforce/Dev/SBS/4_Controls/4_3_Network_Infrastructure/4_3_1_Comms_Common_Services/sw/epics/asyn-4-29
+BUSY=/beamline/perforce/Dev/SBS/4_Controls/4_3_Network_Infrastructure/4_3_1_Comms_Common_Services/sw/epics/busy-1-6
+MOTOR=/beamline/perforce/Dev/SBS/4_Controls/4_3_Network_Infrastructure/4_3_1_Comms_Common_Services/sw/epics/motorR6-9
+GALIL=/home/ics/git/Galil-3-0/3-5
+IPAC=/beamline/perforce/Dev/SBS/4_Controls/4_3_Network_Infrastructure/4_3_1_Comms_Common_Services/sw/epics/ipac-2-11
