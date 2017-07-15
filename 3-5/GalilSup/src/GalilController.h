@@ -129,7 +129,6 @@
 #define GalilMotorTypeString		"MOTOR_TYPE"
 #define GalilMotorConnectedString	"MOTOR_MCONN"
 #define GalilAfterLimitString		"MOTOR_EGUAFTER_LIMIT"
-#define GalilHomeValueString		"MOTOR_HOMEVAL"
 #define GalilWrongLimitProtectionString	"MOTOR_WLP"
 #define GalilWrongLimitProtectionActiveString	"MOTOR_WLP_ACTIVE"
 #define GalilUserOffsetString		"MOTOR_OFF"
@@ -396,7 +395,6 @@ protected:
   int GalilMotorType_;
   int GalilMotorConnected_;
   int GalilAfterLimit_;
-  int GalilHomeValue_;
   int GalilWrongLimitProtection_;
   int GalilWrongLimitProtectionActive_;
   int GalilUserOffset_;

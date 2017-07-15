@@ -78,6 +78,8 @@ public:
   asynStatus validateMRSettings(void);
   //Check motor record status for this axis
   asynStatus checkMRSettings(bool moveVelocity, char callaxis);
+  //Enforce CSAxis completion order
+  int enforceCSAxisCompletionOrder(int csmoving);
   //Check CSAxis limit switch in requested move direction
   asynStatus checkLimits(double position, int relative);
   //Monitor CSAxis move, stop if problem

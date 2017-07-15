@@ -5,10 +5,10 @@ file {
 }
 display {
 	object {
-		x=554
-		y=67
-		width=445
-		height=652
+		x=1125
+		y=142
+		width=455
+		height=642
 	}
 	clr=14
 	bclr=4
@@ -367,42 +367,6 @@ text {
 text {
 	object {
 		x=2
-		y=491
-		width=69
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Home value (Dial)"
-}
-text {
-	object {
-		x=2
-		y=509
-		width=69
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Use switch when homing"
-}
-text {
-	object {
-		x=2
-		y=526
-		width=69
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Use index when homing"
-}
-text {
-	object {
-		x=2
 		y=232
 		width=69
 		height=13
@@ -451,393 +415,747 @@ text {
 	}
 	textix="EGU after limit"
 }
-text {
-	object {
-		x=2
-		y=544
-		width=69
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Jog after home"
-}
-text {
-	object {
-		x=2
-		y=563
-		width=69
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Jog after home to (User)"
-}
-text {
-	object {
-		x=2
-		y=637
-		width=69
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Servo velocity (EGU/s)"
-}
-text {
-	object {
-		x=2
-		y=619
-		width=69
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Servo velocity (cts/s)"
-}
-text {
-	object {
-		x=2
-		y=582
-		width=69
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="User data deadband"
-}
-text {
-	object {
-		x=2
-		y=600
-		width=97
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="User data"
-}
-composite {
+"text update" {
 	object {
 		x=319
 		y=104
 		width=100
-		height=544
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_MTRTYPE_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=319
+		y=124
+		width=200
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_MENCTYPE_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=319
+		y=144
+		width=200
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_AENCTYPE_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=319
+		y=179
+		width=58
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_ON_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=319
+		y=162
+		width=30
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_WLP_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=351
+		y=162
+		width=58
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_WLPACTIVE_STATUS"
+		clr=54
+		bclr=4
+	}
+	clrmod="alarm"
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=319
+		y=196
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_AUTOONOFF_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=319
+		y=214
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_ONDELAY_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=319
+		y=268
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_BRAKE_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=319
+		y=250
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_BRAKEONDELAY_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=319
+		y=286
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_BRAKEPORT_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=319
+		y=304
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_AUTOBRAKE_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=319
+		y=363
+		width=58
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_ERRLIMIT_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=319
+		y=398
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_ESTALL_STATUS"
+		clr=54
+		bclr=4
+	}
+	clrmod="alarm"
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=319
+		y=415
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_ESTALLTIME_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=319
+		y=344
+		width=100
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_OFFONERR_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=319
+		y=434
+		width=58
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_STEPSMOOTH_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=319
+		y=473
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_HOMEALLOWED_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=319
+		y=381
+		width=58
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_ERR_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=319
+		y=323
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_STOPDELAY_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=319
+		y=452
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_EGUAFTLIMIT_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=174
+		y=83
+		width=120
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_MCONN_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=174
+		y=47
+		width=58
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_AXIS_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=174
+		y=65
+		width=120
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M).NAME"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+menu {
+	object {
+		x=174
+		y=99
+		width=135
+		height=20
+	}
+	control {
+		chan="$(P)$(M)_MTRTYPE_CMD"
+		clr=51
+		bclr=51
+	}
+}
+menu {
+	object {
+		x=174
+		y=119
+		width=135
+		height=20
+	}
+	control {
+		chan="$(P)$(M)_MENCTYPE_CMD"
+		clr=51
+		bclr=51
+	}
+}
+menu {
+	object {
+		x=174
+		y=139
+		width=135
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_AENCTYPE_CMD"
+		clr=51
+		bclr=51
+	}
+}
+"choice button" {
+	object {
+		x=174
+		y=175
+		width=135
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_ON_CMD"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+"choice button" {
+	object {
+		x=174
+		y=158
+		width=135
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_WLP_CMD"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+"choice button" {
+	object {
+		x=174
+		y=193
+		width=135
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_AUTOONOFF_CMD"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+"text entry" {
+	object {
+		x=174
+		y=211
+		width=135
+		height=19
+	}
+	control {
+		chan="$(P)$(M)_ONDELAY_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"choice button" {
+	object {
+		x=174
+		y=265
+		width=135
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_BRAKE_CMD"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+"text entry" {
+	object {
+		x=174
+		y=247
+		width=135
+		height=19
+	}
+	control {
+		chan="$(P)$(M)_BRAKEONDELAY_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text entry" {
+	object {
+		x=174
+		y=283
+		width=135
+		height=19
+	}
+	control {
+		chan="$(P)$(M)_BRAKEPORT_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"choice button" {
+	object {
+		x=174
+		y=301
+		width=135
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_AUTOBRAKE_CMD"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+"text entry" {
+	object {
+		x=175
+		y=414
+		width=135
+		height=19
+	}
+	control {
+		chan="$(P)$(M)_ESTALLTIME_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text entry" {
+	object {
+		x=174
+		y=358
+		width=135
+		height=19
+	}
+	control {
+		chan="$(P)$(M)_ERRLIMIT_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+menu {
+	object {
+		x=174
+		y=340
+		width=135
+		height=20
+	}
+	control {
+		chan="$(P)$(M)_OFFONERR_CMD"
+		clr=51
+		bclr=51
+	}
+}
+"text entry" {
+	object {
+		x=174
+		y=433
+		width=135
+		height=19
+	}
+	control {
+		chan="$(P)$(M)_STEPSMOOTH_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+menu {
+	object {
+		x=175
+		y=470
+		width=135
+		height=20
+	}
+	control {
+		chan="$(P)$(M)_HOMEALLOWED_CMD"
+		clr=51
+		bclr=51
+	}
+}
+"text entry" {
+	object {
+		x=174
+		y=229
+		width=135
+		height=19
+	}
+	control {
+		chan="$(P)$(M)_OFFDELAY_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text entry" {
+	object {
+		x=174
+		y=320
+		width=135
+		height=19
+	}
+	control {
+		chan="$(P)$(M)_STOPDELAY_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text entry" {
+	object {
+		x=174
+		y=451
+		width=135
+		height=19
+	}
+	control {
+		chan="$(P)$(M)_EGUAFTLIMIT_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+composite {
+	object {
+		x=2
+		y=489
+		width=398
+		height=143
 	}
 	"composite name"=""
 	children {
-		"text update" {
+		text {
 			object {
-				x=319
-				y=104
-				width=100
+				x=2
+				y=491
+				width=69
 				height=13
 			}
-			monitor {
-				chan="$(P)$(M)_MTRTYPE_STATUS"
-				clr=54
-				bclr=4
+			"basic attribute" {
+				clr=14
 			}
-			limits {
-			}
+			textix="Use switch when homing"
 		}
-		"text update" {
+		text {
 			object {
-				x=319
-				y=124
-				width=100
+				x=2
+				y=508
+				width=69
 				height=13
 			}
-			monitor {
-				chan="$(P)$(M)_MENCTYPE_STATUS"
-				clr=54
-				bclr=4
+			"basic attribute" {
+				clr=14
 			}
-			limits {
-			}
+			textix="Use index when homing"
 		}
-		"text update" {
+		text {
 			object {
-				x=319
-				y=144
-				width=100
+				x=2
+				y=526
+				width=69
 				height=13
 			}
-			monitor {
-				chan="$(P)$(M)_AENCTYPE_STATUS"
-				clr=54
-				bclr=4
+			"basic attribute" {
+				clr=14
 			}
-			limits {
-			}
+			textix="Jog after home"
 		}
-		"text update" {
+		text {
 			object {
-				x=319
-				y=179
-				width=58
+				x=2
+				y=545
+				width=69
 				height=13
 			}
-			monitor {
-				chan="$(P)$(M)_ON_STATUS"
-				clr=54
-				bclr=4
+			"basic attribute" {
+				clr=14
 			}
-			limits {
-			}
+			textix="Jog after home to (User)"
 		}
-		"text update" {
+		text {
 			object {
-				x=319
-				y=162
-				width=30
+				x=2
+				y=619
+				width=69
 				height=13
 			}
-			monitor {
-				chan="$(P)$(M)_WLP_STATUS"
-				clr=54
-				bclr=4
+			"basic attribute" {
+				clr=14
 			}
-			limits {
-			}
+			textix="Servo velocity (EGU/s)"
 		}
-		"text update" {
+		text {
 			object {
-				x=351
-				y=162
-				width=58
+				x=2
+				y=601
+				width=69
 				height=13
 			}
-			monitor {
-				chan="$(P)$(M)_WLPACTIVE_STATUS"
-				clr=54
-				bclr=4
+			"basic attribute" {
+				clr=14
 			}
-			clrmod="alarm"
-			limits {
-			}
+			textix="Servo velocity (cts/s)"
 		}
-		"text update" {
+		text {
 			object {
-				x=319
-				y=196
-				width=81
+				x=2
+				y=564
+				width=69
 				height=13
 			}
-			monitor {
-				chan="$(P)$(M)_AUTOONOFF_STATUS"
-				clr=54
-				bclr=4
+			"basic attribute" {
+				clr=14
 			}
-			limits {
-			}
+			textix="User data deadband"
 		}
-		"text update" {
+		text {
 			object {
-				x=319
-				y=214
-				width=81
+				x=2
+				y=582
+				width=97
 				height=13
 			}
-			monitor {
-				chan="$(P)$(M)_ONDELAY_MON"
-				clr=54
-				bclr=4
+			"basic attribute" {
+				clr=14
 			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=319
-				y=268
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_BRAKE_STATUS"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=319
-				y=250
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_BRAKEONDELAY_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=319
-				y=286
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_BRAKEPORT_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=319
-				y=304
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_AUTOBRAKE_STATUS"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=319
-				y=363
-				width=58
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_ERRLIMIT_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=319
-				y=398
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_ESTALL_STATUS"
-				clr=54
-				bclr=4
-			}
-			clrmod="alarm"
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=319
-				y=415
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_ESTALLTIME_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=319
-				y=344
-				width=100
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_OFFONERR_STATUS"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=319
-				y=434
-				width=58
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_STEPSMOOTH_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=319
-				y=473
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_HOMEALLOWED_STATUS"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=319
-				y=381
-				width=58
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_ERR_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
+			textix="User data"
 		}
 		"text update" {
 			object {
 				x=319
 				y=491
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_HOMEVAL_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=319
-				y=509
 				width=81
 				height=13
 			}
@@ -852,7 +1170,7 @@ composite {
 		"text update" {
 			object {
 				x=319
-				y=526
+				y=508
 				width=81
 				height=13
 			}
@@ -867,37 +1185,7 @@ composite {
 		"text update" {
 			object {
 				x=319
-				y=323
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_STOPDELAY_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=319
-				y=452
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_EGUAFTLIMIT_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=319
-				y=544
+				y=526
 				width=81
 				height=13
 			}
@@ -912,7 +1200,7 @@ composite {
 		"text update" {
 			object {
 				x=319
-				y=561
+				y=543
 				width=81
 				height=13
 			}
@@ -927,7 +1215,7 @@ composite {
 		"text update" {
 			object {
 				x=319
-				y=635
+				y=617
 				width=81
 				height=13
 			}
@@ -942,7 +1230,7 @@ composite {
 		"text update" {
 			object {
 				x=319
-				y=618
+				y=600
 				width=81
 				height=13
 			}
@@ -957,7 +1245,7 @@ composite {
 		"text update" {
 			object {
 				x=319
-				y=602
+				y=584
 				width=58
 				height=13
 			}
@@ -969,306 +1257,10 @@ composite {
 			limits {
 			}
 		}
-	}
-}
-composite {
-	object {
-		x=174
-		y=47
-		width=136
-		height=551
-	}
-	"composite name"=""
-	children {
-		"text update" {
-			object {
-				x=174
-				y=83
-				width=120
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_MCONN_STATUS"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=174
-				y=47
-				width=58
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_AXIS_STATUS"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=174
-				y=65
-				width=120
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M).NAME"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		menu {
-			object {
-				x=174
-				y=99
-				width=135
-				height=20
-			}
-			control {
-				chan="$(P)$(M)_MTRTYPE_CMD"
-				clr=51
-				bclr=51
-			}
-		}
-		menu {
-			object {
-				x=174
-				y=119
-				width=135
-				height=20
-			}
-			control {
-				chan="$(P)$(M)_MENCTYPE_CMD"
-				clr=51
-				bclr=51
-			}
-		}
-		menu {
-			object {
-				x=174
-				y=139
-				width=135
-				height=18
-			}
-			control {
-				chan="$(P)$(M)_AENCTYPE_CMD"
-				clr=51
-				bclr=51
-			}
-		}
 		"choice button" {
-			object {
-				x=174
-				y=175
-				width=135
-				height=18
-			}
-			control {
-				chan="$(P)$(M)_ON_CMD"
-				clr=14
-				bclr=51
-			}
-			stacking="column"
-		}
-		"choice button" {
-			object {
-				x=174
-				y=158
-				width=135
-				height=18
-			}
-			control {
-				chan="$(P)$(M)_WLP_CMD"
-				clr=14
-				bclr=51
-			}
-			stacking="column"
-		}
-		"choice button" {
-			object {
-				x=174
-				y=193
-				width=135
-				height=18
-			}
-			control {
-				chan="$(P)$(M)_AUTOONOFF_CMD"
-				clr=14
-				bclr=51
-			}
-			stacking="column"
-		}
-		"text entry" {
-			object {
-				x=174
-				y=211
-				width=135
-				height=19
-			}
-			control {
-				chan="$(P)$(M)_ONDELAY_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		"choice button" {
-			object {
-				x=174
-				y=265
-				width=135
-				height=18
-			}
-			control {
-				chan="$(P)$(M)_BRAKE_CMD"
-				clr=14
-				bclr=51
-			}
-			stacking="column"
-		}
-		"text entry" {
-			object {
-				x=174
-				y=247
-				width=135
-				height=19
-			}
-			control {
-				chan="$(P)$(M)_BRAKEONDELAY_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		"text entry" {
-			object {
-				x=174
-				y=283
-				width=135
-				height=19
-			}
-			control {
-				chan="$(P)$(M)_BRAKEPORT_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		"choice button" {
-			object {
-				x=174
-				y=301
-				width=135
-				height=18
-			}
-			control {
-				chan="$(P)$(M)_AUTOBRAKE_CMD"
-				clr=14
-				bclr=51
-			}
-			stacking="column"
-		}
-		"text entry" {
-			object {
-				x=175
-				y=414
-				width=135
-				height=19
-			}
-			control {
-				chan="$(P)$(M)_ESTALLTIME_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		"text entry" {
-			object {
-				x=174
-				y=358
-				width=135
-				height=19
-			}
-			control {
-				chan="$(P)$(M)_ERRLIMIT_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		menu {
-			object {
-				x=174
-				y=340
-				width=135
-				height=20
-			}
-			control {
-				chan="$(P)$(M)_OFFONERR_CMD"
-				clr=51
-				bclr=51
-			}
-		}
-		"text entry" {
-			object {
-				x=174
-				y=433
-				width=135
-				height=19
-			}
-			control {
-				chan="$(P)$(M)_STEPSMOOTH_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		menu {
-			object {
-				x=175
-				y=470
-				width=135
-				height=20
-			}
-			control {
-				chan="$(P)$(M)_HOMEALLOWED_CMD"
-				clr=51
-				bclr=51
-			}
-		}
-		"text entry" {
 			object {
 				x=174
 				y=489
-				width=135
-				height=19
-			}
-			control {
-				chan="$(P)$(M)_HOMEVAL_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		"choice button" {
-			object {
-				x=174
-				y=507
 				width=135
 				height=18
 			}
@@ -1282,7 +1274,7 @@ composite {
 		"choice button" {
 			object {
 				x=174
-				y=524
+				y=506
 				width=135
 				height=18
 			}
@@ -1296,52 +1288,7 @@ composite {
 		"text entry" {
 			object {
 				x=174
-				y=229
-				width=135
-				height=19
-			}
-			control {
-				chan="$(P)$(M)_OFFDELAY_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		"text entry" {
-			object {
-				x=174
-				y=320
-				width=135
-				height=19
-			}
-			control {
-				chan="$(P)$(M)_STOPDELAY_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		"text entry" {
-			object {
-				x=174
-				y=451
-				width=135
-				height=19
-			}
-			control {
-				chan="$(P)$(M)_EGUAFTLIMIT_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		"text entry" {
-			object {
-				x=174
-				y=560
+				y=542
 				width=135
 				height=19
 			}
@@ -1356,7 +1303,7 @@ composite {
 		"text entry" {
 			object {
 				x=174
-				y=579
+				y=561
 				width=135
 				height=19
 			}
@@ -1371,7 +1318,7 @@ composite {
 		"choice button" {
 			object {
 				x=174
-				y=542
+				y=524
 				width=135
 				height=18
 			}

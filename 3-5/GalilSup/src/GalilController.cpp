@@ -260,6 +260,12 @@
 //                  Fixed issue with home switch homing
 //                  Fixed issue programing home value after homing completion
 //                  Changed home value now specified in dial coordinates
+// 13/07/17 M.Clift
+//                  Add enforce CSAxis completion order rules
+//                  Add ability to move related CSAxis at same time when deferred moves true
+//                  Add unknown unsolicited messages now routed to controller message PV for display
+//                  Altered axis homeval now always 0 in dial coordinates
+//                  Removed home value from motor extras
 
 #include <stdio.h>
 #include <math.h>
@@ -445,7 +451,6 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilMotorConnectedString, asynParamInt32, &GalilMotorConnected_);
 
   createParam(GalilAfterLimitString, asynParamFloat64, &GalilAfterLimit_);
-  createParam(GalilHomeValueString, asynParamFloat64, &GalilHomeValue_);
   createParam(GalilWrongLimitProtectionString, asynParamInt32, &GalilWrongLimitProtection_);
   createParam(GalilWrongLimitProtectionActiveString, asynParamInt32, &GalilWrongLimitProtectionActive_);
 
@@ -3495,12 +3500,12 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
   status = getAddress(pasynUser, &addr);
   if (status != asynSuccess) return(status);
 
-  //Check axis instance the easy way since no RIO commands in writeInt32
-  if (addr < MAX_GALIL_AXES)
+  //Check axis instance
+  if (addr < MAX_GALIL_AXES && !rio_)
      {
      if (!pAxis) return asynError;
      }
-  else
+  else if (!rio_)
      {
      if (!pCSAxis) return asynError;
      }
@@ -3644,7 +3649,6 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 	}
   else if (function == GalilUseEncoder_)
 	{
-	
 	//This is one of the last items pushed into driver at startup so flag
 	//Axis now ready for move commands
 	if (addr < MAX_GALIL_AXES)
@@ -3717,7 +3721,7 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 	}
   else if (function == GalilAmpGain_)
 	{
-        int motorOff = 0;
+	int motorOff = 0;
 	//Retrieve motor off status
 	sprintf(cmd_, "MG _MO%c", pAxis->axisName_);
 	status = sync_writeReadController();
@@ -4009,6 +4013,7 @@ void GalilController::processUnsolicitedMesgs(void)
    ptrdiff_t index;		//Index where user variable found
    char *tokSave = NULL;	//Remaining tokens
    int uploading;		//Array uploading status
+   bool found;			//Found a user variable message
    int len;			//length of received message
 
    //Collect unsolicited message from controller
@@ -4019,6 +4024,8 @@ void GalilController::processUnsolicitedMesgs(void)
       {
       //Terminate the buffer
       rawbuf[len] = '\0';
+      //Take backup before splitting into tokens
+      string rawbufOriginal = rawbuf;
       //Break message into tokens: name value name value    etc.
       charstr = epicsStrtok_r(rawbuf, " \r\n", &tokSave);
       while (charstr != NULL)
@@ -4051,7 +4058,6 @@ void GalilController::processUnsolicitedMesgs(void)
             if (charstr != NULL && pAxis)
                {
                value = atoi(charstr);
-
                //Process known messages
                //Motor homed message
                if (!abs(strcmp(mesg, "homed")))
@@ -4063,6 +4069,12 @@ void GalilController::processUnsolicitedMesgs(void)
                      pAxis->homedExecuted_ = false;
                      pAxis->pollRequest_.send((void*)&MOTOR_HOMED, sizeof(int));
                      pAxis->homedSent_ = true;
+                     }
+                  else
+                     {
+                     //Maintain homing asynParam that includes JAH
+                     //Homed failed, so dont do JAH
+                     setIntegerParam(GalilHoming_, 0);
                      }
                   //Set homing flag false
                   //This homing flag does not include JAH
@@ -4077,16 +4089,19 @@ void GalilController::processUnsolicitedMesgs(void)
             }//Home related messages
          else
             {
-            //User variable messages
+            //Unknown or User variable message
+            //Default user variable message flag
+            found = false;
             //Retrieve the value
             charstr = epicsStrtok_r(NULL, " \r\n", &tokSave);
-            if (charstr != NULL)
+            if (charstr != NULL  && userVariables_.size())
                {
                //Attempt to find the user variable
                it = find(userVariables_.begin(), userVariables_.end(), mesg);
                if (it != userVariables_.end())
                   {
                   //User variable found
+                  found = true;
                   //Calculate exact index of user variable
                   index = it - userVariables_.begin();
                   //Grab the user defined record address
@@ -4097,6 +4112,17 @@ void GalilController::processUnsolicitedMesgs(void)
                   setDoubleParam(addr, GalilUserVar_, valuef);
                   callParamCallbacks(addr);
                   }
+               }
+            //Check for unknown message type
+            if (!found && userVariables_.size())
+               {
+               //Unknown message
+               //Display message in controller console
+               rawbufOriginal.erase(rawbufOriginal.find_last_not_of(" \n\r\t:")+1);
+               setCtrlError(rawbufOriginal.c_str());
+               callParamCallbacks();
+               //All complete
+               break;
                }
             }//User variable messages
          //Retrieve next mesg
@@ -4711,7 +4737,11 @@ asynStatus GalilController::arrayUpload(void)
   unsigned i, j;		//Looping
   char cmd[MAX_GALIL_STRING_SIZE];//Array upload command
   char buf[MAX_GALIL_STRING_SIZE];//Array upload raw data
+  char mesg[MAX_GALIL_STRING_SIZE];//Controller message
   char arrayName[MAX_FILENAME_LEN];//Array name on controller to upload
+
+  //Clear controller message
+  setCtrlError("");
 
   //Update arrayUpload status in paramList
   setIntegerParam(GalilUserArrayUpload_, 1);
@@ -4747,6 +4777,9 @@ asynStatus GalilController::arrayUpload(void)
                        {
                        //Error
                        done = true;
+                       sprintf(mesg, "Array upload failed, array name %s is unknown", arrayName);
+                       setCtrlError(mesg);
+                       callParamCallbacks();
                        status = asynError;
                        }
                     if (i > 0)//terminating characters

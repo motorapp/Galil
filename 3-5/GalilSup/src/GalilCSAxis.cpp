@@ -355,6 +355,41 @@ asynStatus GalilCSAxis::checkMRSettings(bool moveVelocity, char callaxis)
    return asynSuccess;
 }
 
+//Enforce CSAxis completion order
+int GalilCSAxis::enforceCSAxisCompletionOrder(int csmoving)
+{
+   GalilCSAxis *pCSAxis;	//Galil CSAxis
+   int fmoving;			//Related CSAxis moving status
+   int fdmov;			//Related CSAxis done status
+   unsigned i;			//Looping
+
+   //Enforce CSAxis completion order
+   //Completion order is axis order within fwdaxes array
+   if (axisName_ != fwdaxes_[0] && move_started_)
+      {
+      for (i = 0; fwdaxes_[i] != '\0'; i++)
+         {
+         //Retrieve the CSAxis
+         pCSAxis = pC_->getCSAxis(fwdaxes_[i] - AASCII);
+         //Skip or process
+         if (!pCSAxis) continue;
+         //Don't apply completion rules to self
+         if (axisName_ != pCSAxis->axisName_)
+            {
+            //Retrieve moving status
+            pC_->getIntegerParam(pCSAxis->axisNo_, pC_->motorStatusMoving_, &fmoving);
+            //Retrieve dmov status.  Related CSAxis may be doing backlash or retry
+            pC_->getIntegerParam(pCSAxis->axisNo_, pC_->GalilDmov_, &fdmov);
+            //Or related CSAxis moving status
+            csmoving |= ((!fdmov) || (fmoving));
+            }
+         }
+      }
+
+   //Return result
+   return csmoving;
+}
+
 /** Check CSAxis limit in requested move direction
   * \param[in] position  The absolute position to move to (if relative=0) or the relative distance to move by (if relative=1). Units=steps.
   * \param[in] relative  Flag indicating relative move (1) or absolute move (0).*/
@@ -502,16 +537,20 @@ asynStatus GalilCSAxis::setupCSAxisMove(bool moveVelocity)
 asynStatus GalilCSAxis::move(double position, int relative, double minVelocity, double maxVelocity, double acceleration)
 {
   //static const char *functionName = "GalilCSAxis::move";
-  int i;				//Looping, indexing
+  GalilCSAxis *pCSAxis;			//Pointer to GalilCSAxis instance
+  int i, j = 0;				//Looping, indexing
   double npos[MAX_GALIL_AXES];		//Real axis position targets
   double nvel[MAX_GALIL_AXES];		//Real axis velocity targets
   double naccel[MAX_GALIL_AXES];	//Real axis acceleration targets
   int moveStatus[MAX_GALIL_AXES];	//Real axis move thru motor record status
   int lastaxis = -1;			//Last axis in move when moves not deferred
+  CSTargets targets;			//Addtional CSAxis targets
   GalilAxis *pAxis;			//Pointer to GalilAxis instance
-  bool setDeferred = false;
+  int deferredMode;			//Deferred move mode
   int status = asynError;
 
+  //Clear list of other csaxes that have a move too
+  targets.csaxes[0] = '\0';
   //Store CSAxis setpoint for use in kinematics
   if (!moveVelocity_)
      setPoint_ = position;
@@ -519,90 +558,154 @@ asynStatus GalilCSAxis::move(double position, int relative, double minVelocity, 
   pC_->setCtrlError("");
 
   //Retrieve deferred moves mode
-  pC_->getIntegerParam(pC_->GalilDeferredMode_, &deferredMode_);
-  pC_->getIntegerParam(0, pC_->GalilCoordSys_, &deferredCoordsys_);
-  deferredRelative_ = relative;
+  pC_->getIntegerParam(pC_->GalilDeferredMode_, &deferredMode);
+  deferredMode_ = deferredMode;
 
-  //Perform reverse transform and get new motor positions
-  status = reverseTransform(position, maxVelocity, acceleration, NULL, npos, nvel, naccel);
-  //Check requested motor velocities
-  status |= checkMotorVelocities(npos, nvel, naccel);
-  //Check motor record settings
-  status |= validateMRSettings();
-  //check limit in requested move direction
-  status |= checkLimits(position, relative);
+  //Are moves to be deferred ?
+  if (pC_->movesDeferred_ != 0)
+     {
+     //Moves are deferred
+     //Store parameters for deferred move in GalilCSAxis
+     deferredPosition_ = position;
+     pC_->getIntegerParam(0, pC_->GalilCoordSys_, &deferredCoordsys_);
+     deferredVelocity_ = maxVelocity;
+     deferredAcceleration_ = acceleration;
+     deferredRelative_ = relative;
 
-  if (!pC_->movesDeferred_ && !status)
+     //Scan for other CSAxis that have a new position setpoint too
+     for (i = 0; fwdaxes_[i] != '\0'; i++)
+        {
+        //Retrieve the related CSAxis instance
+        pCSAxis = pC_->getCSAxis(fwdaxes_[i] - AASCII);
+        if (pCSAxis)
+           {
+           //See if retrieved CSAxis instance has a new position setpoint
+           if (pCSAxis->deferredCoordsys_ == deferredCoordsys_ && pCSAxis->deferredMove_)
+              {
+              //Another related CSAxis has a new target also, store it
+              //Requested position
+              targets.ncspos[j] = pCSAxis->deferredPosition_;
+              //Requested velocity
+              targets.ncsvel[j] = pCSAxis->deferredVelocity_;
+              //Requested acceleration
+              targets.ncsaccel[j] = pCSAxis->deferredAcceleration_;
+              //Store the axis in the list
+              targets.csaxes[j++] = pCSAxis->axisName_;
+              //Terminate the csaxes list
+              targets.csaxes[j] = '\0';
+              }
+           }
+        }
+
+     //Perform reverse transform and get new axis (real) motor positions, velocities
+     status = reverseTransform(position, maxVelocity, acceleration, &targets, npos, nvel, naccel);
+     //Check requested motor velocities
+     status |= checkMotorVelocities(npos, nvel, naccel);
+     //Validate motor record settings
+     status |= validateMRSettings();
+     //check limit in requested move direction
+     status |= checkLimits(position, relative);
+
+     //Write the motor setpoints, but dont move
+     if (!status)
+        {
+        setupCSAxisMove(false);
+        for (i = 0; revaxes_[i] != '\0'; i++)
+           {
+           //Retrieve the axis
+           pAxis = pC_->getAxis(revaxes_[i] - AASCII);
+           if (!pAxis) continue;
+           //Write motor set point, but dont start motion
+           if (!moveVelocity_)
+              {
+              //Move is not via motor record
+              //It cannot handle related CSAxis moving at same time
+              //Motor record MIP will be 0x8000 external move in this case
+              //For reverse axis motor records.  Retry, backlash not supported
+              pAxis->move(npos[i], relative, minVelocity, nvel[i], naccel[i]);
+              }
+           }
+        }
+     }
+  else
      {
      //Moves are not deferred
+     //Perform reverse transform and get new motor positions
+     status = reverseTransform(position, maxVelocity, acceleration, NULL, npos, nvel, naccel);
+     //Check requested motor velocities
+     status |= checkMotorVelocities(npos, nvel, naccel);
      //Check motor enable interlocks
      status |= beginCheck();
+     //Validate motor record settings
+     status |= validateMRSettings();
+     //check limit in requested move direction
+     status |= checkLimits(position, relative);
 
      //Select a free coordinate system
-     if (deferredMode_ && !status)
+     if (deferredMode && !status)
         if (selectFreeCoordinateSystem() == -1)
-           status |= asynError;
+           status = asynError;
 
+     //Do the move, using deferredMoves facility in GalilController
      if (!status)
         {
         //Set controller deferred move flag
         pC_->setDeferredMoves(true);
-        setDeferred = true;
         epicsThreadSleep(.001);
         }
-     }
 
-  if (!status)
-     {
-     for (i = 0; revaxes_[i] != '\0'; i++)
+     if (!status)
         {
-        //Retrieve the axis
-        pAxis = pC_->getAxis(revaxes_[i] - AASCII);
-        if (!pAxis) continue;
-        //Default startDeferredMoves before writing new setpoint
-        pAxis->startDeferredMoves_ = false;
-        //Write motor set point, but dont start motion
-        if (moveVelocity_)//Jog moves are accomplished through internal calls to GalilAxis move
-           pAxis->move(npos[i], relative, minVelocity, nvel[i], naccel[i]);
-        else
+        //Write the motor setpoints
+        for (i = 0; revaxes_[i] != '\0'; i++)
            {
-           //Moves are sent to real axis motor records
-           //Backlash, and retries are supported
-           moveStatus[i] = pAxis->moveThruMotorRecord(npos[i], nvel[i], naccel[i]);
-           //Track last axis with successful move
-           if (!moveStatus[i])
-              lastaxis = i;
+           //Retrieve the axis
+           pAxis = pC_->getAxis(revaxes_[i] - AASCII);
+           if (!pAxis) continue;
+           //Default startDeferredMoves before writing new setpoint
+           pAxis->startDeferredMoves_ = false;
+           //Write motor set point, but dont start motion
+           if (moveVelocity_)//Jog moves are accomplished through internal calls to GalilAxis move
+              pAxis->move(npos[i], relative, minVelocity, nvel[i], naccel[i]);
+           else
+              {
+              //Moves are sent to real axis motor records
+              //Backlash, and retries are supported
+              moveStatus[i] = pAxis->moveThruMotorRecord(npos[i], nvel[i], naccel[i]);
+              //Track last axis with successful move
+              if (!moveStatus[i])
+                 lastaxis = i;
+              }
            }
-        }
 
-     //For moves, not for jog
-     //Setup method to start deferred moves
-     if (!moveVelocity_ && lastaxis != -1)
-        {
-        //Retrieve the last axis with a successful move
-        pAxis = pC_->getAxis(revaxes_[lastaxis] - AASCII);
-        if (pAxis)
+        //For moves, not for jog
+        //Setup method to start deferred moves
+        if (!moveVelocity_ && lastaxis != -1)
            {
-           //This axis has successful move setup by moveThruMotorRecord
-           //Flag this axis should start deferredMoves when GalilAxis::move is called
-           if (setDeferred)
+           //Retrieve the last axis with a successful move
+           pAxis = pC_->getAxis(revaxes_[lastaxis] - AASCII);
+           if (pAxis)
+              {
+              //This axis has successful move setup by moveThruMotorRecord
+              //Flag this axis should start deferredMoves when GalilAxis::move is called
               pAxis->startDeferredMoves_ = true;
-           //Set CSAxis move flags
-           setupCSAxisMove(false);
+              //Set CSAxis move flags
+              setupCSAxisMove(false);
+              }
            }
+
+        //For jog
+        //Also for move when requested position < rdbd from readback
+        //Must start deferred moves here
+        if (moveVelocity_ || !deferredMove_)
+           pC_->setDeferredMoves(false);
         }
 
-     //For jog
-     //Also for move when requested position < rdbd from readback
-     //Must start deferred moves here
-     if ((setDeferred && moveVelocity_) || (setDeferred && !deferredMove_))
-        pC_->setDeferredMoves(false);
-     }
-
-  //Clear deferred move flag for failed jog
-  //This can occur when move fails initial checks (eg. checkMotorVelocities)
-  if (moveVelocity_ && status)
-     deferredMove_ = false;
+     //Clear deferred move flag for failed jog
+     //This can occur when move fails initial checks (eg. checkMotorVelocities)
+     if (moveVelocity_ && status)
+        deferredMove_ = false;
+     }//Moves not deferred
 
   //Return status
   return asynSuccess;
@@ -1643,7 +1746,7 @@ asynStatus GalilCSAxis::poller(void)
       //Retrieve dmov status.  Real motor may be doing backlash or retry
       status |= pC_->getIntegerParam(pAxis->axisNo_, pC_->GalilDmov_, &rdmov);
       //Or moving status from all real axis to derive cs moving status
-      csmoving |= (deferredMove_ || !rdmov  || rmoving);
+      csmoving |= (deferredMove_ || (!rdmov && !pAxis->deferredMove_) || (rmoving && !pAxis->deferredMove_));
       //Retrieve stall/following error status
       status |= pC_->getIntegerParam(pAxis->axisNo_, pC_->motorStatusSlip_, &slipstall);
       //Or slipstall from all real axis to derive cs slipstall status
@@ -1668,6 +1771,9 @@ asynStatus GalilCSAxis::poller(void)
       else
          cshomed &= homed;
       }
+
+   //Enforce CSAxis completion order
+   csmoving |= enforceCSAxisCompletionOrder(csmoving);
 
    //Moving status
    moving = (csmoving) ? true : false;

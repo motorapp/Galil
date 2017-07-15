@@ -1654,8 +1654,6 @@ void GalilAxis::pollServices(void)
   int request = -1; 			//Real service numbers start at 0
   int jah;				//Jog after home feature status
   double jahv;				//Jog after home value in egu
-  double homeval;			//User programmed home value in egu
-  double enhmval, mrhmval;		//Encoder, and motor register home value in steps
   int dir, dirm = 1;			//Motor record dir, and dirm direction multiplier based on motor record DIR field
   double accl;				//Motor record accl
   double velo;				//Motor record velo
@@ -1727,23 +1725,20 @@ void GalilAxis::pollServices(void)
                          status |= pC_->getIntegerParam(axisNo_, pC_->GalilDirection_, &dir);
                          status |= pC_->getDoubleParam(axisNo_, pC_->GalilEncoderResolution_, &eres);
                          status |= pC_->getDoubleParam(axisNo_, pC_->GalilUserOffset_, &off);
-                         status |= pC_->getDoubleParam(axisNo_, pC_->GalilHomeValue_, &homeval);
                          status |= pC_->getIntegerParam(axisNo_, pC_->GalilJogAfterHome_, &jah);
 
                          //Program home registers
                          if (!status)
                             {
-                            //Calculate the encoder home value and mtr home value
-                            //Convert from dial to steps
-                            enhmval = (double)(homeval/eres);
-                            mrhmval = (double)(homeval/mres);
+                            //Position registers always set to 0 in dial coordinates
+                            //Use OFF to give correct user position
                             //Program motor position register
-                            sprintf(pC_->cmd_, "DP%c=%.0lf", axisName_, mrhmval);
+                            sprintf(pC_->cmd_, "DP%c=0", axisName_);
                             pC_->sync_writeReadController();
                             //Program encoder position register
                             if (ueip_ || ctrlUseMain_)
                                {
-                               sprintf(pC_->cmd_, "DE%c=%.0lf", axisName_, enhmval);
+                               sprintf(pC_->cmd_, "DE%c=0", axisName_);
                                pC_->sync_writeReadController();
                                }
                             //Give ample time for position register updates to complete
