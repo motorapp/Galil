@@ -1708,7 +1708,6 @@ asynStatus GalilCSAxis::poller(void)
    int csmoving;		//Coordinate system axis moving status derived from real axis moving status
    int rdmov;			//Any real motor doing backlash or retry
    int rmoving;			//Real motor moving status
-   int cshoming;		//CSAxis homing status
    int rhoming;			//Real motor homing status
    int status;			//Communication status with controller
    unsigned i;			//Looping
@@ -1727,7 +1726,7 @@ asynStatus GalilCSAxis::poller(void)
    //Default homed status
    cshomed = homed = 0;
    //Default homing status
-   cshoming = rhoming = 0;
+   cshoming_ = rhoming = 0;
 
    //Perform forward kinematic transform using real axis readback data, variable values, and
    //store results in GalilCSAxis, or asyn ParamList
@@ -1753,7 +1752,7 @@ asynStatus GalilCSAxis::poller(void)
       csslipstall |= slipstall;
       //Or homing status
       status |= pC_->getIntegerParam(pAxis->axisNo_, pC_->GalilHoming_, &rhoming);
-      cshoming |= rhoming;
+      cshoming_ |= rhoming;
       //Set CSAxis limits
       if (pAxis->fwd_ && limitOrientation_[i] == consistent)
          csfwd |= 1;
@@ -1818,13 +1817,18 @@ asynStatus GalilCSAxis::poller(void)
    if (!lastaxisReady_ && axisReady_)
       setPoint_ = motor_position_;
 
+   //Set CSAxis setpoint after homing
+   if (!cshoming_ && last_cshoming_)
+      setPoint_ = motor_position_;
+
    lastaxisReady_ = axisReady_;
+   last_cshoming_ = cshoming_;
 
 skip:
    //Set status
    //Homing status flag
    //This flag does include JAH
-   setIntegerParam(pC_->GalilHoming_, cshoming);
+   setIntegerParam(pC_->GalilHoming_, cshoming_);
 
    //Pass step count/aux encoder info to motorRecord
    setDoubleParam(pC_->motorPosition_, motor_position_);

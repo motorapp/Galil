@@ -269,6 +269,7 @@
 // 16/07/17 M.Clift
 //                  Fix runProfile was exiting before motor completion
 //                  Add motors to profile start move now has synchronous start
+//                  Add update CSAxis setpoint position after homing
 
 #include <stdio.h>
 #include <math.h>

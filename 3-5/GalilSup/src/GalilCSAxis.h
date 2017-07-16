@@ -131,7 +131,9 @@ private:
   bool deferredMove_;			//Has a deferred move been set
   int deferredMode_;			//Deferred mode.  Sync start only, sync start and stop
   double setPoint_;			//CSAxis setpoint position
- 
+  int cshoming_;			//CSAxis homing status
+  int last_cshoming_;			//CSAxis last homing status
+
 friend class GalilController;
 };
 
