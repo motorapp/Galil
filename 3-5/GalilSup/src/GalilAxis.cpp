@@ -1655,10 +1655,12 @@ void GalilAxis::pollServices(void)
   int jah;				//Jog after home feature status
   double jahv;				//Jog after home value in egu
   int dir, dirm = 1;			//Motor record dir, and dirm direction multiplier based on motor record DIR field
+  int autoonoff;			//Motor Amp Auto on/off
   double accl;				//Motor record accl
   double velo;				//Motor record velo
   double mres, eres;			//Motor record mres, eres
   double off;				//Motor record off
+  double ondelay;			//Motor on delay
   double acceleration;			//Acceleration Units=Steps/Sec/Sec
   double velocity;			//Velocity Units=Steps/Sec
   double position;			//Absolute position Units=steps
@@ -1783,14 +1785,20 @@ void GalilAxis::pollServices(void)
                                if (!moveThruMotorRecord(position, velocity, acceleration, false))
                                   {
                                   //Move success
-                                  //Unlock mutex so GalilAxis::move is called
-                                  //Also give chance for sync poller to get the lock
-                                  pC_->unlock();
                                   moving = 0;
                                   //Get time when attempt motor begin
                                   epicsTimeGetCurrent(&lbegin_begint_);
                                   begin_time = 0.0;
                                   fail = false;
+                                  //Retrieve AutoOn delay from ParamList
+                                  pC_->getDoubleParam(axisNo_, pC_->GalilAutoOnDelay_, &ondelay);
+                                  //Retrieve Auto on off status from ParamList
+                                  pC_->getIntegerParam(axisNo_, pC_->GalilAutoOnOff_, &autoonoff);
+                                  if (!autoonoff)
+                                     ondelay = 0.0;
+                                  //Unlock mutex so GalilAxis::move is called
+                                  //Also give chance for sync poller to get the lock
+                                  pC_->unlock();
                                   //Loop until movement begins, or timeout
                                   while (!moving) //Allow time for motion to begin
                                      {
@@ -1802,7 +1810,7 @@ void GalilAxis::pollServices(void)
                                         epicsTimeGetCurrent(&lbegin_nowt_);
                                         //Calculate time begin has taken so far
                                         begin_time = epicsTimeDiffInSeconds(&lbegin_nowt_, &lbegin_begint_);
-                                        if (begin_time > BEGIN_TIMEOUT)
+                                        if (begin_time > (BEGIN_TIMEOUT + ondelay))
                                            {
                                            fail = true;  //Time is up, give up
                                            break;
@@ -1849,7 +1857,6 @@ bool GalilAxis::executeAutoOn(void)
   int autoonoff;	//Motor power auto on/off setting
   int motoroff;		//Motor amplifier off status
 
-  //Retrieve brake attributes from ParamList
   //Execute Auto power on if activated
   pC_->getIntegerParam(axisNo_, pC_->GalilAutoOnOff_, &autoonoff);
   
