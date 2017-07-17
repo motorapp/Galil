@@ -1756,11 +1756,6 @@ void GalilAxis::pollServices(void)
                          homedExecuted_ = true;
                          homedSent_ = false;
 
-                         //Maintain homing asynParam that includes JAH
-                         //If no jog after home, then homing completed
-                         if (!status && !jah)
-                            setIntegerParam(pC_->GalilHoming_, 0);
-
                          //Do jog after home move
                          if (!status && jah)
                             {
@@ -1822,15 +1817,18 @@ void GalilAxis::pollServices(void)
                                            }
                                         }
                                      }
-                                  if (fail)//JAH failed, homing complete
-                                     setIntegerParam(pC_->GalilHoming_, 0);
-                                  else//Jog after home started
+                                  if (!fail)//Jog after home started
                                      jogAfterHome_ = true;
                                   //Move started, move on to next motor
                                   pC_->lock();
                                   }
                                }
-                            }
+                            }//JAH
+
+                         //Check for failure
+                         //If no jog after home, then homing completed
+                         if (status || fail || !jah)//JAH failed, homing complete
+                            setIntegerParam(pC_->GalilHoming_, 0);
                          break;
         default: break;
         }
