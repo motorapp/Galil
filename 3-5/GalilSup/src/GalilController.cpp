@@ -270,6 +270,8 @@
 //                  Fix runProfile was exiting before motor completion
 //                  Add motors to profile start move now has synchronous start
 //                  Add update CSAxis setpoint position after homing
+// 17/07/17 M.Clift
+//                  Improve jog after home robustness
 
 #include <stdio.h>
 #include <math.h>
@@ -4094,7 +4096,7 @@ void GalilController::processUnsolicitedMesgs(void)
                      {
                      //Maintain homing asynParam that includes JAH
                      //Homed failed, so dont do JAH
-                     setIntegerParam(GalilHoming_, 0);
+                     setIntegerParam(pAxis->axisNo_, GalilHoming_, 0);
                      }
                   //Set homing flag false
                   //This homing flag does not include JAH

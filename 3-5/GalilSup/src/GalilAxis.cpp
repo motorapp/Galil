@@ -1495,14 +1495,18 @@ void GalilAxis::checkEncoder(void)
 void GalilAxis::syncEncodedStepper(void)
 {
    int status;		//Asyn paramList status
+   int homing;		//Home flag that includes JAH
    double mres;		//Motor resolution
    double eres;		//Encoder resolution
    double rdbd;		//Motor retry deadband
    double mreadback;	//Dial readback position calculated from aux encoder/step reg
    double ereadback;	//Dial readback position calculated from main encoder
 
+   //Retrieve homing status that includes JAH
+   pC_->getIntegerParam(axisNo_, pC_->GalilHoming_, &homing);
+
    //Motor just stopped
-   if (ueip_ && !ctrlUseMain_ && done_ && !last_done_ && !syncEncodedStepperAtStopSent_ && !homing_)
+   if (ueip_ && !ctrlUseMain_ && done_ && !last_done_ && !syncEncodedStepperAtStopSent_ && !homing_ && !homing)
       {
       //Request encoder value be copied to step register
       pollRequest_.send((void*)&MOTOR_STEP_SYNC_ATSTOP, sizeof(int));
@@ -1519,7 +1523,7 @@ void GalilAxis::syncEncodedStepper(void)
       mreadback = motor_position_ * mres;
       ereadback = encoder_position_ * eres;
       //Stepper motor not moving, but encoder moved more than retry deadband
-      if (ueip_ && !ctrlUseMain_ && done_ && last_done_ && !homing_ && !syncEncodedStepperAtEncSent_ &&
+      if (ueip_ && !ctrlUseMain_ && done_ && last_done_ && !homing_ && !homing && !syncEncodedStepperAtEncSent_ &&
           (mreadback < ereadback - rdbd || mreadback > ereadback + rdbd))
          {
          //Request encoder value be copied to step register
@@ -1747,14 +1751,15 @@ void GalilAxis::pollServices(void)
                             epicsThreadSleep(.2);
                             }
 
+                         //Homed pollService completed
+                         //This will cause moving status to become false
+                         homedExecuted_ = true;
+                         homedSent_ = false;
+
                          //Maintain homing asynParam that includes JAH
                          //If no jog after home, then homing completed
                          if (!status && !jah)
                             setIntegerParam(pC_->GalilHoming_, 0);
-
-                         //Homed pollService completed
-                         homedExecuted_ = true;
-                         homedSent_ = false;
 
                          //Do jog after home move
                          if (!status && jah)
@@ -1941,18 +1946,18 @@ void GalilAxis::executeAutoOnDelay(void)
 //Called by poll thread without lock
 void GalilAxis::executePost(void)
 {
+  int homing;				//Homing status that includes JAH
   char post[MAX_GALIL_STRING_SIZE];	//Motor record post field
 
   //Process motor record post field
-  if (pC_->getStringParam(axisNo_, pC_->GalilPost_, (int)sizeof(post), post) == asynSuccess)
-     {
-     if (!homing_ && !homedSent_ && done_ && strcmp(post, "") && !postSent_)
+  if ((pC_->getStringParam(axisNo_, pC_->GalilPost_, (int)sizeof(post), post) == asynSuccess) &&
+      (pC_->getIntegerParam(axisNo_, pC_->GalilHoming_, &homing) == asynSuccess))
+     if (!homing_ && !homing && !homedSent_ && done_ && strcmp(post, "") && !postSent_)
         {
         //Send the post command
         pollRequest_.send((void*)&MOTOR_POST, sizeof(int));
         postSent_ = true;
         }
-     }
 }
 
 //Send motor auto power off mesg to pollServices thread
@@ -1960,12 +1965,14 @@ void GalilAxis::executePost(void)
 void GalilAxis::executeAutoOff(void)
 {
   int autoonoff;	//Motor auto power on/off setting
+  int homing;		//Homing status that includes JAH
   double offdelay;	//Motor auto off delay in seconds
 
   //Execute motor auto power off if activated
   if ((pC_->getIntegerParam(axisNo_, pC_->GalilAutoOnOff_, &autoonoff) == asynSuccess) &&
-      (pC_->getDoubleParam(axisNo_, pC_->GalilAutoOffDelay_, &offdelay) == asynSuccess))
-     if (autoonoff && autooffAllowed_ && !homing_ && !homedSent_ && !autooffSent_ && stoppedTime_ >= offdelay)
+      (pC_->getDoubleParam(axisNo_, pC_->GalilAutoOffDelay_, &offdelay) == asynSuccess) &&
+      (pC_->getIntegerParam(axisNo_, pC_->GalilHoming_, &homing) == asynSuccess))
+     if (autoonoff && autooffAllowed_ && !homing_ && !homing && !homedSent_ && !autooffSent_ && stoppedTime_ >= offdelay)
         {
         //Send the motor off command
         pollRequest_.send((void*)&MOTOR_OFF, sizeof(int));
@@ -1978,16 +1985,14 @@ void GalilAxis::executeAutoOff(void)
 void GalilAxis::executeAutoBrakeOn(void)
 {
   int autobrake;	//Brake auto disable/enable setting
+  int homing;		//Homing status that includes JAH
   double ondelay;	//Brake auto on delay in seconds
  
-  //Retrieve brake attributes from ParamList
-  //Auto brake setting
-  pC_->getIntegerParam(axisNo_, pC_->GalilAutoBrake_, &autobrake);
-
   //Execute auto brake off if activated
   if ((pC_->getIntegerParam(axisNo_, pC_->GalilAutoBrake_, &autobrake) == asynSuccess) &&
-      (pC_->getDoubleParam(axisNo_, pC_->GalilAutoBrakeOnDelay_, &ondelay) == asynSuccess))
-     if (autobrake && autooffAllowed_ && !homing_ && !homedSent_ && !autobrakeonSent_ && stoppedTime_ >= ondelay)
+      (pC_->getDoubleParam(axisNo_, pC_->GalilAutoBrakeOnDelay_, &ondelay) == asynSuccess) &&
+      (pC_->getIntegerParam(axisNo_, pC_->GalilHoming_, &homing) == asynSuccess))
+     if (autobrake && autooffAllowed_ && !homing_ && !homing && !homedSent_ && !autobrakeonSent_ && stoppedTime_ >= ondelay)
         {
         //Send the brake on command
         pollRequest_.send((void*)&MOTOR_BRAKE_ON, sizeof(int));
