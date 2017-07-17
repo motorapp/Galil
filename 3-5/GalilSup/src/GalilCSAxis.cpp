@@ -944,6 +944,8 @@ asynStatus GalilCSAxis::home(double minVelocity, double maxVelocity, double acce
                   status = pAxis->beginCheck(functionName, nvel[i]);
                else
                   status = pAxis->beginCheck(functionName, nvel[i], false);
+               //Validate motor record settings
+               status |= validateMRSettings();
                if (status) return asynError; //Return if any problem
                //set acceleration, velocity is ignored here
                pAxis->setAccelVelocity(naccel[i], maxVelocity);

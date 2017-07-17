@@ -272,6 +272,7 @@
 //                  Add update CSAxis setpoint position after homing
 // 17/07/17 M.Clift
 //                  Improve jog after home robustness
+//                  Add validate real axis motor record settings before CSAxis home
 
 #include <stdio.h>
 #include <math.h>
