@@ -1822,7 +1822,9 @@ void GalilAxis::pollServices(void)
                                            }
                                         }
                                      }
-                                  if (!fail)//Jog after home started
+                                  if (fail)//JAH failed, homing complete
+                                     setIntegerParam(pC_->GalilHoming_, 0);
+                                  else//Jog after home started
                                      jogAfterHome_ = true;
                                   //Move started, move on to next motor
                                   pC_->lock();
