@@ -783,7 +783,7 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
      if (useSwitch)
         status = beginMotion(functionName);
      else//Prepare for a move, but let controller code take over
-        status = beginMotion(functionName, 0.0, false, false);
+        status = beginMotion(functionName, 0.0, false, false, false);
      //Set home flags if start successful
      if (!status)
         {
@@ -897,7 +897,7 @@ asynStatus GalilAxis::moveVelocity(double minVelocity, double maxVelocity, doubl
 	pC_->sync_writeReadController();
 				
 	//Begin the move
-	status = beginMotion(functionName, 0.0, false, false, true);
+	status = beginMotion(functionName);
 	}
    
   //Return status

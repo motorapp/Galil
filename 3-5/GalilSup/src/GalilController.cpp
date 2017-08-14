@@ -273,6 +273,8 @@
 // 17/07/17 M.Clift
 //                  Improve jog after home robustness
 //                  Add validate real axis motor record settings before CSAxis home
+// 14/08/17 M.Clift
+//                  Fix issue with homing when useSwitch set false
 
 #include <stdio.h>
 #include <math.h>
