@@ -60,6 +60,12 @@
 #define MOTOR_STOP_FWD 2
 #define MOTOR_STOP_REV 3
 #define MOTOR_STOP_STOP 4
+#define MOTOR_STOP_ONERR 8
+#define MOTOR_STOP_ENC 12
+#define MOTOR_STOP_AMP 15
+#define MOTOR_STOP_ECATCOMM 70
+#define MOTOR_STOP_ECATAMP 71
+
 //Time base
 #define DEFAULT_TIME 1000.0
 

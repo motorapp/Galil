@@ -147,6 +147,8 @@ public:
   asynStatus checkMRSettings(bool moveVelocity, char callaxis);
   //Send move to this motor via the motor record
   asynStatus moveThruMotorRecord(double position, double maxVelocity, double acceleration, bool setCSA = true);
+  //Driver internal version of axis stop, prevents backlash, retries till dmov
+  asynStatus stopInternal(double acceleration);
 
   /* These are the methods we override from the base class */
   asynStatus move(double position, int relative, double minVelocity, double maxVelocity, double acceleration);

@@ -45,6 +45,8 @@ pattern
    {"DMC01:", "H", "Galil", 7,    mm,  "",   .2,    .2,    1,     0,     0,     5,     .0025, 400,  0.001,    5,    42273.3, -42273.3, 0,       0,    0   , "YES", 0,    0,    0}
 
 # Coordinate system (CS) motors
+# If real motors in CSAxis require backlash correction then NTM must be NO
+# If only CSAxis requires backlash correction NTM can be any value
    {"DMC01:", "I", "Galil", 8,    mm,  "",   20,    20,    1,     0,     0,     5,     .001,  1000, 0.001,     5,    42273.3, -42273.3, 0,       0,    0   , "NO",  0,    0,    0}
    {"DMC01:", "J", "Galil", 9,    mm,  "",   20,    20,    1,     0,     0,     5,     .001,  1000, 0.001,     5,    42273.3, -42273.3, 0,       0,    0   , "NO",  0,    0,    0}
    {"DMC01:", "K", "Galil", 10,   mm,  "",   20,    20,    1,     0,     0,     5,     .001,  1000, 0.001,     5,    42273.3, -42273.3, 0,       0,    0   , "NO",  0,    0,    0}

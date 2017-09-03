@@ -275,6 +275,8 @@
 //                  Add validate real axis motor record settings before CSAxis home
 // 14/08/17 M.Clift
 //                  Fix issue with homing when useSwitch set false
+// 02/09/17 M.Clift
+//                  Fix issue with NTM on real motors
 
 #include <stdio.h>
 #include <math.h>
@@ -2180,7 +2182,7 @@ asynStatus GalilController::motorsToProfileStartPosition(FILE *profFile, double 
            }
         }
      else//Stop motor moving to start, prevent backlash, retries
-        pAxis->stop(acceleration);
+        pAxis->stopInternal(acceleration);
      if (status)
         {
         //Update profile execute message

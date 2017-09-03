@@ -594,6 +594,10 @@ asynStatus GalilAxis::move(double position, int relative, double minVelocity, do
      acceleration = csaAcceleration_;
      }
 
+  //Block backlash, retries if requested
+  if (stop_axis_)
+     return asynSuccess;
+
   //Are moves to be deferred ?
   if (pC_->movesDeferred_ != 0)
      {
@@ -904,9 +908,43 @@ asynStatus GalilAxis::moveVelocity(double minVelocity, double maxVelocity, doubl
   return status;
 }
 
-/** Stop the motor.
+/** Stop the motor.  Called by motor record
   * \param[in] acceleration The acceleration value. Units=steps/sec/sec. */
 asynStatus GalilAxis::stop(double acceleration)
+{
+  //cancel any home operations that may be underway
+  sprintf(pC_->cmd_, "home%c=0", axisName_);
+  pC_->sync_writeReadController();
+  //Set homing flag false
+  //This flag does not include JAH
+  homing_ = false;
+  //This flag does include JAH
+  setIntegerParam(pC_->GalilHoming_, 0);
+
+  //cancel any home switch jog off operations that may be underway
+  sprintf(pC_->cmd_, "hjog%c=0", axisName_);
+  pC_->sync_writeReadController();
+
+  //Stop the axis
+  sprintf(pC_->cmd_, "ST%c", axisName_);
+  pC_->sync_writeReadController();
+
+  //After stop, set deceleration specified
+  //In emergency stop circumstances
+  //The caller may have specified a different (limdc) deceleration
+  setAccelVelocity(acceleration, 0, false);
+
+  //Clear defer move flag
+  deferredMove_ = false;
+
+  //Always return success. Dont need more error mesgs
+  return asynSuccess;
+}
+
+/** Stop the motor.  Called by driver internally
+  * Blocks backlash, retries attempts from motorRecord until dmov
+  * \param[in] acceleration The acceleration value. Units=steps/sec/sec. */
+asynStatus GalilAxis::stopInternal(double acceleration)
 {
   //cancel any home operations that may be underway
   sprintf(pC_->cmd_, "home%c=0", axisName_);
@@ -1690,7 +1728,7 @@ void GalilAxis::pollServices(void)
                                 epicsThreadSleep(.2);  //Wait as controller may still issue move upto this time after
                                                        //Setting home to 0 (cancel home)
                                 //break; Delibrate fall through to MOTOR_STOP
-        case MOTOR_STOP: stop(limdc_);
+        case MOTOR_STOP: stopInternal(limdc_);
                          break;
         case MOTOR_POST: if (pC_->getStringParam(axisNo_, pC_->GalilPost_, (int)sizeof(post), post) == asynSuccess)
                             {
@@ -2186,7 +2224,9 @@ asynStatus GalilAxis::poller(void)
       //Set axis stop code convenience variable
       sc = stop_code_;
       //stop the motor if it's not stopping already
-      if (!done_ && sc != MOTOR_STOP_FWD && sc != MOTOR_STOP_REV && sc != MOTOR_STOP_STOP)
+      if (!done_ && sc != MOTOR_STOP_FWD && sc != MOTOR_STOP_REV && sc != MOTOR_STOP_STOP &&
+          sc != MOTOR_STOP_ONERR && sc != MOTOR_STOP_ENC && sc != MOTOR_STOP_AMP && 
+          sc != MOTOR_STOP_ECATCOMM && sc != MOTOR_STOP_ECATAMP)
          pollRequest_.send((void*)&MOTOR_STOP, sizeof(int));
       }
 

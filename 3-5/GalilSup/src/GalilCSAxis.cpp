@@ -443,7 +443,9 @@ asynStatus GalilCSAxis::monitorCSAxisMove(bool moving)
          sc = pAxis->stop_code_;
          //Set flag if an axis stops
          if ((sc == MOTOR_STOP_FWD && pAxis->done_) || (sc == MOTOR_STOP_REV && pAxis->done_) ||
-            (sc == MOTOR_STOP_STOP && pAxis->done_))
+            (sc == MOTOR_STOP_STOP && pAxis->done_) || (sc == MOTOR_STOP_ONERR && pAxis->done_) ||
+            (sc == MOTOR_STOP_ENC && pAxis->done_) || (sc == MOTOR_STOP_AMP && pAxis->done_) ||
+            (sc == MOTOR_STOP_ECATCOMM && pAxis->done_) || (sc == MOTOR_STOP_ECATAMP && pAxis->done_))
             stop_csaxis_ = true;
          }
       }
@@ -837,12 +839,11 @@ asynStatus GalilCSAxis::stop(double acceleration)
      }
 
   //Tell poller to keep issuing stop
-  //This is to stop retries, backlash correction
+  //This is to stop retries, backlash correction on real motors
   stop_csaxis_ = true;
 
-  //Clear defer move flag for this axis
-  if (deferredMove_)
-     deferredMove_ = false;
+  //Clear defer move flag
+  deferredMove_ = false;
 
   //Always return success. Dont need more error mesgs
   return asynSuccess;
