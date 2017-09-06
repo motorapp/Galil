@@ -277,9 +277,10 @@
 //                  Fix issue with homing when useSwitch set false
 // 02/09/17 M.Clift
 //                  Fix issue with NTM on real motors
-// 05/09/17 M.Clift
+// 06/09/17 M.Clift
 //                  Add stop reason to internal stop mechanism
 //                  Tidy up of internal motor stop mechansim
+//                  Altered decimal places used in CSAxis velocity checking messages
 
 #include <stdio.h>
 #include <math.h>

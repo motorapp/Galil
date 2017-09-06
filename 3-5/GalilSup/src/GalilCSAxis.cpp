@@ -242,7 +242,7 @@ asynStatus GalilCSAxis::checkMotorVelocities(double npos[], double nvel[], doubl
            //Is motor velocity within allowed limit vmax
            if (fabs(vel) > fabs(vmax))
               {
-              sprintf(mesg, "Move failed, axis %c velocity %lf > VMAX %lf\n", revaxes_[i], fabs(vel), fabs(vmax));
+              sprintf(mesg, "Move failed, axis %c velocity %2.6lf > VMAX %2.6lf\n", revaxes_[i], fabs(vel), fabs(vmax));
               pC_->setCtrlError(mesg);
               return asynError;
               }
@@ -263,7 +263,7 @@ asynStatus GalilCSAxis::checkMotorVelocities(double npos[], double nvel[], doubl
        //Is motor velocity within allowed limit vmax
        if (fabs(vel) > fabs(vmax))
            {
-           sprintf(mesg, "Move failed, axis %c velocity %2.21lf > VMAX %2.21lf\n", revaxes_[i], fabs(vel), fabs(vmax));
+           sprintf(mesg, "Move failed, axis %c velocity %2.6lf > VMAX %2.6lf\n", revaxes_[i], fabs(vel), fabs(vmax));
            pC_->setCtrlError(mesg);
            return asynError;
            }
