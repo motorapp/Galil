@@ -502,12 +502,17 @@ asynStatus GalilAxis::checkMRSettings(bool moveVelocity, char callaxis)
    return asynSuccess;
 }
 
-/** Move the motor to an absolute
-  * \param[in] position  The absolute position to move to Units=steps.
-  * \param[in] maxVelocity The maximum velocity, often called the slew velocity. Units=steps/sec.
-  * \param[in] acceleration The acceleration value. Units=steps/sec/sec
-  * \param[in] setCSA should the axis use CSAxis provided velocity, acceleration */
-asynStatus GalilAxis::moveThruMotorRecord(double position, double maxVelocity, double acceleration, bool setCSA)
+//Tell this axis to use CSAxis dynamics
+void GalilAxis::setCSADynamics(double acceleration, double velocity)
+{
+   csaAcceleration_ = acceleration;
+   csaVelocity_ = velocity;
+   useCSADynamics_ = true;
+}
+
+/** Move the motor to an absolute position
+  * \param[in] position  The absolute position to move to Units=steps */
+asynStatus GalilAxis::moveThruMotorRecord(double position)
 {
    double mres;		//Axis motor resolution
    double eres;		//Axis encoder resolution
@@ -540,17 +545,6 @@ asynStatus GalilAxis::moveThruMotorRecord(double position, double maxVelocity, d
    //No asynParam list error, then write new position
    if ((fabs(position - readback) >= rdbd) && !status)
       {
-      //Maybe called from a CSAxis
-      if (setCSA)
-         {
-         //Called from a CSAxis
-         //Tell Axis to use CSAxis provided dynamics
-         //Provides coordination of motors in the CSAxis
-         csaAcceleration_ = acceleration;
-         csaVelocity_ = maxVelocity;
-         useCSADynamics_ = true;
-         }
-
       //Set requested position
       //This will also set deferred move for this axis
       pC_->setDoubleParam(axisNo_, pC_->GalilMotorSetVal_, position);
@@ -585,7 +579,7 @@ asynStatus GalilAxis::move(double position, int relative, double minVelocity, do
   //Is controller using main or auxillary encoder register for positioning
   double readback = (ctrlUseMain_) ? encoder_position_ : motor_position_;
   asynStatus status = asynError;
-  
+
   //If this axis is being driven by a CSAxis
   //Use the requested CSAxis velocity, acceleration instead of that provided by mr
   if (useCSADynamics_)
@@ -929,9 +923,12 @@ asynStatus GalilAxis::stop(double acceleration)
   sprintf(pC_->cmd_, "ST%c", axisName_);
   pC_->sync_writeReadController();
 
+  //If this axis is being driven by a CSAxis
+  //Use the requested CSAxis acceleration instead of that provided by mr
+  if (useCSADynamics_)
+     acceleration = csaAcceleration_;
+
   //After stop, set deceleration specified
-  //In emergency stop circumstances
-  //The caller may have specified a different (limdc) deceleration
   setAccelVelocity(acceleration, 0, false);
 
   //Clear defer move flag
@@ -1500,6 +1497,8 @@ void GalilAxis::checkEncoder(void)
             {
             //Pass stall status to higher layers
             setIntegerParam(pC_->motorStatusSlip_, 1);
+            //Set the stop reason so limit deceleration is applied during stop
+            stop_reason_ = MOTOR_STOP_ONSTALL;
             //stop the motor
             pollRequest_.send((void*)&MOTOR_STOP, sizeof(int));
             //Flag the motor has been stopped
@@ -1597,6 +1596,8 @@ void GalilAxis::wrongLimitProtection(void)
             {
             //Wrong limit protection actively stopping this motor now
             pC_->setIntegerParam(axisNo_, pC_->GalilWrongLimitProtectionActive_, 1);
+            //Set the stop reason so limit deceleration is applied during stop
+            stop_reason_ = MOTOR_STOP_ONWLP;
             //Stop the motor if the wrong limit is active, AND wlp protection active
             pollRequest_.send((void*)&MOTOR_STOP, sizeof(int));
             //Flag the motor has been stopped
@@ -1606,7 +1607,7 @@ void GalilAxis::wrongLimitProtection(void)
             //Set controller error mesg monitor
             pC_->setCtrlError(message);
             //Set direction limit state as not consistent if move did not begin on limit
-            if (!beginOnLimit_)   
+            if (!beginOnLimit_)
                limitsDirState_ = not_consistent;  //Set limit status to not_consistent
             }
          }
@@ -1698,13 +1699,9 @@ void GalilAxis::pollServices(void)
   double jahv;				//Jog after home value in egu
   int dir, dirm = 1;			//Motor record dir, and dirm direction multiplier based on motor record DIR field
   int autoonoff;			//Motor Amp Auto on/off
-  double accl;				//Motor record accl
-  double velo;				//Motor record velo
   double mres, eres;			//Motor record mres, eres
   double off;				//Motor record off
   double ondelay;			//Motor on delay
-  double acceleration;			//Acceleration Units=Steps/Sec/Sec
-  double velocity;			//Velocity Units=Steps/Sec
   double position;			//Absolute position Units=steps
   double begin_time;			//Time spent waiting for motion to begin
   epicsTimeStamp lbegin_nowt_;		//Used to track length of time motor begin takes
@@ -1728,7 +1725,10 @@ void GalilAxis::pollServices(void)
                                 epicsThreadSleep(.2);  //Wait as controller may still issue move upto this time after
                                                        //Setting home to 0 (cancel home)
                                 //break; Delibrate fall through to MOTOR_STOP
-        case MOTOR_STOP: stopInternal(limdc_);
+        case MOTOR_STOP: if (stop_reason_ == MOTOR_STOP_STOP) 
+                            stopInternal(csaAcceleration_);//A motor within a CSAxis was stopped manually
+                         else//Emergency stop
+                            stopInternal(limdc_);
                          break;
         case MOTOR_POST: if (pC_->getStringParam(axisNo_, pC_->GalilPost_, (int)sizeof(post), post) == asynSuccess)
                             {
@@ -1763,8 +1763,6 @@ void GalilAxis::pollServices(void)
         case MOTOR_HOMED:
                          //Retrieve needed params
                          status = pC_->getDoubleParam(axisNo_, pC_->GalilJogAfterHomeValue_, &jahv);
-                         status |= pC_->getDoubleParam(axisNo_, pC_->GalilMotorAccl_, &accl);
-                         status |= pC_->getDoubleParam(axisNo_, pC_->GalilMotorVelo_, &velo);
                          status |= pC_->getDoubleParam(axisNo_, pC_->motorResolution_, &mres);
                          status |= pC_->getIntegerParam(axisNo_, pC_->GalilDirection_, &dir);
                          status |= pC_->getDoubleParam(axisNo_, pC_->GalilEncoderResolution_, &eres);
@@ -1807,9 +1805,6 @@ void GalilAxis::pollServices(void)
                                pC_->getIntegerParam(axisNo_, pC_->motorStatusMoving_, &moving);
                                }
                             pC_->lock();
-                            //Calculate position, velocity (velo not hvel) and acceleration
-                            velocity = fabs(velo/mres);
-                            acceleration = velocity/accl;
                             //Calculate position in steps from jog after home value in user coordinates
                             position = (double)((jahv - off)/mres) * dirm;
                             //Check motor record settings before move
@@ -1820,7 +1815,7 @@ void GalilAxis::pollServices(void)
                             if (!status)
                                {
                                //If all settings OK, do the move
-                               if (!moveThruMotorRecord(position, velocity, acceleration, false))
+                               if (!moveThruMotorRecord(position))
                                   {
                                   //Move success
                                   moving = 0;
@@ -2136,7 +2131,6 @@ asynStatus GalilAxis::poller(void)
    int dmov;			//Motor record dmov
    int home;			//Home status to give to motorRecord
    int status;			//Communication status with controller
-   int sc;			//Axis stop code
    double stopDelay;		//Delay stop reporting
 
    //Default communication status
@@ -2214,21 +2208,9 @@ asynStatus GalilAxis::poller(void)
       pC_->setIntegerParam(axisNo_, pC_->GalilHoming_, 0);
       }
 
-   //Clear stop axis flag when all retries, backlash fully complete
+   //Clear stop axis flag when all retries, backlash fully complete (ie. dmov true)
    if (dmov && last_done_ && done_ && stop_axis_)
       stop_axis_ = false;
-
-   //Stop axis if requested
-   if (moving && stop_axis_)
-      {
-      //Set axis stop code convenience variable
-      sc = stop_code_;
-      //stop the motor if it's not stopping already
-      if (!done_ && sc != MOTOR_STOP_FWD && sc != MOTOR_STOP_REV && sc != MOTOR_STOP_STOP &&
-          sc != MOTOR_STOP_ONERR && sc != MOTOR_STOP_ENC && sc != MOTOR_STOP_AMP && 
-          sc != MOTOR_STOP_ECATCOMM && sc != MOTOR_STOP_ECATAMP)
-         pollRequest_.send((void*)&MOTOR_STOP, sizeof(int));
-      }
 
 skip:
    //Save encoder position, and done for next poll cycle

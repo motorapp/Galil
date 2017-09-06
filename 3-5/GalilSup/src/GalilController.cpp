@@ -277,6 +277,9 @@
 //                  Fix issue with homing when useSwitch set false
 // 02/09/17 M.Clift
 //                  Fix issue with NTM on real motors
+// 05/09/17 M.Clift
+//                  Add stop reason to internal stop mechanism
+//                  Tidy up of internal motor stop mechansim
 
 #include <stdio.h>
 #include <math.h>
@@ -2160,7 +2163,7 @@ asynStatus GalilController::motorsToProfileStartPosition(FILE *profFile, double 
         if (!status)
            {
            //Set motor setpoints, but dont do the move (movesDeferred = true)
-           if (!pAxis->moveThruMotorRecord(startp[axisNo], velocity, acceleration, false))
+           if (!pAxis->moveThruMotorRecord(startp[axisNo]))
               {
               //Move success
               //Release the lock

@@ -34,6 +34,20 @@
 #define HOME_FWD 2
 #define HOME_BOTH 3
 
+//Stop codes
+//These are Galil Stop codes
+#define MOTOR_STOP_FWD 2
+#define MOTOR_STOP_REV 3
+#define MOTOR_STOP_STOP 4
+#define MOTOR_STOP_ONERR 8
+#define MOTOR_STOP_ENC 12
+#define MOTOR_STOP_AMP 15
+#define MOTOR_STOP_ECATCOMM 70
+#define MOTOR_STOP_ECATAMP 71
+//Our custom codes
+#define MOTOR_STOP_ONWLP 255
+#define MOTOR_STOP_ONSTALL 256
+
 //pollServices request numbers
 static const int MOTOR_STOP = 0;
 static const int MOTOR_POST = 1;
@@ -145,8 +159,10 @@ public:
   void restoreProfileData(void);
   //Check motor record status for this axis
   asynStatus checkMRSettings(bool moveVelocity, char callaxis);
+  //Tell this axis to use CSAxis dynamics
+  void setCSADynamics(double acceleration, double velocity);
   //Send move to this motor via the motor record
-  asynStatus moveThruMotorRecord(double position, double maxVelocity, double acceleration, bool setCSA = true);
+  asynStatus moveThruMotorRecord(double position);
   //Driver internal version of axis stop, prevents backlash, retries till dmov
   asynStatus stopInternal(double acceleration);
 
@@ -206,8 +222,8 @@ private:
   double motor_position_;		//aux encoder or step count register
   double encoder_position_;		//main encoder register
   double last_encoder_position_;	//main encoder register stored from previous poll.  Used to detect movement.
-  double velocity_;			//Motor velocity
-  double error_;			//Position error
+  double velocity_;			//Motor velocity readback
+  double error_;			//Position error readback
   int direction_;			//Movement direction
   bool inmotion_;			//Axis in motion status from controller
   int stop_code_;			//Axis stop code from controller
@@ -227,7 +243,8 @@ private:
   int last_done_;			//Backup of done status at end of each poll.  Used to detect stop
   bool homing_;				//Is motor homing now
   bool jogAfterHome_;			//Is motor doing jah
-  bool stop_axis_;			//Poller will stop axis if true
+  bool stop_axis_;			//Used to prevent retries after stop
+  int stop_reason_;			//Reason axis stop requested
   epicsTimeStamp stop_nowt_;		//Used to track length of time motor stopped for.
   epicsTimeStamp stop_begint_;		//Used to track length of time motor stopped for.
   double stoppedTime_;			//Time motor has been stopped for
