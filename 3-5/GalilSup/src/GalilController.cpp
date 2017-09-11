@@ -281,6 +281,8 @@
 //                  Add stop reason to internal stop mechanism
 //                  Tidy up of internal motor stop mechansim
 //                  Altered decimal places used in CSAxis velocity checking messages
+// 11/09/17 M.Clift
+//                  Improve internal stop mechanism so CSAxis stops are fully coordinated
 
 #include <stdio.h>
 #include <math.h>

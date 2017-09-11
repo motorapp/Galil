@@ -45,6 +45,7 @@
 #define MOTOR_STOP_ECATCOMM 70
 #define MOTOR_STOP_ECATAMP 71
 //Our custom codes
+#define MOTOR_OKAY 0
 #define MOTOR_STOP_ONWLP 255
 #define MOTOR_STOP_ONSTALL 256
 

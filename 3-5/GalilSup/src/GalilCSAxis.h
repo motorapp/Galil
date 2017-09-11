@@ -83,11 +83,17 @@ public:
   //Check CSAxis limit switch in requested move direction
   asynStatus checkLimits(double position, int relative);
   //Monitor CSAxis move, stop if problem
-  asynStatus monitorCSAxisMove(bool moving);
+  asynStatus monitorCSAxisMove(void);
   //Clear CSAxis move dynamics at move completion
-  asynStatus clearCSAxisDynamics(bool moving);
+  asynStatus clearCSAxisDynamics(void);
   //Set CSAxis move flags prior to move
   asynStatus setupCSAxisMove(bool moveVelocity);
+  //Service slow and infrequent requests from poll thread to write to the controller
+  //We do this in a separate thread so the poll thread is not slowed
+  //Also poll thread doesnt have a lock and is not allowed to call writeReadController
+  void pollServices(void);
+  //Driver internal version of CSAxis stop, prevents backlash, retries till dmov
+  asynStatus stopInternal(bool emergencyStop = true);
 
   /* These are the methods we override from the base class */
   asynStatus move(double position, int relative, double min_velocity, double max_velocity, double acceleration);
@@ -113,11 +119,14 @@ private:
   char **revvars_;			//Reverse kinematic variables List of Q-Z
   char **revsubs_;			//Reverse kinematic substitutes List of A-P
   bool stop_csaxis_;			//Stop all motors in CSAxis
+  bool stopSent_;			//Has stop request been sent to pollServices
+  int stop_reason_;			//Reason for requested stop
   bool kinematicsAltered_;              //Have the kinematics equations been altered
   limitsState limitOrientation_[MAX_GALIL_AXES];//Orientation of real axis limits relative to this CSAxis
   bool move_started_;			//CSAxis move started
   bool kinematic_error_reported_;	//Kinematic error has been reported to user
   int last_done_;			//Done status stored from previous poll cycle
+  int done_;				//Done status
   bool moveVelocity_;			//Indicates a jog move in progress
   double motor_position_;		//aux encoder or step count register
   double encoder_position_;		//main encoder register
@@ -133,8 +142,10 @@ private:
   double setPoint_;			//CSAxis setpoint position
   int cshoming_;			//CSAxis homing status
   int last_cshoming_;			//CSAxis last homing status
+  epicsMessageQueue pollRequest_;	//The service numbers poll would like done
 
 friend class GalilController;
+friend class GalilAxis;
 };
 
 #endif   // GalilCSAxis_H

@@ -906,33 +906,64 @@ asynStatus GalilAxis::moveVelocity(double minVelocity, double maxVelocity, doubl
   * \param[in] acceleration The acceleration value. Units=steps/sec/sec. */
 asynStatus GalilAxis::stop(double acceleration)
 {
-  //cancel any home operations that may be underway
-  sprintf(pC_->cmd_, "home%c=0", axisName_);
-  pC_->sync_writeReadController();
-  //Set homing flag false
-  //This flag does not include JAH
-  homing_ = false;
-  //This flag does include JAH
-  setIntegerParam(pC_->GalilHoming_, 0);
+  GalilCSAxis *pCSAxis;			//GalilCSAXis
+  unsigned i;				//Looping
+  unsigned j;				//Looping
+  bool found;				//Axis found in CSAxis
 
-  //cancel any home switch jog off operations that may be underway
-  sprintf(pC_->cmd_, "hjog%c=0", axisName_);
-  pC_->sync_writeReadController();
-
-  //Stop the axis
-  sprintf(pC_->cmd_, "ST%c", axisName_);
-  pC_->sync_writeReadController();
-
-  //If this axis is being driven by a CSAxis
-  //Use the requested CSAxis acceleration instead of that provided by mr
   if (useCSADynamics_)
-     acceleration = csaAcceleration_;
+     {
+     //This axis is being driven by a CSAxis
+     //Stop entire CSAxis in coordinated way
+     for (i = MAX_GALIL_AXES; i < MAX_GALIL_AXES + MAX_GALIL_CSAXES; i++)
+        {
+        found = false;
+        //Retrieve the CSAxis
+        pCSAxis = pC_->getCSAxis(i);
+        //Skip or continue
+        if (!pCSAxis) continue;
+        //Search retrieved CSAxis for this axis
+        for (j = 0; pCSAxis->revaxes_[j] != '\0'; j++)
+           {
+           if (pCSAxis->revaxes_[j] == axisName_)
+              found = true;
+           }
+        //Stop the CSAxis that is moving, and contains this axis
+        //Using coordinated stop
+        pCSAxis->stopSent_ = true;
+        pCSAxis->stop_reason_ = stop_reason_;
+        if (found && !pCSAxis->done_ && pCSAxis->move_started_ && (stop_reason_ == MOTOR_STOP_ONWLP || stop_reason_ == MOTOR_STOP_ONSTALL))
+           pCSAxis->stopInternal(); //WLP or encoder stall are emergency stop
+        else if (found && !pCSAxis->done_  && pCSAxis->move_started_ && stop_reason_ != MOTOR_STOP_ONWLP && stop_reason_ != MOTOR_STOP_ONSTALL)
+           pCSAxis->stopInternal(false); //Normal stop
+        }
+     }
+  else
+     {
+     //This axis is being driven independently
+     //cancel any home operations that may be underway
+     sprintf(pC_->cmd_, "home%c=0", axisName_);
+     pC_->sync_writeReadController();
+     //Set homing flag false
+     //This flag does not include JAH
+     homing_ = false;
+     //This flag does include JAH
+     setIntegerParam(pC_->GalilHoming_, 0);
 
-  //After stop, set deceleration specified
-  setAccelVelocity(acceleration, 0, false);
+     //cancel any home switch jog off operations that may be underway
+     sprintf(pC_->cmd_, "hjog%c=0", axisName_);
+     pC_->sync_writeReadController();
 
-  //Clear defer move flag
-  deferredMove_ = false;
+     //Stop the axis
+     sprintf(pC_->cmd_, "ST%c", axisName_);
+     pC_->sync_writeReadController();
+
+     //After stop, set deceleration specified
+     setAccelVelocity(acceleration, 0, false);
+
+     //Clear defer move flag
+     deferredMove_ = false;
+     }
 
   //Always return success. Dont need more error mesgs
   return asynSuccess;
@@ -943,33 +974,11 @@ asynStatus GalilAxis::stop(double acceleration)
   * \param[in] acceleration The acceleration value. Units=steps/sec/sec. */
 asynStatus GalilAxis::stopInternal(double acceleration)
 {
-  //cancel any home operations that may be underway
-  sprintf(pC_->cmd_, "home%c=0", axisName_);
-  pC_->sync_writeReadController();
-  //Set homing flag false
-  //This flag does not include JAH
-  homing_ = false;
-  //This flag does include JAH
-  setIntegerParam(pC_->GalilHoming_, 0);
-
-  //cancel any home switch jog off operations that may be underway
-  sprintf(pC_->cmd_, "hjog%c=0", axisName_);
-  pC_->sync_writeReadController();
-
-  //Stop the axis
-  sprintf(pC_->cmd_, "ST%c", axisName_);
-  pC_->sync_writeReadController();
-
-  //After stop, set deceleration specified
-  //In emergency stop circumstances
-  //The caller may have specified a different (limdc) deceleration
-  setAccelVelocity(acceleration, 0, false);
-
-  //Clear defer move flag
-  deferredMove_ = false;
-
   //Prevent retries, backlash
   stop_axis_ = true;
+
+  //Stop the motor
+  stop(acceleration);
 
   //Always return success. Dont need more error mesgs
   return asynSuccess;
@@ -1454,8 +1463,6 @@ void GalilAxis::setStatus(bool *moving)
       {
       *moving = true;		//set flag for moving
       done_ = 0;
-      if (syncEncodedStepperAtStopSent_ && !syncEncodedStepperAtStopExecuted_)
-         printf("%c axis  began moving again?\n", axisName_);
       //Motor record post not sent as motor is moving
       postExecuted_ = postSent_ = false;
       //Motor auto off not yet sent as motor is moving
@@ -1643,8 +1650,6 @@ void GalilAxis::setStopTime(void)
       {
       //Get time stop first detected
       epicsTimeGetCurrent(&stop_begint_);
-      //Not moving, so reset stopSent_ flag
-      stopSent_ = false;
       }
    if (done_ && last_done_)
       {
@@ -1725,10 +1730,7 @@ void GalilAxis::pollServices(void)
                                 epicsThreadSleep(.2);  //Wait as controller may still issue move upto this time after
                                                        //Setting home to 0 (cancel home)
                                 //break; Delibrate fall through to MOTOR_STOP
-        case MOTOR_STOP: if (stop_reason_ == MOTOR_STOP_STOP) 
-                            stopInternal(csaAcceleration_);//A motor within a CSAxis was stopped manually
-                         else//Emergency stop
-                            stopInternal(limdc_);
+        case MOTOR_STOP: stopInternal(limdc_);
                          break;
         case MOTOR_POST: if (pC_->getStringParam(axisNo_, pC_->GalilPost_, (int)sizeof(post), post) == asynSuccess)
                             {
@@ -2208,9 +2210,13 @@ asynStatus GalilAxis::poller(void)
       pC_->setIntegerParam(axisNo_, pC_->GalilHoming_, 0);
       }
 
-   //Clear stop axis flag when all retries, backlash fully complete (ie. dmov true)
-   if (dmov && last_done_ && done_ && stop_axis_)
+   //Clear stop axis flags now dmov true
+   if (dmov && last_done_ && done_)
+      {
       stop_axis_ = false;
+      stopSent_ = false;
+      stop_reason_ = MOTOR_OKAY;
+      }
 
 skip:
    //Save encoder position, and done for next poll cycle
