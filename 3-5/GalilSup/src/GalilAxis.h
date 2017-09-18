@@ -184,7 +184,7 @@ public:
   asynStatus setClosedLoop(bool closedLoop);
   asynStatus initializeProfile(size_t maxProfilePoints);
 
-  ~GalilAxis();
+  virtual ~GalilAxis();
 
 private:
   GalilController *pC_;      		/**< Pointer to the asynMotorController to which this axis belongs.
