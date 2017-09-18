@@ -102,7 +102,7 @@ public:
   asynStatus stop(double acceleration);
   asynStatus initializeProfile(size_t maxProfilePoints);
 
-  ~GalilCSAxis();
+  virtual ~GalilCSAxis();
 
 private:
   GalilController *pC_;      		/**< Pointer to the asynMotorController to which this axis belongs.
