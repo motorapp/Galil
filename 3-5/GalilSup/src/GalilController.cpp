@@ -283,6 +283,8 @@
 //                  Altered decimal places used in CSAxis velocity checking messages
 // 11/09/17 M.Clift
 //                  Improve internal stop mechanism so CSAxis stops are fully coordinated
+// 18/09/17 M. Pearson
+//                  Fix GalilAxis and GalilCSAXis destructors to remove compiler warnings on gcc 4.8.5 and above
 
 #include <stdio.h>
 #include <math.h>
