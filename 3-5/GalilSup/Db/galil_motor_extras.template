@@ -1004,6 +1004,44 @@ record(ao,"$(P)$(M)_BRAKEONDELAY_SP")
 	field(FLNK, "$(P)$(M)_BRAKEONDELAY_MON")
 }
 
+#Enable/Disable Hardware Limits using LD command
+#The controller still reports the limit switch status 
+#and so in the driver we don't report the limits if 
+#we choose to disable limits using this command.
+record(mbbo,"$(P)$(M)_LIMITDISABLE_CMD")
+{
+	field(DESC, "Limit Disable")
+	field(PINI, "YES")
+	field(DTYP, "asynInt32")
+	field(ZRVL, "0")
+	field(ONVL, "1")
+	field(TWVL, "2")
+	field(THVL, "3")
+	field(ZRST, "Off")
+	field(ONST, "Only Fwd Disabled")
+	field(TWST, "Only Rev Disabled")
+	field(THST, "Both Disabled")
+	field(VAL,  "0")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_LIMIT_DISABLE")
+	field(FLNK, "$(P)$(M)_LIMITDISABLE_STATUS")
+}
+
+record(mbbi,"$(P)$(M)_LIMITDISABLE_STATUS")
+{
+	field(DESC, "Limit Disable")
+	field(DTYP, "asynInt32")
+	field(SCAN, "$(SCAN)")
+	field(ZRVL, "0")
+	field(ONVL, "1")
+	field(TWVL, "2")
+	field(THVL, "3")
+	field(ZRST, "Off")
+	field(ONST, "Only Fwd Disabled")
+	field(TWST, "Only Rev Disabled")
+	field(THST, "Both Disabled")
+   	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_LIMIT_DISABLE")
+}
+
 record(bi,"$(P)$(M)_ON_STATUS")
 {
 	field(DESC, "Mtr on status")

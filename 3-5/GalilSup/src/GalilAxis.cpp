@@ -1316,6 +1316,7 @@ asynStatus GalilAxis::getStatus(void)
    unsigned digport = 0;			//paramList items to update.  Used for brake status
    unsigned mask;				//Mask used to calc brake port status
    int brakeport;				//Brake port for this axis
+   int limitDisable = 0;                        //Limit disabled param
 
    //If data record query success in GalilController::acquireDataRecord
    if (pC_->recstatus_ == asynSuccess)
@@ -1377,14 +1378,20 @@ asynStatus GalilAxis::getStatus(void)
 		//Invert SSI encoder direction
 		if (invert_ssi_)
 			invert_ssi();
+		//Before setting limits, readback limit disable parameter
+		pC_->getIntegerParam(axisNo_, pC_->GalilLimitDisable_, &limitDisable);
 		//reverse limit
 		strcpy(src, "_LRx");
 		src[3] = axisName_;
 		rev_ = (bool)(pC_->sourceValue(pC_->recdata_, src) == 1) ? 0 : 1;
+		if (limitDisable >= 2)
+			rev_ = 0;
 		//forward limit
 		strcpy(src, "_LFx");
 		src[3] = axisName_;
 		fwd_ = (bool)(pC_->sourceValue(pC_->recdata_, src) == 1) ? 0 : 1;
+		if ((limitDisable == 1) || (limitDisable == 3))
+			fwd_ = 0;
 		//home switch
 		strcpy(src, "_HMx");
 		src[3] = axisName_;
