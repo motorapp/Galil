@@ -155,6 +155,7 @@
 #define GalilHomingString		"MOTOR_HOMING"
 #define GalilUserDataString		"MOTOR_USER_DATA"
 #define GalilUserDataDeadbString	"MOTOR_USER_DATA_DEADB"
+#define GalilLimitDisableString        "MOTOR_LIMIT_DISABLE"
 
 #define GalilMainEncoderString		"MOTOR_MAIN_ENCODER"
 #define GalilAuxEncoderString		"MOTOR_AUX_ENCODER"
@@ -419,6 +420,7 @@ protected:
   int GalilHoming_;
   int GalilUserData_;
   int GalilUserDataDeadb_;
+  int GalilLimitDisable_;
 
   int GalilMainEncoder_;
   int GalilAuxEncoder_;

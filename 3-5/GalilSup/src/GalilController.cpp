@@ -285,6 +285,9 @@
 //                  Improve internal stop mechanism so CSAxis stops are fully coordinated
 // 18/09/17 M. Pearson
 //                  Fix GalilAxis and GalilCSAXis destructors to remove compiler warnings on gcc 4.8.5 and above
+// 09/11/17 M. Pearson
+//                  Add ability to use LD command to enable/disable hardware limits. 
+//                  Required for axes that have unconnected limits.
 
 #include <stdio.h>
 #include <math.h>
@@ -503,6 +506,8 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilHomingString, asynParamInt32, &GalilHoming_);
   createParam(GalilUserDataString, asynParamFloat64, &GalilUserData_);
   createParam(GalilUserDataDeadbString, asynParamFloat64, &GalilUserDataDeadb_);
+
+  createParam(GalilLimitDisableString, asynParamInt32, &GalilLimitDisable_);
 
   createParam(GalilMainEncoderString, asynParamInt32, &GalilMainEncoder_);
   createParam(GalilAuxEncoderString, asynParamInt32, &GalilAuxEncoder_);
@@ -3360,6 +3365,11 @@ asynStatus GalilController::readInt32(asynUser *pasynUser, epicsInt32 *value)
 	sprintf(cmd_, "MG _LC%c", pAxis->axisName_);
 	status = get_integer(GalilAmpLowCurrent_, value);
 	}
+  else if (function == GalilLimitDisable_)
+	{
+	sprintf(cmd_, "MG _LD%c", pAxis->axisName_);
+	status = get_integer(GalilLimitDisable_, value);
+	}
   else 
 	status = asynPortDriver::readInt32(pasynUser, value);
 
@@ -3802,6 +3812,12 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 	{
 	//Set low current mode
 	sprintf(cmd_, "LC%c=%d", pAxis->axisName_, value);
+	sync_writeReadController();
+	}
+  else if (function == GalilLimitDisable_)
+	{
+	//Enable/Disable the limits 
+	sprintf(cmd_, "LD%c=%d", pAxis->axisName_, value);
 	sync_writeReadController();
 	}
   else 
