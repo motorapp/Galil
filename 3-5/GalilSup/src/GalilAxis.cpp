@@ -1398,8 +1398,11 @@ asynStatus GalilAxis::getStatus(void)
 		home_ = (bool)(pC_->sourceValue(pC_->recdata_, src) == 1) ? 0 : 1;
 		//motor connected status
 		pC_->getIntegerParam(axisNo_, pC_->GalilMotorConnected_, &connectedlast);
-		connected = (rev_ && fwd_) ? 0 : 1;
-		if (connectedlast != connected)
+		if (limitDisable == 0)
+			connected = (rev_ && fwd_) ? 0 : 1;
+		else
+			connected = 1;
+		if (connectedlast != connected || !axisReady_)
 			pC_->setIntegerParam(axisNo_, pC_->GalilMotorConnected_, connected);
 		//If motor just connected, then limits are not
 		//confirmed consistent with motor direction yet

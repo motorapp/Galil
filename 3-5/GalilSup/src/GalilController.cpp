@@ -286,8 +286,7 @@
 // 18/09/17 M. Pearson
 //                  Fix GalilAxis and GalilCSAXis destructors to remove compiler warnings on gcc 4.8.5 and above
 // 09/11/17 M. Pearson
-//                  Add ability to use LD command to enable/disable hardware limits. 
-//                  Required for axes that have unconnected limits.
+//                  Add ability to enable/disable hardware limits
 
 #include <stdio.h>
 #include <math.h>
