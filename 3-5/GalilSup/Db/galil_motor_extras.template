@@ -406,6 +406,250 @@ record(bo,"$(P)$(M)_SSIINVERT_CMD")
 #	field(FLNK, "$(P)$(M)_SSIINVERT_STATUS")
 }
 
+########################
+# BiSS encoder support
+
+record(mbbi,"$(P)$(M)_BISSINPUT_STATUS")
+{
+	field(DESC, "BiSS Input")
+	field(SCAN,"$(SCAN)")
+	field(DTYP, "asynInt32")
+	field(ZRST, "Off")
+	field(ONST, "Replace main")
+	field(TWST, "Replace aux")
+	field(ZRVL, "0")
+	field(ONVL, "1")
+	field(TWVL, "2")
+	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_BISSINPUT")
+}
+
+record(longin,"$(P)$(M)_BISSDATA1_MON")
+{
+	field(DESC,"BiSS Data Bits 1")
+	field(PINI,"YES")
+	field(DTYP,"asynInt32")
+	field(SCAN,"$(SCAN)")
+	field(INP, "@asyn($(PORT),$(ADDR))MOTOR_BISSDATA1")
+}
+
+record(longin,"$(P)$(M)_BISSDATA2_MON")
+{
+	field(DESC,"BiSS Data Bits 2")
+	field(PINI,"YES")
+	field(DTYP,"asynInt32")
+	field(SCAN,"$(SCAN)")
+	field(INP, "@asyn($(PORT),$(ADDR))MOTOR_BISSDATA2")
+}
+
+record(longin,"$(P)$(M)_BISSZP_MON")
+{
+	field(DESC,"BiSS Zero Pad Bits")
+	field(PINI,"YES")
+	field(DTYP,"asynInt32")
+	field(SCAN,"$(SCAN)")
+	field(INP, "@asyn($(PORT),$(ADDR))MOTOR_BISSZP")
+}
+
+record(longin,"$(P)$(M)_BISSCD_MON")
+{
+	field(DESC,"BiSS Clock Div")
+	field(PINI,"YES")
+	field(DTYP,"asynInt32")
+	field(SCAN,"$(SCAN)")
+	field(INP, "@asyn($(PORT),$(ADDR))MOTOR_BISSCD")
+}
+
+# See the SY command documentation
+record(mbbi,"$(P)$(M)_BISSLEVEL_STATUS")
+{
+	field(DESC,"BiSS Active Level")
+	field(PINI,"YES")
+	field(DTYP,"asynInt32")
+	field(SCAN,"$(SCAN)")
+	field(ZRST, "Low/Low")
+	field(ONST, "Low/High")
+	field(TWST, "High/Low")
+	field(THST, "High/High")
+	field(ZRVL, "0")
+	field(ONVL, "1")
+	field(TWVL, "2")
+	field(THVL, "3")
+	field(INP, "@asyn($(PORT),$(ADDR))MOTOR_BISSLEVEL")
+}
+
+record(bi,"$(P)$(M)_BISSSTAT_TIMEOUT")
+{
+	field(DESC,"BiSS Timeout")
+	field(PINI,"YES")
+	field(DTYP,"asynInt32")
+	field(SCAN,"I/O Intr")
+	field(ZNAM, "No Timeout")
+	field(ONAM, "Timeout")
+	field(OSV, "MAJOR")
+	field(INP, "@asyn($(PORT),$(ADDR))MOTOR_BISSSTAT_TIMEOUT")
+}
+record(bi,"$(P)$(M)_BISSSTAT_CRC")
+{
+	field(DESC,"BiSS CRC Status")
+	field(PINI,"YES")
+	field(DTYP,"asynInt32")
+	field(SCAN,"I/O Intr")
+	field(ZNAM, "Valid CRC")
+	field(ONAM, "Invalid CRC")
+	field(OSV, "MAJOR")
+	field(INP, "@asyn($(PORT),$(ADDR))MOTOR_BISSSTAT_CRC")
+}
+record(bi,"$(P)$(M)_BISSSTAT_ERROR")
+{
+	field(DESC,"BiSS Error Status")
+	field(PINI,"YES")
+	field(DTYP,"asynInt32")
+	field(SCAN,"I/O Intr")
+	field(ZNAM, "No Error")
+	field(ONAM, "Error")
+	field(OSV, "MAJOR")
+	field(INP, "@asyn($(PORT),$(ADDR))MOTOR_BISSSTAT_ERROR")
+}
+record(bi,"$(P)$(M)_BISSSTAT_WARN")
+{
+	field(DESC,"BiSS Warning")
+	field(PINI,"YES")
+	field(DTYP,"asynInt32")
+	field(SCAN,"I/O Intr")
+	field(ZNAM, "No Warning")
+	field(ONAM, "Warning")
+	field(OSV, "MAJOR")
+	field(INP, "@asyn($(PORT),$(ADDR))MOTOR_BISSSTAT_WARN")
+}
+record(bo,"$(P)$(M)_BISSSTAT_POLL_CMD")
+{
+        field(DESC,"Poll BISS Status")
+        field(DTYP,"asynInt32")
+        field(VAL, "0")
+        field(PINI,"YES")
+        field(ZNAM,"No")
+        field(ONAM,"Yes")
+        field(OUT, "@asyn($(PORT),$(ADDR))MOTOR_BISSSTAT_POLL")
+        field(FLNK,"$(P)$(M)_BISSSTAT_POLL")
+}
+record(bi,"$(P)$(M)_BISSSTAT_POLL")
+{
+        field(DESC,"Poll BISS Status")
+        field(PINI,"YES")
+        field(DTYP,"asynInt32")
+        field(SCAN,"I/O Intr")
+        field(ZNAM, "No")
+        field(ONAM, "Yes")
+        field(INP, "@asyn($(PORT),$(ADDR))MOTOR_BISSSTAT_POLL")
+}
+
+record(mbbo,"$(P)$(M)_BISSINPUT_CMD")
+{
+	field(DESC, "BiSS Input")
+	field(PINI, "YES")
+	field(DTYP, "asynInt32")
+	field(ZRST, "Off")
+	field(ONST, "Replace main")
+	field(TWST, "Replace aux")
+	field(ZRVL, "0")
+	field(ONVL, "1")
+	field(TWVL, "2")
+	field(VAL,  "0")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_BISSINPUT")
+	field(FLNK, "$(P)$(M)_BISSINPUT_STATUS")
+}
+
+record(longout,"$(P)$(M)_BISSDATA1_SP")
+{
+	field(DESC, "BiSS Data Bits 1")
+	field(PINI, "YES")
+	field(DTYP, "asynInt32")
+	field(VAL,  "27")
+	field(DRVL, "-38")
+	field(DRVH, "38")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_BISSDATA1")
+	field(FLNK, "$(P)$(M)_BISSDATA1_MON")
+}
+
+record(longout,"$(P)$(M)_BISSDATA2_SP")
+{
+	field(DESC, "BiSS Data Bits 2")
+	field(PINI, "YES")
+	field(DTYP, "asynInt32")
+	field(VAL,  "27")
+	field(DRVL, "0")
+	field(DRVH, "38")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_BISSDATA2")
+	field(FLNK, "$(P)$(M)_BISSDATA2_MON")
+}
+
+record(longout,"$(P)$(M)_BISSZP_SP")
+{
+	field(DESC, "BiSS Zero Pad Bits")
+	field(PINI, "YES")
+	field(DTYP, "asynInt32")
+	field(VAL,  "0")
+	field(DRVL, "0")
+	field(DRVH, "7")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_BISSZP")
+	field(FLNK, "$(P)$(M)_BISSZP_MON")
+}
+
+record(longout,"$(P)$(M)_BISSCD_SP")
+{
+	field(DESC, "BiSS Clock Div")
+	field(PINI, "YES")
+	field(DTYP, "asynInt32")
+	field(VAL,  "14")
+	field(DRVL, "4")
+	field(DRVH, "26")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_BISSCD")
+	field(FLNK, "$(P)$(M)_BISSCD_MON")
+}
+
+# See the SY command documentation
+record(mbbo,"$(P)$(M)_BISSLEVEL_CMD")
+{
+	field(DESC, "BiSS Active Level")
+	field(PINI, "YES")
+	field(DTYP, "asynInt32")
+	field(ZRST, "Low/Low")
+	field(ONST, "Low/High")
+	field(TWST, "High/Low")
+	field(THST, "High/High")
+	field(ZRVL, "0")
+	field(ONVL, "1")
+	field(TWVL, "2")
+	field(THVL, "3")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_BISSLEVEL")
+	field(FLNK, "$(P)$(M)_BISSLEVEL_STATUS")
+}
+
+########################
+
+#Control the poll frequency for axis and encoder status.
+record(ao,"$(P)$(M)_STATUS_POLL_DELAY_CMD")
+{
+	field(DESC, "Status Poll Delay")
+	field(DTYP, "asynFloat64")
+	field(PINI, "YES")
+	field(VAL, "1")
+	field(PREC, "1")
+	field(EGU, "s")
+	field(OUT, "@asyn($(PORT),$(ADDR))MOTOR_STATUS_POLL_DELAY")
+	field(FLNK, "$(P)$(M)_STATUS_POLL_DELAY_MON")
+}
+record(ai,"$(P)$(M)_STATUS_POLL_DELAY_MON")
+{
+	field(DESC, "Status Poll Delay")
+	field(DTYP, "asynFloat64")
+	field(INP, "@asyn($(PORT),$(ADDR))MOTOR_STATUS_POLL_DELAY")
+	field(PREC, "1")
+	field(EGU, "s")
+}
+
+########################
+
 record(mbbo,"$(P)$(M)_HOMEALLOWED_CMD")
 {
 	field(DESC, "Home allowed")

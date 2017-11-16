@@ -287,6 +287,8 @@
 //                  Fix GalilAxis and GalilCSAXis destructors to remove compiler warnings on gcc 4.8.5 and above
 // 09/11/17 M. Pearson
 //                  Add ability to enable/disable hardware limits
+// 16/11/17 M. Pearson
+//                  Add support for BiSS encoder configuration and axis/encoder status polling
 
 #include <stdio.h>
 #include <math.h>
@@ -528,8 +530,8 @@ GalilController::GalilController(const char *portName, const char *address, doub
 
   createParam(GalilDirectionString, asynParamInt32, &GalilDirection_);
   createParam(GalilDmovString, asynParamInt32, &GalilDmov_);
-  createParam(GalilSSICapableString, asynParamInt32, &GalilSSICapable_);
 
+  createParam(GalilSSICapableString, asynParamInt32, &GalilSSICapable_);
   createParam(GalilSSIInputString, asynParamInt32, &GalilSSIInput_);
   createParam(GalilSSITotalBitsString, asynParamInt32, &GalilSSITotalBits_);
   createParam(GalilSSISingleTurnBitsString, asynParamInt32, &GalilSSISingleTurnBits_);
@@ -537,6 +539,20 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilSSITimeString, asynParamInt32, &GalilSSITime_);
   createParam(GalilSSIDataString, asynParamInt32, &GalilSSIData_);
   createParam(GalilSSIInvertString, asynParamInt32, &GalilSSIInvert_);
+
+  createParam(GalilBISSCapableString, asynParamInt32, &GalilBISSCapable_);
+  createParam(GalilBISSInputString, asynParamInt32, &GalilBISSInput_);
+  createParam(GalilBISSData1String, asynParamInt32, &GalilBISSData1_);
+  createParam(GalilBISSData2String, asynParamInt32, &GalilBISSData2_);
+  createParam(GalilBISSZPString, asynParamInt32, &GalilBISSZP_);
+  createParam(GalilBISSCDString, asynParamInt32, &GalilBISSCD_);
+  createParam(GalilBISSLevelString, asynParamInt32, &GalilBISSLevel_);
+  createParam(GalilBISSStatTimeoutString, asynParamInt32, &GalilBISSStatTimeout_);
+  createParam(GalilBISSStatCRCString, asynParamInt32, &GalilBISSStatCRC_);
+  createParam(GalilBISSStatErrorString, asynParamInt32, &GalilBISSStatError_);
+  createParam(GalilBISSStatWarnString, asynParamInt32, &GalilBISSStatWarn_);
+  createParam(GalilBISSStatPollString, asynParamInt32, &GalilBISSStatPoll_);
+
   createParam(GalilErrorLimitString, asynParamFloat64, &GalilErrorLimit_);
   createParam(GalilErrorString, asynParamFloat64, &GalilError_);
   createParam(GalilOffOnErrorString, asynParamInt32, &GalilOffOnError_);
@@ -551,6 +567,8 @@ GalilController::GalilController(const char *portName, const char *address, doub
 
   createParam(GalilEthAddrString, asynParamOctet, &GalilEthAddr_);
   createParam(GalilSerialNumString, asynParamOctet, &GalilSerialNum_);
+
+  createParam(GalilStatusPollDelayString, asynParamFloat64, &GalilStatusPollDelay_);
 
 //Add new parameters here
 
@@ -851,6 +869,8 @@ void GalilController::setParamDefaults(void)
   setStringParam(GalilModel_, "Unknown");
   //SSI capable
   setIntegerParam(GalilSSICapable_, 0);
+  //BISS capable
+  setIntegerParam(GalilBISSCapable_, 0);
   //PVT capable
   setIntegerParam(GalilPVTCapable_, 0);
   //Communication status
@@ -974,6 +994,12 @@ void GalilController::connected(void)
      setIntegerParam(GalilSSICapable_, 1);
   else
      setIntegerParam(GalilSSICapable_, 0);
+
+  //Determine if controller is BISS capable
+  if (strstr(model_, "BISS") != NULL || strstr(model_, "SER") != NULL)
+     setIntegerParam(GalilBISSCapable_, 1);
+  else
+     setIntegerParam(GalilBISSCapable_, 0);
 
   //Determine if controller is PVT capable
   if (model_[3] == '5' || model_[3] == '4' || model_[3] == '3')
@@ -3336,6 +3362,21 @@ asynStatus GalilController::readInt32(asynUser *pasynUser, epicsInt32 *value)
 	else
 		status = asynSuccess;
 	}
+  else if (function >= GalilBISSInput_ && function <= GalilBISSLevel_)
+	{
+	int bisscapable = 0;
+	getIntegerParam(GalilBISSCapable_, &bisscapable);
+	if (bisscapable)
+          if (function == GalilBISSLevel_) {
+            sprintf(cmd_, "MG _SY%c", pAxis->axisName_);
+            status = get_integer(GalilBISSLevel_, value);
+          } 
+          else {
+            status = pAxis->get_biss(function, value);
+          }
+	else
+          status = asynSuccess;
+	}
   else if (function == GalilCoordSys_)
 	{
 	//Read active coordinate system
@@ -3713,6 +3754,21 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 	//Only if controller is SSI capable
 	if (ssicapable)
 		status = pAxis->set_ssi();
+	}
+  else if (function >= GalilBISSInput_ && function <= GalilBISSLevel_)
+        {
+          int bisscapable = 0;
+          getIntegerParam(GalilBISSCapable_, &bisscapable);
+          if (bisscapable) {
+            if (function == GalilBISSLevel_) {
+              sprintf(cmd_, "SY%c=%d", pAxis->axisName_, value);
+              //Write setting to controller
+              status = sync_writeReadController();
+            }
+            else {
+              status = pAxis->set_biss();
+            }
+          }
 	}
   else if (function == GalilSSIInvert_)
 	{
@@ -4540,7 +4596,7 @@ void GalilController::acquireDataRecord(void)
 /** Writes a string to the GalilController controller and reads the response using synchronous communications
   * Calls sync_writeReadController() with default locations of the input and output strings
   * and GalilController timeout. */ 
-asynStatus GalilController::sync_writeReadController(bool testQuery)
+asynStatus GalilController::sync_writeReadController(bool testQuery, bool logCommand)
 {
   const char *functionName="sync_writeReadController";
   size_t nread;
@@ -4586,7 +4642,7 @@ asynStatus GalilController::sync_writeReadController(bool testQuery)
          "%s: controller=\"%s\" command=\"%s\", response=\"%s\", status=%s\n", 
 	      functionName, address_, cmd_, resp_, (status == asynSuccess ? "OK" : "ERROR"));
 
-  if (debug_file != NULL)
+  if (debug_file != NULL && logCommand)
      {
      time_t now;
      //Use line buffering, then flush
