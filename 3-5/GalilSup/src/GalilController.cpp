@@ -287,6 +287,8 @@
 //                  Fix GalilAxis and GalilCSAXis destructors to remove compiler warnings on gcc 4.8.5 and above
 // 09/11/17 M. Pearson
 //                  Add ability to enable/disable hardware limits
+// 17/11/17 M. Clift
+//                  Increase communication timeout for GalilStartController
 
 #include <stdio.h>
 #include <math.h>
@@ -5144,7 +5146,7 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
    if (connected_)
       {
       //Increase timeout whilst manipulating controller code
-      timeout_ = 5;
+      timeout_ = 10;
       //Upload code currently in controller for comparison to generated/user code
       status = programUpload(&uc);
       if (status) //Upload failed
