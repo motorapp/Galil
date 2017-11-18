@@ -181,6 +181,19 @@
 #define GalilSSITimeString		"MOTOR_SSITIME"
 #define GalilSSIDataString		"MOTOR_SSIDATA"
 #define GalilSSIInvertString		"MOTOR_SSIINVERT"
+#define GalilBISSCapableString		"CONTROLLER_BISSCAPABLE"
+#define GalilBISSInputString		"MOTOR_BISSINPUT"
+#define GalilBISSData1String		"MOTOR_BISSDATA1"
+#define GalilBISSData2String		"MOTOR_BISSDATA2"
+#define GalilBISSZPString		"MOTOR_BISSZP"
+#define GalilBISSCDString		"MOTOR_BISSCD"
+#define GalilBISSLevelString		"MOTOR_BISSLEVEL"
+#define GalilBISSStatTimeoutString	"MOTOR_BISSSTAT_TIMEOUT"
+#define GalilBISSStatCRCString	        "MOTOR_BISSSTAT_CRC"
+#define GalilBISSStatErrorString	"MOTOR_BISSSTAT_ERROR"
+#define GalilBISSStatWarnString	"MOTOR_BISSSTAT_WARN"
+#define GalilBISSStatPollString	"MOTOR_BISSSTAT_POLL"
+
 #define GalilErrorLimitString		"MOTOR_ERRLIM"
 #define GalilErrorString		"MOTOR_ERR"
 #define GalilOffOnErrorString		"MOTOR_OOE"
@@ -195,6 +208,8 @@
 
 #define GalilEthAddrString	  	"CONTROLLER_ETHADDR"
 #define GalilSerialNumString	  	"CONTROLLER_SERIALNUM"
+
+#define GalilStatusPollDelayString	"MOTOR_STATUS_POLL_DELAY"
 
 /* For each digital input, we maintain a list of motors, and the state the input should be in*/
 /* To disable the motor */
@@ -233,7 +248,7 @@ public:
   asynStatus async_writeReadController(void);
 
   asynStatus sync_writeReadController(const char *output, char *input, size_t maxChars, size_t *nread, double timeout);
-  asynStatus sync_writeReadController(bool testQuery = false);
+  asynStatus sync_writeReadController(bool testQuery = false, bool logCommand = true);
 
   asynStatus sendUnsolicitedMessage(char *mesg);
   bool my_isascii(int c);
@@ -447,6 +462,18 @@ protected:
   int GalilSSITime_;
   int GalilSSIData_;
   int GalilSSIInvert_;
+  int GalilBISSCapable_;
+  int GalilBISSInput_;
+  int GalilBISSData1_;
+  int GalilBISSData2_;
+  int GalilBISSZP_;
+  int GalilBISSCD_;
+  int GalilBISSLevel_;
+  int GalilBISSStatTimeout_;
+  int GalilBISSStatCRC_;
+  int GalilBISSStatError_;
+  int GalilBISSStatWarn_;
+  int GalilBISSStatPoll_;
   int GalilErrorLimit_;
   int GalilError_;
   int GalilOffOnError_;
@@ -459,6 +486,7 @@ protected:
   int GalilUserVar_;
   int GalilEthAddr_;
   int GalilSerialNum_;
+  int GalilStatusPollDelay_;
 //Add new parameters here
 
   int GalilCommunicationError_;

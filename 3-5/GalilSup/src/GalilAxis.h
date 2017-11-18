@@ -58,6 +58,7 @@ static const int MOTOR_CANCEL_HOME = 4;
 static const int MOTOR_BRAKE_ON = 5;
 static const int MOTOR_STEP_SYNC_ATSTOP = 6;
 static const int MOTOR_STEP_SYNC_ATENC = 7;
+static const int MOTOR_BISS_STATUS = 8;
 
 typedef enum limitsState
    {
@@ -112,6 +113,10 @@ public:
   asynStatus get_ssi(int function, epicsInt32 *value);
   //Invert SSI encoder direction
   asynStatus invert_ssi(void);
+  //Set BISS setting on controller
+  asynStatus set_biss(void);
+  //Get BISS setting from controller
+  asynStatus get_biss(int function, epicsInt32 *value);
   //Set acceleration and velocity
   asynStatus setAccelVelocity(double acceleration, double velocity, bool setVelocity = true);
   //Extract axis data from GalilController data record
@@ -166,6 +171,11 @@ public:
   asynStatus moveThruMotorRecord(double position);
   //Driver internal version of axis stop, prevents backlash, retries till dmov
   asynStatus stopInternal(double acceleration);
+  //Check the BiSS encoder status if it's enabled
+  asynStatus checkBISSStatus(void);
+  asynStatus checkBISSStatusService(void);
+  //Thread function for polling any axis or encoder status that is not part of the data record 
+  void axisStatusThread();
 
   /* These are the methods we override from the base class */
   asynStatus move(double position, int relative, double minVelocity, double maxVelocity, double acceleration);
@@ -187,6 +197,9 @@ public:
   virtual ~GalilAxis();
 
 private:
+
+  void axisStatusShutdown(void);        //Function to shutdown axis status thread.
+
   GalilController *pC_;      		/**< Pointer to the asynMotorController to which this axis belongs.
                                 	*   Abbreviated because it is used very frequently */
   char axisName_;			//The axis letter A-H
@@ -273,6 +286,10 @@ private:
   bool restoreProfile_;			//Should profileBackupPositions_ be copied into profilePositions_ after orofile built complete? 
                                 	//True for all GalilAxis involved in CSAxis profile build, set false at built end
   double *profileBackupPositions_;	//Profile positions backup for this axis, restored after profile is built
+
+  bool axisStatusShutdown_;		//Flag to shutdown axis status thread
+  bool axisStatusRunning_;		//Flag to indicate if axis status thread is running
+  epicsEventId axisStatusShutdownId_;	//Shutdown signal for axis status thread
 
 friend class GalilController;
 friend class GalilCSAxis;
