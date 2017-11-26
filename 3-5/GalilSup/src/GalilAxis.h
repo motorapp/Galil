@@ -58,8 +58,25 @@ static const int MOTOR_CANCEL_HOME = 4;
 static const int MOTOR_BRAKE_ON = 5;
 static const int MOTOR_STEP_SYNC_ATSTOP = 6;
 static const int MOTOR_STEP_SYNC_ATENC = 7;
-static const int MOTOR_BISS_STATUS = 8;
 
+//BISS constants
+const int BISS_INPUT_MIN = 0;
+const int BISS_INPUT_MAX = 2;
+const int BISS_DATA1_MIN = -38;
+const int BISS_DATA1_MAX = 38;
+const int BISS_DATA2_MIN = 0;
+const int BISS_DATA2_MAX = 38;
+const int BISS_ZP_MIN = 0;
+const int BISS_ZP_MAX = 7;
+const int BISS_CD_MIN = 4;
+const int BISS_CD_MAX = 26;
+
+const epicsUInt32 BISS_STAT_TIMEOUT = 0;
+const epicsUInt32 BISS_STAT_CRC =     1;
+const epicsUInt32 BISS_STAT_ERROR =   2;
+const epicsUInt32 BISS_STAT_WARN =    3;
+
+//limitState enum used in wrong limit protection
 typedef enum limitsState
    {
    unknown, consistent, not_consistent

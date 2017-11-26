@@ -1618,10 +1618,13 @@ void GalilAxis::wrongLimitProtection(void)
 {
    char message[MAX_GALIL_STRING_SIZE];	//Safety stop message
    int wlp;				//Wrong limit protection.  When motor hits wrong limit
+   int limitDisable;			//Limits disable feature
 
    //Retrieve wrong limit protection setting
    pC_->getIntegerParam(axisNo_, pC_->GalilWrongLimitProtection_, &wlp);
-   if (wlp && limitsDirState_ != consistent)
+   //Retrieve limit disable setting
+   pC_->getIntegerParam(axisNo_, pC_->GalilLimitDisable_, &limitDisable);
+   if (wlp && limitsDirState_ != consistent && !limitDisable)
       {
       if ((!done_ && direction_ && rev_) || (!done_ && !direction_ && fwd_))
          {
@@ -1890,9 +1893,6 @@ void GalilAxis::pollServices(void)
                          //If no jog after home, then homing completed
                          if (status || fail || !jah)//JAH failed, homing complete
                             setIntegerParam(pC_->GalilHoming_, 0);
-                         break;
-        case MOTOR_BISS_STATUS:  //Read the BISS status bits
-                         checkBISSStatusService();
                          break;
         default: break;
         }
@@ -2472,7 +2472,6 @@ asynStatus GalilAxis::set_ssi(void)
 	char mesg[MAX_GALIL_STRING_SIZE];		//Error mesg
 	int ssiinput, ssitotalbits, ssisingleturnbits;  //Local copy of ssi parameters
 	int ssierrbits, ssitimecode, ssidataform;	//Local copy of ssi parameters
-	int motortype;					//Motor type
 	asynStatus status;				//Comms status
 	int allowed[] = {4,8,10,12,13,24,26};		//Allowed values of p parameter for SSI setting
 	bool found;					//Used to validate ssitimecode
@@ -2492,7 +2491,6 @@ asynStatus GalilAxis::set_ssi(void)
 	pC_->getIntegerParam(axisNo_, pC_->GalilSSIErrorBits_, &ssierrbits);
 	pC_->getIntegerParam(axisNo_, pC_->GalilSSITime_, &ssitimecode);
 	pC_->getIntegerParam(axisNo_, pC_->GalilSSIData_, &ssidataform);
-	pC_->getIntegerParam(axisNo_, pC_->GalilMotorType_, &motortype);
 
 	if (!ssiinput && ssiinput_rbk)//User just disabled ssi, unset motorRecord MSTA bit 15 motorStatusHomed_
 		setIntegerParam(pC_->motorStatusHomed_, 0);
@@ -2594,19 +2592,6 @@ asynStatus GalilAxis::get_biss(int function, epicsInt32 *value)
 
 asynStatus GalilAxis::set_biss(void)
 {
-
-        //These limits should be moved into header file or at the top of this file.
-        const int BISS_INPUT_MIN = 0;
-        const int BISS_INPUT_MAX = 2;
-        const int BISS_DATA1_MIN = -38;
-        const int BISS_DATA1_MAX = 38;
-        const int BISS_DATA2_MIN = 0;
-        const int BISS_DATA2_MAX = 38;
-        const int BISS_ZP_MIN = 0;
-        const int BISS_ZP_MAX = 7;
-        const int BISS_CD_MIN = 4;
-        const int BISS_CD_MAX = 26;
-
         char mesg[MAX_GALIL_STRING_SIZE]; //Error mesg
         int motortype = 0;
         bool stepper = false;
@@ -2684,20 +2669,6 @@ asynStatus GalilAxis::set_biss(void)
 	return status;
 }
 
-/*
- * Ask pollServices to read the BISS status bis
- */
-asynStatus GalilAxis::checkBISSStatus(void)
-{
-  int bissStatPoll = 0;
-  pC_->getIntegerParam(axisNo_, pC_->GalilBISSStatPoll_, &bissStatPoll);
-
-  if (bissStatPoll == 1) {
-    pollRequest_.send((void*)&MOTOR_BISS_STATUS, sizeof(int));
-  }
-  return asynSuccess;
-}
-
 /* 
  * Read the _SSm operand to get the BiSS status bits
  * Bit 0 - Timeout
@@ -2710,51 +2681,44 @@ asynStatus GalilAxis::checkBISSStatus(void)
  */
 asynStatus GalilAxis::checkBISSStatusService(void)
 {
-        //Move these constants out of this function
-        const epicsUInt32 BISS_STAT_TIMEOUT = 0;
-        const epicsUInt32 BISS_STAT_CRC =     1;
-        const epicsUInt32 BISS_STAT_ERROR =   2;
-        const epicsUInt32 BISS_STAT_WARN =    3;
+   static bool errorPrint = true;
+   asynStatus status = asynSuccess; //Comms status
+   const char *functionName = "GalilAxis::checkBiSSStatus";
+   int bissInput = 0;
+   int bissStat = 0;
 
-        static bool errorPrint = true;
-	asynStatus status = asynSuccess; //Comms status
-        const char *functionName = "GalilAxis::checkBiSSStatus";
-
-        int bissInput = 0;
-        int bissStat = 0;
-
-	//Need to check BiSS is enabled as well
-	pC_->getIntegerParam(axisNo_, pC_->GalilBISSInput_, &bissInput);
-	if (bissInput != 0) {
+   //Need to check BiSS is enabled as well
+   pC_->getIntegerParam(axisNo_, pC_->GalilBISSInput_, &bissInput);
+   if (bissInput != 0) {
 	  
-	  //Read the BiSS status bits
-	  sprintf(pC_->cmd_, "MG _SS%c", axisName_);
-	  //Write command to controller
-	  status = pC_->sync_writeReadController(false, false);
+      //Read the BiSS status bits
+      sprintf(pC_->cmd_, "MG _SS%c", axisName_);
+      //Write command to controller
+      status = pC_->sync_writeReadController(false, false);
           
-	  if (status == asynSuccess) {
-	    sscanf(pC_->resp_, "%d", &bissStat);
-	    setIntegerParam(pC_->GalilBISSStatTimeout_, (bissStat >> BISS_STAT_TIMEOUT) & 0x1);
-	    setIntegerParam(pC_->GalilBISSStatCRC_,     (bissStat >> BISS_STAT_CRC) & 0x1);
-	    setIntegerParam(pC_->GalilBISSStatError_,   (bissStat >> BISS_STAT_ERROR) & 0x1);
-	    setIntegerParam(pC_->GalilBISSStatWarn_,    (bissStat >> BISS_STAT_WARN) & 0x1);
-	    if (!errorPrint) {
-	      asynPrint(pC_->pasynUserSelf, ASYN_TRACE_ERROR, 
-			"%s Successfully reading BiSS encoder status bits on controller %s, axis %d.\n", 
-			functionName, pC_->portName, axisNo_);
-	      errorPrint = true;
-	    }
-	  } else {
-	    if (errorPrint) {
-	      asynPrint(pC_->pasynUserSelf, ASYN_TRACE_ERROR, 
-			"%s Failed to read BiSS encoder status bits on controller %s, axis %d.\n", 
-			functionName, pC_->portName, axisNo_);
-	      errorPrint = false;
+      if (status == asynSuccess) {
+         sscanf(pC_->resp_, "%d", &bissStat);
+         setIntegerParam(pC_->GalilBISSStatTimeout_, (bissStat >> BISS_STAT_TIMEOUT) & 0x1);
+         setIntegerParam(pC_->GalilBISSStatCRC_,     (bissStat >> BISS_STAT_CRC) & 0x1);
+         setIntegerParam(pC_->GalilBISSStatError_,   (bissStat >> BISS_STAT_ERROR) & 0x1);
+         setIntegerParam(pC_->GalilBISSStatWarn_,    (bissStat >> BISS_STAT_WARN) & 0x1);
+         if (!errorPrint) {
+            asynPrint(pC_->pasynUserSelf, ASYN_TRACE_ERROR, 
+			   "%s Successfully reading BiSS encoder status bits on controller %s, axis %d.\n", 
+			   functionName, pC_->portName, axisNo_);
+	        errorPrint = true;
+        }
+      } else {
+        if (errorPrint) {
+           asynPrint(pC_->pasynUserSelf, ASYN_TRACE_ERROR, 
+              "%s Failed to read BiSS encoder status bits on controller %s, axis %d.\n", 
+              functionName, pC_->portName, axisNo_);
+	       errorPrint = false;
 	    }
 	  }
 	} // end of if (bissInput != 0)
 	
-        return status;
+   return status;
 }
 
 /* C Function which runs the status thread */ 
@@ -2770,30 +2734,31 @@ void GalilAxis::axisStatusThread()
   int ssiCapable = 0;
   int bissCapable = 0;
   int bissInput = 0;
+  int bissStatPoll = 0;
   double pollDelay = 1;
-  asynStatus status = asynSuccess;
-
-  pC_->getIntegerParam(pC_->GalilSSICapable_, &ssiCapable);
-  pC_->getIntegerParam(pC_->GalilBISSCapable_, &bissCapable);
-
-  //At the moment we just exit if there's no absolute encoder
-  if ((ssiCapable == 0) && (bissCapable == 0)) {
-    axisStatusRunning_ = false;
-    return;
-  }
+  int status = asynSuccess;
 
   while (true) {
+    //Retrieve required parameters
+    status = pC_->getIntegerParam(axisNo_, pC_->GalilSSICapable_, &ssiCapable);
+    status |= pC_->getIntegerParam(axisNo_, pC_->GalilBISSCapable_, &bissCapable);
+
     if (!axisStatusShutdown_) {
-      if (ssiCapable == 1) {
-	//Polling SSI status
-      }
-      if (bissCapable == 1) {
-	//Check BiSS is enabled
-	pC_->getIntegerParam(axisNo_, pC_->GalilBISSInput_, &bissInput);  
-	if (bissInput != 0) { 
-	  this->checkBISSStatus();
-	}
-      }
+
+       if (ssiCapable == 1 && !status) {
+          //Polling SSI status
+       }
+       if (bissCapable == 1 && !status) {
+          status = pC_->getIntegerParam(axisNo_, pC_->GalilBISSStatPoll_, &bissStatPoll);
+	      //Check BiSS is enabled
+	      status |= pC_->getIntegerParam(axisNo_, pC_->GalilBISSInput_, &bissInput);  
+	      if (bissInput != 0 && bissStatPoll == 1 && !status) {
+             //Grab the lock only when required
+             pC_->lock();
+             checkBISSStatusService();
+             pC_->unlock();
+             }
+       }
     } else {
       //Thread will exit
       if (axisStatusShutdownId_) {
@@ -2803,8 +2768,16 @@ void GalilAxis::axisStatusThread()
       break;
     }
     
+    //Retrieve requested pollDelay
     status = pC_->getDoubleParam(axisNo_, pC_->GalilStatusPollDelay_, &pollDelay);
-    if (status == asynSuccess) {
+    //Limit pollDelay values
+    if (pollDelay < .1)
+       pollDelay = .1;
+    if (pollDelay > 10)
+       pollDelay = 10;
+
+    //Perform the delay
+    if (!status) {
       epicsThreadSleep(pollDelay);
     } else {
       epicsThreadSleep(1);

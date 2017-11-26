@@ -291,6 +291,11 @@
 //                  Add support for BiSS encoder configuration and axis/encoder status polling
 // 17/11/17 M. Clift
 //                  Increase communication timeout for GalilStartController
+// 26/11/17 M.Clift
+//                  Add QEGUI and MEDM screens for BISS support
+//                  Add BISS support PV's to motor extra autosave request
+//                  Alter how BISS, and SSI capability detected
+//                  Add disable wrong limit protection when an axis limit is disabled
 
 #include <stdio.h>
 #include <math.h>
@@ -992,13 +997,27 @@ void GalilController::connected(void)
   setStringParam(GalilSerialNum_, resp_);
 
   //Determine if controller is SSI capable
-  if (strstr(model_, "SSI") != NULL || strstr(model_, "SER") != NULL)
+  strcpy(cmd_, "SIA=?");
+  status = sync_writeReadController();
+  if (numAxesMax_ > 4)
+     {
+     strcpy(cmd_, "SIE=?");
+     status &= sync_writeReadController();
+     }
+  if (status == asynSuccess)
      setIntegerParam(GalilSSICapable_, 1);
   else
      setIntegerParam(GalilSSICapable_, 0);
 
   //Determine if controller is BISS capable
-  if (strstr(model_, "BISS") != NULL || strstr(model_, "SER") != NULL)
+  strcpy(cmd_, "SSA=?");
+  status = sync_writeReadController();
+  if (numAxesMax_ > 4)
+     {
+     strcpy(cmd_, "SSE=?");
+     status &= sync_writeReadController();
+     }
+  if (status == asynSuccess)
      setIntegerParam(GalilBISSCapable_, 1);
   else
      setIntegerParam(GalilBISSCapable_, 0);
@@ -3578,11 +3597,14 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
   int mainencoder, auxencoder, encoder_setting; //Main, aux encoder setting
   char coordinate_system;			//Coordinate system S or T
   char axes[MAX_GALIL_AXES];			//Coordinate system axis list
+  char mesg[MAX_GALIL_STRING_SIZE];		//Controller mesg
   double eres, mres;				//mr eres, and mres
   float oldmotor;				//Motor type before changing it.  Use Galil numbering
   unsigned i;					//Looping
   float oldmtr_abs, newmtr_abs;			//Track motor changes
   int uploading;				//Array uploading status
+  int wlp;					//Wrong limit protection setting
+  int limitDisable;				//Limit disable setting
 
   status = getAddress(pasynUser, &addr);
   if (status != asynSuccess) return(status);
@@ -3873,9 +3895,32 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 	}
   else if (function == GalilLimitDisable_)
 	{
-	//Enable/Disable the limits 
+	//Clear controller message
+	if (pAxis->axisReady_)
+		setCtrlError("");
+	//Enable/Disable the limits
 	sprintf(cmd_, "LD%c=%d", pAxis->axisName_, value);
 	sync_writeReadController();
+	getIntegerParam(pAxis->axisNo_, GalilWrongLimitProtection_, &wlp);
+	//Check if limitDisable conflicts with WLP
+	if (wlp && value > 0)
+		{
+		sprintf(mesg, "%c axis wrong limit protection disabled whilst limits disabled", pAxis->axisName_);
+		setCtrlError(mesg);
+		}
+	}
+  else if (function == GalilWrongLimitProtection_)
+	{
+	//Clear controller message
+	if (pAxis->axisReady_)
+		setCtrlError("");
+	getIntegerParam(pAxis->axisNo_, GalilLimitDisable_, &limitDisable);
+	//Check if WLP conflicts with limitDisable
+	if (limitDisable && value)
+		{
+		sprintf(mesg, "%c axis wrong limit protection disabled whilst limits disabled", pAxis->axisName_);
+		setCtrlError(mesg);
+		}
 	}
   else 
 	{

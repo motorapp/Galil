@@ -1,14 +1,14 @@
 
 file {
 	name="/home/ics/git/Galil-3-0/3-5/GalilSup/op/adl/galil_dmc_ctrl.adl"
-	version=030105
+	version=030114
 }
 display {
 	object {
-		x=899
-		y=232
+		x=2
+		y=51
 		width=410
-		height=658
+		height=680
 	}
 	clr=14
 	bclr=4
@@ -197,7 +197,35 @@ text {
 text {
 	object {
 		x=9
-		y=166
+		y=110
+		width=97
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Controller start status"
+}
+"text update" {
+	object {
+		x=286
+		y=109
+		width=95
+		height=13
+	}
+	monitor {
+		chan="$(DMC)START_STATUS"
+		clr=54
+		bclr=4
+	}
+	clrmod="alarm"
+	limits {
+	}
+}
+text {
+	object {
+		x=9
+		y=182
 		width=97
 		height=13
 	}
@@ -209,7 +237,7 @@ text {
 "choice button" {
 	object {
 		x=149
-		y=164
+		y=180
 		width=120
 		height=18
 	}
@@ -223,7 +251,7 @@ text {
 "text update" {
 	object {
 		x=286
-		y=167
+		y=183
 		width=95
 		height=13
 	}
@@ -238,7 +266,7 @@ text {
 text {
 	object {
 		x=9
-		y=185
+		y=201
 		width=69
 		height=13
 	}
@@ -250,7 +278,7 @@ text {
 "choice button" {
 	object {
 		x=149
-		y=182
+		y=198
 		width=120
 		height=18
 	}
@@ -264,7 +292,7 @@ text {
 "text update" {
 	object {
 		x=286
-		y=186
+		y=202
 		width=81
 		height=13
 	}
@@ -279,7 +307,7 @@ text {
 text {
 	object {
 		x=9
-		y=204
+		y=220
 		width=97
 		height=13
 	}
@@ -291,7 +319,7 @@ text {
 "choice button" {
 	object {
 		x=149
-		y=200
+		y=216
 		width=120
 		height=18
 	}
@@ -305,7 +333,7 @@ text {
 "text update" {
 	object {
 		x=286
-		y=203
+		y=219
 		width=81
 		height=13
 	}
@@ -320,7 +348,7 @@ text {
 text {
 	object {
 		x=9
-		y=222
+		y=238
 		width=97
 		height=13
 	}
@@ -332,7 +360,7 @@ text {
 menu {
 	object {
 		x=149
-		y=218
+		y=234
 		width=120
 		height=20
 	}
@@ -345,7 +373,7 @@ menu {
 "text update" {
 	object {
 		x=286
-		y=241
+		y=257
 		width=81
 		height=13
 	}
@@ -360,7 +388,7 @@ menu {
 "choice button" {
 	object {
 		x=149
-		y=237
+		y=253
 		width=120
 		height=18
 	}
@@ -374,7 +402,7 @@ menu {
 text {
 	object {
 		x=9
-		y=240
+		y=256
 		width=97
 		height=13
 	}
@@ -386,7 +414,7 @@ text {
 text {
 	object {
 		x=9
-		y=287
+		y=303
 		width=65
 		height=13
 	}
@@ -398,7 +426,7 @@ text {
 "related display" {
 	object {
 		x=150
-		y=288
+		y=304
 		width=15
 		height=15
 	}
@@ -413,7 +441,7 @@ text {
 "text update" {
 	object {
 		x=286
-		y=222
+		y=238
 		width=120
 		height=13
 	}
@@ -428,34 +456,7 @@ text {
 "text update" {
 	object {
 		x=286
-		y=128
-		width=81
-		height=13
-	}
-	monitor {
-		chan="$(DMC)SSICAPABLE_STATUS"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-text {
-	object {
-		x=9
-		y=128
-		width=97
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="SSI Capable"
-}
-"text update" {
-	object {
-		x=286
-		y=147
+		y=163
 		width=81
 		height=13
 	}
@@ -470,7 +471,7 @@ text {
 text {
 	object {
 		x=9
-		y=147
+		y=163
 		width=97
 		height=13
 	}
@@ -482,7 +483,7 @@ text {
 text {
 	object {
 		x=9
-		y=332
+		y=348
 		width=65
 		height=13
 	}
@@ -494,7 +495,7 @@ text {
 "related display" {
 	object {
 		x=150
-		y=333
+		y=349
 		width=15
 		height=15
 	}
@@ -529,7 +530,7 @@ text {
 "text update" {
 	object {
 		x=11
-		y=585
+		y=601
 		width=395
 		height=13
 	}
@@ -545,7 +546,7 @@ text {
 text {
 	object {
 		x=5
-		y=600
+		y=616
 		width=65
 		height=13
 	}
@@ -557,7 +558,7 @@ text {
 "text entry" {
 	object {
 		x=32
-		y=617
+		y=633
 		width=372
 		height=20
 	}
@@ -572,7 +573,7 @@ text {
 "text update" {
 	object {
 		x=32
-		y=637
+		y=653
 		width=372
 		height=13
 	}
@@ -588,7 +589,7 @@ text {
 text {
 	object {
 		x=5
-		y=619
+		y=635
 		width=65
 		height=13
 	}
@@ -600,7 +601,7 @@ text {
 text {
 	object {
 		x=5
-		y=636
+		y=652
 		width=65
 		height=13
 	}
@@ -612,7 +613,7 @@ text {
 text {
 	object {
 		x=5
-		y=569
+		y=585
 		width=65
 		height=13
 	}
@@ -624,7 +625,7 @@ text {
 text {
 	object {
 		x=56
-		y=351
+		y=367
 		width=65
 		height=13
 	}
@@ -636,7 +637,7 @@ text {
 text {
 	object {
 		x=228
-		y=351
+		y=367
 		width=65
 		height=13
 	}
@@ -648,7 +649,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=376
+		y=392
 		width=15
 		height=15
 	}
@@ -668,7 +669,7 @@ text {
 text {
 	object {
 		x=56
-		y=375
+		y=391
 		width=65
 		height=13
 	}
@@ -677,40 +678,10 @@ text {
 	}
 	textix="Motor A"
 }
-"related display" {
-	object {
-		x=150
-		y=376
-		width=15
-		height=15
-	}
-	display[0] {
-		label="Motor A Extras"
-		name="galil_motor_extras.adl"
-		args="P=$(DMC),M=$(M1)"
-	}
-	display[1] {
-		label="Motor A SSI"
-		name="galil_SSI.adl"
-		args="P=$(DMC),M=$(M1)"
-	}
-	display[2] {
-		label="Motor A Amp"
-		name="galil_amp.adl"
-		args="P=$(DMC),M=$(M1)"
-	}
-	display[3] {
-		label="Motor A Motor"
-		name="motorx_all.adl"
-		args="P=$(DMC),M=$(M1)"
-	}
-	clr=14
-	bclr=51
-}
 text {
 	object {
 		x=56
-		y=397
+		y=413
 		width=65
 		height=13
 	}
@@ -719,70 +690,10 @@ text {
 	}
 	textix="Motor B"
 }
-"related display" {
-	object {
-		x=150
-		y=398
-		width=15
-		height=15
-	}
-	display[0] {
-		label="Motor B Extras"
-		name="galil_motor_extras.adl"
-		args="P=$(DMC),M=$(M2)"
-	}
-	display[1] {
-		label="Motor B SSI"
-		name="galil_SSI.adl"
-		args="P=$(DMC),M=$(M2)"
-	}
-	display[2] {
-		label="Motor B Amp"
-		name="galil_amp.adl"
-		args="P=$(DMC),M=$(M2)"
-	}
-	display[3] {
-		label="Motor B Motor"
-		name="motorx_all.adl"
-		args="P=$(DMC),M=$(M2)"
-	}
-	clr=14
-	bclr=51
-}
-"related display" {
-	object {
-		x=150
-		y=420
-		width=15
-		height=15
-	}
-	display[0] {
-		label="Motor C Extras"
-		name="galil_motor_extras.adl"
-		args="P=$(DMC),M=$(M3)"
-	}
-	display[1] {
-		label="Motor C SSI"
-		name="galil_SSI.adl"
-		args="P=$(DMC),M=$(M3)"
-	}
-	display[2] {
-		label="Motor C Amp"
-		name="galil_amp.adl"
-		args="P=$(DMC),M=$(M3)"
-	}
-	display[3] {
-		label="Motor C Motor"
-		name="motorx_all.adl"
-		args="P=$(DMC),M=$(M3)"
-	}
-	clr=14
-	bclr=51
-}
 text {
 	object {
 		x=56
-		y=419
+		y=435
 		width=65
 		height=13
 	}
@@ -794,7 +705,7 @@ text {
 text {
 	object {
 		x=56
-		y=441
+		y=457
 		width=65
 		height=13
 	}
@@ -803,40 +714,10 @@ text {
 	}
 	textix="Motor D"
 }
-"related display" {
-	object {
-		x=150
-		y=442
-		width=15
-		height=15
-	}
-	display[0] {
-		label="Motor D Extras"
-		name="galil_motor_extras.adl"
-		args="P=$(DMC),M=$(M4)"
-	}
-	display[1] {
-		label="Motor D SSI"
-		name="galil_SSI.adl"
-		args="P=$(DMC),M=$(M4)"
-	}
-	display[2] {
-		label="Motor D Amp"
-		name="galil_amp.adl"
-		args="P=$(DMC),M=$(M4)"
-	}
-	display[3] {
-		label="Motor D Motor"
-		name="motorx_all.adl"
-		args="P=$(DMC),M=$(M4)"
-	}
-	clr=14
-	bclr=51
-}
 text {
 	object {
 		x=56
-		y=462
+		y=478
 		width=65
 		height=13
 	}
@@ -845,70 +726,10 @@ text {
 	}
 	textix="Motor E"
 }
-"related display" {
-	object {
-		x=150
-		y=463
-		width=15
-		height=15
-	}
-	display[0] {
-		label="Motor E Extras"
-		name="galil_motor_extras.adl"
-		args="P=$(DMC),M=$(M5)"
-	}
-	display[1] {
-		label="Motor E SSI"
-		name="galil_SSI.adl"
-		args="P=$(DMC),M=$(M5)"
-	}
-	display[2] {
-		label="Motor E Amp"
-		name="galil_amp.adl"
-		args="P=$(DMC),M=$(M5)"
-	}
-	display[3] {
-		label="Motor E Motor"
-		name="motorx_all.adl"
-		args="P=$(DMC),M=$(M5)"
-	}
-	clr=14
-	bclr=51
-}
-"related display" {
-	object {
-		x=150
-		y=485
-		width=15
-		height=15
-	}
-	display[0] {
-		label="Motor F Extras"
-		name="galil_motor_extras.adl"
-		args="P=$(DMC),M=$(M6)"
-	}
-	display[1] {
-		label="Motor F SSI"
-		name="galil_SSI.adl"
-		args="P=$(DMC),M=$(M6)"
-	}
-	display[2] {
-		label="Motor F Amp"
-		name="galil_amp.adl"
-		args="P=$(DMC),M=$(M6)"
-	}
-	display[3] {
-		label="Motor F Motor"
-		name="motorx_all.adl"
-		args="P=$(DMC),M=$(M6)"
-	}
-	clr=14
-	bclr=51
-}
 text {
 	object {
 		x=56
-		y=484
+		y=500
 		width=65
 		height=13
 	}
@@ -920,7 +741,7 @@ text {
 text {
 	object {
 		x=56
-		y=506
+		y=522
 		width=65
 		height=13
 	}
@@ -929,70 +750,10 @@ text {
 	}
 	textix="Motor G"
 }
-"related display" {
-	object {
-		x=150
-		y=507
-		width=15
-		height=15
-	}
-	display[0] {
-		label="Motor G Extras"
-		name="galil_motor_extras.adl"
-		args="P=$(DMC),M=$(M7)"
-	}
-	display[1] {
-		label="Motor G SSI"
-		name="galil_SSI.adl"
-		args="P=$(DMC),M=$(M7)"
-	}
-	display[2] {
-		label="Motor G Amp"
-		name="galil_amp.adl"
-		args="P=$(DMC),M=$(M7)"
-	}
-	display[3] {
-		label="Motor G Motor"
-		name="motorx_all.adl"
-		args="P=$(DMC),M=$(M7)"
-	}
-	clr=14
-	bclr=51
-}
-"related display" {
-	object {
-		x=150
-		y=529
-		width=15
-		height=15
-	}
-	display[0] {
-		label="Motor H Extras"
-		name="galil_motor_extras.adl"
-		args="P=$(DMC),M=$(M8)"
-	}
-	display[1] {
-		label="Motor H SSI"
-		name="galil_SSI.adl"
-		args="P=$(DMC),M=$(M8)"
-	}
-	display[2] {
-		label="Motor H Amp"
-		name="galil_amp.adl"
-		args="P=$(DMC),M=$(M8)"
-	}
-	display[3] {
-		label="Motor H Motor"
-		name="motorx_all.adl"
-		args="P=$(DMC),M=$(M8)"
-	}
-	clr=14
-	bclr=51
-}
 text {
 	object {
 		x=56
-		y=528
+		y=544
 		width=65
 		height=13
 	}
@@ -1004,7 +765,7 @@ text {
 text {
 	object {
 		x=228
-		y=375
+		y=391
 		width=65
 		height=13
 	}
@@ -1016,7 +777,7 @@ text {
 text {
 	object {
 		x=228
-		y=397
+		y=413
 		width=65
 		height=13
 	}
@@ -1028,7 +789,7 @@ text {
 text {
 	object {
 		x=228
-		y=419
+		y=435
 		width=65
 		height=13
 	}
@@ -1040,7 +801,7 @@ text {
 text {
 	object {
 		x=228
-		y=441
+		y=457
 		width=65
 		height=13
 	}
@@ -1052,7 +813,7 @@ text {
 text {
 	object {
 		x=228
-		y=462
+		y=478
 		width=65
 		height=13
 	}
@@ -1064,7 +825,7 @@ text {
 text {
 	object {
 		x=228
-		y=484
+		y=500
 		width=65
 		height=13
 	}
@@ -1076,7 +837,7 @@ text {
 text {
 	object {
 		x=228
-		y=506
+		y=522
 		width=65
 		height=13
 	}
@@ -1088,7 +849,7 @@ text {
 text {
 	object {
 		x=228
-		y=528
+		y=544
 		width=65
 		height=13
 	}
@@ -1100,7 +861,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=398
+		y=414
 		width=15
 		height=15
 	}
@@ -1120,7 +881,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=420
+		y=436
 		width=15
 		height=15
 	}
@@ -1140,7 +901,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=442
+		y=458
 		width=15
 		height=15
 	}
@@ -1160,7 +921,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=462
+		y=478
 		width=15
 		height=15
 	}
@@ -1180,7 +941,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=484
+		y=500
 		width=15
 		height=15
 	}
@@ -1200,7 +961,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=507
+		y=523
 		width=15
 		height=15
 	}
@@ -1220,7 +981,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=529
+		y=545
 		width=15
 		height=15
 	}
@@ -1240,7 +1001,7 @@ text {
 text {
 	object {
 		x=56
-		y=550
+		y=566
 		width=75
 		height=13
 	}
@@ -1252,7 +1013,7 @@ text {
 text {
 	object {
 		x=228
-		y=551
+		y=567
 		width=65
 		height=13
 	}
@@ -1264,7 +1025,7 @@ text {
 "related display" {
 	object {
 		x=150
-		y=550
+		y=566
 		width=15
 		height=15
 	}
@@ -1279,7 +1040,7 @@ text {
 "related display" {
 	object {
 		x=330
-		y=551
+		y=567
 		width=15
 		height=15
 	}
@@ -1294,7 +1055,7 @@ text {
 composite {
 	object {
 		x=9
-		y=264
+		y=280
 		width=156
 		height=16
 	}
@@ -1303,7 +1064,7 @@ composite {
 		text {
 			object {
 				x=9
-				y=264
+				y=280
 				width=65
 				height=13
 			}
@@ -1315,7 +1076,7 @@ composite {
 		"related display" {
 			object {
 				x=150
-				y=265
+				y=281
 				width=15
 				height=15
 			}
@@ -1337,7 +1098,7 @@ composite {
 composite {
 	object {
 		x=9
-		y=309
+		y=325
 		width=156
 		height=16
 	}
@@ -1346,7 +1107,7 @@ composite {
 		text {
 			object {
 				x=9
-				y=309
+				y=325
 				width=65
 				height=13
 			}
@@ -1358,7 +1119,7 @@ composite {
 		"related display" {
 			object {
 				x=150
-				y=310
+				y=326
 				width=15
 				height=15
 			}
@@ -1407,31 +1168,370 @@ composite {
 		}
 	}
 }
+composite {
+	object {
+		x=9
+		y=128
+		width=358
+		height=13
+	}
+	"composite name"=""
+	children {
+		text {
+			object {
+				x=9
+				y=128
+				width=97
+				height=13
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="SSI Capable"
+		}
+		"text update" {
+			object {
+				x=286
+				y=128
+				width=81
+				height=13
+			}
+			monitor {
+				chan="$(DMC)SSICAPABLE_STATUS"
+				clr=54
+				bclr=4
+			}
+			limits {
+			}
+		}
+	}
+}
 text {
 	object {
 		x=9
-		y=110
+		y=145
 		width=97
 		height=13
 	}
 	"basic attribute" {
 		clr=14
 	}
-	textix="Controller start status"
+	textix="BISS Capable"
 }
 "text update" {
 	object {
 		x=286
-		y=109
-		width=95
+		y=145
+		width=81
 		height=13
 	}
 	monitor {
-		chan="$(DMC)START_STATUS"
+		chan="$(DMC)BISSCAPABLE_STATUS"
 		clr=54
 		bclr=4
 	}
-	clrmod="alarm"
 	limits {
+	}
+}
+composite {
+	object {
+		x=150
+		y=392
+		width=15
+		height=168
+	}
+	"composite name"=""
+	children {
+		composite {
+			object {
+				x=150
+				y=414
+				width=15
+				height=146
+			}
+			"composite name"=""
+			children {
+				"related display" {
+					object {
+						x=150
+						y=414
+						width=15
+						height=15
+					}
+					display[0] {
+						label="Motor B Extras"
+						name="galil_motor_extras.adl"
+						args="P=$(DMC),M=$(M2)"
+					}
+					display[1] {
+						label="Motor B BISS"
+						name="galil_BISS.adl"
+						args="P=$(DMC),M=$(M2)"
+					}
+					display[2] {
+						label="Motor B SSI"
+						name="galil_SSI.adl"
+						args="P=$(DMC),M=$(M2)"
+					}
+					display[3] {
+						label="Motor B Amp"
+						name="galil_amp.adl"
+						args="P=$(DMC),M=$(M2)"
+					}
+					display[4] {
+						label="Motor B Motor"
+						name="motorx_all.adl"
+						args="P=$(DMC),M=$(M2)"
+					}
+					clr=14
+					bclr=51
+				}
+				"related display" {
+					object {
+						x=150
+						y=436
+						width=15
+						height=15
+					}
+					display[0] {
+						label="Motor C Extras"
+						name="galil_motor_extras.adl"
+						args="P=$(DMC),M=$(M3)"
+					}
+					display[1] {
+						label="Motor C BISS"
+						name="galil_BISS.adl"
+						args="P=$(DMC),M=$(M3)"
+					}
+					display[2] {
+						label="Motor C SSI"
+						name="galil_SSI.adl"
+						args="P=$(DMC),M=$(M3)"
+					}
+					display[3] {
+						label="Motor C Amp"
+						name="galil_amp.adl"
+						args="P=$(DMC),M=$(M3)"
+					}
+					display[4] {
+						label="Motor C Motor"
+						name="motorx_all.adl"
+						args="P=$(DMC),M=$(M3)"
+					}
+					clr=14
+					bclr=51
+				}
+				"related display" {
+					object {
+						x=150
+						y=458
+						width=15
+						height=15
+					}
+					display[0] {
+						label="Motor D Extras"
+						name="galil_motor_extras.adl"
+						args="P=$(DMC),M=$(M4)"
+					}
+					display[1] {
+						label="Motor D BISS"
+						name="galil_BISS.adl"
+						args="P=$(DMC),M=$(M4)"
+					}
+					display[2] {
+						label="Motor D SSI"
+						name="galil_SSI.adl"
+						args="P=$(DMC),M=$(M4)"
+					}
+					display[3] {
+						label="Motor D Amp"
+						name="galil_amp.adl"
+						args="P=$(DMC),M=$(M4)"
+					}
+					display[4] {
+						label="Motor D Motor"
+						name="motorx_all.adl"
+						args="P=$(DMC),M=$(M4)"
+					}
+					clr=14
+					bclr=51
+				}
+				"related display" {
+					object {
+						x=150
+						y=479
+						width=15
+						height=15
+					}
+					display[0] {
+						label="Motor E Extras"
+						name="galil_motor_extras.adl"
+						args="P=$(DMC),M=$(M5)"
+					}
+					display[1] {
+						label="Motor E BISS"
+						name="galil_BISS.adl"
+						args="P=$(DMC),M=$(M5)"
+					}
+					display[2] {
+						label="Motor E SSI"
+						name="galil_SSI.adl"
+						args="P=$(DMC),M=$(M5)"
+					}
+					display[3] {
+						label="Motor E Amp"
+						name="galil_amp.adl"
+						args="P=$(DMC),M=$(M5)"
+					}
+					display[4] {
+						label="Motor E Motor"
+						name="motorx_all.adl"
+						args="P=$(DMC),M=$(M5)"
+					}
+					clr=14
+					bclr=51
+				}
+				"related display" {
+					object {
+						x=150
+						y=501
+						width=15
+						height=15
+					}
+					display[0] {
+						label="Motor F Extras"
+						name="galil_motor_extras.adl"
+						args="P=$(DMC),M=$(M6)"
+					}
+					display[1] {
+						label="Motor F BISS"
+						name="galil_BISS.adl"
+						args="P=$(DMC),M=$(M6)"
+					}
+					display[2] {
+						label="Motor F SSI"
+						name="galil_SSI.adl"
+						args="P=$(DMC),M=$(M6)"
+					}
+					display[3] {
+						label="Motor F Amp"
+						name="galil_amp.adl"
+						args="P=$(DMC),M=$(M6)"
+					}
+					display[4] {
+						label="Motor F Motor"
+						name="motorx_all.adl"
+						args="P=$(DMC),M=$(M6)"
+					}
+					clr=14
+					bclr=51
+				}
+				"related display" {
+					object {
+						x=150
+						y=523
+						width=15
+						height=15
+					}
+					display[0] {
+						label="Motor G Extras"
+						name="galil_motor_extras.adl"
+						args="P=$(DMC),M=$(M7)"
+					}
+					display[1] {
+						label="Motor G BISS"
+						name="galil_BISS.adl"
+						args="P=$(DMC),M=$(M7)"
+					}
+					display[2] {
+						label="Motor G SSI"
+						name="galil_SSI.adl"
+						args="P=$(DMC),M=$(M7)"
+					}
+					display[3] {
+						label="Motor G Amp"
+						name="galil_amp.adl"
+						args="P=$(DMC),M=$(M7)"
+					}
+					display[4] {
+						label="Motor G Motor"
+						name="motorx_all.adl"
+						args="P=$(DMC),M=$(M7)"
+					}
+					clr=14
+					bclr=51
+				}
+				"related display" {
+					object {
+						x=150
+						y=545
+						width=15
+						height=15
+					}
+					display[0] {
+						label="Motor H Extras"
+						name="galil_motor_extras.adl"
+						args="P=$(DMC),M=$(M8)"
+					}
+					display[1] {
+						label="Motor H BISS"
+						name="galil_BISS.adl"
+						args="P=$(DMC),M=$(M8)"
+					}
+					display[2] {
+						label="Motor H SSI"
+						name="galil_SSI.adl"
+						args="P=$(DMC),M=$(M8)"
+					}
+					display[3] {
+						label="Motor H Amp"
+						name="galil_amp.adl"
+						args="P=$(DMC),M=$(M8)"
+					}
+					display[4] {
+						label="Motor H Motor"
+						name="motorx_all.adl"
+						args="P=$(DMC),M=$(M8)"
+					}
+					clr=14
+					bclr=51
+				}
+			}
+		}
+		"related display" {
+			object {
+				x=150
+				y=392
+				width=15
+				height=15
+			}
+			display[0] {
+				label="Motor A Extras"
+				name="galil_motor_extras.adl"
+				args="P=$(DMC),M=$(M1)"
+			}
+			display[1] {
+				label="Motor A BISS"
+				name="galil_BISS.adl"
+				args="P=$(DMC),M=$(M1)"
+			}
+			display[2] {
+				label="Motor A SSI"
+				name="galil_SSI.adl"
+				args="P=$(DMC),M=$(M1)"
+			}
+			display[3] {
+				label="Motor A Amp"
+				name="galil_amp.adl"
+				args="P=$(DMC),M=$(M1)"
+			}
+			display[4] {
+				label="Motor A Motor"
+				name="motorx_all.adl"
+				args="P=$(DMC),M=$(M1)"
+			}
+			clr=14
+			bclr=51
+		}
 	}
 }
