@@ -296,6 +296,8 @@
 //                  Add BISS support PV's to motor extra autosave request
 //                  Alter how BISS, and SSI capability detected
 //                  Add disable wrong limit protection when an axis limit is disabled
+// 27/11/17 M.Clift
+//                  Alter how BISS, and SSI capability detected again
 
 #include <stdio.h>
 #include <math.h>
@@ -996,31 +998,47 @@ void GalilController::connected(void)
   sync_writeReadController();
   setStringParam(GalilSerialNum_, resp_);
 
+  //Determine if controller is BISS capable
+  if (strstr(model_, "BISS") != NULL)
+     setIntegerParam(GalilBISSCapable_, 1);
+  else
+     setIntegerParam(GalilBISSCapable_, 0);
+
   //Determine if controller is SSI capable
-  strcpy(cmd_, "SIA=?");
-  status = sync_writeReadController();
-  if (numAxesMax_ > 4)
-     {
-     strcpy(cmd_, "SIE=?");
-     status &= sync_writeReadController();
-     }
-  if (status == asynSuccess)
+  if (strstr(model_, "SSI") != NULL)
      setIntegerParam(GalilSSICapable_, 1);
   else
      setIntegerParam(GalilSSICapable_, 0);
 
-  //Determine if controller is BISS capable
-  strcpy(cmd_, "SSA=?");
-  status = sync_writeReadController();
-  if (numAxesMax_ > 4)
+  if (strstr(model_, "SER") != NULL)
      {
-     strcpy(cmd_, "SSE=?");
-     status &= sync_writeReadController();
-     }
-  if (status == asynSuccess)
-     setIntegerParam(GalilBISSCapable_, 1);
-  else
-     setIntegerParam(GalilBISSCapable_, 0);
+     //Could be either SSI, or BISS, or both
+     //Determine if controller is SSI capable
+     strcpy(cmd_, "SIA=?");
+     status = sync_writeReadController();
+     if (numAxesMax_ > 4)
+        {
+        strcpy(cmd_, "SIE=?");
+        status &= sync_writeReadController();
+        }
+     if (status == asynSuccess)
+        setIntegerParam(GalilSSICapable_, 1);
+     else
+        setIntegerParam(GalilSSICapable_, 0);
+
+     //Determine if controller is BISS capable
+     strcpy(cmd_, "SSA=?");
+     status = sync_writeReadController();
+     if (numAxesMax_ > 4)
+        {
+        strcpy(cmd_, "SSE=?");
+        status &= sync_writeReadController();
+        }
+     if (status == asynSuccess)
+        setIntegerParam(GalilBISSCapable_, 1);
+     else
+        setIntegerParam(GalilBISSCapable_, 0);
+   }
 
   //Determine if controller is PVT capable
   if (model_[3] == '5' || model_[3] == '4' || model_[3] == '3')
