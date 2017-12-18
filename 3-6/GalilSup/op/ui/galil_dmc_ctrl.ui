@@ -404,6 +404,57 @@
         </item>
        </layout>
       </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_23" stretch="4,3">
+        <item>
+         <widget class="QLabel" name="label_18">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="sizeIncrement">
+           <size>
+            <width>1</width>
+            <height>1</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Abyssinica SIL</family>
+            <pointsize>9</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>EtherCat capable</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QELabel" name="qelabel_16">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Abyssinica SIL</family>
+            <pointsize>9</pointsize>
+           </font>
+          </property>
+          <property name="variable" stdset="0">
+           <string>$(DMC)ECATCAPABLE_STATUS</string>
+          </property>
+          <property name="text">
+           <string>PVT capable</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
      </layout>
     </widget>
    </item>
@@ -905,6 +956,92 @@
                </property>
                <property name="variable" stdset="0">
                 <string>$(DMC)COORDSYS_STATUS</string>
+               </property>
+               <property name="text">
+                <string>Coordinate system       </string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_24" stretch="2,2,3">
+           <property name="spacing">
+            <number>1</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="label_19">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="sizeIncrement">
+              <size>
+               <width>1</width>
+               <height>1</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Abyssinica SIL</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>EtherCat Network</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QEComboBox" name="qecombobox_6">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>1</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Abyssinica SIL</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="variable" stdset="0">
+              <string>$(DMC)ECATNETWORK_CMD</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_12" stretch="1">
+             <property name="spacing">
+              <number>1</number>
+             </property>
+             <item>
+              <widget class="QELabel" name="qelabel_17">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Abyssinica SIL</family>
+                 <pointsize>9</pointsize>
+                </font>
+               </property>
+               <property name="variable" stdset="0">
+                <string>$(DMC)ECATNETWORK_STATUS</string>
                </property>
                <property name="text">
                 <string>Coordinate system       </string>

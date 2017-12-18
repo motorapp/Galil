@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>476</width>
+    <width>396</width>
     <height>643</height>
    </rect>
   </property>
@@ -19,7 +19,7 @@
   <property name="windowTitle">
    <string>EFrame</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout" stretch="2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3">
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2">
    <property name="spacing">
     <number>1</number>
    </property>
@@ -285,8 +285,14 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>120</width>
+         <width>140</width>
          <height>1</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>140</width>
+         <height>20</height>
         </size>
        </property>
        <property name="font">
@@ -370,13 +376,13 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>120</width>
+         <width>140</width>
          <height>1</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>120</width>
+         <width>140</width>
          <height>16777215</height>
         </size>
        </property>
@@ -461,13 +467,13 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>120</width>
+         <width>140</width>
          <height>1</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>120</width>
+         <width>140</width>
          <height>16777215</height>
         </size>
        </property>
@@ -552,8 +558,14 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>120</width>
+         <width>140</width>
          <height>1</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>140</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -669,8 +681,14 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>120</width>
+         <width>140</width>
          <height>1</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>140</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -754,8 +772,14 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>120</width>
+         <width>140</width>
          <height>1</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>140</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -839,8 +863,14 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>120</width>
+         <width>140</width>
          <height>1</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>140</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -927,8 +957,14 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>120</width>
+         <width>140</width>
          <height>1</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>140</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -1015,8 +1051,14 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>120</width>
+         <width>140</width>
          <height>1</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>140</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -1103,8 +1145,14 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>120</width>
+         <width>140</width>
          <height>1</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>140</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -1188,8 +1236,14 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>120</width>
+         <width>140</width>
          <height>1</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>140</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -1276,8 +1330,14 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>120</width>
+         <width>140</width>
          <height>1</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>140</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -1361,8 +1421,14 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>120</width>
+         <width>140</width>
          <height>1</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>140</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -1449,13 +1515,13 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>120</width>
+         <width>140</width>
          <height>1</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>120</width>
+         <width>140</width>
          <height>16777215</height>
         </size>
        </property>
@@ -1540,8 +1606,14 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>120</width>
+         <width>140</width>
          <height>1</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>140</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -1603,7 +1675,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>245</width>
+         <width>265</width>
          <height>0</height>
         </size>
        </property>
@@ -1663,7 +1735,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>245</width>
+         <width>265</width>
          <height>0</height>
         </size>
        </property>
@@ -1748,8 +1820,14 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>120</width>
+         <width>140</width>
          <height>1</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>140</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -1836,8 +1914,14 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>120</width>
+         <width>140</width>
          <height>1</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>140</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -1924,8 +2008,14 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>120</width>
+         <width>140</width>
          <height>1</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>140</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -2012,8 +2102,14 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>120</width>
+         <width>140</width>
          <height>1</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>140</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -2097,8 +2193,14 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>120</width>
+         <width>140</width>
          <height>1</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>140</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -2182,8 +2284,14 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>120</width>
+         <width>140</width>
          <height>1</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>140</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -2267,8 +2375,14 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>120</width>
+         <width>140</width>
          <height>1</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>140</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -2352,8 +2466,14 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>120</width>
+         <width>140</width>
          <height>1</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>140</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -2437,8 +2557,14 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>120</width>
+         <width>140</width>
          <height>1</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>140</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -2525,8 +2651,14 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>120</width>
+         <width>140</width>
          <height>1</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>140</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -2573,7 +2705,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>245</width>
+         <width>265</width>
          <height>0</height>
         </size>
        </property>
@@ -2633,7 +2765,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>245</width>
+         <width>265</width>
          <height>0</height>
         </size>
        </property>
@@ -2693,7 +2825,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>245</width>
+         <width>265</width>
          <height>0</height>
         </size>
        </property>
@@ -2739,12 +2871,12 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_36" stretch="0,0,0">
+    <layout class="QHBoxLayout" name="horizontalLayout_39" stretch="1,1,1">
      <property name="spacing">
       <number>1</number>
      </property>
      <item>
-      <spacer name="horizontalSpacer_7">
+      <spacer name="horizontalSpacer_14">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
@@ -2754,56 +2886,29 @@
        <property name="sizeHint" stdset="0">
         <size>
          <width>124</width>
-         <height>5</height>
+         <height>17</height>
         </size>
        </property>
       </spacer>
      </item>
      <item>
-      <widget class="QEPushButton" name="qepushbutton_8">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
+      <widget class="QEMenuButton" name="qemenubutton">
        <property name="minimumSize">
         <size>
-         <width>0</width>
+         <width>140</width>
          <height>1</height>
         </size>
        </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>16777215</height>
-        </size>
+       <property name="labelText" stdset="0">
+        <string>More Settings</string>
        </property>
-       <property name="font">
-        <font>
-         <family>Abyssinica SIL</family>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Galil amplifier settings</string>
-       </property>
-       <property name="variableAsToolTip">
-        <bool>false</bool>
-       </property>
-       <property name="guiFile" stdset="0">
-        <string>galil_motors_amp.ui</string>
-       </property>
-       <property name="creationOption" stdset="0">
-        <enum>QEPushButton::NewWindow</enum>
-       </property>
-       <property name="prioritySubstitutions">
-        <string/>
+       <property name="menuEntries" stdset="0">
+        <string>&lt;MenuButton Version=&quot;1&quot;&gt; &lt;Item Name=&quot;BISS encoder&quot;&gt;  &lt;Window&gt;   &lt;UiFile&gt;galil_motors_biss.ui&lt;/UiFile&gt;   &lt;MacroSubstitutions&gt;&lt;/MacroSubstitutions&gt;   &lt;Customisation&gt;&lt;/Customisation&gt;   &lt;Create_Option&gt;NewWindow&lt;/Create_Option&gt;  &lt;/Window&gt; &lt;/Item&gt; &lt;Item Name=&quot;EtherCat&quot;&gt;  &lt;Window&gt;   &lt;UiFile&gt;galil_motors_ecat.ui&lt;/UiFile&gt;   &lt;MacroSubstitutions&gt;&lt;/MacroSubstitutions&gt;   &lt;Customisation&gt;&lt;/Customisation&gt;   &lt;Create_Option&gt;NewWindow&lt;/Create_Option&gt;  &lt;/Window&gt; &lt;/Item&gt; &lt;Item Name=&quot;Galil amplifier&quot;&gt;  &lt;Window&gt;   &lt;UiFile&gt;galil_motors_amp.ui&lt;/UiFile&gt;   &lt;MacroSubstitutions&gt;&lt;/MacroSubstitutions&gt;   &lt;Customisation&gt;&lt;/Customisation&gt;   &lt;Create_Option&gt;NewWindow&lt;/Create_Option&gt;  &lt;/Window&gt; &lt;/Item&gt; &lt;Item Name=&quot;SSI encoder&quot;&gt;  &lt;Window&gt;   &lt;UiFile&gt;galil_motors_ssi.ui&lt;/UiFile&gt;   &lt;MacroSubstitutions&gt;&lt;/MacroSubstitutions&gt;   &lt;Customisation&gt;&lt;/Customisation&gt;   &lt;Create_Option&gt;NewWindow&lt;/Create_Option&gt;  &lt;/Window&gt; &lt;/Item&gt;&lt;/MenuButton&gt;</string>
        </property>
       </widget>
      </item>
      <item>
-      <spacer name="horizontalSpacer_8">
+      <spacer name="horizontalSpacer_13">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
@@ -2812,166 +2917,8 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>40</width>
-         <height>5</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_37" stretch="1,0,1">
-     <property name="spacing">
-      <number>1</number>
-     </property>
-     <item>
-      <spacer name="horizontalSpacer_9">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Fixed</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>124</width>
-         <height>5</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QEPushButton" name="qepushbutton_9">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>1</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>135</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="font">
-        <font>
-         <family>Abyssinica SIL</family>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>BISS encoder settings   </string>
-       </property>
-       <property name="variableAsToolTip">
-        <bool>false</bool>
-       </property>
-       <property name="guiFile" stdset="0">
-        <string>galil_motors_biss.ui</string>
-       </property>
-       <property name="creationOption" stdset="0">
-        <enum>QEPushButton::NewWindow</enum>
-       </property>
-       <property name="prioritySubstitutions">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_10">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>5</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_29" stretch="1,1,1">
-     <property name="spacing">
-      <number>1</number>
-     </property>
-     <item>
-      <spacer name="horizontalSpacer_4">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Fixed</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>124</width>
-         <height>5</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QEPushButton" name="qepushbutton_7">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>1</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>135</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="font">
-        <font>
-         <family>Abyssinica SIL</family>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>SSI encoder settings   </string>
-       </property>
-       <property name="variableAsToolTip">
-        <bool>false</bool>
-       </property>
-       <property name="guiFile" stdset="0">
-        <string>galil_motors_ssi.ui</string>
-       </property>
-       <property name="creationOption" stdset="0">
-        <enum>QEPushButton::NewWindow</enum>
-       </property>
-       <property name="prioritySubstitutions">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_5">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>5</height>
+         <width>469</width>
+         <height>10</height>
         </size>
        </property>
       </spacer>
@@ -2997,15 +2944,15 @@
    <header>QELineEdit.h</header>
   </customwidget>
   <customwidget>
-   <class>QEPushButton</class>
-   <extends>QPushButton</extends>
-   <header>QEPushButton.h</header>
-  </customwidget>
-  <customwidget>
    <class>QEFrame</class>
    <extends>QFrame</extends>
    <header>QEFrame.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QEMenuButton</class>
+   <extends>QWidget</extends>
+   <header>QEMenuButton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

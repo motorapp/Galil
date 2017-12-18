@@ -367,7 +367,7 @@
                 <number>1</number>
                </property>
                <property name="shift">
-                <number>13</number>
+                <number>0</number>
                </property>
                <property name="onColour">
                 <color>
@@ -415,7 +415,7 @@
                 <number>1</number>
                </property>
                <property name="shift">
-                <number>13</number>
+                <number>0</number>
                </property>
                <property name="onColour">
                 <color>
@@ -467,7 +467,7 @@
                 <number>1</number>
                </property>
                <property name="shift">
-                <number>13</number>
+                <number>0</number>
                </property>
                <property name="onColour">
                 <color>
@@ -515,7 +515,7 @@
                 <number>1</number>
                </property>
                <property name="shift">
-                <number>13</number>
+                <number>0</number>
                </property>
                <property name="onColour">
                 <color>

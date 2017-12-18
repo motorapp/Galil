@@ -298,6 +298,8 @@
 //                  Add disable wrong limit protection when an axis limit is disabled
 // 27/11/17 M.Clift
 //                  Alter how BISS, and SSI capability detected again
+// 16/12/17 M.Clift
+//                  Add support for EtherCat axis
 
 #include <stdio.h>
 #include <math.h>
@@ -479,6 +481,13 @@ GalilController::GalilController(const char *portName, const char *address, doub
 
   createParam(GalilStepSmoothString, asynParamFloat64, &GalilStepSmooth_);
   createParam(GalilMotorTypeString, asynParamInt32, &GalilMotorType_);
+
+  createParam(GalilEtherCatCapableString, asynParamInt32, &GalilEtherCatCapable_);
+  createParam(GalilEtherCatNetworkString, asynParamInt32, &GalilEtherCatNetwork_);
+  createParam(GalilCtrlEtherCatFaultString, asynParamInt32, &GalilCtrlEtherCatFault_);
+  createParam(GalilEtherCatAddressString, asynParamInt32, &GalilEtherCatAddress_);
+  createParam(GalilEtherCatFaultString, asynParamInt32, &GalilEtherCatFault_);
+  createParam(GalilEtherCatFaultResetString, asynParamInt32, &GalilEtherCatFaultReset_);
 
   createParam(GalilMotorConnectedString, asynParamInt32, &GalilMotorConnected_);
 
@@ -1040,6 +1049,12 @@ void GalilController::connected(void)
         setIntegerParam(GalilBISSCapable_, 0);
    }
 
+  //Determine if controller is Ethercat capable
+  if (model_[3] == '5')
+     setIntegerParam(GalilEtherCatCapable_, 1);
+  else
+     setIntegerParam(GalilEtherCatCapable_, 0);
+
   //Determine if controller is PVT capable
   if (model_[3] == '5' || model_[3] == '4' || model_[3] == '3')
      setIntegerParam(GalilPVTCapable_, 1);
@@ -1059,7 +1074,7 @@ void GalilController::connected(void)
   numThreads_ = 8;
   //Check for controllers that support < 8 threads
   //RIO
-  numThreads_ = (rio_)? 4 : numThreads_;
+  numThreads_ = (rio_) ? 4 : numThreads_;
   //DMC3 range
   if ((model_[0] == 'D' && model_[3] == '3'))
      numThreads_ = 6;
@@ -3301,9 +3316,11 @@ asynStatus GalilController::get_integer(int function, epicsInt32 *value, int axi
   * \param[out] value Address of the value to read. */
 asynStatus GalilController::readInt32(asynUser *pasynUser, epicsInt32 *value)
 {
-    int function = pasynUser->reason;		 //function requested
-    asynStatus status;				 //Used to work out communication_error_ status.  asynSuccess always returned
-    GalilAxis *pAxis = getAxis(pasynUser);	 //Retrieve the axis instance
+    int function = pasynUser->reason;		//function requested
+    asynStatus status;				//Used to work out communication_error_ status.  asynSuccess always returned
+    GalilAxis *pAxis = getAxis(pasynUser);	//Retrieve the axis instance
+    int ecatcapable;				//EtherCat capable status
+    unsigned i;					//Looping
 
     //If provided addr does not return an GalilAxis instance, then return asynError
     if (!pAxis) return asynError;
@@ -3385,6 +3402,12 @@ asynStatus GalilController::readInt32(asynUser *pasynUser, epicsInt32 *value)
 				   break;
 			case -15:  *value = 7;
 				   break;
+			case 100:  *value = 8;
+				   break;
+			case 110:  *value = 9;
+				   break;
+			case -110: *value = 10;
+				   break;
 			default:   break;
 			}
 		}
@@ -3449,7 +3472,39 @@ asynStatus GalilController::readInt32(asynUser *pasynUser, epicsInt32 *value)
 	sprintf(cmd_, "MG _LD%c", pAxis->axisName_);
 	status = get_integer(GalilLimitDisable_, value);
 	}
-  else 
+  else if (function == GalilCtrlEtherCatFault_)
+        {
+        //Retrieve required params
+        getIntegerParam(GalilEtherCatCapable_, &ecatcapable);
+        if (ecatcapable)
+           {
+           //Controller is EtherCat capable
+           //Determine EtherCat fault code
+           strcpy(cmd_, "MG _EU1");
+           status = get_integer(GalilCtrlEtherCatFault_, value);
+           //Set axis EtherCat fault status PV's
+           for (i = 0; i < MAX_GALIL_AXES; i++)
+              {
+              if (*value & (1 << i))
+                 setIntegerParam(i, GalilEtherCatFault_, 1);
+              else
+                 setIntegerParam(i, GalilEtherCatFault_, 0);
+              }
+           }
+        }
+  else if (function == GalilEtherCatNetwork_)
+        {
+        //Retrieve required params
+        getIntegerParam(GalilEtherCatCapable_, &ecatcapable);
+        if (ecatcapable)
+           {
+           //Controller is EtherCat capable
+           //Determine if EtherCat network up
+           sprintf(cmd_, "MG _EU0");
+           status = get_integer(GalilEtherCatNetwork_, value);
+           }
+        }
+  else
 	status = asynPortDriver::readInt32(pasynUser, value);
 
    //Always return success. Dont need more error mesgs
@@ -3718,6 +3773,12 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 			break;
 		case 7: newmtr = -1.5;
 			break;
+		case 8: newmtr = 10;
+			break;
+		case 9: newmtr = 11;
+			break;
+		case 10: newmtr = -11;
+			break;
 		default: newmtr = 1.0;
 			break;
 		}
@@ -3749,7 +3810,7 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 
 	//IF motor was stepper, and now servo
 	//Set reference position equal to main encoder, which sets initial error to 0
-	if (fabs(oldmotor) > 1.5 && (value < 2 || value > 5))
+	if (fabs(oldmotor) > 1.5 && (value < 2 || (value > 5 && value < 8)))
 		{
 		//Calculate step count from existing encoder_position, construct mesg to controller_
 		sprintf(cmd_, "DP%c=%.0lf", pAxis->axisName_, pAxis->encoder_position_);
@@ -3763,7 +3824,8 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 	if (((oldmtr_abs == newmtr_abs) && ((oldmotor > 0 && newmtr < 0) || (oldmotor < 0 && newmtr > 0))) ||
 		((oldmtr_abs == 2.0 && newmtr_abs == 2.5) || (oldmtr_abs == 2.5 && newmtr_abs == 2.0)) ||
 		((oldmotor == 1.0 && newmtr == -1.5) || (oldmtr_abs == -1.5 && newmtr_abs == 1.0)) ||
-		((oldmotor == -1.0 && newmtr == 1.5) || (oldmtr_abs == 1.5 && newmtr_abs == -1.0)))
+		((oldmotor == -1.0 && newmtr == 1.5) || (oldmtr_abs == 1.5 && newmtr_abs == -1.0)) ||
+		((oldmotor == -11 && newmtr == 11) || (oldmotor == 11 && newmtr == -11)))
 		{
 		if (pAxis->limitsDirState_ != unknown)
 			pAxis->limitsDirState_ = (pAxis->limitsDirState_ == not_consistent) ? consistent : not_consistent;
@@ -3940,7 +4002,26 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 		setCtrlError(mesg);
 		}
 	}
-  else 
+  else if (function == GalilEtherCatNetwork_)
+        {
+        enableEtherCatNetwork(value);
+        }
+  else if (function == GalilEtherCatFaultReset_)
+        {
+        pAxis->clearEtherCatFault();
+        }
+  else if (function == GalilEtherCatAddress_)
+        {
+        int ecatcapable;
+        getIntegerParam(GalilEtherCatCapable_, &ecatcapable);
+        if (ecatcapable)
+           {
+           //Controller is EtherCat capable, set axis drive address
+           sprintf(cmd_, "EX%c=%d", pAxis->axisName_, value); 
+           sync_writeReadController();
+           }
+        }
+  else
 	{
 	/* Call base class method */
 	status = asynMotorController::writeInt32(pasynUser, value);
@@ -4166,6 +4247,93 @@ asynStatus GalilController::writeOctet(asynUser *pasynUser, const char*  value, 
 
   //Always return success. Dont need more error mesgs
   return asynSuccess;
+}
+
+/*Enable/Disable EtherCat network
+  * \param[in] Enable, or disable ethercat network
+*/
+void GalilController::enableEtherCatNetwork(int value)
+{
+   char mesg[MAX_GALIL_STRING_SIZE];	//Message to user
+   GalilAxis *pAxis;			//GalilAxis
+   unsigned i;				//Looping
+   int status;				//Asyn paramlist return success
+   int ecatcapable;			//Controller ethercat capable
+   int ecaterror;			//EtherCat error during attempt to bring up network
+   bool ecatenabled = false;		//EtherCat network status
+   int motorType;			//Motor type of individual axis
+
+   //Is controller ethercat capable ?
+   getIntegerParam(GalilEtherCatCapable_, &ecatcapable);
+   if (ecatcapable)
+      {
+      //Controller is ethercat capable
+      //Determine if EtherCat network up
+      sprintf(cmd_, "MG _EU0");
+      if (sync_writeReadController() == asynSuccess)
+         ecatenabled = (bool)atoi(resp_);
+
+      //Enable EtherCat
+      if (value && !ecatenabled)
+         {
+         //Refresh controller knowledge of available drive addresses
+         sprintf(cmd_, "EH");
+         sync_writeReadController();
+         //EtherCat timeout of 5000 ms
+         sprintf(cmd_, "EU1<5000");
+         if (sync_writeReadController() != asynSuccess)
+            {
+            //Something went wrong, determine error code
+            sprintf(cmd_, "MG _TC");
+            //Determine error string
+            if (sync_writeReadController() != asynSuccess)
+               {
+               ecaterror = atoi(resp_);
+               switch (ecaterror)
+                  {
+                  case ECAT_DUPLICATEID:strcpy(mesg, "EtherCat: Error duplicate EtherCat address on network");
+                                        break;
+                  case ECAT_TIMEOUT:strcpy(mesg, "EtherCat: Error timeout");
+                                        break;
+                  case ECAT_DRIVENOTFOUND:strcpy(mesg, "EtherCat: Error a drive address specified was not found");
+                                        break;
+                  case ECAT_NODRIVECONFIGURED:strcpy(mesg, "EtherCat: Error EtherCat axis not configured");
+                                        break;
+                  default: break;
+                  }
+               }
+            }
+         else
+            strcpy(mesg, "EtherCat: Network enable successful");
+         
+         //Set the message
+         setCtrlError(mesg);
+         }
+
+      //Disable EtherCat
+      if (!value && ecatenabled)
+         {
+         //Turn off all ethercat motors
+         for (i = 0; i < numAxesMax_; i++)
+            {
+            pAxis = NULL;
+            status = getIntegerParam(i, GalilMotorType_, &motorType);
+            if (!status)
+               {
+               if (motorType == 8 || motorType == 9 || motorType == 10)
+                  {
+                  //Motor is EtherCat type
+                  pAxis = getAxis(i);
+                  if (!pAxis) continue;
+                  pAxis->setClosedLoop(false);
+                  }
+               }
+            }
+         //Disable ethercat network
+         sprintf(cmd_, "EU0");
+         sync_writeReadController();
+         }
+      }//EtherCat capable
 }
 
 //Process unsolicited message from the controller

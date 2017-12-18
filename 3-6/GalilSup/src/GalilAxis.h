@@ -193,6 +193,8 @@ public:
   asynStatus checkBISSStatusService(void);
   //Thread function for polling any axis or encoder status that is not part of the data record 
   void axisStatusThread();
+  //Clear axis EtherCat fault
+  asynStatus clearEtherCatFault();
 
   /* These are the methods we override from the base class */
   asynStatus move(double position, int relative, double minVelocity, double maxVelocity, double acceleration);

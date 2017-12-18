@@ -407,6 +407,53 @@ record(bo,"$(P)$(M)_SSIINVERT_CMD")
 }
 
 ########################
+# EtherCat support
+
+record(ao,"$(P)$(M)_ECATADDR_SP")
+{
+	field(DESC,"EtherCat Address")
+	field(DTYP,"asynInt32")
+	field(PINI,"YES")
+	field(VAL, "1")
+	field(PREC,"1")
+	field(DRVH,"255")
+	field(DRVL,"-255")
+	field(EGU, "")
+	field(OUT, "@asyn($(PORT),$(ADDR))MOTOR_ECAT_ADDR")
+	field(FLNK,"$(P)$(M)_ECATADDR_MON")
+}
+
+record(ai,"$(P)$(M)_ECATADDR_MON")
+{
+	field(DESC,"EtherCat Address")
+	field(DTYP,"asynInt32")
+	field(INP, "@asyn($(PORT),$(ADDR))MOTOR_ECAT_ADDR")
+	field(PREC, "1")
+	field(EGU, "")
+}
+
+record(bi,"$(P)$(M)_ECATFLT_STATUS")
+{
+	field(DESC,"EtherCat Fault")
+	field(PINI,"YES")
+	field(DTYP,"asynInt32")
+	field(SCAN,"I/O Intr")
+	field(ZNAM, "Ok")
+	field(ONAM, "Fault")
+	field(OSV, "MAJOR")
+	field(INP, "@asyn($(PORT),$(ADDR))MOTOR_ECAT_FAULT")
+}
+
+record(bo,"$(P)$(M)_ECATFLTRST_CMD")
+{
+        field(DESC,"Fault reset")
+        field(DTYP,"asynInt32")
+        field(ZNAM,"Reset")
+        field(ONAM,"Reset")
+        field(OUT, "@asyn($(PORT),$(ADDR))MOTOR_ECAT_FAULTRESET")
+}
+
+########################
 # BiSS encoder support
 
 record(mbbi,"$(P)$(M)_BISSINPUT_STATUS")
@@ -934,6 +981,9 @@ record(mbbo,"$(P)$(M)_MTRTYPE_CMD")
 	field(FVST, "Rev LA Stepper")
 	field(SXST, "PWM servo")
 	field(SVST, "PWM rev servo")
+	field(EIST, "EtherCat Position")
+	field(NIST, "EtherCat Torque")
+	field(TEST, "EtherCat Rev Torque")
 	field(ZRVL, "0")
 	field(ONVL, "1")
 	field(TWVL, "2")
@@ -942,6 +992,9 @@ record(mbbo,"$(P)$(M)_MTRTYPE_CMD")
 	field(FVVL, "5")
 	field(SXVL, "6")
 	field(SVVL, "7")
+	field(EIVL, "8")
+	field(NIVL, "9")
+	field(TEVL, "10")
 	field(VAL,  "$(MTRTYPE)")
 	field(PINI, "YES")
 	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_TYPE")
@@ -970,6 +1023,9 @@ record(mbbi,"$(P)$(M)_MTRTYPE_STATUS")
 	field(FVST, "Rev LA Stepper")
 	field(SXST, "PWM servo")
 	field(SVST, "PWM rev servo")
+	field(EIST, "EtherCat Position")
+	field(NIST, "EtherCat Torque")
+	field(TEST, "EtherCat Rev Torque")
 	field(ZRVL, "0")
 	field(ONVL, "1")
 	field(TWVL, "2")
@@ -978,6 +1034,9 @@ record(mbbi,"$(P)$(M)_MTRTYPE_STATUS")
 	field(FVVL, "5")
 	field(SXVL, "6")
 	field(SVVL, "7")
+	field(EIVL, "8")
+	field(NIVL, "9")
+	field(TEVL, "10")
 	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_TYPE")
 }
 

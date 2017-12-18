@@ -60,6 +60,12 @@
 //Time base
 #define DEFAULT_TIME 1000.0
 
+//EtherCat errors
+#define ECAT_DUPLICATEID 180
+#define ECAT_TIMEOUT 181
+#define ECAT_DRIVENOTFOUND 182
+#define ECAT_NODRIVECONFIGURED 187
+
 #include "macLib.h"
 #include "GalilAxis.h"
 #include "GalilCSAxis.h"
@@ -124,6 +130,14 @@
 #define GalilEncoderStallTimeString	"MOTOR_ENCODER_STALL_TIME"
 #define GalilStepSmoothString		"MOTOR_STEPSMOOTH"
 #define GalilMotorTypeString		"MOTOR_TYPE"
+
+#define GalilEtherCatCapableString	"CONTROLLER_ECATCAPABLE"
+#define GalilEtherCatNetworkString	"CONTROLLER_ECAT_NETWORK"
+#define GalilCtrlEtherCatFaultString	"CONTROLLER_ECAT_FAULT"
+#define GalilEtherCatFaultResetString	"MOTOR_ECAT_FAULTRESET"
+#define GalilEtherCatAddressString	"MOTOR_ECAT_ADDR"
+#define GalilEtherCatFaultString	"MOTOR_ECAT_FAULT"
+
 #define GalilMotorConnectedString	"MOTOR_MCONN"
 #define GalilAfterLimitString		"MOTOR_EGUAFTER_LIMIT"
 #define GalilWrongLimitProtectionString	"MOTOR_WLP"
@@ -155,7 +169,7 @@
 #define GalilHomingString		"MOTOR_HOMING"
 #define GalilUserDataString		"MOTOR_USER_DATA"
 #define GalilUserDataDeadbString	"MOTOR_USER_DATA_DEADB"
-#define GalilLimitDisableString        "MOTOR_LIMIT_DISABLE"
+#define GalilLimitDisableString		"MOTOR_LIMIT_DISABLE"
 
 #define GalilMainEncoderString		"MOTOR_MAIN_ENCODER"
 #define GalilAuxEncoderString		"MOTOR_AUX_ENCODER"
@@ -330,6 +344,8 @@ public:
   void processUnsolicitedMesgs(void);
   static std::string extractEthAddr(const char* str);
   void setCtrlError(const char* mesg);
+  //Enable/Disable EtherCat network
+  void enableEtherCatNetwork(int value);
 
   void InitializeDataRecord(void);
   double sourceValue(const std::vector<char>& record, const std::string& source);
@@ -406,6 +422,14 @@ protected:
   int GalilEStallTime_;
   int GalilStepSmooth_;
   int GalilMotorType_;
+
+  int GalilEtherCatCapable_;
+  int GalilEtherCatNetwork_;
+  int GalilCtrlEtherCatFault_;
+  int GalilEtherCatFaultReset_;
+  int GalilEtherCatAddress_;
+  int GalilEtherCatFault_;
+
   int GalilMotorConnected_;
   int GalilAfterLimit_;
   int GalilWrongLimitProtection_;

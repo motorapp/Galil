@@ -1205,6 +1205,30 @@ asynStatus GalilAxis::setClosedLoop(bool closedLoop)
   return status;
 }
 
+//Clear axis ethercat faults
+asynStatus GalilAxis::clearEtherCatFault()
+{
+   int status;			//Return status
+   int ecatcapable;		//Controller EtherCat capable
+   int ecatup;			//EtherCat network status
+   int ecatfault;		//EtherCat drive fault status
+
+   //Retrieve required parameters
+   pC_->getIntegerParam(pC_->GalilEtherCatCapable_, &ecatcapable);
+   pC_->getIntegerParam(pC_->GalilEtherCatNetwork_, &ecatup);
+   pC_->getIntegerParam(axisNo_, pC_->GalilEtherCatFault_, &ecatfault);
+
+   if (ecatcapable && ecatup && ecatfault)
+      {
+      //Controller is ethercat capable, network is up, and this axis has a fault
+      //Clear fault for this axis
+      sprintf(pC_->cmd_, "EK %d", (1 << axisNo_));
+      status = pC_->sync_writeReadController();
+      }
+
+   return (asynStatus)status;
+}
+
 /* These are the functions for profile moves */
 asynStatus GalilAxis::initializeProfile(size_t maxProfilePoints)
 {

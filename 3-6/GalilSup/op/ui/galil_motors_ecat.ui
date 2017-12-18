@@ -6,28 +6,34 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>459</width>
-    <height>619</height>
+    <width>400</width>
+    <height>231</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Motor extra settings</string>
+   <string>EtherCat</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="margin">
+    <number>0</number>
+   </property>
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>4</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
        <string>A</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_3">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
         <widget class="QEForm" name="qeform">
          <property name="uiFile" stdset="0">
-          <string>galil_motor_extras.ui</string>
+          <string>galil_motor_ecat.ui</string>
          </property>
          <property name="variableSubstitutions" stdset="0">
           <string>M=$(M1)</string>
@@ -40,11 +46,11 @@
       <attribute name="title">
        <string>B</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_2">
+      <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
         <widget class="QEForm" name="qeform_2">
          <property name="uiFile" stdset="0">
-          <string>galil_motor_extras.ui</string>
+          <string>galil_motor_ecat.ui</string>
          </property>
          <property name="variableSubstitutions" stdset="0">
           <string>M=$(M2)</string>
@@ -61,7 +67,7 @@
        <item>
         <widget class="QEForm" name="qeform_3">
          <property name="uiFile" stdset="0">
-          <string>galil_motor_extras.ui</string>
+          <string>galil_motor_ecat.ui</string>
          </property>
          <property name="variableSubstitutions" stdset="0">
           <string>M=$(M3)</string>
@@ -78,7 +84,7 @@
        <item>
         <widget class="QEForm" name="qeform_4">
          <property name="uiFile" stdset="0">
-          <string>galil_motor_extras.ui</string>
+          <string>galil_motor_ecat.ui</string>
          </property>
          <property name="variableSubstitutions" stdset="0">
           <string>M=$(M4)</string>
@@ -95,7 +101,7 @@
        <item>
         <widget class="QEForm" name="qeform_5">
          <property name="uiFile" stdset="0">
-          <string>galil_motor_extras.ui</string>
+          <string>galil_motor_ecat.ui</string>
          </property>
          <property name="variableSubstitutions" stdset="0">
           <string>M=$(M5)</string>
@@ -112,7 +118,7 @@
        <item>
         <widget class="QEForm" name="qeform_6">
          <property name="uiFile" stdset="0">
-          <string>galil_motor_extras.ui</string>
+          <string>galil_motor_ecat.ui</string>
          </property>
          <property name="variableSubstitutions" stdset="0">
           <string>M=$(M6)</string>
@@ -129,7 +135,7 @@
        <item>
         <widget class="QEForm" name="qeform_7">
          <property name="uiFile" stdset="0">
-          <string>galil_motor_extras.ui</string>
+          <string>galil_motor_ecat.ui</string>
          </property>
          <property name="variableSubstitutions" stdset="0">
           <string>M=$(M7)</string>
@@ -146,7 +152,7 @@
        <item>
         <widget class="QEForm" name="qeform_8">
          <property name="uiFile" stdset="0">
-          <string>galil_motor_extras.ui</string>
+          <string>galil_motor_ecat.ui</string>
          </property>
          <property name="variableSubstitutions" stdset="0">
           <string>M=$(M8)</string>
