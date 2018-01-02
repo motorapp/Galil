@@ -1,0 +1,8 @@
+#Which files need CRLF handling
+# Default is auto
+* text=auto
+
+# But we can help Git, because we now about some file extensions
+*.bat  text eol=crlf
+*.jpeg  -text
+*.pdf   -text
