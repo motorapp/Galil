@@ -300,6 +300,8 @@
 //                  Alter how BISS, and SSI capability detected again
 // 16/12/17 M.Clift
 //                  Add support for EtherCat axis
+// 16/01/17 M.Clift
+//                  Fix motor velocity issue in profile motion when using custom time base
 
 #include <stdio.h>
 #include <math.h>
@@ -619,6 +621,8 @@ GalilController::GalilController(const char *portName, const char *address, doub
   //Motor enables defaults
   digports_ = 0;
   digvalues_ = 0;
+  //Time multiplier default
+  timeMultiplier_ = 1.00;
   //Deferred moves off at start-up
   movesDeferred_ = false;
   //Store the controller number for later use
@@ -1827,7 +1831,7 @@ asynStatus GalilController::buildProfileFile()
 				{
 				//Calculate linear mode velocity
 				//Add this motors' contribution to segment vector velocity
-				vectorVelocity += pow(velocity[j], 2);
+				vectorVelocity += pow(velocity[j]/timeMultiplier_, 2);
 				}
 			//Store motor incremental move distance for this segment
 			sprintf(moves, "%s%.0lf", moves, rint(incmove));
@@ -1838,7 +1842,7 @@ asynStatus GalilController::buildProfileFile()
 		else
 			{
 			//PVT mode
-			sprintf(moves, "%s%lf %.0lf,%.0lf,%.0lf\n", moves, profileTimes_[i], rint(incmove), velocity[j], rint(profileTimes_[i]*1000.0));
+			sprintf(moves, "%s%lf %.0lf,%.0lf,%.0lf\n", moves, profileTimes_[i], rint(incmove), velocity[j], rint(profileTimes_[i]*1000.0*timeMultiplier_));
 			//Check timebase is multiple of 2ms
 			temp_time = profileTimes_[i] * 1000.0;
 			//PVT has 2 sample minimum
@@ -4205,6 +4209,14 @@ asynStatus GalilController::writeOctet(asynUser *pasynUser, const char*  value, 
         //ai monitor
         aivalue = atof(resp_);
         setDoubleParam(0, GalilUserOctetVal_, aivalue);
+        //Determine if custom command had potential to alter controller time base
+        if (value_s.find("TM ") != string::npos)
+           {
+           //Retrieve controller time base
+           sprintf(cmd_, "MG _TM");
+           if (sync_writeReadController() == asynSuccess)
+              timeMultiplier_ = DEFAULT_TIME / atof(resp_);
+           }
         }
      else
         {
