@@ -1112,10 +1112,43 @@ asynStatus GalilAxis::setEncoderRatio(double ratio)
   * \param[in] highLimit The new high limit position that should be set in the hardware. Units=steps.*/
 asynStatus GalilAxis::setHighLimit(double highLimit)
 {
+  char mesg[MAX_GALIL_STRING_SIZE];	//Controller mesg
+
   //this gets called at init for every mR
+  if (highLimit < -2147483648.0)
+     {
+     //Specified high limit too low
+     highLimit = -2147483648.0;
+     sprintf(mesg, "%c limiting high soft limit to min of -2147483648 cts", axisName_);
+     pC_->setCtrlError(mesg);
+     }
+  if (highLimit > 2147483646.0)
+     {
+     //Specified high limit too large
+     highLimit = 2147483646.0;
+     sprintf(mesg, "%c limiting high soft limit to max of 2147483646 cts", axisName_);
+     pC_->setCtrlError(mesg);
+     }
+
   //Assemble Galil Set High Limit, forward limit in Galil language
-  highLimit_ = (highLimit > 2147483647.0) ? 2147483647.0 : highLimit; 
-  sprintf(pC_->cmd_, "FL%c=%lf", axisName_, highLimit_);
+  highLimit_ = highLimit;
+  if (highLimit_ == 0.0 && lowLimit_ == 0.0)
+     {
+     //Construct command, and mesg
+     sprintf(pC_->cmd_, "FL%c=%lf;BL%c=%lf", axisName_, 2147483647.0, axisName_, -2147483648.0);
+     sprintf(mesg, "%c soft limits disabled", axisName_);
+     }
+  else
+     {
+     //Construct command, and mesg
+     sprintf(pC_->cmd_, "FL%c=%lf;BL%c=%lf", axisName_, highLimit_, axisName_, lowLimit_);
+     strcpy(mesg, "");
+     }
+
+  //Write mesg
+  pC_->setCtrlError(mesg);
+
+  //Write command to controller
   pC_->sync_writeReadController();
 
   //Always return success. Dont need more error mesgs
@@ -1126,10 +1159,44 @@ asynStatus GalilAxis::setHighLimit(double highLimit)
   * \param[in] lowLimit The new low limit position that should be set in the hardware. Units=steps.*/
 asynStatus GalilAxis::setLowLimit(double lowLimit)
 {
+  char mesg[MAX_GALIL_STRING_SIZE];	//Controller mesg
+
   //this gets called at init for every mR
-  //Assemble Galil Set High Limit, forward limit in Galil language
-  lowLimit_ = (lowLimit < -2147483648.0) ? -2147483648.0 : lowLimit;
-  sprintf(pC_->cmd_, "BL%c=%lf", axisName_, lowLimit_);
+  if (lowLimit > 2147483647.0)
+     {
+     //Specified low limit too high
+     lowLimit = 2147483647.0;
+     sprintf(mesg, "%c limiting low soft limit to max of 2147483647 cts", axisName_);
+     pC_->setCtrlError(mesg);
+     }
+  if (lowLimit < -2147483647.0)
+     {
+     //Specified low limit too low
+     lowLimit = -2147483647.0;
+     sprintf(mesg, "%c limiting low soft limit to min of -2147483647 cts", axisName_);
+     pC_->setCtrlError(mesg);
+     }
+
+  //Assemble Galil Set low Limit, reverse limit in Galil language
+  lowLimit_ = lowLimit;
+  if (highLimit_ == 0.0 && lowLimit_ == 0.0)
+     {
+     //Disable soft limits
+     //Construct command, and mesg
+     sprintf(pC_->cmd_, "FL%c=%lf;BL%c=%lf", axisName_, 2147483647.0, axisName_, -2147483648.0);
+     sprintf(mesg, "%c soft limits disabled", axisName_);
+     }
+  else
+     {
+     //Construct command, and mesg
+     sprintf(pC_->cmd_, "FL%c=%lf;BL%c=%lf", axisName_, highLimit_, axisName_, lowLimit_);
+     strcpy(mesg, "");
+     }
+
+  //Write mesg
+  pC_->setCtrlError(mesg);
+
+  //Write command to controller
   pC_->sync_writeReadController();
 
   //Always return success. Dont need more error mesgs

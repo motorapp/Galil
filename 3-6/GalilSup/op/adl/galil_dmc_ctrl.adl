@@ -452,8 +452,8 @@ menu {
 }
 "text update" {
 	object {
-		x=11
-		y=617
+		x=12
+		y=631
 		width=395
 		height=13
 	}
@@ -675,7 +675,7 @@ text {
 text {
 	object {
 		x=5
-		y=616
+		y=612
 		width=65
 		height=13
 	}

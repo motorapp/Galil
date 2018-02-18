@@ -300,8 +300,10 @@
 //                  Alter how BISS, and SSI capability detected again
 // 16/12/17 M.Clift
 //                  Add support for EtherCat axis
-// 16/01/17 M.Clift
+// 16/01/18 M.Clift
 //                  Fix motor velocity issue in profile motion when using custom time base
+// 18/02/18 M.Clift
+//                  Alter soft limits.  Dial high = Dial low = 0 now disables axis soft limits
 
 #include <stdio.h>
 #include <math.h>
