@@ -12,22 +12,23 @@ E) Output TTL pulses for closed-loop motor distance (eg. detector trigger)
 F) Time based profile motion (Linear and PVT Trajectories)   
 G) Coordinate system axes (eg. Slit width)   
 H) Kinematics adjustable via database puts     
-I) Deferred moves facility   
-J) True coordinated motion for up to 8 motors   
-K) Auto motor power On/Off with adjustable delays  
-L) Auto motor brake On/Off with adjustable delays   
-M) Sophisticated Galil code generator, no need to program low level   
-N) Ability to construct low level code from templates  
-O) Accepts custom code files   
-P) User definable control/monitor functions with full record support   
-Q) Sophisticated connection management    
-R) Fast update rates 2ms   
-S) Example MEDM screens     
-T) Example Qt/EPICS QE framework screens   
-U) Example IOC  
-V) Autosave request files   
-W) RIO PLC supported   
-X) Intended to replace Galil EPICS 1-5 driver  
+I) Motor record backlash, retries supported across entire coordinate system
+J) Deferred moves facility   
+K) True coordinated motion for up to 8 motors   
+L) Auto motor power On/Off with adjustable delays  
+M) Auto motor brake On/Off with adjustable delays   
+N) Sophisticated Galil code generator, no need to program low level   
+O) Ability to construct low level code from templates  
+P) Accepts custom code files   
+Q) User definable control/monitor functions with full record support   
+R) Sophisticated connection management    
+S) Fast update rates 2ms   
+T) Example MEDM screens     
+U) Example Qt/EPICS QE framework screens   
+V) Example IOC  
+W) Autosave request files   
+X) RIO PLC supported   
+Y) Intended to replace Galil EPICS 1-5 driver  
 
 Older versions can be found here:   
 
