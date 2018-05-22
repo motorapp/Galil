@@ -12,7 +12,7 @@ E) Output TTL pulses for closed-loop motor distance (eg. detector trigger)
 F) Time based profile motion (Linear and PVT Trajectories)   
 G) Coordinate system axes (eg. Slit width)   
 H) Kinematics adjustable via database puts     
-I) Motor record backlash, retries supported across entire coordinate system
+I) Motor record backlash, retries supported across entire coordinate system   
 J) Deferred moves facility   
 K) True coordinated motion for up to 8 motors   
 L) Auto motor power On/Off with adjustable delays  
