@@ -1053,18 +1053,15 @@ asynStatus GalilAxis::setPosition(double position)
 	sprintf(pC_->cmd_, "DE%c=%.0lf", axisName_, position);  //Servo motor, use aux register for step count
   else
 	sprintf(pC_->cmd_, "DP%c=%.0lf", axisName_, position);  //Stepper motor, aux register for step count
+  //Set step count/aux encoder position on controller
   pC_->sync_writeReadController();
+  //Set step count/aux encoder position in GalilAxis
+  motor_position_ = position;
+  //Pass step count/aux encoder value to motorRecord
+  setDoubleParam(pC_->motorPosition_, motor_position_);
   
   //Set encoder position
   setEncoderPosition(enc_pos);
-
-  //To compensate for a problem in devMotorAsyn.c upto motorR6-9
-  //Give poller time to update motor record with new readback data
-  //This allows motor record to set correct val for restored position at startup
-  //Release lock so synchronous poller is not blocked
-  pC_->unlock();
-  epicsThreadSleep(pC_->updatePeriod_*2.0/1000.0);
-  pC_->lock();
 
   //Always return success. Dont need more error mesgs
   return asynSuccess;
@@ -1088,8 +1085,12 @@ asynStatus GalilAxis::setEncoderPosition(double position)
   	sprintf(pC_->cmd_, "DP%c=%.0lf", axisName_, position);   //Servo motor, encoder is main register
   else
 	sprintf(pC_->cmd_, "DE%c=%.0lf", axisName_, position);   //Stepper motor, encoder is main register
-
+  //Set encoder count on controller
   status = pC_->sync_writeReadController();
+  //Set encoder counts in GalilAxis
+  encoder_position_ = position;
+  //Pass encoder value to motorRecord
+  setDoubleParam(pC_->motorEncoderPosition_, encoder_position_);
 
   return status;
 }
@@ -1101,7 +1102,7 @@ asynStatus GalilAxis::setEncoderRatio(double ratio)
   //setEncoder is called during IocInit/Autosave for position restore, and when user changes 
   //eres, mres, ueip or position is changed
   //Store the ratio in GalilAxis instance
-  //Motor settings must be autsave/restored in pass 0, to ensure ratio is set properly by devMotorAsyn.c init_controller
+  //Motor settings must be autosave/restored in pass 0, to ensure ratio is set properly by devMotorAsyn.c init_controller
   encmratio_ = ratio;
   encmratioset_ = true;
 

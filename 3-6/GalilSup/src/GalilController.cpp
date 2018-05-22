@@ -304,6 +304,8 @@
 //                  Fix motor velocity issue in profile motion when using custom time base
 // 18/02/18 M.Clift
 //                  Alter soft limits.  Dial high = Dial low = 0 now disables axis soft limits
+// 22/05/18 M.Clift
+//                  Fix DVAL set zero at autosave restore when controller not connected
 
 #include <stdio.h>
 #include <math.h>
