@@ -11,8 +11,8 @@ D) Analog and Digital IO
 E) Output TTL pulses for closed-loop motor distance (eg. detector trigger)   
 F) Time based profile motion (Linear and PVT Trajectories)   
 G) Coordinate system axes (eg. Slit width, undulator taper)   
-H) Motor record backlash, retries supported across coordinate system axes   
-I) Accurate limit support for coordinate system axes   
+H) Motor record backlash, and retries support for coordinate system axes   
+I) Accurate limit reporting for coordinate system axes   
 J) Kinematics adjustable via database puts   
 K) Deferred moves facility   
 L) True coordinated motion for up to 8 motors   
