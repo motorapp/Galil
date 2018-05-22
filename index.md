@@ -21,7 +21,7 @@ N) Auto motor brake On/Off with adjustable delays
 O) Sophisticated Galil code generator, no need to program low level   
 P) Ability to construct low level code from templates  
 Q) Accepts custom code files   
-R) User definable control/monitor functions with full record support
+R) User definable control/monitor functions with full record support    
 S) Intr IO support for user defined records   
 T) Sophisticated connection management    
 U) Fast update rates 2ms   
