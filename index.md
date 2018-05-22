@@ -8,7 +8,7 @@ A) Asyn model 3 architecture
 B) Motor record support  
 C) Motor record PREM/POST function is supported   
 D) Analog and Digital IO  
-E) Output TTL pulses for closed-loop motor delta distance  (ie. output compare)   
+E) Output TTL pulses for closed-loop motor distance (eg. detector trigger)   
 F) Time based profile motion (Linear and PVT Trajectories)   
 G) Coordinate system axes (eg. Slit width)   
 H) Kinematics adjustable via database puts     
