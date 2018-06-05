@@ -2468,6 +2468,7 @@ void GalilAxis::set_ssi_connectflag(void)
     int ssitotalbits, ssierrbits;	//SSI parameters
     int ssidataform;
     int i;
+    bool even;						//Total number of bits odd or even
 
     //Retrieve SSI parameters required
     pC_->getIntegerParam(pC_->GalilSSICapable_, &ssicapable);
@@ -2482,10 +2483,23 @@ void GalilAxis::set_ssi_connectflag(void)
        if (ssidataform == 1)
           {
           //First we do gray code encoders
+          //Determine whether total number of bits is odd or even
+          even = (ssitotalbits % 2) ? false : true;
+          //Calculate disconnect value for gray code encoders
           for (i = 0; i < (ssitotalbits - ssierrbits); i++)
              {
-             if (i % 2)
-                disconnect_valtmp |= (long) 1 << i;
+             if (even)
+                {
+                //Even number of total bits
+                if ((i % 2))
+                   disconnect_valtmp |= (long) 1 << i;
+                }
+             else
+                {
+                //Odd number of total bits
+                if (!(i % 2))
+                   disconnect_valtmp |= (long) 1 << i;
+                }
              }
           if (!(invert_ssi_))
              disconnect_val = (double)disconnect_valtmp;

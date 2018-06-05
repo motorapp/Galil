@@ -306,6 +306,8 @@
 //                  Alter soft limits.  Dial high = Dial low = 0 now disables axis soft limits
 // 22/05/18 M.Clift
 //                  Fix DVAL set zero at autosave restore when controller not connected
+// 05/06/18 M.Clift
+//                  Fix issue detecting gray code SSI encoder connect/disconnect status
 
 #include <stdio.h>
 #include <math.h>
