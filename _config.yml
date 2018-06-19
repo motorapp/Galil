@@ -4,5 +4,9 @@ google_analytics: UA-62620602-1
 show_downloads: true
 theme: jekyll-theme-slate
 
+github:
+  zip_url: https://example.com/foo.zip
+  tar_url: https://example.com/foo.tar.gz
+
 gems:
   - jekyll-mentions
