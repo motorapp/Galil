@@ -5,8 +5,8 @@ show_downloads: true
 theme: jekyll-theme-slate
 
 github:
-  zip_url: https://example.com/foo.zip
-  tar_url: https://example.com/foo.tar.gz
-
+  zip_url: https://github.com/motorapp/Galil-3-0/archive/V3-6.zip
+  tar_url: https://github.com/motorapp/Galil-3-0/archive/V3-6.tar.gz
+  
 gems:
   - jekyll-mentions
