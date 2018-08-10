@@ -9,7 +9,7 @@ B) Motor record support
 C) Motor record PREM/POST function is supported   
 D) Analog and Digital IO  
 E) Output TTL pulses for closed-loop motor distance (eg. detector trigger)   
-F) Time based profile motion for real and coordinate axes (Linear and PVT Trajectories)   
+F) Time based profile motion for real and coordinate system axes (Linear and PVT Trajectories)   
 G) Coordinate system axes (eg. Slit width, undulator taper, DCM energy)   
 H) Motor record backlash, and retry support for coordinate system axes   
 I) Accurate limit reporting for coordinate system axes   
