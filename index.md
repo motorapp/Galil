@@ -9,13 +9,13 @@ B) Motor record support
 C) Motor record PREM/POST function is supported   
 D) Analog and Digital IO  
 E) Output TTL pulses for closed-loop motor distance (eg. detector trigger)   
-F) Time based profile motion (Linear and PVT Trajectories)   
-G) Coordinate system axes (eg. Slit width, undulator taper)   
+F) Time based profile motion for real and coordinate axis (Linear and PVT Trajectories)   
+G) Coordinate system axes (eg. Slit width, undulator taper, DCM energy)   
 H) Motor record backlash, and retry support for coordinate system axes   
 I) Accurate limit reporting for coordinate system axes   
 J) Kinematics adjustable via database puts   
 K) Deferred moves facility   
-L) True coordinated motion for up to 8 motors   
+L) True coordinated motion for up to 8 motors (Motors can be synchronized to within .2ms)   
 M) Auto motor power On/Off with adjustable delays  
 N) Auto motor brake On/Off with adjustable delays   
 O) Sophisticated Galil code generator, no need to program low level   
