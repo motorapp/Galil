@@ -116,7 +116,7 @@
 //                  Consolidation and tidy up
 //                  Further minor adjustments to Qt and MEDM screens
 //                  Minor adjustments to begin motion methods
-// 28/02/10 M.Clift 
+// 28/02/16 M.Clift 
 //                  Fixed problem in vector calculations
 //                  Fixed problem with motor interlock function
 // 08/03/16 M.Clift
@@ -300,14 +300,16 @@
 //                  Alter how BISS, and SSI capability detected again
 // 16/12/17 M.Clift
 //                  Add support for EtherCat axis
-// 16/01/18 M.Clift
+// 16/01/18 M.Clift & R. Sluiter
 //                  Fix motor velocity issue in profile motion when using custom time base
-// 18/02/18 M.Clift
+// 18/02/18 M.Clift & M. Pearson
 //                  Alter soft limits.  Dial high = Dial low = 0 now disables axis soft limits
-// 22/05/18 M.Clift
+// 22/05/18 M.Clift & M. Pearson
 //                  Fix DVAL set zero at autosave restore when controller not connected
 // 05/06/18 M.Clift
 //                  Fix issue detecting gray code SSI encoder connect/disconnect status
+// 04/12/18 M.Clift & M. Pearson
+//                  Alter home routine now takes limit disable setting into account
 
 #include <stdio.h>
 #include <math.h>
@@ -5335,6 +5337,9 @@ int GalilController::GalilInitializeVariables(bool burn_variables)
          //Initialize home switch inactive value
          sprintf(cmd_, "hswiact%c=1", axisList_[i]);
          status |= sync_writeReadController();
+         //Initialize home jog speed
+         sprintf(cmd_, "hjs%c=2048", axisList_[i]);
+         status |= sync_writeReadController();
          //Initialise home jogoff variable
          sprintf(cmd_, "hjog%c=0", axisList_[i]);
          status |= sync_writeReadController();
@@ -5712,7 +5717,7 @@ void GalilController::gen_motor_enables_code(void)
 		if (strlen(motor_enables->motors) > 0)
 			{
 			any = true;
-			sprintf(digital_code_,"%sIF (@IN[%d]=%d)\n", digital_code_, (i + 1), (int)motor_enables->disablestates[0]);
+			sprintf(digital_code_,"%sIF(@IN[%d]=%d)\n", digital_code_, (i + 1), (int)motor_enables->disablestates[0]);
 			//Scan through all motors associated with the port
 			for (j=0;j<(int)strlen(motor_enables->motors);j++)
 				{

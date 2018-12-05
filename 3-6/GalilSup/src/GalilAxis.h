@@ -119,6 +119,8 @@ public:
 		       char axis_dighome_code[]);
 
   //Generate axis home routine
+  void gen_EnsureOkToMove(char c, char axis_thread_code[]);
+  //Generate axis home routine
   void gen_homecode(char c, char axis_thread_code[]);
   //Is the motor in an enabled/go state with current digital IO status
   bool motor_enabled(void);
