@@ -301,24 +301,11 @@ void GalilAxis::initialize_codegen(char axis_thread_code[],
 	//Program label for digital input interrupt program
 	char axis_digital_label[10]="#ININT\n";
 	
-	//Does codegen need initialization for this controller ?
-	if (pC_->codegen_init_ == false)	
-		{
-		//setup #AUTO label
-		strcpy(pC_->card_code_,"#AUTO\n");
-		
-		//setup #LIMSWI label	 
-		strcpy(pC_->limit_code_,"#LIMSWI\n");
-
-		//Code generator has now been initialized
-		pC_->codegen_init_ = true;
-		}
-	
 	/*Empty code buffers for this axis*/
 	strcpy(axis_thread_code, "");
 	strcpy(axis_limit_code, "");
 		
-	//Insert code to start motor thread that will be constucted
+	//Insert code to start motor thread that will be constructed
 	//thread 0 (motor A) is auto starting
 	if (axisName_ != 'A')
 		sprintf(pC_->card_code_,"%sXQ #THREAD%c,%d\n",pC_->card_code_, axisName_, axisNo_);
@@ -787,9 +774,9 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
   if (limit_as_home_ && pC_->model_[3] != '2' && strcmp(mesg, "") == 0)
      {
      if (useSwitch && forwards && (limitDisable == 1 || limitDisable ==3))
-        sprintf(mesg, "%c motor can't home to fwd limit as fwd limit is disabled", axisName_);
-     if (useSwitch && forwards && limitDisable > 1)
-        sprintf(mesg, "%c motor can't home to rev limit as rev limit is disabled", axisName_);
+        sprintf(mesg, "%c axis can't home to fwd limit as fwd limit is disabled", axisName_);
+     if (useSwitch && !forwards && limitDisable > 1)
+        sprintf(mesg, "%c axis can't home to rev limit as rev limit is disabled", axisName_);
      }
 
   //If problem with settings, do nothing

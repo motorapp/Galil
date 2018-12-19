@@ -310,6 +310,8 @@
 //                  Fix issue detecting gray code SSI encoder connect/disconnect status
 // 04/12/18 M.Clift & M. Pearson
 //                  Alter home routine now takes limit disable setting into account
+// 19/12/18 M.Clift & M. Pearson
+//                  Add iocShell function GalilAddCode - Adds custom code to generated code
 
 #include <stdio.h>
 #include <math.h>
@@ -322,6 +324,7 @@
 #include <unistd.h>
 #endif /* _WIN32 */
 #include <iostream>  //cout
+#include <fstream>   //ifstream
 #include <sstream>   //ostringstream istringstream
 #include <typeinfo>  //std::bad_typeid
 #include <sstream> //format source keys, string stream
@@ -623,8 +626,7 @@ GalilController::GalilController(const char *portName, const char *address, doub
      setCtrlError(mesg);
      updatePeriod_ = MAX_UPDATE_PERIOD;
      }
-  //Code generator has not been initialized
-  codegen_init_ = false;	
+  //Digital in code generator has not been initialized
   digitalinput_init_ = false;
   //Motor enables defaults
   digports_ = 0;
@@ -635,9 +637,9 @@ GalilController::GalilController(const char *portName, const char *address, doub
   movesDeferred_ = false;
   //Store the controller number for later use
   controller_number_ = controller_num;
-  //Allocate memory for code buffers.  
+  //Allocate memory for code buffers.
   //We put all code for this controller in these buffers.
-  thread_code_ = (char *)calloc(MAX_GALIL_AXES * (THREAD_CODE_LEN),sizeof(char));	
+  thread_code_ = (char *)calloc(MAX_GALIL_AXES * (THREAD_CODE_LEN),sizeof(char));
   limit_code_ = (char *)calloc(MAX_GALIL_AXES * (LIMIT_CODE_LEN),sizeof(char));
   digital_code_ = (char *)calloc(MAX_GALIL_AXES * (INP_CODE_LEN),sizeof(char));
   card_code_ = (char *)calloc(MAX_GALIL_AXES * (THREAD_CODE_LEN+LIMIT_CODE_LEN+INP_CODE_LEN),sizeof(char));
@@ -647,7 +649,7 @@ GalilController::GalilController(const char *portName, const char *address, doub
   strcpy(limit_code_, "");
   strcpy(digital_code_, "");
   strcpy(card_code_, "");
- 
+
   //Set defaults in Paramlist before connect
   setParamDefaults();
 
@@ -698,6 +700,9 @@ GalilController::GalilController(const char *portName, const char *address, doub
 
   //Establish the initial connection to controller
   connect();
+
+  //Add code headers to generated galil code
+  gen_code_headers();
 
   //Static count of controllers.  Used to derive communications port names
   controller_num++;
@@ -5386,6 +5391,74 @@ int GalilController::GalilInitializeVariables(bool burn_variables)
    return status;
 }
 
+/** \param[in] string file - code file specified by user
+  * \param[in] section     - code section to put user code
+                           0 = Card code
+                           1 = Thread code
+                           2 = Limits code
+                           3 = Digital code
+                           */
+void GalilController::GalilAddCode(int section, string filename) {
+   char *code;			   		//Pointer to desired code section
+   char js[MAX_GALIL_STRING_SIZE];		//Thread code jump statement
+   bool jsfound = false;			//Flag indicating if jump statement found in thread code
+   string line;					//Read the file line by line
+   string mesg;					//Error messages
+   ifstream file(filename);			//Input file stream
+   int index;
+
+   if (section == 3 && !digitalinput_init_) {
+      mesg = "Cannot add custom code to digital section, as digital code section is not defined";
+      setCtrlError(mesg.c_str());
+      return;
+   }
+
+   // Point toward specified code section
+   switch (section) {
+      case 0 : code = card_code_;
+               break;
+      case 1 : //Check for jump statement in existing thread_code_
+               index = strlen(thread_code_) - 12;
+               strcpy(js, &thread_code_[index]);
+               if (!strncmp(js, "JP #THREAD", 10)) {
+                  // Jump statement found.  Set flag, remove jump statement from thread_code
+                  // We will put jump statement back in thread code again at end
+                  jsfound = true;
+                  if (index > 0)
+                     thread_code_[index] = '\0';
+               }
+               code = thread_code_;
+               break;
+      case 2 : code = limit_code_;
+               break;
+      case 3 : code = digital_code_;
+               break;
+      default : code = thread_code_;
+                break;
+   }
+
+  if (file.is_open()) {
+     // Read provided file, add to specified code buffer
+     while (getline(file, line)) {
+        if (line.compare("\n") != 0) {
+           // Put the new line character back
+           line = line + '\n';
+           strcat(code, line.c_str());
+        }
+     }
+     // Put jump statement back into thread code
+     if (jsfound)
+        strcat(thread_code_, js);
+     // Done reading, close the file
+     file.close();
+  }
+  else {
+     // Can't open provided file
+     mesg = "Cannot open " + filename;
+     setCtrlError(mesg.c_str());
+  }
+}
+
 /*--------------------------------------------------------------*/
 /* Start the card requested by user   */
 /*--------------------------------------------------------------*/
@@ -5642,6 +5715,18 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
       }
 }
 
+/* Generate code headers that are always required for a dmc
+   Required headers are for card, and limit code
+   We dont add header for digital code (ie #ININT) as we dont know if it's required yet
+   */
+void GalilController::gen_code_headers(void)
+{
+   //setup #AUTO label
+   strcpy(card_code_, "#AUTO\n");	
+   //setup #LIMSWI label	 
+   strcpy(limit_code_, "#LIMSWI\n");
+}
+
 /*--------------------------------------------------------------------------------*/
 /* Generate code end, and controller wide code eg. error recovery*/
 
@@ -5682,7 +5767,7 @@ void GalilController::gen_card_codeend(void)
          }
       else  //Limit code has been written, and we are done with LIMSWI and its prog end
          strcat(limit_code_, "RE 1\nEN\n");
-					
+
       //Add command error handler
       sprintf(thread_code_, "%s#CMDERR\nerrstr=_ED;errcde=_TC;cmderr=cmderr+1\nEN\n", thread_code_);
 
@@ -6882,6 +6967,37 @@ extern "C" asynStatus GalilCreateCSAxes(const char *portName)
   return asynSuccess;
 }
 
+/** Add custom code to generated code
+  * Configuration command, called directly or from iocsh
+  * \param[in] portName          The name of the asyn port that has already been created for this driver
+  * \param[in] code_file      	 Code file to add to generated code
+  * \param[in] section      	 Where to add custom code
+  */
+extern "C" asynStatus GalilAddCode(const char *portName,        	//specify which controller by port name
+					int section,
+					const char *code_file)
+{
+  GalilController *pC;
+  static const char *functionName = "GalilAddCode";
+
+  //Convert provided code file into string
+  string filename(code_file);
+
+  //Retrieve the asynPort specified
+  pC = (GalilController*) findAsynPortDriver(portName);
+
+  if (!pC) {
+    printf("%s:%s: Error port %s not found\n",
+           driverName, functionName, portName);
+    return asynError;
+  }
+  pC->lock();
+  //Call GalilController::GalilAddCode to do the work
+  pC->GalilAddCode(section, filename);
+  pC->unlock();
+  return asynSuccess;
+}
+
 /** Starts a GalilController hardware.  Delivers dmc code, and starts it.
   * Configuration command, called directly or from iocsh
   * \param[in] portName          The name of the asyn port that has already been created for this driver
@@ -6992,6 +7108,21 @@ static void GalilCreateProfileCallFunc(const iocshArgBuf *args)
   GalilCreateProfile(args[0].sval, args[1].ival);
 }
 
+//GalilAddCode iocsh function
+static const iocshArg GalilAddCodeArg0 = {"Controller Port name", iocshArgString};
+static const iocshArg GalilAddCodeArg1 = {"Section", iocshArgInt};
+static const iocshArg GalilAddCodeArg2 = {"Code file", iocshArgString};
+static const iocshArg * const GalilAddCodeArgs[] = {&GalilAddCodeArg0,
+                                                    &GalilAddCodeArg1,
+                                                    &GalilAddCodeArg2};
+                                                             
+static const iocshFuncDef GalilAddCodeDef = {"GalilAddCode", 3, GalilAddCodeArgs};
+
+static void GalilAddCodeCallFunc(const iocshArgBuf *args)
+{
+  GalilAddCode(args[0].sval, args[1].ival, args[2].sval);
+}
+
 //GalilStartController iocsh function
 static const iocshArg GalilStartControllerArg0 = {"Controller Port name", iocshArgString};
 static const iocshArg GalilStartControllerArg1 = {"Code file", iocshArgString};
@@ -7016,6 +7147,7 @@ static void GalilSupportRegister(void)
   iocshRegister(&GalilCreateAxisDef, GalilCreateAxisCallFunc);
   iocshRegister(&GalilCreateCSAxesDef, GalilCreateCSAxesCallFunc);
   iocshRegister(&GalilCreateProfileDef, GalilCreateProfileCallFunc);
+  iocshRegister(&GalilAddCodeDef, GalilAddCodeCallFunc);
   iocshRegister(&GalilStartControllerDef, GalilStartControllerCallFunc);
 }
 

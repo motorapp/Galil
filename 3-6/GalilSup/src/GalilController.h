@@ -316,6 +316,7 @@ public:
   /* These are the methods that are new to this class */
   asynStatus poller(void);
   int GalilInitializeVariables(bool burn_variables);
+  void GalilAddCode(int section, string filename);
   void GalilStartController(char *code_file, int eeprom_write, int thread_mask);
   void connect(void);
   void disconnect(void);
@@ -324,6 +325,7 @@ public:
   asynStatus readDataRecord(char *input, unsigned bytesize);
   void getStatus(void);
   void setParamDefaults(void);
+  void gen_code_headers();
   void gen_card_codeend(void);
   void gen_motor_enables_code(void);
   void write_gen_codefile(const char* suffix);

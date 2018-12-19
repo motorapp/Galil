@@ -67,6 +67,13 @@ GalilCreateAxis("Galil","F",1,"",1)
 GalilCreateAxis("Galil","G",1,"",1)
 GalilCreateAxis("Galil","H",1,"",1)
 
+# GalilAddCode command parameters are:
+#
+# 1. char *portName Asyn port for controller
+# 2. int section = code section to add custom code into 0 = card code, 1 = thread code, 2 = limits code, 3 = digital code
+# 3. char *code_file
+#GalilAddCode("Galil", 1, "custom.dmc")
+
 # GalilCreateCSAxes command parameters are:
 #
 # 1. char *portName Asyn port for controller
