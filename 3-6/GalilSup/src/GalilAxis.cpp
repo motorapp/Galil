@@ -420,7 +420,7 @@ void GalilAxis::gen_homecode(char c,			//GalilAxis::axisName_ used very often
    if (pC_->model_[3] == '2')// Model 21x3 does not have LD (limit disable) command
       sprintf(axis_thread_code,"%sIF((_LR%c=1)&(_LF%c=1)&(hjog%c=3)&(_BG%c=0))\n",axis_thread_code,c,c,c,c);
    else
-      sprintf(axis_thread_code,"%sIF(((_LR%c=1)|(_LD%c>1))|(((_LF%c=1)|(_LD%c=1)|(_LD%c=3))&(hjog%c=3)&(_BG%c=0)))\n", axis_thread_code,c,c,c,c,c,c,c);
+      sprintf(axis_thread_code,"%sIF((((_LR%c=1)|(_LD%c>1))|((_LF%c=1)|(_LD%c=1)|(_LD%c=3)))&(hjog%c=3)&(_BG%c=0))\n", axis_thread_code,c,c,c,c,c,c,c);
    //Flag homing complete, and send unsolicited messages to epics informing of homed status
    sprintf(axis_thread_code,"%sWT10;hjog%c=0;home%c=0;homed%c=1;MG \"homed%c\",homed%c;ENDIF;ENDIF\n", axis_thread_code,c,c,c,c,c);
   
@@ -1796,12 +1796,17 @@ void GalilAxis::setStopTime(void)
 //Cancel home if either true
 void GalilAxis::checkHoming(void)
 {
+   bool softlimits;
    char message[MAX_GALIL_STRING_SIZE];
+
+   //Determine if soft limits are active
+   softlimits = (bool)(lowLimit_ == highLimit_ && lowLimit_ == 0.0) ? false : true;
+
    //Is controller using main or auxillary encoder register for positioning
    double readback = (ctrlUseMain_) ? encoder_position_ : motor_position_;
 
    if ((homing_ && (stoppedTime_ >= HOMING_TIMEOUT) && !cancelHomeSent_) ||
-       ((readback > highLimit_ || readback < lowLimit_) && homing_ && !cancelHomeSent_ && done_))
+       (((readback > highLimit_ && softlimits) || (readback < lowLimit_ && softlimits)) && homing_ && !cancelHomeSent_ && done_))
       {
       //Cancel home
       pollRequest_.send((void*)&MOTOR_CANCEL_HOME, sizeof(int));
@@ -1904,6 +1909,8 @@ void GalilAxis::pollServices(void)
                          //Program home registers
                          if (!status)
                             {
+                            //Slight delay before setting position registers
+                            epicsThreadSleep(.1);
                             //Position registers always set to 0 in dial coordinates
                             //Use OFF to give correct user position
                             //Program motor position register

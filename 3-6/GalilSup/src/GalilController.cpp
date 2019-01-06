@@ -312,6 +312,11 @@
 //                  Alter home routine now takes limit disable setting into account
 // 19/12/18 M.Clift & M. Pearson
 //                  Add iocShell function GalilAddCode - Adds custom code to generated code
+// 20/12/18 M.Clift
+//                  Fix issue initialising galil variables for rio plc's
+// 06/01/19 M.Clift
+//                  Alter homing check to cater for disabled soft limits
+//                  Fix issue with generated home routine on 4000 series controllers and above
 
 #include <stdio.h>
 #include <math.h>
@@ -5258,9 +5263,6 @@ int GalilController::GalilInitializeVariables(bool burn_variables)
    unsigned i;			//General purpose looping
    GalilAxis *pAxis;		//GalilAxis
 
-   if (rio_) //This is a no-op for RIO
-      return asynSuccess;
-
    //Controller wide variables
    //Set tcperr counter to 0
    sprintf(cmd_, "tcperr=0");
@@ -5271,17 +5273,19 @@ int GalilController::GalilInitializeVariables(bool burn_variables)
    status |= sync_writeReadController();
 
    //Activate input interrupts for motor interlock function
-   if (digitalinput_init_ && digports_)
-      sprintf(cmd_, "dpon=%d;dvalues=%d;mlock=1", digports_, digvalues_);
-   else
-      sprintf(cmd_, "dpon=%d;dvalues=%d;mlock=0", digports_, digvalues_);
-   sync_writeReadController();
+   if (!rio_) {
+      if (digitalinput_init_ && digports_)
+         sprintf(cmd_, "dpon=%d;dvalues=%d;mlock=1", digports_, digvalues_);
+      else
+         sprintf(cmd_, "dpon=%d;dvalues=%d;mlock=0", digports_, digvalues_);
+      sync_writeReadController();
+   }
 
    //Before burning variables backup the commutation initialized, and homed status flags
    //Then set status flags to 0 ready for burn to eeprom
    //Done so commutation initialized and homed status is always 0 at controller power on
    //Finally set axis variables
-   if (numAxes_ > 0 && !status)
+   if (numAxes_ > 0 && !status && !rio_)
       {
       for (i = 0;i < numAxes_;i++)
          {
@@ -5371,7 +5375,7 @@ int GalilController::GalilInitializeVariables(bool burn_variables)
       }
 
    //Restore previous homed, and commutation initialized status
-   if (numAxes_ > 0)
+   if (numAxes_ > 0 && !rio_)
       {
       for (i = 0;i < numAxes_;i++)
          {
