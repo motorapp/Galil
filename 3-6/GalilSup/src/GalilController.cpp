@@ -317,6 +317,9 @@
 // 06/01/19 M.Clift
 //                  Alter homing check to cater for disabled soft limits
 //                  Fix issue with generated home routine on 4000 series controllers and above
+// 30/01/19 M.Clift
+//                  Fix jog after home going the wrong way with DIR set to 1 (neg)
+//                  Alter output compare start and increment/delta now specified in user coordinates
 
 #include <stdio.h>
 #include <math.h>
@@ -367,7 +370,7 @@ static void GalilArrayUploadThreadC(void *pPvt);
 //This change in behaviour is anticipated by the asyn record device layer and causes no error mesgs
 static bool dbInitialized = false;
 
-//Static count of Musst controllers.  Used to derive communications port name L(controller num)
+//Static count of Galil controllers.  Used to derive communications port name L(controller num)
 static int controller_num = 0;
 
 //Convenience functions
@@ -1396,6 +1399,8 @@ asynStatus GalilController::setOutputCompare(int oc)
   int start, end;			//Looping
   double ocstart;			//Output compare start position from paramList
   double ocincr;			//Output compare incremental distance for repeat pulses from paramList
+  int dir, dirm = 1;			//Motor record dir, and dirm direction multiplier based on motor record DIR field
+  double off;				//Motor record offset
   double eres;	        		//mr eres
   int mainencoder, auxencoder;		//Main and aux encoder setting
   int encoder_setting;			//Overall encoder setting value
@@ -1439,9 +1444,14 @@ asynStatus GalilController::setOutputCompare(int oc)
 		paramstatus |= getDoubleParam(oc, GalilOutputCompareIncr_, &ocincr);
 		//Retrieve the axis encoder resolution
 		paramstatus |= getDoubleParam(axis, GalilEncoderResolution_, &eres);
+                //Retrieve axis offset, and dir
+                paramstatus |= getIntegerParam(axis, GalilDirection_, &dir);
+                paramstatus |= getDoubleParam(axis, GalilUserOffset_, &off);
+                //Calculate direction multiplier
+                dirm = (dir == 0) ? 1 : -1;
 		//Convert start and increment to steps
-		ocstart = ocstart / eres;
-		ocincr = ocincr / eres;
+                ocstart = ((ocstart - off)/eres) * dirm;
+                ocincr = ((ocincr - off)/eres) * dirm;
 		//Check start, and increment values
 		if (rint(ocincr) >= -65536 && rint(ocincr) <= 65535 &&
 		    rint(ocstart) >= -2147483648 && rint(ocstart) <= 2147483647 && !paramstatus)
@@ -5043,7 +5053,7 @@ asynStatus GalilController::async_writeReadController(void)
   return (asynStatus)status;
 }
 
-/** Writes a string to the Musst controller and reads a response.
+/** Writes a string to the Galil controller and reads a response.
   * \param[in] output Pointer to the output string.
   * \param[out] input Pointer to the input string location.
   * \param[in] maxChars Size of the input buffer.

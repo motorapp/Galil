@@ -898,7 +898,7 @@
                </font>
               </property>
               <property name="text">
-               <string>(EGU)</string>
+               <string>(User)</string>
               </property>
              </widget>
             </item>
@@ -1003,7 +1003,7 @@
                </font>
               </property>
               <property name="text">
-               <string>(EGU)</string>
+               <string>(User)</string>
               </property>
              </widget>
             </item>
@@ -1268,7 +1268,7 @@
                </font>
               </property>
               <property name="text">
-               <string>(EGU)</string>
+               <string>(User)</string>
               </property>
              </widget>
             </item>
@@ -1379,7 +1379,7 @@
                </font>
               </property>
               <property name="text">
-               <string>(EGU)</string>
+               <string>(User)</string>
               </property>
              </widget>
             </item>

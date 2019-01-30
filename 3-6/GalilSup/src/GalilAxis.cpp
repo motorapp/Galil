@@ -1291,16 +1291,16 @@ asynStatus GalilAxis::clearEtherCatFault()
    int ecatfault;		//EtherCat drive fault status
 
    //Retrieve required parameters
-   pC_->getIntegerParam(pC_->GalilEtherCatCapable_, &ecatcapable);
-   pC_->getIntegerParam(pC_->GalilEtherCatNetwork_, &ecatup);
-   pC_->getIntegerParam(axisNo_, pC_->GalilEtherCatFault_, &ecatfault);
+   status = pC_->getIntegerParam(pC_->GalilEtherCatCapable_, &ecatcapable);
+   status |= pC_->getIntegerParam(pC_->GalilEtherCatNetwork_, &ecatup);
+   status |= pC_->getIntegerParam(axisNo_, pC_->GalilEtherCatFault_, &ecatfault);
 
-   if (ecatcapable && ecatup && ecatfault)
+   if (ecatcapable && ecatup && ecatfault && !status)
       {
       //Controller is ethercat capable, network is up, and this axis has a fault
       //Clear fault for this axis
       sprintf(pC_->cmd_, "EK %d", (1 << axisNo_));
-      status = pC_->sync_writeReadController();
+      status |= pC_->sync_writeReadController();
       }
 
    return (asynStatus)status;
@@ -1944,6 +1944,8 @@ void GalilAxis::pollServices(void)
                                pC_->getIntegerParam(axisNo_, pC_->motorStatusMoving_, &moving);
                                }
                             pC_->lock();
+                            //Calculate direction multiplier
+                            dirm = (dir == 0) ? 1 : -1;
                             //Calculate position in steps from jog after home value in user coordinates
                             position = (double)((jahv - off)/mres) * dirm;
                             //Check motor record settings before move
