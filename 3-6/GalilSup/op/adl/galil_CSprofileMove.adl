@@ -1,7 +1,7 @@
 
 file {
-	name="/home/ics/git/Galil-3-0/3-2/GalilSup/op/adl/galil_CSprofileMove.adl"
-	version=030105
+	name="/home/ics/git/Galil-3-0/3-6/GalilSup/op/adl/galil_CSprofileMove.adl"
+	version=030114
 }
 display {
 	object {
@@ -333,7 +333,7 @@ text {
 }
 text {
 	object {
-		x=494
+		x=490
 		y=194
 		width=30
 		height=13
@@ -341,11 +341,11 @@ text {
 	"basic attribute" {
 		clr=14
 	}
-	textix="(EGU)"
+	textix="(User)"
 }
 text {
 	object {
-		x=494
+		x=490
 		y=155
 		width=30
 		height=13
@@ -353,7 +353,7 @@ text {
 	"basic attribute" {
 		clr=14
 	}
-	textix="(EGU)"
+	textix="(User)"
 }
 "text update" {
 	object {
@@ -421,7 +421,7 @@ text {
 	"basic attribute" {
 		clr=14
 	}
-	textix="(EGU)"
+	textix="(User)"
 }
 "text update" {
 	object {
@@ -448,7 +448,7 @@ text {
 	"basic attribute" {
 		clr=14
 	}
-	textix="(EGU)"
+	textix="(User)"
 }
 "text entry" {
 	object {
