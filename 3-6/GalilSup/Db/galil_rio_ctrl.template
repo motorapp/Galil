@@ -25,6 +25,14 @@
 # 800 Blackburn Road, Clayton, Victoria 3168, Australia.
 #
 
+record(stringin,"$(P)DRIVER_MON")
+{
+	field(DESC, "Driver version")
+	field(DTYP, "asynOctetRead")
+	field(SCAN, "I/O Intr")
+   	field(INP,  "@asyn($(PORT),0)CONTROLLER_DRIVER")
+}
+
 record(stringin,"$(P)MODEL_MON")
 {
 	field(DESC, "Ctrl model")

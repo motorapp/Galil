@@ -21,6 +21,9 @@
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
+#if defined _WIN32 || _WIN64
+#include <windows.h>
+#endif /* _WIN32 */
 #include <iostream>  //cout
 #include <sstream>   //ostringstream istringstream
 #include <typeinfo>  //std::bad_typeid
@@ -186,6 +189,8 @@ asynStatus GalilAxis::setDefaults(int limit_as_home, char *enables_string, int s
 	homing_ = false;
 	//This flag does include JAH
 	setIntegerParam(pC_->GalilHoming_, 0);
+	//Custom home routine hasn't been provided
+	customHome_ = false;
 
 	//Motor stop mesg not sent to pollServices thread for stall or wrong limit
 	stopSent_ = false;
@@ -770,8 +775,9 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
      sprintf(mesg, "%c motor extra settings do not allow forward home", axisName_);
   if (homeAllowed == HOME_FWD && !forwards)
      sprintf(mesg, "%c motor extra settings do not allow reverse home", axisName_);
+
   //Check if requested home type valid given limit disable setting
-  if (limit_as_home_ && pC_->model_[3] != '2' && strcmp(mesg, "") == 0)
+  if (!customHome_ && limit_as_home_ && pC_->model_[3] != '2' && strcmp(mesg, "") == 0)
      {
      if (useSwitch && forwards && (limitDisable == 1 || limitDisable ==3))
         sprintf(mesg, "%c axis can't home to fwd limit as fwd limit is disabled", axisName_);
@@ -2716,81 +2722,81 @@ asynStatus GalilAxis::get_biss(int function, epicsInt32 *value)
 
 asynStatus GalilAxis::set_biss(void)
 {
-        char mesg[MAX_GALIL_STRING_SIZE]; //Error mesg
-        int motortype = 0;
-        bool stepper = false;
-        int bissInput = 0;
-        int bissData1 = 0;
-        int bissData2 = 0;
-        int bissZeroPadding = 0;
-        int bissClockDivider = 0;
-	asynStatus status = asynSuccess; //Comms status
-	int bissInput_rbk; //BiSS setting before action
-        const char *functionName = "GalilAxis::set_biss";
+   char mesg[MAX_GALIL_STRING_SIZE]; //Error mesg
+   int motortype = 0;
+   bool stepper = false;
+   int bissInput = 0;
+   int bissData1 = 0;
+   int bissData2 = 0;
+   int bissZeroPadding = 0;
+   int bissClockDivider = 0;
+   asynStatus status = asynSuccess; //Comms status
+   int bissInput_rbk; //BiSS setting before action
+   const char *functionName = "GalilAxis::set_biss";
         
-	//Query BiSS setting before action
-	sprintf(pC_->cmd_, "SS%c=?", axisName_);
-	//Write query to controller
-	if ((status = pC_->sync_writeReadController()) == asynSuccess)
-		sscanf(pC_->resp_, "%d, %d, %d, %d, %d\n",&bissInput_rbk, &bissData1, &bissData2, 
+   //Query BiSS setting before action
+   sprintf(pC_->cmd_, "SS%c=?", axisName_);
+   //Write query to controller
+   if ((status = pC_->sync_writeReadController()) == asynSuccess)
+      sscanf(pC_->resp_, "%d, %d, %d, %d, %d\n",&bissInput_rbk, &bissData1, &bissData2, 
                                                           &bissZeroPadding, &bissClockDivider);
 	
-        asynPrint(pC_->pasynUserSelf, ASYN_TRACE_FLOW, 
-		  "%s Existing BiSS setting on axis %c: %d,%d,%d,%d<%d\n", 
-		  functionName, axisName_, bissInput_rbk, bissData1, bissData2, bissZeroPadding, bissClockDivider);
+   asynPrint(pC_->pasynUserSelf, ASYN_TRACE_FLOW, 
+              "%s Existing BiSS setting on axis %c: %d,%d,%d,%d<%d\n", 
+                functionName, axisName_, bissInput_rbk, bissData1, bissData2, bissZeroPadding, bissClockDivider);
 
-	//Retrieve existing BiSS parameters from ParamList
-	pC_->getIntegerParam(axisNo_, pC_->GalilBISSInput_, &bissInput);
-	pC_->getIntegerParam(axisNo_, pC_->GalilBISSData1_, &bissData1);
-	pC_->getIntegerParam(axisNo_, pC_->GalilBISSData2_, &bissData2);
-	pC_->getIntegerParam(axisNo_, pC_->GalilBISSZP_, &bissZeroPadding);
-	pC_->getIntegerParam(axisNo_, pC_->GalilBISSCD_, &bissClockDivider);
-        pC_->getIntegerParam(axisNo_, pC_->GalilMotorType_, &motortype);
+   //Retrieve existing BiSS parameters from ParamList
+   pC_->getIntegerParam(axisNo_, pC_->GalilBISSInput_, &bissInput);
+   pC_->getIntegerParam(axisNo_, pC_->GalilBISSData1_, &bissData1);
+   pC_->getIntegerParam(axisNo_, pC_->GalilBISSData2_, &bissData2);
+   pC_->getIntegerParam(axisNo_, pC_->GalilBISSZP_, &bissZeroPadding);
+   pC_->getIntegerParam(axisNo_, pC_->GalilBISSCD_, &bissClockDivider);
+   pC_->getIntegerParam(axisNo_, pC_->GalilMotorType_, &motortype);
 
-	if (!bissInput && bissInput_rbk) {
-          //User just disabled BiSS, unset motorRecord MSTA bit 15 motorStatusHomed_
-          setIntegerParam(pC_->motorStatusHomed_, 0);
-        }
+   if (!bissInput && bissInput_rbk) {
+      //User just disabled BiSS, unset motorRecord MSTA bit 15 motorStatusHomed_
+      setIntegerParam(pC_->motorStatusHomed_, 0);
+   }
 
-        //Enforce limits
-        bissInput = std::max(BISS_INPUT_MIN, std::min(bissInput, BISS_INPUT_MAX));
-        bissData1 = std::max(BISS_DATA1_MIN, std::min(bissData1, BISS_DATA1_MAX));
-        bissData2 = std::max(BISS_DATA2_MIN, std::min(bissData2, BISS_DATA2_MAX));
-        bissZeroPadding = std::max(BISS_ZP_MIN, std::min(bissZeroPadding, BISS_ZP_MAX));
-        bissClockDivider = std::max(BISS_CD_MIN, std::min(bissClockDivider, BISS_CD_MAX));
+   //Enforce limits
+   bissInput = max(BISS_INPUT_MIN, min(bissInput, BISS_INPUT_MAX));
+   bissData1 = max(BISS_DATA1_MIN, min(bissData1, BISS_DATA1_MAX));
+   bissData2 = max(BISS_DATA2_MIN, min(bissData2, BISS_DATA2_MAX));
+   bissZeroPadding = max(BISS_ZP_MIN, min(bissZeroPadding, BISS_ZP_MAX));
+   bissClockDivider = max(BISS_CD_MIN, min(bissClockDivider, BISS_CD_MAX));
 
-        //Check if main and auxiliary encoder has been swapped by DFx=1
-	sprintf(pC_->cmd_, "MG _DF%c", axisName_);
-	pC_->sync_writeReadController();
-	encoderSwapped_ = (bool)atoi(pC_->resp_);
+   //Check if main and auxiliary encoder has been swapped by DFx=1
+   sprintf(pC_->cmd_, "MG _DF%c", axisName_);
+   pC_->sync_writeReadController();
+   encoderSwapped_ = (bool)atoi(pC_->resp_);
 
-        //Figure out if we have a stepper
-        stepper = ((motortype >= 2) && (motortype <= 5));
+   //Figure out if we have a stepper
+   stepper = ((motortype >= 2) && (motortype <= 5));
 
-        if ((bissInput == 2 && !encoderSwapped_ && !ctrlUseMain_ && stepper)
+   if ((bissInput == 2 && !encoderSwapped_ && !ctrlUseMain_ && stepper)
             || (bissInput == 1 && encoderSwapped_ && !ctrlUseMain_ && stepper)) {
-            sprintf(mesg, "%c cannot use auxillary encoder for BiSS whilst motor is stepper", axisName_);
-            pC_->setCtrlError(mesg);
-            status = asynError;
-          }
-	else {
-          //Update BiSS setting on controller
-          sprintf(pC_->cmd_, "SS%c=%d,%d,%d,%d<%d", axisName_, bissInput, bissData1, bissData2, 
-                  bissZeroPadding, bissClockDivider);
-          //Write setting to controller
-          status = pC_->sync_writeReadController();
+      sprintf(mesg, "%c cannot use auxillary encoder for BiSS whilst motor is stepper", axisName_);
+      pC_->setCtrlError(mesg);
+      status = asynError;
+   }
+   else {
+      //Update BiSS setting on controller
+      sprintf(pC_->cmd_, "SS%c=%d,%d,%d,%d<%d", axisName_, bissInput, bissData1, bissData2, 
+              bissZeroPadding, bissClockDivider);
+      //Write setting to controller
+      status = pC_->sync_writeReadController();
           
-          if (status == asynSuccess) {
-            asynPrint(pC_->pasynUserSelf, ASYN_TRACE_FLOW, 
-                      "%s New BiSS setting on axis %c: %d,%d,%d,%d<%d\n", 
-                      functionName, axisName_, bissInput, bissData1, bissData2, bissZeroPadding, bissClockDivider);
-            if (bissInput != 0) {
+      if (status == asynSuccess) {
+         asynPrint(pC_->pasynUserSelf, ASYN_TRACE_FLOW, 
+                   "%s New BiSS setting on axis %c: %d,%d,%d,%d<%d\n", 
+                   functionName, axisName_, bissInput, bissData1, bissData2, bissZeroPadding, bissClockDivider);
+         if (bissInput != 0) {
               setIntegerParam(pC_->motorStatusHomed_, 1);
-            }
-          }
-        }
+         }
+      }
+   }
 
-	return status;
+   return status;
 }
 
 /* 

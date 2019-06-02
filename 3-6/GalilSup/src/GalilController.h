@@ -77,6 +77,7 @@
 #include <vector>
 
 // drvInfo strings for extra parameters that the Galil controller supports
+#define GalilDriverString		"CONTROLLER_DRIVER"
 #define GalilAddressString		"CONTROLLER_ADDRESS"
 #define GalilModelString		"CONTROLLER_MODEL"
 #define GalilHomeTypeString		"CONTROLLER_HOMETYPE"
@@ -316,6 +317,7 @@ public:
   /* These are the methods that are new to this class */
   asynStatus poller(void);
   int GalilInitializeVariables(bool burn_variables);
+  void GalilReplaceHomeCode(char *axis, string filename);
   void GalilAddCode(int section, string filename);
   void GalilStartController(char *code_file, int eeprom_write, int thread_mask);
   void connect(void);
@@ -373,7 +375,8 @@ public:
   ~GalilController();
 
 protected:
-  #define FIRST_GALIL_PARAM GalilAddress_
+  #define FIRST_GALIL_PARAM GalilDriver_
+  int GalilDriver_;
   int GalilAddress_;
   int GalilModel_;
   int GalilHomeType_;

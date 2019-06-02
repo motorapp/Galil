@@ -320,6 +320,12 @@
 // 30/01/19 M.Clift
 //                  Fix jog after home going the wrong way with DIR set to 1 (neg)
 //                  Alter output compare start and increment/delta now specified in user coordinates
+// 02/06/19 M.Clift
+//                  Alter homing check so that custom home code can enable/disable limits
+//                  Fix output compare increment calculation
+//                  Add driver version number
+//                  Alter set_biss so that it's windows compatible
+//                  Add iocShell function GalilReplaceHomeCode - Replace generated axis home with custom home code
 
 #include <stdio.h>
 #include <math.h>
@@ -360,6 +366,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
+static const char *driverVersion = "3-6-25";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);
@@ -448,6 +455,7 @@ GalilController::GalilController(const char *portName, const char *address, doub
   unsigned i;
 
   // Create controller-specific parameters
+  createParam(GalilDriverString, asynParamOctet, &GalilDriver_);
   createParam(GalilAddressString, asynParamOctet, &GalilAddress_);
   createParam(GalilModelString, asynParamOctet, &GalilModel_);
   createParam(GalilHomeTypeString, asynParamInt32, &GalilHomeType_);
@@ -724,7 +732,7 @@ void GalilController::connect(void)
   char address_string[MAX_GALIL_STRING_SIZE];	//Temporary address string used to setup communications
   int sync_connected;			//Is the synchronous communication socket connected according to asyn
   int async_connected = 1;		//Is the asynchronous communication connected according to asyn
-  std::string address = address_;	//Convert address into std::string for easy inspection
+  string address = address_;		//Convert address into string for easy inspection
 
   //Set default timeout at connect
   timeout_ = 1;
@@ -906,6 +914,8 @@ void GalilController::setParamDefaults(void)
 { 
   unsigned i;
   //Set defaults in Paramlist before connected
+  //Set driver version
+  setStringParam(GalilDriver_, driverVersion);
   //Pass address string provided by GalilCreateController to upper layers
   setStringParam(GalilAddress_, address_);
   //Set default model string
@@ -1404,7 +1414,7 @@ asynStatus GalilController::setOutputCompare(int oc)
   double eres;	        		//mr eres
   int mainencoder, auxencoder;		//Main and aux encoder setting
   int encoder_setting;			//Overall encoder setting value
-  bool encoders_ok = false;		//Encoder setting good or bad for output compare
+  bool mtr_encoder_ok = true;		//Motor and encoder setting status on selected axis (ie. ok or not)
   bool setup_ok = false;		//Overall setup status
   int comstatus = asynSuccess;		//Status of comms
   int paramstatus = asynSuccess;	//Status of paramList gets
@@ -1413,119 +1423,112 @@ asynStatus GalilController::setOutputCompare(int oc)
   //Output compare not valid on some controllers
   //Output compare 1 valid for controllers > 0 axis
   //Output compare 2 valid for controllers > 4 axis
-  if ((oc && numAxesMax_ <= 4) || (!oc && !numAxesMax_))
+  if ((oc && numAxesMax_ <= 4) || (!oc && !numAxesMax_) || (!connected_))
      return asynSuccess;
 
   //Retrieve axis to use with output compare
   paramstatus = getIntegerParam(oc, GalilOutputCompareAxis_, &ocaxis);
 
   //Attempt turn on selected output compare
-  if (ocaxis && !paramstatus)
-	{
-	//Convert paramList ocaxis to 0-7 for axis A-H
-	axis = (oc) ? (ocaxis - 1 + 4) : (ocaxis - 1);
-	//Query motor type
-	sprintf(cmd_, "MT%c=?", axis + AASCII);
-	comstatus = sync_writeReadController();
-	motor = atoi(resp_);
-	//Check encoder settings
-	paramstatus |= getIntegerParam(axis, GalilMainEncoder_, &mainencoder);
-	paramstatus |= getIntegerParam(axis, GalilAuxEncoder_, &auxencoder);
-	encoder_setting = mainencoder + auxencoder;
-	//If main, and auxillary encoder setting match
-	if ((!encoder_setting || encoder_setting == 5 || encoder_setting == 10 || encoder_setting == 15) && !paramstatus)
-		encoders_ok = true;
-	//If motor is a servo, and encoder settings match, no paramlist error, and no command error
-	if ((abs(motor) == 1 || abs(motor) == 1.5) && encoders_ok && !paramstatus && !comstatus)
-		{
-		//Passed motor configuration checks.  Motor is servo, and encoder setting is ok
-		//Retrieve output compare start, and increment values
-		paramstatus |= getDoubleParam(oc, GalilOutputCompareStart_, &ocstart);
-		paramstatus |= getDoubleParam(oc, GalilOutputCompareIncr_, &ocincr);
-		//Retrieve the axis encoder resolution
-		paramstatus |= getDoubleParam(axis, GalilEncoderResolution_, &eres);
-                //Retrieve axis offset, and dir
-                paramstatus |= getIntegerParam(axis, GalilDirection_, &dir);
-                paramstatus |= getDoubleParam(axis, GalilUserOffset_, &off);
-                //Calculate direction multiplier
-                dirm = (dir == 0) ? 1 : -1;
-		//Convert start and increment to steps
-                ocstart = ((ocstart - off)/eres) * dirm;
-                ocincr = ((ocincr - off)/eres) * dirm;
-		//Check start, and increment values
-		if (rint(ocincr) >= -65536 && rint(ocincr) <= 65535 &&
-		    rint(ocstart) >= -2147483648 && rint(ocstart) <= 2147483647 && !paramstatus)
-			{			
-			if (!paramstatus)
-				{
-				sprintf(cmd_, "OC%c=%.0lf,%.0lf", axis + AASCII, rint(ocstart), rint(ocincr));
-				comstatus = sync_writeReadController();
-				setup_ok = (!comstatus) ? true : false;
-				if (setup_ok)
-					{
-					sprintf(message, "Output compare %d setup successfully", oc + 1);
-					setStringParam(GalilOutputCompareMessage_, message);
-					}
-				else
-					{
-					//Reject motor setting if problem
-					sprintf(message, "Output compare %d setup failed", oc + 1);
-					setStringParam(GalilOutputCompareMessage_, message);
-					setIntegerParam(oc, GalilOutputCompareAxis_, 0);
-					}
-				}
-			}
-		else
-			{
-			//Reject motor setting if problem with start or increment
-			sprintf(message, "Output compare %d failed due to start/increment out of range", oc + 1);
-			setStringParam(GalilOutputCompareMessage_, message);
-			setIntegerParam(oc, GalilOutputCompareAxis_, 0);
-			}
-		}
-	else if (!paramstatus && !comstatus)
-		{
-		//Reject motor setting if the motor has a configuration problem
-		sprintf(message, "Output compare %d failed due to configuration problem axis %c", oc + 1, axis + AASCII);
-		paramstatus = setStringParam(GalilOutputCompareMessage_, message);
-		setIntegerParam(oc, GalilOutputCompareAxis_, 0);
-		}
-	}
+  if (ocaxis && !paramstatus) {
+     //Convert paramList ocaxis to 0-7 for axis A-H
+     axis = (oc) ? (ocaxis - 1 + 4) : (ocaxis - 1);
+     //Query motor type
+     sprintf(cmd_, "MT%c=?", axis + AASCII);
+     comstatus = sync_writeReadController();
+     motor = atoi(resp_);
+     //Check encoder settings
+     paramstatus |= getIntegerParam(axis, GalilMainEncoder_, &mainencoder);
+     paramstatus |= getIntegerParam(axis, GalilAuxEncoder_, &auxencoder);
+     encoder_setting = mainencoder + auxencoder;
+     if (encoder_setting != 0 && encoder_setting != 5 && encoder_setting != 10 && encoder_setting != 15 && !paramstatus) {
+        //Main and auxillary encoder settings are not the same on requested axis, reject!
+        sprintf(message, "Output compare %d failed, %c main and aux encoder settings need to be same", oc + 1, axis + AASCII);
+        paramstatus = setStringParam(GalilOutputCompareMessage_, message);
+        setIntegerParam(oc, GalilOutputCompareAxis_, 0);
+        mtr_encoder_ok = false;
+     }
+     //Check motor settings
+     if (abs(motor) != 1 && abs(motor) != 1.5) {
+        //Motor type is not servo on requested axis, reject!
+        sprintf(message, "Output compare %d failed, %c motor type must be servo", oc + 1, axis + AASCII);
+        paramstatus = setStringParam(GalilOutputCompareMessage_, message);
+        setIntegerParam(oc, GalilOutputCompareAxis_, 0);
+        mtr_encoder_ok = false;
+     }
+     //If motor/encoder settings ok, no paramlist error, and no command error
+     if (mtr_encoder_ok && !paramstatus && !comstatus) {
+        //Passed motor configuration checks.  Motor is servo, and encoder setting is ok
+        //Retrieve output compare start, and increment values
+        paramstatus |= getDoubleParam(oc, GalilOutputCompareStart_, &ocstart);
+        paramstatus |= getDoubleParam(oc, GalilOutputCompareIncr_, &ocincr);
+        //Retrieve the axis encoder resolution
+        paramstatus |= getDoubleParam(axis, GalilEncoderResolution_, &eres);
+        //Retrieve axis offset, and dir
+        paramstatus |= getIntegerParam(axis, GalilDirection_, &dir);
+        paramstatus |= getDoubleParam(axis, GalilUserOffset_, &off);
+        //Calculate direction multiplier
+        dirm = (dir == 0) ? 1 : -1;
+        //Convert start and increment to steps
+        //Start is in user coordinates
+        ocstart = ((ocstart - off)/eres) * dirm;
+        //Increment is relative, so OFF isn't included
+        ocincr = (ocincr/eres) * dirm;
+        //Check start, and increment values
+        if (rint(ocincr) >= -65536 && rint(ocincr) <= 65535 &&
+           rint(ocstart) >= -2147483648 && rint(ocstart) <= 2147483647 && !paramstatus) {			
+           sprintf(cmd_, "OC%c=%.0lf,%.0lf", axis + AASCII, rint(ocstart), rint(ocincr));
+           comstatus = sync_writeReadController();
+           setup_ok = (!comstatus) ? true : false;
+           if (setup_ok) {
+              sprintf(message, "Output compare %d setup successfully", oc + 1);
+              setStringParam(GalilOutputCompareMessage_, message);
+           }
+           else {
+              //Reject motor setting if problem
+              sprintf(message, "Output compare %d setup failed", oc + 1);
+              setStringParam(GalilOutputCompareMessage_, message);
+              setIntegerParam(oc, GalilOutputCompareAxis_, 0);
+           }
+        }
+        else {
+           //Reject motor setting if problem with start or increment
+           sprintf(message, "Output compare %d failed due to start/increment out of range", oc + 1);
+           setStringParam(GalilOutputCompareMessage_, message);
+           setIntegerParam(oc, GalilOutputCompareAxis_, 0);
+        }
+     }
+  }
 
   //Attempt turn off selected output compare
-  if (!setup_ok && !paramstatus)
-	{
-	//Default parameters
-	axis = 99;
-	//Calculate loop start/end
-	start = (!oc) ? 0 : 4;
-	end = (!oc) ? 4 : 8;
+  if (!setup_ok && !paramstatus) {
+     //Default parameters
+     axis = 99;
+     //Calculate loop start/end
+     start = (!oc) ? 0 : 4;
+     end = (!oc) ? 4 : 8;
 	
-	//Find a servo in correct bank either A-D, or bank E-H
-	for (i = start; i < end; i++)
-		{
-		sprintf(cmd_, "MT%c=?", i + AASCII);
-		comstatus = sync_writeReadController();
-		motor = atoi(resp_);
-		if (abs(motor) == 1 || abs(motor) == 1.5)
-			{
-			axis = i;
-			break;
-			}
-		}
+     //Find a servo in correct bank either A-D, or bank E-H
+     for (i = start; i < end; i++) {
+        sprintf(cmd_, "MT%c=?", i + AASCII);
+        comstatus = sync_writeReadController();
+        motor = atoi(resp_);
+        if (abs(motor) == 1 || abs(motor) == 1.5) {
+           axis = i;
+           break;
+        }
+     }
 	
-	if (axis != 99)
-		{
-		//A servo was found in the correct bank
-		sprintf(cmd_, "OC%c=0,0", axis + AASCII);
-		comstatus = sync_writeReadController();
-		if (!ocaxis)
-			{
-			sprintf(message, "Output compare %d turned off", oc + 1);
-			setStringParam(GalilOutputCompareMessage_, message);
-			}
-		}
-	}
+     if (axis != 99) {
+        //A servo was found in the correct bank
+        sprintf(cmd_, "OC%c=0,0", axis + AASCII);
+        comstatus = sync_writeReadController();
+        if (!ocaxis) {
+           sprintf(message, "Output compare %d turned off", oc + 1);
+           setStringParam(GalilOutputCompareMessage_, message);
+        }
+     }
+  }
 
   return (asynStatus)comstatus;
 }
@@ -5405,13 +5408,110 @@ int GalilController::GalilInitializeVariables(bool burn_variables)
    return status;
 }
 
-/** \param[in] string file - code file specified by user
-  * \param[in] section     - code section to put user code
-                           0 = Card code
-                           1 = Thread code
-                           2 = Limits code
-                           3 = Digital code
-                           */
+/** Replace generated axis home code with user code 
+  * \param[in] axis Axis home code to replace
+  * \param[in] filename User provided home code */
+void GalilController::GalilReplaceHomeCode(char *axis, string filename) {
+   GalilAxis *pAxis;				//GalilAxis
+   char axisName;				//Axis name specified
+   string str;					//Search string.  Home section start string (eg. IF(HOMEA=1))
+   string code(thread_code_);			//Copy thread_code to string for easy manipulation			
+   string line;					//Read the file line by line
+   string mesg;					//Error messages
+   ifstream file(filename);			//Input file stream
+   size_t found;				//Location of search string in thread code
+   int limit_sw_code_size = 663;		//Generated code size in bytes for homing to limit switch
+   int home_sw_code_size = 669;			//Generated code size in bytes for homing to home switch
+   size_t cut;					//Number of bytes to cut from thread code
+   size_t inpos;				//Position in code to insert custom code line
+
+   // Axis letter A-H
+   axisName = (char)(toupper(axis[0]));
+   axis[0] = axisName;
+   axis[1] = '\0';
+
+   // Check specified axis
+   if (axisName < 65 || axisName > 72 ) {
+      mesg = "GalilReplaceHomeCode: Bad axis specified, must be A-H";
+      setCtrlError(mesg.c_str());
+      return;
+   }
+
+   // Retrieve the specified axis instance
+   pAxis = getAxis(axisName - AASCII);
+
+   // Check specified axis
+   if (!pAxis) {
+      mesg = "GalilReplaceHomeCode: Specified axis not found";
+      setCtrlError(mesg.c_str());
+      return;
+   }
+
+   // Check if code is already assembled
+   if (code_assembled_) {
+      mesg = "GalilReplaceHomeCode: Should be called before GalilStartController";
+      setCtrlError(mesg.c_str());
+      return;
+   }
+
+   // Determine number of bytes to cut from thread code
+   cut = (pAxis->limit_as_home_) ? limit_sw_code_size : home_sw_code_size;
+   // Construct search string
+   str = string("IF(home") + string(axis) + string("=1)");
+   // Search code for our search string
+   found = code.find(str);
+   if (found != string::npos) {
+      // Found code segment
+      if (file.is_open()) {
+         // Remove generated home code
+         code.erase(found, cut);
+         // Initial position within code buffer to insert custom code
+         inpos = found;
+         // Read provided file line by line, and add to code buffer
+         while (getline(file, line)) {
+            if (line.compare("\n") != 0) {
+
+               // Check read line for $(AXIS) macro
+               while ((found = line.find("$(AXIS)")) != string::npos) {
+                  // Replace any found $(AXIS) macro with specified axis
+                  if (found != string::npos)
+                     line.replace(found, 7, axis);
+               }
+               // Put the new line character back
+               line = line + '\n';
+               // Add custom code line to code
+               code.insert(inpos, line);
+               // Increment inpos to next insert position
+               inpos = inpos + line.length();
+            }
+         }
+      // Done reading, close the file
+      file.close();
+      // Copy the modified code back into thread_code_ buffer
+      strcpy(thread_code_, code.c_str());
+      // Flag custom home code loaded for this axis
+      pAxis->customHome_ = true;
+      }
+      else {
+        // Can't open provided file
+        mesg = "GalilReplaceHomeCode: Couldn't open " + filename;
+        setCtrlError(mesg.c_str());
+      }
+   }
+   else {
+      mesg = "GalilReplaceHomeCode: Could not find generated home program for axis " + string(axis);
+      setCtrlError(mesg.c_str());
+      return;
+   }
+}
+
+/** Adds user custom code to generated code
+  * \param[in] section Code section to put user code
+                       0 = Card code
+                       1 = Thread code
+                       2 = Limits code
+                       3 = Digital code
+  * \param[in] filename Code file specified by user */
 void GalilController::GalilAddCode(int section, string filename) {
    char *code;			   		//Pointer to desired code section
    char js[MAX_GALIL_STRING_SIZE];		//Thread code jump statement
@@ -5523,6 +5623,13 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
          //Copy the user code into card code buffer
          //Ready for delivery to controller
          strcpy(card_code_, user_code_);
+         //Set customHome flag for all axis
+         for (i = 0; i < numAxes_; i++)
+            {
+            pAxis = getAxis(axisList_[i] - AASCII);
+            if (!pAxis) continue;
+            pAxis->customHome_ = true;
+            }
          }
       else
          thread_mask_ = (rio_) ? thread_mask_ : 0;  //DMC forced to use generated code
@@ -6981,6 +7088,37 @@ extern "C" asynStatus GalilCreateCSAxes(const char *portName)
   return asynSuccess;
 }
 
+/** Replace generated home code with custom home code
+  * Configuration command, called directly or from iocsh
+  * \param[in] portName          The name of the asyn port that has already been created for this driver
+  * \param[in] axis      	 Which axis is the provided home program intended for
+  * \param[in] code_file      	 Code file to add to generated code
+  */
+extern "C" asynStatus GalilReplaceHomeCode(const char *portName,        	//specify which controller by port name
+					   char *axis,
+					   const char *code_file)
+{
+  GalilController *pC;
+  static const char *functionName = "GalilReplaceHomeCode";
+
+  //Convert provided code file into string
+  string filename(code_file);
+
+  //Retrieve the asynPort specified
+  pC = (GalilController*) findAsynPortDriver(portName);
+
+  if (!pC) {
+    printf("%s:%s: Error port %s not found\n",
+           driverName, functionName, portName);
+    return asynError;
+  }
+  pC->lock();
+  //Call GalilController::GalilReplaceHomeCode to do the work
+  pC->GalilReplaceHomeCode(axis, filename);
+  pC->unlock();
+  return asynSuccess;
+}
+
 /** Add custom code to generated code
   * Configuration command, called directly or from iocsh
   * \param[in] portName          The name of the asyn port that has already been created for this driver
@@ -7122,6 +7260,21 @@ static void GalilCreateProfileCallFunc(const iocshArgBuf *args)
   GalilCreateProfile(args[0].sval, args[1].ival);
 }
 
+//GalilReplaceHomeCode iocsh function
+static const iocshArg GalilReplaceHomeCodeArg0 = {"Controller Port name", iocshArgString};
+static const iocshArg GalilReplaceHomeCodeArg1 = {"Axis", iocshArgString};
+static const iocshArg GalilReplaceHomeCodeArg2 = {"Code file", iocshArgString};
+static const iocshArg * const GalilReplaceHomeCodeArgs[] = {&GalilReplaceHomeCodeArg0,
+                                                    &GalilReplaceHomeCodeArg1,
+                                                    &GalilReplaceHomeCodeArg2};
+                                                             
+static const iocshFuncDef GalilReplaceHomeCodeDef = {"GalilReplaceHomeCode", 3, GalilReplaceHomeCodeArgs};
+
+static void GalilReplaceHomeCodeCallFunc(const iocshArgBuf *args)
+{
+  GalilReplaceHomeCode(args[0].sval, args[1].sval, args[2].sval);
+}
+
 //GalilAddCode iocsh function
 static const iocshArg GalilAddCodeArg0 = {"Controller Port name", iocshArgString};
 static const iocshArg GalilAddCodeArg1 = {"Section", iocshArgInt};
@@ -7162,6 +7315,7 @@ static void GalilSupportRegister(void)
   iocshRegister(&GalilCreateCSAxesDef, GalilCreateCSAxesCallFunc);
   iocshRegister(&GalilCreateProfileDef, GalilCreateProfileCallFunc);
   iocshRegister(&GalilAddCodeDef, GalilAddCodeCallFunc);
+  iocshRegister(&GalilReplaceHomeCodeDef, GalilReplaceHomeCodeCallFunc);
   iocshRegister(&GalilStartControllerDef, GalilStartControllerCallFunc);
 }
 

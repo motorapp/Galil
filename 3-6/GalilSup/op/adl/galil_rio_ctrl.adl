@@ -1,14 +1,14 @@
 
 file {
-	name="/home/ics/git/Galil-3-0/3-5/GalilSup/op/adl/galil_rio_ctrl.adl"
-	version=030105
+	name="/home/ics/git/Galil-3-0/3-6/GalilSup/op/adl/galil_rio_ctrl.adl"
+	version=030114
 }
 display {
 	object {
 		x=258
-		y=131
+		y=80
 		width=410
-		height=258
+		height=268
 	}
 	clr=14
 	bclr=4
@@ -112,64 +112,10 @@ text {
 	textix="RIO controller"
 	align="horiz. centered"
 }
-text {
-	object {
-		x=9
-		y=71
-		width=97
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Controller address"
-}
-"text update" {
-	object {
-		x=286
-		y=71
-		width=95
-		height=13
-	}
-	monitor {
-		chan="$(RIO)ADDRESS_MON"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-text {
-	object {
-		x=9
-		y=52
-		width=97
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Controller model"
-}
-"text update" {
-	object {
-		x=286
-		y=52
-		width=120
-		height=13
-	}
-	monitor {
-		chan="$(RIO)MODEL_MON"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
 composite {
 	object {
 		x=5
-		y=135
+		y=142
 		width=399
 		height=119
 	}
@@ -178,7 +124,7 @@ composite {
 		text {
 			object {
 				x=9
-				y=135
+				y=142
 				width=65
 				height=13
 			}
@@ -190,7 +136,7 @@ composite {
 		"related display" {
 			object {
 				x=150
-				y=136
+				y=143
 				width=15
 				height=15
 			}
@@ -205,7 +151,7 @@ composite {
 		composite {
 			object {
 				x=5
-				y=173
+				y=180
 				width=399
 				height=81
 			}
@@ -214,7 +160,7 @@ composite {
 				"text update" {
 					object {
 						x=32
-						y=189
+						y=196
 						width=372
 						height=13
 					}
@@ -230,7 +176,7 @@ composite {
 				text {
 					object {
 						x=5
-						y=204
+						y=211
 						width=65
 						height=13
 					}
@@ -242,7 +188,7 @@ composite {
 				"text entry" {
 					object {
 						x=32
-						y=221
+						y=228
 						width=372
 						height=20
 					}
@@ -257,7 +203,7 @@ composite {
 				"text update" {
 					object {
 						x=32
-						y=241
+						y=248
 						width=372
 						height=13
 					}
@@ -273,7 +219,7 @@ composite {
 				text {
 					object {
 						x=5
-						y=223
+						y=230
 						width=65
 						height=13
 					}
@@ -285,7 +231,7 @@ composite {
 				text {
 					object {
 						x=5
-						y=240
+						y=247
 						width=65
 						height=13
 					}
@@ -297,7 +243,7 @@ composite {
 				text {
 					object {
 						x=5
-						y=173
+						y=180
 						width=65
 						height=13
 					}
@@ -311,7 +257,7 @@ composite {
 		text {
 			object {
 				x=9
-				y=155
+				y=162
 				width=65
 				height=13
 			}
@@ -323,7 +269,7 @@ composite {
 		"related display" {
 			object {
 				x=150
-				y=156
+				y=163
 				width=15
 				height=15
 			}
@@ -372,10 +318,37 @@ composite {
 		}
 	}
 }
+"text update" {
+	object {
+		x=286
+		y=52
+		width=120
+		height=13
+	}
+	monitor {
+		chan="$(RIO)DRIVER_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=9
+		y=52
+		width=97
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Driver version"
+}
 composite {
 	object {
 		x=9
-		y=91
+		y=106
 		width=372
 		height=13
 	}
@@ -384,7 +357,7 @@ composite {
 		text {
 			object {
 				x=9
-				y=91
+				y=106
 				width=97
 				height=13
 			}
@@ -396,7 +369,7 @@ composite {
 		"text update" {
 			object {
 				x=286
-				y=91
+				y=106
 				width=95
 				height=13
 			}
@@ -411,31 +384,118 @@ composite {
 		}
 	}
 }
-text {
+composite {
 	object {
 		x=9
-		y=110
-		width=97
+		y=88
+		width=372
 		height=13
 	}
-	"basic attribute" {
-		clr=14
+	"composite name"=""
+	children {
+		text {
+			object {
+				x=9
+				y=88
+				width=97
+				height=13
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="Controller address"
+		}
+		"text update" {
+			object {
+				x=286
+				y=88
+				width=95
+				height=13
+			}
+			monitor {
+				chan="$(RIO)ADDRESS_MON"
+				clr=54
+				bclr=4
+			}
+			limits {
+			}
+		}
 	}
-	textix="Controller start status"
 }
-"text update" {
+composite {
 	object {
-		x=286
-		y=110
-		width=95
+		x=9
+		y=124
+		width=372
 		height=13
 	}
-	monitor {
-		chan="$(RIO)START_STATUS"
-		clr=54
-		bclr=4
+	"composite name"=""
+	children {
+		text {
+			object {
+				x=9
+				y=124
+				width=97
+				height=13
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="Controller start status"
+		}
+		"text update" {
+			object {
+				x=286
+				y=124
+				width=95
+				height=13
+			}
+			monitor {
+				chan="$(RIO)START_STATUS"
+				clr=54
+				bclr=4
+			}
+			clrmod="alarm"
+			limits {
+			}
+		}
 	}
-	clrmod="alarm"
-	limits {
+}
+composite {
+	object {
+		x=9
+		y=70
+		width=397
+		height=13
+	}
+	"composite name"=""
+	children {
+		"text update" {
+			object {
+				x=286
+				y=70
+				width=120
+				height=13
+			}
+			monitor {
+				chan="$(RIO)MODEL_MON"
+				clr=54
+				bclr=4
+			}
+			limits {
+			}
+		}
+		text {
+			object {
+				x=9
+				y=70
+				width=97
+				height=13
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="Controller model"
+		}
 	}
 }

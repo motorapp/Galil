@@ -20,17 +20,23 @@
       <number>0</number>
      </property>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_19" stretch="2,1,4,1,4">
+      <layout class="QHBoxLayout" name="horizontalLayout_19" stretch="0,1,4,1,4">
        <property name="spacing">
         <number>1</number>
        </property>
        <item>
-        <widget class="QELabel" name="qelabel_12">
+        <widget class="QLabel" name="label_23">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>9</width>
+           <height>0</height>
+          </size>
          </property>
          <property name="font">
           <font>
@@ -38,18 +44,15 @@
            <pointsize>9</pointsize>
           </font>
          </property>
-         <property name="variable" stdset="0">
-          <string>$(DMC)$(M1).NAME</string>
-         </property>
          <property name="text">
-          <string>Axis</string>
+          <string>A</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QLabel" name="label_42">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -140,17 +143,23 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_20" stretch="2,1,4,1,4">
+      <layout class="QHBoxLayout" name="horizontalLayout_20" stretch="0,1,4,1,4">
        <property name="spacing">
         <number>1</number>
        </property>
        <item>
-        <widget class="QELabel" name="qelabel_13">
+        <widget class="QLabel" name="label_24">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>9</width>
+           <height>0</height>
+          </size>
          </property>
          <property name="font">
           <font>
@@ -158,18 +167,15 @@
            <pointsize>9</pointsize>
           </font>
          </property>
-         <property name="variable" stdset="0">
-          <string>$(DMC)$(M2).NAME</string>
-         </property>
          <property name="text">
-          <string>Axis</string>
+          <string>B</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QLabel" name="label_44">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -260,17 +266,23 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_21" stretch="2,1,4,1,4">
+      <layout class="QHBoxLayout" name="horizontalLayout_21" stretch="0,1,4,1,4">
        <property name="spacing">
         <number>1</number>
        </property>
        <item>
-        <widget class="QELabel" name="qelabel_14">
+        <widget class="QLabel" name="label_26">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>9</width>
+           <height>0</height>
+          </size>
          </property>
          <property name="font">
           <font>
@@ -278,18 +290,15 @@
            <pointsize>9</pointsize>
           </font>
          </property>
-         <property name="variable" stdset="0">
-          <string>$(DMC)$(M3).NAME</string>
-         </property>
          <property name="text">
-          <string>Axis</string>
+          <string>C</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QLabel" name="label_46">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -380,17 +389,23 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_22" stretch="2,1,4,1,4">
+      <layout class="QHBoxLayout" name="horizontalLayout_22" stretch="0,1,4,1,4">
        <property name="spacing">
         <number>1</number>
        </property>
        <item>
-        <widget class="QELabel" name="qelabel_15">
+        <widget class="QLabel" name="label_25">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>9</width>
+           <height>0</height>
+          </size>
          </property>
          <property name="font">
           <font>
@@ -398,18 +413,15 @@
            <pointsize>9</pointsize>
           </font>
          </property>
-         <property name="variable" stdset="0">
-          <string>$(DMC)$(M4).NAME</string>
-         </property>
          <property name="text">
-          <string>Axis</string>
+          <string>D</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QLabel" name="label_48">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -500,17 +512,23 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_23" stretch="2,1,4,1,4">
+      <layout class="QHBoxLayout" name="horizontalLayout_23" stretch="0,1,4,1,4">
        <property name="spacing">
         <number>1</number>
        </property>
        <item>
-        <widget class="QELabel" name="qelabel_16">
+        <widget class="QLabel" name="label_27">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>9</width>
+           <height>0</height>
+          </size>
          </property>
          <property name="font">
           <font>
@@ -518,18 +536,15 @@
            <pointsize>9</pointsize>
           </font>
          </property>
-         <property name="variable" stdset="0">
-          <string>$(DMC)$(M5).NAME</string>
-         </property>
          <property name="text">
-          <string>Axis</string>
+          <string>E</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QLabel" name="label_50">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -620,17 +635,23 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_24" stretch="2,1,4,1,4">
+      <layout class="QHBoxLayout" name="horizontalLayout_24" stretch="0,1,4,1,4">
        <property name="spacing">
         <number>1</number>
        </property>
        <item>
-        <widget class="QELabel" name="qelabel_17">
+        <widget class="QLabel" name="label_28">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>9</width>
+           <height>0</height>
+          </size>
          </property>
          <property name="font">
           <font>
@@ -638,18 +659,15 @@
            <pointsize>9</pointsize>
           </font>
          </property>
-         <property name="variable" stdset="0">
-          <string>$(DMC)$(M6).NAME</string>
-         </property>
          <property name="text">
-          <string>Axis</string>
+          <string>F</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QLabel" name="label_52">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -740,17 +758,23 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_25" stretch="2,1,4,1,4">
+      <layout class="QHBoxLayout" name="horizontalLayout_25" stretch="0,1,4,1,4">
        <property name="spacing">
         <number>1</number>
        </property>
        <item>
-        <widget class="QELabel" name="qelabel_18">
+        <widget class="QLabel" name="label_29">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>9</width>
+           <height>0</height>
+          </size>
          </property>
          <property name="font">
           <font>
@@ -758,18 +782,15 @@
            <pointsize>9</pointsize>
           </font>
          </property>
-         <property name="variable" stdset="0">
-          <string>$(DMC)$(M7).NAME</string>
-         </property>
          <property name="text">
-          <string>Axis</string>
+          <string>G</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QLabel" name="label_54">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -860,17 +881,23 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_26" stretch="2,1,4,1,4">
+      <layout class="QHBoxLayout" name="horizontalLayout_26" stretch="0,1,4,1,4">
        <property name="spacing">
         <number>1</number>
        </property>
        <item>
-        <widget class="QELabel" name="qelabel_19">
+        <widget class="QLabel" name="label_30">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>9</width>
+           <height>0</height>
+          </size>
          </property>
          <property name="font">
           <font>
@@ -878,18 +905,15 @@
            <pointsize>9</pointsize>
           </font>
          </property>
-         <property name="variable" stdset="0">
-          <string>$(DMC)$(M8).NAME</string>
-         </property>
          <property name="text">
-          <string>Axis</string>
+          <string>H</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QLabel" name="label_56">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -984,11 +1008,6 @@
   </layout>
  </widget>
  <customwidgets>
-  <customwidget>
-   <class>QELabel</class>
-   <extends>QLabel</extends>
-   <header>QELabel.h</header>
-  </customwidget>
   <customwidget>
    <class>QELineEdit</class>
    <extends>QLineEdit</extends>
