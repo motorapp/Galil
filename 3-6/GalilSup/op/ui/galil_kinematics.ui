@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>719</width>
-    <height>659</height>
+    <width>642</width>
+    <height>609</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -118,7 +118,7 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>9</width>
+              <width>10</width>
               <height>0</height>
              </size>
             </property>
@@ -129,7 +129,7 @@
              </font>
             </property>
             <property name="text">
-             <string>A</string>
+             <string>I</string>
             </property>
            </widget>
           </item>
@@ -253,7 +253,7 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>9</width>
+              <width>10</width>
               <height>0</height>
              </size>
             </property>
@@ -264,7 +264,7 @@
              </font>
             </property>
             <property name="text">
-             <string>B</string>
+             <string>J</string>
             </property>
            </widget>
           </item>
@@ -388,7 +388,7 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>9</width>
+              <width>10</width>
               <height>0</height>
              </size>
             </property>
@@ -399,7 +399,7 @@
              </font>
             </property>
             <property name="text">
-             <string>C</string>
+             <string>K</string>
             </property>
            </widget>
           </item>
@@ -523,7 +523,7 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>9</width>
+              <width>10</width>
               <height>0</height>
              </size>
             </property>
@@ -534,7 +534,7 @@
              </font>
             </property>
             <property name="text">
-             <string>D</string>
+             <string>L</string>
             </property>
            </widget>
           </item>
@@ -658,7 +658,7 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>9</width>
+              <width>10</width>
               <height>0</height>
              </size>
             </property>
@@ -669,7 +669,7 @@
              </font>
             </property>
             <property name="text">
-             <string>E</string>
+             <string>M</string>
             </property>
            </widget>
           </item>
@@ -793,7 +793,7 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>9</width>
+              <width>10</width>
               <height>0</height>
              </size>
             </property>
@@ -804,7 +804,7 @@
              </font>
             </property>
             <property name="text">
-             <string>F</string>
+             <string>N</string>
             </property>
            </widget>
           </item>
@@ -928,7 +928,7 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>9</width>
+              <width>10</width>
               <height>0</height>
              </size>
             </property>
@@ -939,7 +939,7 @@
              </font>
             </property>
             <property name="text">
-             <string>G</string>
+             <string>O</string>
             </property>
            </widget>
           </item>
@@ -1063,7 +1063,7 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>9</width>
+              <width>10</width>
               <height>0</height>
              </size>
             </property>
@@ -1074,7 +1074,7 @@
              </font>
             </property>
             <property name="text">
-             <string>H</string>
+             <string>P</string>
             </property>
            </widget>
           </item>
