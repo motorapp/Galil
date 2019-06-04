@@ -136,9 +136,6 @@ void GalilConnector::run(void)
 			else
 				{
 				//No response
-				//Keep sync and asyn flags in same state
-				pC_->connected_ = false;
-				pC_->setIntegerParam(0, pC_->GalilCommunicationError_, 1);
 				//Continue to force disconnect until device responds
 				pC_->disconnect();
 				}

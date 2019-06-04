@@ -35,60 +35,60 @@ pattern {P,       R,          PORT,  BYTE,  MASK,     ZNAM,  ONAM,  ZSV,        
 
 # DMC = Digital motor controller
 # DMC binary inputs are organized in bytes
-	{DMC01:,  Galil0Bi0,  Galil, 0,     0x000001, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{DMC01:,  Galil0Bi1,  Galil, 0,     0x000002, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{DMC01:,  Galil0Bi2,  Galil, 0,     0x000004, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{DMC01:,  Galil0Bi3,  Galil, 0,     0x000008, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{DMC01:,  Galil0Bi4,  Galil, 0,     0x000010, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{DMC01:,  Galil0Bi5,  Galil, 0,     0x000020, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{DMC01:,  Galil0Bi6,  Galil, 0,     0x000040, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{DMC01:,  Galil0Bi7,  Galil, 0,     0x000080, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{DMC01:,  Galil0Bi0,  Galil, 0,     0x000001, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{DMC01:,  Galil0Bi1,  Galil, 0,     0x000002, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{DMC01:,  Galil0Bi2,  Galil, 0,     0x000004, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{DMC01:,  Galil0Bi3,  Galil, 0,     0x000008, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{DMC01:,  Galil0Bi4,  Galil, 0,     0x000010, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{DMC01:,  Galil0Bi5,  Galil, 0,     0x000020, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{DMC01:,  Galil0Bi6,  Galil, 0,     0x000040, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{DMC01:,  Galil0Bi7,  Galil, 0,     0x000080, "Off", "On",  "NO_ALARM", "MAJOR"  }
 
-	{DMC01:,  Galil1Bi0,  Galil, 1,     0x000001, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{DMC01:,  Galil1Bi1,  Galil, 1,     0x000002, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{DMC01:,  Galil1Bi2,  Galil, 1,     0x000004, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{DMC01:,  Galil1Bi3,  Galil, 1,     0x000008, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{DMC01:,  Galil1Bi4,  Galil, 1,     0x000010, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{DMC01:,  Galil1Bi5,  Galil, 1,     0x000020, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{DMC01:,  Galil1Bi6,  Galil, 1,     0x000040, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{DMC01:,  Galil1Bi7,  Galil, 1,     0x000080, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{DMC01:,  Galil1Bi0,  Galil, 1,     0x000001, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{DMC01:,  Galil1Bi1,  Galil, 1,     0x000002, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{DMC01:,  Galil1Bi2,  Galil, 1,     0x000004, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{DMC01:,  Galil1Bi3,  Galil, 1,     0x000008, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{DMC01:,  Galil1Bi4,  Galil, 1,     0x000010, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{DMC01:,  Galil1Bi5,  Galil, 1,     0x000020, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{DMC01:,  Galil1Bi6,  Galil, 1,     0x000040, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{DMC01:,  Galil1Bi7,  Galil, 1,     0x000080, "Off", "On",  "NO_ALARM", "MAJOR"  }
 
-	{DMC01:,  Galil2Bi0,  Galil, 2,     0x000001, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{DMC01:,  Galil2Bi1,  Galil, 2,     0x000002, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{DMC01:,  Galil2Bi2,  Galil, 2,     0x000004, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{DMC01:,  Galil2Bi3,  Galil, 2,     0x000008, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{DMC01:,  Galil2Bi4,  Galil, 2,     0x000010, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{DMC01:,  Galil2Bi5,  Galil, 2,     0x000020, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{DMC01:,  Galil2Bi6,  Galil, 2,     0x000040, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{DMC01:,  Galil2Bi7,  Galil, 2,     0x000080, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{DMC01:,  Galil2Bi0,  Galil, 2,     0x000001, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{DMC01:,  Galil2Bi1,  Galil, 2,     0x000002, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{DMC01:,  Galil2Bi2,  Galil, 2,     0x000004, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{DMC01:,  Galil2Bi3,  Galil, 2,     0x000008, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{DMC01:,  Galil2Bi4,  Galil, 2,     0x000010, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{DMC01:,  Galil2Bi5,  Galil, 2,     0x000020, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{DMC01:,  Galil2Bi6,  Galil, 2,     0x000040, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{DMC01:,  Galil2Bi7,  Galil, 2,     0x000080, "Off", "On",  "NO_ALARM", "MAJOR"  }
 
 # RIO binary inputs are organized in bytes
-	{RIO01:,  Galil0Bi0,  RIO,   0,     0x000001, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{RIO01:,  Galil0Bi1,  RIO,   0,     0x000002, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{RIO01:,  Galil0Bi2,  RIO,   0,     0x000004, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{RIO01:,  Galil0Bi3,  RIO,   0,     0x000008, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{RIO01:,  Galil0Bi4,  RIO,   0,     0x000010, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{RIO01:,  Galil0Bi5,  RIO,   0,     0x000020, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{RIO01:,  Galil0Bi6,  RIO,   0,     0x000040, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{RIO01:,  Galil0Bi7,  RIO,   0,     0x000080, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{RIO01:,  Galil0Bi0,  RIO,   0,     0x000001, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{RIO01:,  Galil0Bi1,  RIO,   0,     0x000002, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{RIO01:,  Galil0Bi2,  RIO,   0,     0x000004, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{RIO01:,  Galil0Bi3,  RIO,   0,     0x000008, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{RIO01:,  Galil0Bi4,  RIO,   0,     0x000010, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{RIO01:,  Galil0Bi5,  RIO,   0,     0x000020, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{RIO01:,  Galil0Bi6,  RIO,   0,     0x000040, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{RIO01:,  Galil0Bi7,  RIO,   0,     0x000080, "Off", "On",  "NO_ALARM", "MAJOR"  }
 
-	{RIO01:,  Galil1Bi0,  RIO,   1,     0x000001, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{RIO01:,  Galil1Bi1,  RIO,   1,     0x000002, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{RIO01:,  Galil1Bi2,  RIO,   1,     0x000004, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{RIO01:,  Galil1Bi3,  RIO,   1,     0x000008, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{RIO01:,  Galil1Bi4,  RIO,   1,     0x000010, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{RIO01:,  Galil1Bi5,  RIO,   1,     0x000020, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{RIO01:,  Galil1Bi6,  RIO,   1,     0x000040, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{RIO01:,  Galil1Bi7,  RIO,   1,     0x000080, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{RIO01:,  Galil1Bi0,  RIO,   1,     0x000001, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{RIO01:,  Galil1Bi1,  RIO,   1,     0x000002, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{RIO01:,  Galil1Bi2,  RIO,   1,     0x000004, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{RIO01:,  Galil1Bi3,  RIO,   1,     0x000008, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{RIO01:,  Galil1Bi4,  RIO,   1,     0x000010, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{RIO01:,  Galil1Bi5,  RIO,   1,     0x000020, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{RIO01:,  Galil1Bi6,  RIO,   1,     0x000040, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{RIO01:,  Galil1Bi7,  RIO,   1,     0x000080, "Off", "On",  "NO_ALARM", "MAJOR"  }
 
-	{RIO01:,  Galil2Bi0,  RIO,   2,     0x000001, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{RIO01:,  Galil2Bi1,  RIO,   2,     0x000002, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{RIO01:,  Galil2Bi2,  RIO,   2,     0x000004, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{RIO01:,  Galil2Bi3,  RIO,   2,     0x000008, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{RIO01:,  Galil2Bi4,  RIO,   2,     0x000010, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{RIO01:,  Galil2Bi5,  RIO,   2,     0x000020, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{RIO01:,  Galil2Bi6,  RIO,   2,     0x000040, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
-	{RIO01:,  Galil2Bi7,  RIO,   2,     0x000080, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{RIO01:,  Galil2Bi0,  RIO,   2,     0x000001, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{RIO01:,  Galil2Bi1,  RIO,   2,     0x000002, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{RIO01:,  Galil2Bi2,  RIO,   2,     0x000004, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{RIO01:,  Galil2Bi3,  RIO,   2,     0x000008, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{RIO01:,  Galil2Bi4,  RIO,   2,     0x000010, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{RIO01:,  Galil2Bi5,  RIO,   2,     0x000020, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{RIO01:,  Galil2Bi6,  RIO,   2,     0x000040, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{RIO01:,  Galil2Bi7,  RIO,   2,     0x000080, "Off", "On",  "NO_ALARM", "MAJOR"  }
 
 }
 

@@ -175,7 +175,7 @@
         <number>1</number>
        </property>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_26" stretch="40,20,40">
+        <layout class="QHBoxLayout" name="horizontalLayout_26" stretch="40,30,40">
          <property name="spacing">
           <number>1</number>
          </property>
@@ -222,37 +222,37 @@
           </layout>
          </item>
          <item>
-          <layout class="QVBoxLayout" name="verticalLayout">
+          <layout class="QVBoxLayout" name="verticalLayout" stretch="2,1">
+           <property name="spacing">
+            <number>0</number>
+           </property>
            <item>
-            <widget class="QEBitStatus" name="qebitstatus_11">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
+            <widget class="QESimpleShape" name="qesimpleshape">
+             <property name="edgeWidth">
+              <number>3</number>
              </property>
-             <property name="numberOfBits">
-              <number>1</number>
-             </property>
-             <property name="onColour">
-              <color>
-               <red>0</red>
-               <green>136</green>
-               <blue>0</blue>
-              </color>
-             </property>
-             <property name="offColour">
+             <property name="colour0" stdset="0">
               <color>
                <red>159</red>
                <green>0</green>
                <blue>0</blue>
               </color>
              </property>
+             <property name="colour1" stdset="0">
+              <color>
+               <red>0</red>
+               <green>136</green>
+               <blue>0</blue>
+              </color>
+             </property>
              <property name="variable" stdset="0">
               <string>$(P)Galil$(BYTE)Bi0_STATUS</string>
              </property>
-             <property name="variableSubstitutions" stdset="0">
-              <string/>
+             <property name="edgeVariable" stdset="0">
+              <string>$(P)Galil$(BYTE)Bi0_STATUS</string>
+             </property>
+             <property name="displayAlarmStateOption" stdset="0">
+              <enum>QESimpleShape::Never</enum>
              </property>
             </widget>
            </item>
@@ -272,17 +272,7 @@
           </layout>
          </item>
          <item>
-          <spacer name="horizontalSpacer_50">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
+          <layout class="QVBoxLayout" name="verticalLayout_23"/>
          </item>
         </layout>
        </item>
@@ -303,6 +293,9 @@
          <property name="variable" stdset="0">
           <string>$(P)Galil$(BYTE)Bi0_STATUS.DESC</string>
          </property>
+         <property name="displayAlarmStateOption" stdset="0">
+          <enum>QEGenericEdit::Never</enum>
+         </property>
         </widget>
        </item>
       </layout>
@@ -313,7 +306,7 @@
         <number>1</number>
        </property>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_19" stretch="40,20,40">
+        <layout class="QHBoxLayout" name="horizontalLayout_19" stretch="40,30,40">
          <property name="spacing">
           <number>1</number>
          </property>
@@ -331,37 +324,37 @@
           </spacer>
          </item>
          <item>
-          <layout class="QVBoxLayout" name="verticalLayout_2">
+          <layout class="QVBoxLayout" name="verticalLayout_2" stretch="2,1">
+           <property name="spacing">
+            <number>0</number>
+           </property>
            <item>
-            <widget class="QEBitStatus" name="qebitstatus_12">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
+            <widget class="QESimpleShape" name="qesimpleshape_4">
+             <property name="edgeWidth">
+              <number>3</number>
              </property>
-             <property name="numberOfBits">
-              <number>1</number>
-             </property>
-             <property name="onColour">
-              <color>
-               <red>0</red>
-               <green>136</green>
-               <blue>0</blue>
-              </color>
-             </property>
-             <property name="offColour">
+             <property name="colour0" stdset="0">
               <color>
                <red>159</red>
                <green>0</green>
                <blue>0</blue>
               </color>
              </property>
+             <property name="colour1" stdset="0">
+              <color>
+               <red>0</red>
+               <green>136</green>
+               <blue>0</blue>
+              </color>
+             </property>
              <property name="variable" stdset="0">
               <string>$(P)Galil$(BYTE)Bi1_STATUS</string>
              </property>
-             <property name="variableSubstitutions" stdset="0">
-              <string/>
+             <property name="edgeVariable" stdset="0">
+              <string>$(P)Galil$(BYTE)Bi1_STATUS</string>
+             </property>
+             <property name="displayAlarmStateOption" stdset="0">
+              <enum>QESimpleShape::Never</enum>
              </property>
             </widget>
            </item>
@@ -412,6 +405,9 @@
          <property name="variable" stdset="0">
           <string>$(P)Galil$(BYTE)Bi1_STATUS.DESC</string>
          </property>
+         <property name="displayAlarmStateOption" stdset="0">
+          <enum>QEGenericEdit::Never</enum>
+         </property>
         </widget>
        </item>
       </layout>
@@ -422,7 +418,7 @@
         <number>1</number>
        </property>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_24" stretch="40,20,40">
+        <layout class="QHBoxLayout" name="horizontalLayout_24" stretch="40,30,40">
          <property name="spacing">
           <number>1</number>
          </property>
@@ -440,37 +436,37 @@
           </spacer>
          </item>
          <item>
-          <layout class="QVBoxLayout" name="verticalLayout_3">
+          <layout class="QVBoxLayout" name="verticalLayout_3" stretch="2,1">
+           <property name="spacing">
+            <number>0</number>
+           </property>
            <item>
-            <widget class="QEBitStatus" name="qebitstatus_13">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
+            <widget class="QESimpleShape" name="qesimpleshape_5">
+             <property name="edgeWidth">
+              <number>3</number>
              </property>
-             <property name="numberOfBits">
-              <number>1</number>
-             </property>
-             <property name="onColour">
-              <color>
-               <red>0</red>
-               <green>136</green>
-               <blue>0</blue>
-              </color>
-             </property>
-             <property name="offColour">
+             <property name="colour0" stdset="0">
               <color>
                <red>159</red>
                <green>0</green>
                <blue>0</blue>
               </color>
              </property>
+             <property name="colour1" stdset="0">
+              <color>
+               <red>0</red>
+               <green>136</green>
+               <blue>0</blue>
+              </color>
+             </property>
              <property name="variable" stdset="0">
               <string>$(P)Galil$(BYTE)Bi2_STATUS</string>
              </property>
-             <property name="variableSubstitutions" stdset="0">
-              <string/>
+             <property name="edgeVariable" stdset="0">
+              <string>$(P)Galil$(BYTE)Bi2_STATUS</string>
+             </property>
+             <property name="displayAlarmStateOption" stdset="0">
+              <enum>QESimpleShape::Never</enum>
              </property>
             </widget>
            </item>
@@ -521,6 +517,9 @@
          <property name="variable" stdset="0">
           <string>$(P)Galil$(BYTE)Bi2_STATUS.DESC</string>
          </property>
+         <property name="displayAlarmStateOption" stdset="0">
+          <enum>QEGenericEdit::Never</enum>
+         </property>
         </widget>
        </item>
       </layout>
@@ -531,7 +530,7 @@
         <number>1</number>
        </property>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_20" stretch="40,20,40">
+        <layout class="QHBoxLayout" name="horizontalLayout_20" stretch="40,30,40">
          <property name="spacing">
           <number>1</number>
          </property>
@@ -549,37 +548,37 @@
           </spacer>
          </item>
          <item>
-          <layout class="QVBoxLayout" name="verticalLayout_4">
+          <layout class="QVBoxLayout" name="verticalLayout_4" stretch="2,1">
+           <property name="spacing">
+            <number>0</number>
+           </property>
            <item>
-            <widget class="QEBitStatus" name="qebitstatus_14">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
+            <widget class="QESimpleShape" name="qesimpleshape_6">
+             <property name="edgeWidth">
+              <number>3</number>
              </property>
-             <property name="numberOfBits">
-              <number>1</number>
-             </property>
-             <property name="onColour">
-              <color>
-               <red>0</red>
-               <green>136</green>
-               <blue>0</blue>
-              </color>
-             </property>
-             <property name="offColour">
+             <property name="colour0" stdset="0">
               <color>
                <red>159</red>
                <green>0</green>
                <blue>0</blue>
               </color>
              </property>
+             <property name="colour1" stdset="0">
+              <color>
+               <red>0</red>
+               <green>136</green>
+               <blue>0</blue>
+              </color>
+             </property>
              <property name="variable" stdset="0">
               <string>$(P)Galil$(BYTE)Bi3_STATUS</string>
              </property>
-             <property name="variableSubstitutions" stdset="0">
-              <string/>
+             <property name="edgeVariable" stdset="0">
+              <string>$(P)Galil$(BYTE)Bi3_STATUS</string>
+             </property>
+             <property name="displayAlarmStateOption" stdset="0">
+              <enum>QESimpleShape::Never</enum>
              </property>
             </widget>
            </item>
@@ -630,6 +629,9 @@
          <property name="variable" stdset="0">
           <string>$(P)Galil$(BYTE)Bi3_STATUS.DESC</string>
          </property>
+         <property name="displayAlarmStateOption" stdset="0">
+          <enum>QEGenericEdit::Never</enum>
+         </property>
         </widget>
        </item>
       </layout>
@@ -640,7 +642,7 @@
         <number>1</number>
        </property>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_21" stretch="40,20,40">
+        <layout class="QHBoxLayout" name="horizontalLayout_21" stretch="40,30,40">
          <property name="spacing">
           <number>1</number>
          </property>
@@ -658,37 +660,37 @@
           </spacer>
          </item>
          <item>
-          <layout class="QVBoxLayout" name="verticalLayout_5">
+          <layout class="QVBoxLayout" name="verticalLayout_5" stretch="2,1">
+           <property name="spacing">
+            <number>0</number>
+           </property>
            <item>
-            <widget class="QEBitStatus" name="qebitstatus_15">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
+            <widget class="QESimpleShape" name="qesimpleshape_3">
+             <property name="edgeWidth">
+              <number>3</number>
              </property>
-             <property name="numberOfBits">
-              <number>1</number>
-             </property>
-             <property name="onColour">
-              <color>
-               <red>0</red>
-               <green>136</green>
-               <blue>0</blue>
-              </color>
-             </property>
-             <property name="offColour">
+             <property name="colour0" stdset="0">
               <color>
                <red>159</red>
                <green>0</green>
                <blue>0</blue>
               </color>
              </property>
+             <property name="colour1" stdset="0">
+              <color>
+               <red>0</red>
+               <green>136</green>
+               <blue>0</blue>
+              </color>
+             </property>
              <property name="variable" stdset="0">
               <string>$(P)Galil$(BYTE)Bi4_STATUS</string>
              </property>
-             <property name="variableSubstitutions" stdset="0">
-              <string/>
+             <property name="edgeVariable" stdset="0">
+              <string>$(P)Galil$(BYTE)Bi4_STATUS</string>
+             </property>
+             <property name="displayAlarmStateOption" stdset="0">
+              <enum>QESimpleShape::Never</enum>
              </property>
             </widget>
            </item>
@@ -739,6 +741,9 @@
          <property name="variable" stdset="0">
           <string>$(P)Galil$(BYTE)Bi4_STATUS.DESC</string>
          </property>
+         <property name="displayAlarmStateOption" stdset="0">
+          <enum>QEGenericEdit::Never</enum>
+         </property>
         </widget>
        </item>
       </layout>
@@ -749,7 +754,7 @@
         <number>1</number>
        </property>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_22" stretch="40,20,40">
+        <layout class="QHBoxLayout" name="horizontalLayout_22" stretch="40,30,40">
          <property name="spacing">
           <number>1</number>
          </property>
@@ -767,37 +772,37 @@
           </spacer>
          </item>
          <item>
-          <layout class="QVBoxLayout" name="verticalLayout_6">
+          <layout class="QVBoxLayout" name="verticalLayout_6" stretch="2,1">
+           <property name="spacing">
+            <number>0</number>
+           </property>
            <item>
-            <widget class="QEBitStatus" name="qebitstatus_16">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
+            <widget class="QESimpleShape" name="qesimpleshape_7">
+             <property name="edgeWidth">
+              <number>3</number>
              </property>
-             <property name="numberOfBits">
-              <number>1</number>
-             </property>
-             <property name="onColour">
-              <color>
-               <red>0</red>
-               <green>136</green>
-               <blue>0</blue>
-              </color>
-             </property>
-             <property name="offColour">
+             <property name="colour0" stdset="0">
               <color>
                <red>159</red>
                <green>0</green>
                <blue>0</blue>
               </color>
              </property>
+             <property name="colour1" stdset="0">
+              <color>
+               <red>0</red>
+               <green>136</green>
+               <blue>0</blue>
+              </color>
+             </property>
              <property name="variable" stdset="0">
               <string>$(P)Galil$(BYTE)Bi5_STATUS</string>
              </property>
-             <property name="variableSubstitutions" stdset="0">
-              <string/>
+             <property name="edgeVariable" stdset="0">
+              <string>$(P)Galil$(BYTE)Bi5_STATUS</string>
+             </property>
+             <property name="displayAlarmStateOption" stdset="0">
+              <enum>QESimpleShape::Never</enum>
              </property>
             </widget>
            </item>
@@ -848,6 +853,9 @@
          <property name="variable" stdset="0">
           <string>$(P)Galil$(BYTE)Bi5_STATUS.DESC</string>
          </property>
+         <property name="displayAlarmStateOption" stdset="0">
+          <enum>QEGenericEdit::Never</enum>
+         </property>
         </widget>
        </item>
       </layout>
@@ -858,7 +866,7 @@
         <number>1</number>
        </property>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_23" stretch="40,20,40">
+        <layout class="QHBoxLayout" name="horizontalLayout_23" stretch="40,30,40">
          <property name="spacing">
           <number>1</number>
          </property>
@@ -876,37 +884,37 @@
           </spacer>
          </item>
          <item>
-          <layout class="QVBoxLayout" name="verticalLayout_7">
+          <layout class="QVBoxLayout" name="verticalLayout_7" stretch="2,1">
+           <property name="spacing">
+            <number>0</number>
+           </property>
            <item>
-            <widget class="QEBitStatus" name="qebitstatus_17">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
+            <widget class="QESimpleShape" name="qesimpleshape_8">
+             <property name="edgeWidth">
+              <number>3</number>
              </property>
-             <property name="numberOfBits">
-              <number>1</number>
-             </property>
-             <property name="onColour">
-              <color>
-               <red>0</red>
-               <green>136</green>
-               <blue>0</blue>
-              </color>
-             </property>
-             <property name="offColour">
+             <property name="colour0" stdset="0">
               <color>
                <red>159</red>
                <green>0</green>
                <blue>0</blue>
               </color>
              </property>
+             <property name="colour1" stdset="0">
+              <color>
+               <red>0</red>
+               <green>136</green>
+               <blue>0</blue>
+              </color>
+             </property>
              <property name="variable" stdset="0">
               <string>$(P)Galil$(BYTE)Bi6_STATUS</string>
              </property>
-             <property name="variableSubstitutions" stdset="0">
-              <string/>
+             <property name="edgeVariable" stdset="0">
+              <string>$(P)Galil$(BYTE)Bi6_STATUS</string>
+             </property>
+             <property name="displayAlarmStateOption" stdset="0">
+              <enum>QESimpleShape::Never</enum>
              </property>
             </widget>
            </item>
@@ -957,6 +965,9 @@
          <property name="variable" stdset="0">
           <string>$(P)Galil$(BYTE)Bi6_STATUS.DESC</string>
          </property>
+         <property name="displayAlarmStateOption" stdset="0">
+          <enum>QEGenericEdit::Never</enum>
+         </property>
         </widget>
        </item>
       </layout>
@@ -967,7 +978,7 @@
         <number>1</number>
        </property>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_25" stretch="40,20,40">
+        <layout class="QHBoxLayout" name="horizontalLayout_25" stretch="40,30,40">
          <property name="spacing">
           <number>1</number>
          </property>
@@ -1014,37 +1025,37 @@
           </layout>
          </item>
          <item>
-          <layout class="QVBoxLayout" name="verticalLayout_8">
+          <layout class="QVBoxLayout" name="verticalLayout_8" stretch="2,1">
+           <property name="spacing">
+            <number>0</number>
+           </property>
            <item>
-            <widget class="QEBitStatus" name="qebitstatus_18">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
+            <widget class="QESimpleShape" name="qesimpleshape_9">
+             <property name="edgeWidth">
+              <number>3</number>
              </property>
-             <property name="numberOfBits">
-              <number>1</number>
-             </property>
-             <property name="onColour">
-              <color>
-               <red>0</red>
-               <green>136</green>
-               <blue>0</blue>
-              </color>
-             </property>
-             <property name="offColour">
+             <property name="colour0" stdset="0">
               <color>
                <red>159</red>
                <green>0</green>
                <blue>0</blue>
               </color>
              </property>
+             <property name="colour1" stdset="0">
+              <color>
+               <red>0</red>
+               <green>136</green>
+               <blue>0</blue>
+              </color>
+             </property>
              <property name="variable" stdset="0">
               <string>$(P)Galil$(BYTE)Bi7_STATUS</string>
              </property>
-             <property name="variableSubstitutions" stdset="0">
-              <string/>
+             <property name="edgeVariable" stdset="0">
+              <string>$(P)Galil$(BYTE)Bi7_STATUS</string>
+             </property>
+             <property name="displayAlarmStateOption" stdset="0">
+              <enum>QESimpleShape::Never</enum>
              </property>
             </widget>
            </item>
@@ -1095,6 +1106,9 @@
          <property name="variable" stdset="0">
           <string>$(P)Galil$(BYTE)Bi7_STATUS.DESC</string>
          </property>
+         <property name="displayAlarmStateOption" stdset="0">
+          <enum>QEGenericEdit::Never</enum>
+         </property>
         </widget>
        </item>
       </layout>
@@ -1105,14 +1119,14 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QEBitStatus</class>
-   <extends>QBitStatus</extends>
-   <header>QEBitStatus.h</header>
-  </customwidget>
-  <customwidget>
    <class>QELineEdit</class>
    <extends>QLineEdit</extends>
    <header>QELineEdit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QESimpleShape</class>
+   <extends>QSimpleShape</extends>
+   <header>QESimpleShape.h</header>
   </customwidget>
   <customwidget>
    <class>QESubstitutedLabel</class>
@@ -1120,15 +1134,15 @@
    <header>QESubstitutedLabel.h</header>
   </customwidget>
   <customwidget>
-   <class>QBitStatus</class>
-   <extends>QWidget</extends>
-   <header>QBitStatus.h</header>
-  </customwidget>
-  <customwidget>
    <class>QEFrame</class>
    <extends>QFrame</extends>
    <header>QEFrame.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QSimpleShape</class>
+   <extends>QWidget</extends>
+   <header>QSimpleShape.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

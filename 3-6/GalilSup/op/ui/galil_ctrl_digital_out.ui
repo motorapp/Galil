@@ -309,6 +309,9 @@
            <property name="variable" stdset="0">
             <string>$(P)Galil$(WORD)Bo0_CMD</string>
            </property>
+           <property name="displayAlarmStateOption" stdset="0">
+            <enum>QERadioButton::Never</enum>
+           </property>
            <property name="format" stdset="0">
             <enum>QERadioButton::UnsignedInteger</enum>
            </property>
@@ -354,6 +357,9 @@
          </property>
          <property name="variable" stdset="0">
           <string>$(P)Galil$(WORD)Bo0_CMD.DESC</string>
+         </property>
+         <property name="displayAlarmStateOption" stdset="0">
+          <enum>QEGenericEdit::Never</enum>
          </property>
         </widget>
        </item>
@@ -473,6 +479,9 @@
            <property name="variable" stdset="0">
             <string>$(P)Galil$(WORD)Bo1_CMD</string>
            </property>
+           <property name="displayAlarmStateOption" stdset="0">
+            <enum>QERadioButton::Never</enum>
+           </property>
            <property name="format" stdset="0">
             <enum>QERadioButton::UnsignedInteger</enum>
            </property>
@@ -518,6 +527,9 @@
          </property>
          <property name="variable" stdset="0">
           <string>$(P)Galil$(WORD)Bo1_CMD.DESC</string>
+         </property>
+         <property name="displayAlarmStateOption" stdset="0">
+          <enum>QEGenericEdit::Never</enum>
          </property>
         </widget>
        </item>
@@ -637,6 +649,9 @@
            <property name="variable" stdset="0">
             <string>$(P)Galil$(WORD)Bo2_CMD</string>
            </property>
+           <property name="displayAlarmStateOption" stdset="0">
+            <enum>QERadioButton::Never</enum>
+           </property>
            <property name="format" stdset="0">
             <enum>QERadioButton::UnsignedInteger</enum>
            </property>
@@ -682,6 +697,9 @@
          </property>
          <property name="variable" stdset="0">
           <string>$(P)Galil$(WORD)Bo2_CMD.DESC</string>
+         </property>
+         <property name="displayAlarmStateOption" stdset="0">
+          <enum>QEGenericEdit::Never</enum>
          </property>
         </widget>
        </item>
@@ -801,6 +819,9 @@
            <property name="variable" stdset="0">
             <string>$(P)Galil$(WORD)Bo3_CMD</string>
            </property>
+           <property name="displayAlarmStateOption" stdset="0">
+            <enum>QERadioButton::Never</enum>
+           </property>
            <property name="format" stdset="0">
             <enum>QERadioButton::UnsignedInteger</enum>
            </property>
@@ -846,6 +867,9 @@
          </property>
          <property name="variable" stdset="0">
           <string>$(P)Galil$(WORD)Bo3_CMD.DESC</string>
+         </property>
+         <property name="displayAlarmStateOption" stdset="0">
+          <enum>QEGenericEdit::Never</enum>
          </property>
         </widget>
        </item>
@@ -965,6 +989,9 @@
            <property name="variable" stdset="0">
             <string>$(P)Galil$(WORD)Bo4_CMD</string>
            </property>
+           <property name="displayAlarmStateOption" stdset="0">
+            <enum>QERadioButton::Never</enum>
+           </property>
            <property name="format" stdset="0">
             <enum>QERadioButton::UnsignedInteger</enum>
            </property>
@@ -1010,6 +1037,9 @@
          </property>
          <property name="variable" stdset="0">
           <string>$(P)Galil$(WORD)Bo4_CMD.DESC</string>
+         </property>
+         <property name="displayAlarmStateOption" stdset="0">
+          <enum>QEGenericEdit::Never</enum>
          </property>
         </widget>
        </item>
@@ -1129,6 +1159,9 @@
            <property name="variable" stdset="0">
             <string>$(P)Galil$(WORD)Bo5_CMD</string>
            </property>
+           <property name="displayAlarmStateOption" stdset="0">
+            <enum>QERadioButton::Never</enum>
+           </property>
            <property name="format" stdset="0">
             <enum>QERadioButton::UnsignedInteger</enum>
            </property>
@@ -1174,6 +1207,9 @@
          </property>
          <property name="variable" stdset="0">
           <string>$(P)Galil$(WORD)Bo5_CMD.DESC</string>
+         </property>
+         <property name="displayAlarmStateOption" stdset="0">
+          <enum>QEGenericEdit::Never</enum>
          </property>
         </widget>
        </item>
@@ -1293,6 +1329,9 @@
            <property name="variable" stdset="0">
             <string>$(P)Galil$(WORD)Bo6_CMD</string>
            </property>
+           <property name="displayAlarmStateOption" stdset="0">
+            <enum>QERadioButton::Never</enum>
+           </property>
            <property name="format" stdset="0">
             <enum>QERadioButton::UnsignedInteger</enum>
            </property>
@@ -1338,6 +1377,9 @@
          </property>
          <property name="variable" stdset="0">
           <string>$(P)Galil$(WORD)Bo6_CMD.DESC</string>
+         </property>
+         <property name="displayAlarmStateOption" stdset="0">
+          <enum>QEGenericEdit::Never</enum>
          </property>
         </widget>
        </item>
@@ -1480,6 +1522,9 @@
            <property name="variable" stdset="0">
             <string>$(P)Galil$(WORD)Bo7_CMD</string>
            </property>
+           <property name="displayAlarmStateOption" stdset="0">
+            <enum>QERadioButton::Never</enum>
+           </property>
            <property name="format" stdset="0">
             <enum>QERadioButton::UnsignedInteger</enum>
            </property>
@@ -1525,6 +1570,9 @@
          </property>
          <property name="variable" stdset="0">
           <string>$(P)Galil$(WORD)Bo7_CMD.DESC</string>
+         </property>
+         <property name="displayAlarmStateOption" stdset="0">
+          <enum>QEGenericEdit::Never</enum>
          </property>
         </widget>
        </item>
@@ -1818,6 +1866,9 @@
            <property name="variable" stdset="0">
             <string>$(P)Galil$(WORD)Bo8_CMD</string>
            </property>
+           <property name="displayAlarmStateOption" stdset="0">
+            <enum>QERadioButton::Never</enum>
+           </property>
            <property name="format" stdset="0">
             <enum>QERadioButton::UnsignedInteger</enum>
            </property>
@@ -1863,6 +1914,9 @@
          </property>
          <property name="variable" stdset="0">
           <string>$(P)Galil$(WORD)Bo8_CMD.DESC</string>
+         </property>
+         <property name="displayAlarmStateOption" stdset="0">
+          <enum>QEGenericEdit::Never</enum>
          </property>
         </widget>
        </item>
@@ -1982,6 +2036,9 @@
            <property name="variable" stdset="0">
             <string>$(P)Galil$(WORD)Bo9_CMD</string>
            </property>
+           <property name="displayAlarmStateOption" stdset="0">
+            <enum>QERadioButton::Never</enum>
+           </property>
            <property name="format" stdset="0">
             <enum>QERadioButton::UnsignedInteger</enum>
            </property>
@@ -2027,6 +2084,9 @@
          </property>
          <property name="variable" stdset="0">
           <string>$(P)Galil$(WORD)Bo9_CMD.DESC</string>
+         </property>
+         <property name="displayAlarmStateOption" stdset="0">
+          <enum>QEGenericEdit::Never</enum>
          </property>
         </widget>
        </item>
@@ -2146,6 +2206,9 @@
            <property name="variable" stdset="0">
             <string>$(P)Galil$(WORD)Bo10_CMD</string>
            </property>
+           <property name="displayAlarmStateOption" stdset="0">
+            <enum>QERadioButton::Never</enum>
+           </property>
            <property name="format" stdset="0">
             <enum>QERadioButton::UnsignedInteger</enum>
            </property>
@@ -2191,6 +2254,9 @@
          </property>
          <property name="variable" stdset="0">
           <string>$(P)Galil$(WORD)Bo10_CMD.DESC</string>
+         </property>
+         <property name="displayAlarmStateOption" stdset="0">
+          <enum>QEGenericEdit::Never</enum>
          </property>
         </widget>
        </item>
@@ -2310,6 +2376,9 @@
            <property name="variable" stdset="0">
             <string>$(P)Galil$(WORD)Bo11_CMD</string>
            </property>
+           <property name="displayAlarmStateOption" stdset="0">
+            <enum>QERadioButton::Never</enum>
+           </property>
            <property name="format" stdset="0">
             <enum>QERadioButton::UnsignedInteger</enum>
            </property>
@@ -2355,6 +2424,9 @@
          </property>
          <property name="variable" stdset="0">
           <string>$(P)Galil$(WORD)Bo11_CMD.DESC</string>
+         </property>
+         <property name="displayAlarmStateOption" stdset="0">
+          <enum>QEGenericEdit::Never</enum>
          </property>
         </widget>
        </item>
@@ -2474,6 +2546,9 @@
            <property name="variable" stdset="0">
             <string>$(P)Galil$(WORD)Bo12_CMD</string>
            </property>
+           <property name="displayAlarmStateOption" stdset="0">
+            <enum>QERadioButton::Never</enum>
+           </property>
            <property name="format" stdset="0">
             <enum>QERadioButton::UnsignedInteger</enum>
            </property>
@@ -2519,6 +2594,9 @@
          </property>
          <property name="variable" stdset="0">
           <string>$(P)Galil$(WORD)Bo12_CMD.DESC</string>
+         </property>
+         <property name="displayAlarmStateOption" stdset="0">
+          <enum>QEGenericEdit::Never</enum>
          </property>
         </widget>
        </item>
@@ -2638,6 +2716,9 @@
            <property name="variable" stdset="0">
             <string>$(P)Galil$(WORD)Bo13_CMD</string>
            </property>
+           <property name="displayAlarmStateOption" stdset="0">
+            <enum>QERadioButton::Never</enum>
+           </property>
            <property name="format" stdset="0">
             <enum>QERadioButton::UnsignedInteger</enum>
            </property>
@@ -2683,6 +2764,9 @@
          </property>
          <property name="variable" stdset="0">
           <string>$(P)Galil$(WORD)Bo13_CMD.DESC</string>
+         </property>
+         <property name="displayAlarmStateOption" stdset="0">
+          <enum>QEGenericEdit::Never</enum>
          </property>
         </widget>
        </item>
@@ -2802,6 +2886,9 @@
            <property name="variable" stdset="0">
             <string>$(P)Galil$(WORD)Bo14_CMD</string>
            </property>
+           <property name="displayAlarmStateOption" stdset="0">
+            <enum>QERadioButton::Never</enum>
+           </property>
            <property name="format" stdset="0">
             <enum>QERadioButton::UnsignedInteger</enum>
            </property>
@@ -2847,6 +2934,9 @@
          </property>
          <property name="variable" stdset="0">
           <string>$(P)Galil$(WORD)Bo14_CMD.DESC</string>
+         </property>
+         <property name="displayAlarmStateOption" stdset="0">
+          <enum>QEGenericEdit::Never</enum>
          </property>
         </widget>
        </item>
@@ -2986,6 +3076,9 @@
            <property name="variable" stdset="0">
             <string>$(P)Galil$(WORD)Bo15_CMD</string>
            </property>
+           <property name="displayAlarmStateOption" stdset="0">
+            <enum>QERadioButton::Never</enum>
+           </property>
            <property name="format" stdset="0">
             <enum>QERadioButton::UnsignedInteger</enum>
            </property>
@@ -3031,6 +3124,9 @@
          </property>
          <property name="variable" stdset="0">
           <string>$(P)Galil$(WORD)Bo15_CMD.DESC</string>
+         </property>
+         <property name="displayAlarmStateOption" stdset="0">
+          <enum>QEGenericEdit::Never</enum>
          </property>
         </widget>
        </item>

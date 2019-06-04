@@ -184,6 +184,9 @@
          <property name="variableSubstitutions" stdset="0">
           <string/>
          </property>
+         <property name="displayAlarmStateOption" stdset="0">
+          <enum>QEGenericEdit::Never</enum>
+         </property>
         </widget>
        </item>
       </layout>

@@ -176,7 +176,7 @@
       </layout>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout">
+      <layout class="QVBoxLayout" name="verticalLayout" stretch="1,1,1">
        <property name="spacing">
         <number>1</number>
        </property>
@@ -312,6 +312,9 @@
            <property name="variable" stdset="0">
             <string>$(P)Galil$(WORD)Bo0_CMD</string>
            </property>
+           <property name="displayAlarmStateOption" stdset="0">
+            <enum>QERadioButton::Never</enum>
+           </property>
            <property name="format" stdset="0">
             <enum>QERadioButton::UnsignedInteger</enum>
            </property>
@@ -358,12 +361,15 @@
          <property name="variable" stdset="0">
           <string>$(P)Galil$(WORD)Bo0_CMD.DESC</string>
          </property>
+         <property name="displayAlarmStateOption" stdset="0">
+          <enum>QEGenericEdit::Never</enum>
+         </property>
         </widget>
        </item>
       </layout>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_2">
+      <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,1,1">
        <property name="spacing">
         <number>1</number>
        </property>
@@ -476,6 +482,9 @@
            <property name="variable" stdset="0">
             <string>$(P)Galil$(WORD)Bo1_CMD</string>
            </property>
+           <property name="displayAlarmStateOption" stdset="0">
+            <enum>QERadioButton::Never</enum>
+           </property>
            <property name="format" stdset="0">
             <enum>QERadioButton::UnsignedInteger</enum>
            </property>
@@ -522,12 +531,15 @@
          <property name="variable" stdset="0">
           <string>$(P)Galil$(WORD)Bo1_CMD.DESC</string>
          </property>
+         <property name="displayAlarmStateOption" stdset="0">
+          <enum>QEGenericEdit::Never</enum>
+         </property>
         </widget>
        </item>
       </layout>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_3">
+      <layout class="QVBoxLayout" name="verticalLayout_3" stretch="1,1,1">
        <property name="spacing">
         <number>1</number>
        </property>
@@ -640,6 +652,9 @@
            <property name="variable" stdset="0">
             <string>$(P)Galil$(WORD)Bo2_CMD</string>
            </property>
+           <property name="displayAlarmStateOption" stdset="0">
+            <enum>QERadioButton::Never</enum>
+           </property>
            <property name="format" stdset="0">
             <enum>QERadioButton::UnsignedInteger</enum>
            </property>
@@ -686,12 +701,15 @@
          <property name="variable" stdset="0">
           <string>$(P)Galil$(WORD)Bo2_CMD.DESC</string>
          </property>
+         <property name="displayAlarmStateOption" stdset="0">
+          <enum>QEGenericEdit::Never</enum>
+         </property>
         </widget>
        </item>
       </layout>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_4">
+      <layout class="QVBoxLayout" name="verticalLayout_4" stretch="1,1,1">
        <property name="spacing">
         <number>1</number>
        </property>
@@ -804,6 +822,9 @@
            <property name="variable" stdset="0">
             <string>$(P)Galil$(WORD)Bo3_CMD</string>
            </property>
+           <property name="displayAlarmStateOption" stdset="0">
+            <enum>QERadioButton::Never</enum>
+           </property>
            <property name="format" stdset="0">
             <enum>QERadioButton::UnsignedInteger</enum>
            </property>
@@ -850,12 +871,18 @@
          <property name="variable" stdset="0">
           <string>$(P)Galil$(WORD)Bo3_CMD.DESC</string>
          </property>
+         <property name="displayAlarmStateOption" stdset="0">
+          <enum>QEGenericEdit::Never</enum>
+         </property>
         </widget>
        </item>
       </layout>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_5">
+      <layout class="QVBoxLayout" name="verticalLayout_5" stretch="1,1,1">
+       <property name="spacing">
+        <number>1</number>
+       </property>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_10" stretch="40,20,40">
          <property name="spacing">
@@ -965,6 +992,9 @@
            <property name="variable" stdset="0">
             <string>$(P)Galil$(WORD)Bo4_CMD</string>
            </property>
+           <property name="displayAlarmStateOption" stdset="0">
+            <enum>QERadioButton::Never</enum>
+           </property>
            <property name="format" stdset="0">
             <enum>QERadioButton::UnsignedInteger</enum>
            </property>
@@ -1011,12 +1041,18 @@
          <property name="variable" stdset="0">
           <string>$(P)Galil$(WORD)Bo4_CMD.DESC</string>
          </property>
+         <property name="displayAlarmStateOption" stdset="0">
+          <enum>QEGenericEdit::Never</enum>
+         </property>
         </widget>
        </item>
       </layout>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_6">
+      <layout class="QVBoxLayout" name="verticalLayout_6" stretch="1,1,1">
+       <property name="spacing">
+        <number>1</number>
+       </property>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_12" stretch="40,20,40">
          <property name="spacing">
@@ -1126,6 +1162,9 @@
            <property name="variable" stdset="0">
             <string>$(P)Galil$(WORD)Bo5_CMD</string>
            </property>
+           <property name="displayAlarmStateOption" stdset="0">
+            <enum>QERadioButton::Never</enum>
+           </property>
            <property name="format" stdset="0">
             <enum>QERadioButton::UnsignedInteger</enum>
            </property>
@@ -1172,12 +1211,18 @@
          <property name="variable" stdset="0">
           <string>$(P)Galil$(WORD)Bo5_CMD.DESC</string>
          </property>
+         <property name="displayAlarmStateOption" stdset="0">
+          <enum>QEGenericEdit::Never</enum>
+         </property>
         </widget>
        </item>
       </layout>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_7">
+      <layout class="QVBoxLayout" name="verticalLayout_7" stretch="1,1,1">
+       <property name="spacing">
+        <number>1</number>
+       </property>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_14" stretch="40,20,40">
          <property name="spacing">
@@ -1287,6 +1332,9 @@
            <property name="variable" stdset="0">
             <string>$(P)Galil$(WORD)Bo6_CMD</string>
            </property>
+           <property name="displayAlarmStateOption" stdset="0">
+            <enum>QERadioButton::Never</enum>
+           </property>
            <property name="format" stdset="0">
             <enum>QERadioButton::UnsignedInteger</enum>
            </property>
@@ -1333,12 +1381,18 @@
          <property name="variable" stdset="0">
           <string>$(P)Galil$(WORD)Bo6_CMD.DESC</string>
          </property>
+         <property name="displayAlarmStateOption" stdset="0">
+          <enum>QEGenericEdit::Never</enum>
+         </property>
         </widget>
        </item>
       </layout>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_8">
+      <layout class="QVBoxLayout" name="verticalLayout_8" stretch="1,1,1">
+       <property name="spacing">
+        <number>1</number>
+       </property>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_16" stretch="40,20,40">
          <property name="spacing">
@@ -1477,6 +1531,9 @@
            <property name="variable" stdset="0">
             <string>$(P)Galil$(WORD)Bo7_CMD</string>
            </property>
+           <property name="displayAlarmStateOption" stdset="0">
+            <enum>QERadioButton::Never</enum>
+           </property>
            <property name="format" stdset="0">
             <enum>QERadioButton::UnsignedInteger</enum>
            </property>
@@ -1522,6 +1579,9 @@
          </property>
          <property name="variable" stdset="0">
           <string>$(P)Galil$(WORD)Bo7_CMD.DESC</string>
+         </property>
+         <property name="displayAlarmStateOption" stdset="0">
+          <enum>QEGenericEdit::Never</enum>
          </property>
         </widget>
        </item>

@@ -326,6 +326,11 @@
 //                  Add driver version number
 //                  Alter set_biss so that it's windows compatible
 //                  Add iocShell function GalilReplaceHomeCode - Replace generated axis home with custom home code
+// 04/06/19 M.Clift
+//                  Alter digital IO records update now forced upon controller connect
+//                  Tidy up GalilConnector
+//                  Alter digital IO MEDM and QEGUI screens so digital input alarm state and value is displayed
+//                  Alter default alarm states for digital in bits
 
 #include <stdio.h>
 #include <math.h>
@@ -366,7 +371,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "3-6-25";
+static const char *driverVersion = "3-6-29";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);
@@ -423,9 +428,12 @@ void connectCallback(asynUser *pasynUser, asynException exception)
           //Inform user of disconnect only if GalilController connected_ is true
           if (pC_->connected_)
              {
-             pC_->setIntegerParam(pC_->GalilCommunicationError_, 1);//Update connection status pv
+             //Update connection status pv
+             pC_->setIntegerParam(pC_->GalilCommunicationError_, 1);
              //If asyn connected = 0 device wont respond so go ahead and set GalilController connected_ false
              pC_->connected_ = false;
+             //Force update to digital IO records when connection is established
+             pC_->digInitialUpdate_ = false;
              //Give disconnect message
              sprintf(mesg, "Disconnected from %s at %s", pC_->model_, pC_->address_);
              pC_->setCtrlError(mesg);
@@ -649,6 +657,8 @@ GalilController::GalilController(const char *portName, const char *address, doub
   digvalues_ = 0;
   //Time multiplier default
   timeMultiplier_ = 1.00;
+  //Initial update to EPICS digital input records hasn't been done yet
+  digInitialUpdate_ = false;
   //Deferred moves off at start-up
   movesDeferred_ = false;
   //Store the controller number for later use
@@ -4526,116 +4536,126 @@ void GalilController::getStatus(void)
    int i;					//Looping
   
    //If data record query success in GalilController::acquireDataRecord
-   if (recstatus_ == asynSuccess && connected_)
-	{
-	//extract relevant controller data from GalilController record, store in GalilController
-	//If connected, then proceed
+   if (recstatus_ == asynSuccess && connected_) {
+      //extract relevant controller data from GalilController record, store in GalilController
+      //If connected, then proceed
 
-	//DMC30000 series only.
-	if (model_[3] == '3')
-		{
-		//First 8 input, and first 4 output bits only
-		for (i = 1; i <= 8; i++)
-			{
-			//Digital input bit
-			strcpy(src, "@IN[x]");
-			src[4] = i + 48;
-			paramUDig = (unsigned)sourceValue(recdata_, src);
-			in += paramUDig << (i - 1);
-			//Digital output bits
-			if (i <= 4)
-				{
-				//Database records are arranged by word
-				//ValueMask = 0xFFFF because a word is 16 bits
-				strcpy(src, "@OUT[x]");
-				src[5] = i + 48;
-				paramUDig = (unsigned)sourceValue(recdata_, src);
-				out += paramUDig << (i - 1);
-				}
-			}
-		//ValueMask = 0xFF because a byte is 8 bits
-		//Database records are arranged by byte
-		//Callbacks happen on value change
-		setUIntDigitalParam(0, GalilBinaryIn_, in, 0xFF );
-		//Database records are arranged by word
-		//ValueMask = 0xFFFF because a word is 16 bits
-		setUIntDigitalParam(0, GalilBinaryOutRBV_, out, 0xFFFF );
-		}
-	else
-		{
-		//for all models except DMC30000 series
-		//digital inputs in banks of 8 bits for all models except DMC30000 series
-		for (addr=0;addr<BINARYIN_BYTES;addr++)
-			{
-			strcpy(src, "_TIx");
-			src[3] = addr + 48;
-			paramUDig = (unsigned)sourceValue(recdata_, src);
-			//ValueMask = 0xFF because a byte is 8 bits
-			//Callbacks happen on value change
-			setUIntDigitalParam(addr, GalilBinaryIn_, paramUDig, 0xFF );
-			//Example showing forced callbacks even if no value change
-			//setUIntDigitalParam(addr, GalilBinaryIn_, paramUDig, 0xFF, 0xFF );
-			}
-		//data record has digital outputs in banks of 16 bits for dmc, 8 bits for rio
-		for (addr=0;addr<BINARYOUT_WORDS;addr++)
-			{
-			strcpy(src, "_OPx");
-			src[3] = addr + 48;
-			paramUDig = (unsigned)sourceValue(recdata_, src);
-			//ValueMask = 0xFFFF because a word is 16 bits
-			//Callbacks happen on value change
-			setUIntDigitalParam(addr, GalilBinaryOutRBV_, paramUDig, 0xFFFF );
-			//Example showing forced callbacks even if no value change
-			//setUIntDigitalParam(addr, GalilBinaryOutRBV_, paramUDig, 0xFFFF, 0xFFFF );
-			}
-		}
-	//Analog ports
-	//Port numbering is different on DMC compared to RIO controllers
-	start = (rio_) ? 0 : 1;
-        end = ANALOG_PORTS + start;
+      //DMC30000 series only.
+      if (model_[3] == '3') {
+         //First 8 input, and first 4 output bits only
+         for (i = 1; i <= 8; i++) {
+            //Digital input bit
+            strcpy(src, "@IN[x]");
+            src[4] = i + 48;
+            paramUDig = (unsigned)sourceValue(recdata_, src);
+            in += paramUDig << (i - 1);
+            //Digital output bits
+            if (i <= 4) {
+               //Database records are arranged by word
+               //ValueMask = 0xFFFF because a word is 16 bits
+               strcpy(src, "@OUT[x]");
+               src[5] = i + 48;
+               paramUDig = (unsigned)sourceValue(recdata_, src);
+               out += paramUDig << (i - 1);
+            }
+         }//For
 
-	for (addr = start;addr < end;addr++)
-		{
-		//Analog inputs
-		strcpy(src, "@AN[x]");
-		src[4] = addr + 48;
-		paramDouble = (double)sourceValue(recdata_, src);
-		if ((paramDouble < (analogInPosted_[addr] - analogIndeadb_[addr])) || (paramDouble > (analogInPosted_[addr] + analogIndeadb_[addr])))
-			{
-			setDoubleParam(addr, GalilAnalogIn_, paramDouble);
-			analogInPosted_[addr] = paramDouble;
-			}
-		if (rio_)
-			{
-			//Analog output readbacks for rio
-			strcpy(src, "@AO[x]");
-			src[4] = addr + 48;
-			paramDouble = (double)sourceValue(recdata_, src);
-			if ((paramDouble < (analogOutRbvPosted_[addr] - analogOutRBVdeadb_[addr])) || (paramDouble > (analogOutRbvPosted_[addr] + analogOutRBVdeadb_[addr])))
-				{
-				setDoubleParam(addr, GalilAnalogOutRBV_, paramDouble);
-				analogOutRbvPosted_[addr] = paramDouble;
-				}
-			}
-		}
+         //Update records
+         if (!digInitialUpdate_) {
+            //Forced callbacks even if no value change
+            //ValueMask = 0xFF because a byte is 8 bits
+            //Database input records are arranged by byte
+            setUIntDigitalParam(0, GalilBinaryIn_, in, 0xFF, 0xFF );
+            //Database output records are arranged by word
+            //ValueMask = 0xFFFF because a word is 16 bits
+            setUIntDigitalParam(0, GalilBinaryOutRBV_, out, 0xFFFF, 0xFFFF );
+         }
+         else {
+            //Callbacks happen on value change
+            setUIntDigitalParam(0, GalilBinaryIn_, in, 0xFF );
+            setUIntDigitalParam(0, GalilBinaryOutRBV_, out, 0xFFFF );
+         }
 
-	//Process unsolicited mesgs from controller
-	processUnsolicitedMesgs();
+      }//DMC3000 model
+      else {
+         //for all models except DMC30000 series
+         //digital inputs in banks of 8 bits for all models except DMC30000 series
+         for (addr=0;addr<BINARYIN_BYTES;addr++) {
+            strcpy(src, "_TIx");
+            src[3] = addr + 48;
+            paramUDig = (unsigned)sourceValue(recdata_, src);
+            //ValueMask = 0xFF because a byte is 8 bits
+            if (!digInitialUpdate_) {
+               //Forced callbacks even if no value change
+               setUIntDigitalParam(addr, GalilBinaryIn_, paramUDig, 0xFF, 0xFF );
+            }
+            else {
+               //Callbacks happen on value change
+               setUIntDigitalParam(addr, GalilBinaryIn_, paramUDig, 0xFF );
+            }
+         }//For
+	 //data record has digital outputs in banks of 16 bits for dmc, 8 bits for rio
+	 for (addr=0;addr<BINARYOUT_WORDS;addr++) {
+            strcpy(src, "_OPx");
+            src[3] = addr + 48;
+            paramUDig = (unsigned)sourceValue(recdata_, src);
+            if (!digInitialUpdate_) {
+               //Forced callbacks even if no value change
+               setUIntDigitalParam(addr, GalilBinaryOutRBV_, paramUDig, 0xFFFF, 0xFFFF );
+            }
+            else {
+               //ValueMask = 0xFFFF because a word is 16 bits
+               //Callbacks happen on value change
+               setUIntDigitalParam(addr, GalilBinaryOutRBV_, paramUDig, 0xFFFF );
+            }
+         }//For 
+      } //All models except DMC30000
 
-	//Coordinate system status
-	for (addr=0;addr<COORDINATE_SYSTEMS;addr++)
-		{
-		//Move/done status
-		strcpy(src, "_BGx");
-		src[3] = (addr) ? 'T' : 'S';
-		setIntegerParam(addr, GalilCoordSysMoving_, (int)sourceValue(recdata_, src));
+      //Initial digital update completed, set flag so future record updates are on change only
+      digInitialUpdate_ = true;
 
-		//Segment count
-		strcpy(src, "_CSx");
-		src[3] = (addr) ? 'T' : 'S';
-		setIntegerParam(addr, GalilCoordSysSegments_, (int)sourceValue(recdata_, src));
-		}
-	}
+      //Analog ports
+      //Port numbering is different on DMC compared to RIO controllers
+      start = (rio_) ? 0 : 1;
+      end = ANALOG_PORTS + start;
+
+      for (addr = start;addr < end;addr++) {
+         //Analog inputs
+         strcpy(src, "@AN[x]");
+         src[4] = addr + 48;
+         paramDouble = (double)sourceValue(recdata_, src);
+         if ((paramDouble < (analogInPosted_[addr] - analogIndeadb_[addr])) || (paramDouble > (analogInPosted_[addr] + analogIndeadb_[addr]))) {
+            setDoubleParam(addr, GalilAnalogIn_, paramDouble);
+            analogInPosted_[addr] = paramDouble;
+         }
+         if (rio_) {
+            //Analog output readbacks for rio
+            strcpy(src, "@AO[x]");
+            src[4] = addr + 48;
+            paramDouble = (double)sourceValue(recdata_, src);
+            if ((paramDouble < (analogOutRbvPosted_[addr] - analogOutRBVdeadb_[addr])) || (paramDouble > (analogOutRbvPosted_[addr] + analogOutRBVdeadb_[addr]))) {
+               setDoubleParam(addr, GalilAnalogOutRBV_, paramDouble);
+               analogOutRbvPosted_[addr] = paramDouble;
+            }
+         }//RIO
+      }//For
+
+      //Process unsolicited mesgs from controller
+      processUnsolicitedMesgs();
+
+      //Coordinate system status
+      for (addr=0;addr<COORDINATE_SYSTEMS;addr++) {
+         //Move/done status
+         strcpy(src, "_BGx");
+         src[3] = (addr) ? 'T' : 'S';
+         setIntegerParam(addr, GalilCoordSysMoving_, (int)sourceValue(recdata_, src));
+
+         //Segment count
+         strcpy(src, "_CSx");
+         src[3] = (addr) ? 'T' : 'S';
+         setIntegerParam(addr, GalilCoordSysSegments_, (int)sourceValue(recdata_, src));
+      } //For
+   } //connected_
 }
 
 //Acquire a data record from controller, store in GalilController instance

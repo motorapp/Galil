@@ -535,6 +535,7 @@ private:
 
   int digports_;			//Digital ports used in motor enable/disable
   int digvalues_;			//Digital port interrupt values
+  bool digInitialUpdate_;		//Digital port initial update
 
   bool rio_;				//Is controller a RIO
   char code_file_[MAX_FILENAME_LEN];	//Code file(s) that user gave to GalilStartController
