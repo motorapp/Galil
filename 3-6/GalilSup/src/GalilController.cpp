@@ -4223,6 +4223,10 @@ asynStatus GalilController::writeFloat64Array(asynUser *pasynUser, epicsFloat64 
   asynStatus status;				//Status
   int addr;					//address
 
+  //Just return if shutting down
+  if (shuttingDown_)
+     return asynSuccess;
+
   //Retrieve address of caller
   status = getAddress(pasynUser, &addr); 
   if (status != asynSuccess) return(status);
