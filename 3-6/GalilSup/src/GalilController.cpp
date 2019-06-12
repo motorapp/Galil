@@ -3400,6 +3400,10 @@ asynStatus GalilController::readInt32(asynUser *pasynUser, epicsInt32 *value)
    int ecatcapable;				//EtherCat capable status
    unsigned i;					//Looping
 
+   //Just return if shutting down
+   if (shuttingDown_)
+      return asynSuccess;
+
    //If provided addr does not return an GalilAxis instance, then return asynError
    if (!pAxis) return asynError;
 
@@ -3593,6 +3597,10 @@ asynStatus GalilController::readFloat64(asynUser *pasynUser, epicsFloat64 *value
   asynStatus status;				//Asyn status
   int addr;					//Address
 
+  //Just return if shutting down
+  if (shuttingDown_)
+     return asynSuccess;
+
   //Retrieve address.  Used for analog IO
   status = getAddress(pasynUser, &addr); 
   if (status != asynSuccess) return(status);
@@ -3734,6 +3742,10 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
   int wlp;					//Wrong limit protection setting
   int limitDisable;				//Limit disable setting
   bool ctrlType;				//Controller type convenience variable
+
+  //Just return if shutting down
+  if (shuttingDown_)
+     return asynSuccess;
 
   status = getAddress(pasynUser, &addr);
   if (status != asynSuccess) return(status);
@@ -4111,6 +4123,10 @@ asynStatus GalilController::writeFloat64(asynUser *pasynUser, epicsFloat64 value
   GalilAxis *pAxis = getAxis(pasynUser);	//Retrieve the axis instance
   int addr=0;					//Address requested
 
+  //Just return if shutting down
+  if (shuttingDown_)
+     return asynSuccess;
+
   //Retrieve address.  Used for analog IO
   status = getAddress(pasynUser, &addr);
   if (status != asynSuccess) return(status);
@@ -4246,6 +4262,10 @@ asynStatus GalilController::writeOctet(asynUser *pasynUser, const char*  value, 
   char mesg[MAX_GALIL_STRING_SIZE];		//Controller mesg
   GalilCSAxis *pCSAxis;				//Pointer to CSAxis instance
   int addr=0;					//Address requested
+
+  //Just return if shutting down
+  if (shuttingDown_)
+     return asynSuccess;
 
   //Retrieve address
   if (getAddress(pasynUser, &addr))
