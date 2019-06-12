@@ -331,6 +331,12 @@
 //                  Tidy up GalilConnector
 //                  Alter digital IO MEDM and QEGUI screens so digital input alarm state and value is displayed
 //                  Alter default alarm states for digital in bits
+// 11/05/19 M.Clift
+//                  Alter axisStatusThread for faster ioc exit
+//                  Fix segmentation fault on exit
+//                  Add SP_MON PV to CSAxis for monitoring current setpoint
+//                  Add galil_motors-v6-9down substitution and template files for motor record 6-9 and below
+//                  Add galil_motors-v6-10up substitution and template files for motor record 6-10 and above
 
 #include <stdio.h>
 #include <math.h>
@@ -371,7 +377,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "3-6-29";
+static const char *driverVersion = "3-6-34";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);
@@ -393,11 +399,15 @@ static int controller_num = 0;
 #define MIN(a,b) ((a)<(b)? (a): (b))
 #endif
 
-//EPICS exit handler
+//EPICS shutdown handler
 static void shutdownCallback(void *pPvt)
 {
   GalilController *pC_ = (GalilController *)pPvt;
-  delete pC_;
+  //Obtain the lock to stop record processing during shutdown
+  pC_->lock();
+  //IOC shutdown is in progress
+  pC_->shutdownController();
+  pC_->unlock();
 }
 
 //EPICS iocInit status
@@ -415,7 +425,6 @@ void connectCallback(asynUser *pasynUser, asynException exception)
    char mesg[MAX_GALIL_STRING_SIZE];
    int connected;
 
-   pC_->lock();
    //Update connected status
    if (exception == asynExceptionConnect)
        {
@@ -435,12 +444,13 @@ void connectCallback(asynUser *pasynUser, asynException exception)
              //Force update to digital IO records when connection is established
              pC_->digInitialUpdate_ = false;
              //Give disconnect message
+             pC_->lock();
              sprintf(mesg, "Disconnected from %s at %s", pC_->model_, pC_->address_);
              pC_->setCtrlError(mesg);
+             pC_->unlock();
              }
           }
        }
-   pC_->unlock();
 }
 
 /** Creates a new GalilController object.
@@ -498,6 +508,7 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilOutputCompare1IncrString, asynParamFloat64, &GalilOutputCompareIncr_);
   createParam(GalilOutputCompareMessageString, asynParamOctet, &GalilOutputCompareMessage_);
 
+  createParam(GalilCSMotorSetPointString, asynParamFloat64, &GalilCSMotorSetPoint_);
   createParam(GalilCSMotorForwardString, asynParamOctet, &GalilCSMotorForward_);
   createParam(GalilCSMotorReverseAString, asynParamOctet, &GalilCSMotorReverseA_);
   createParam(GalilCSMotorReverseBString, asynParamOctet, &GalilCSMotorReverseB_);
@@ -633,6 +644,8 @@ GalilController::GalilController(const char *portName, const char *address, doub
   strcpy(address_, address);
   //Default model
   strcpy(model_, "Unknown");
+  //IOC is not shutting down yet
+  shuttingDown_ = false;
   //Code for the controller has not been assembled yet
   code_assembled_ = false;
   //We have not recieved a timeout yet
@@ -851,6 +864,9 @@ void GalilController::shutdownController()
    GalilAxis *pAxis;
    GalilCSAxis *pCSAxis;
 
+   //Set shutdown flag
+   shuttingDown_ = true;
+
    //Destroy the poller for this GalilController.
    if (poller_ != NULL)
       {
@@ -861,12 +877,21 @@ void GalilController::shutdownController()
    //Destroy the connector thread for this GalilController
    if (connector_ != NULL)
       {
-      delete connector_; // this will close all connections and delete GalilController etc 
+      delete connector_; 
       connector_ = NULL;
       }
 
-   //Free the memory where card code is stored
-   free(card_code_);
+   //Threads are waiting on these events
+   //Signal these events now shutDown flag is set
+   epicsEventSignal(profileExecuteEvent_);
+   epicsEventSignal(arrayUploadEvent_);
+   //Destroy events
+   epicsEventDestroy(connectEvent_);
+   //Give short delay for profile, and array upload thread to exit
+   epicsThreadSleep(.001);
+   //Destroy remaining events
+   epicsEventDestroy(profileExecuteEvent_);
+   epicsEventDestroy(arrayUploadEvent_);
 
    //Free any GalilAxis, and GalilCSAxis instances
    for (i = 0; i < MAX_GALIL_AXES + MAX_GALIL_CSAXES; i++)
@@ -888,8 +913,6 @@ void GalilController::shutdownController()
    //Burn parameters, and cleanup
    if (connected_)
       {
-      //Obtain the lock
-      lock();
       //Burn parameters on exit ensuring controller has correct settings at next power on
       //This effects motor type, soft limits, limit configuration etc
       //It does not effect the galil program on the controller
@@ -907,17 +930,21 @@ void GalilController::shutdownController()
          strcpy(cmd_, "IHT=>-1");
          sync_writeReadController();
          }
-      //Release the lock
-      unlock();
+
       //Asyn exit handler will disconnect sync connection from here
       //We just print message to tell user Asyn epicsAtExit callback is running (next) and will close connection
       cout << "Disconnecting from " << model_ << " at " << address_ << endl;
       }
+
+   //Free the memory where card code is stored
+   free(card_code_);
+   //Free the memory where profileTimes_ is stored
+   if (profileTimes_ != NULL)
+      free(profileTimes_);
 }
 
 GalilController::~GalilController()
 {
-	shutdownController();
 }
 
 void GalilController::setParamDefaults(void)
@@ -1485,8 +1512,9 @@ asynStatus GalilController::setOutputCompare(int oc)
         //Increment is relative, so OFF isn't included
         ocincr = (ocincr/eres) * dirm;
         //Check start, and increment values
+        //Note that -2147483647 - 1 avoids warning C4146 on microsoft compilers
         if (rint(ocincr) >= -65536 && rint(ocincr) <= 65535 &&
-           rint(ocstart) >= -2147483648 && rint(ocstart) <= 2147483647 && !paramstatus) {			
+           rint(ocstart) >= -2147483647 - 1 && rint(ocstart) <= 2147483647 && !paramstatus) {			
            sprintf(cmd_, "OC%c=%.0lf,%.0lf", axis + AASCII, rint(ocstart), rint(ocincr));
            comstatus = sync_writeReadController();
            setup_ok = (!comstatus) ? true : false;
@@ -2074,6 +2102,8 @@ void GalilController::profileThread()
 {
   while (true) {
     epicsEventWait(profileExecuteEvent_);
+    if (shuttingDown_)
+       break;//Exit the thread
     runProfile();
   }
 }
@@ -2107,6 +2137,8 @@ void GalilController::arrayUploadThread()
 {
   while (true) {
     epicsEventWait(arrayUploadEvent_);
+    if (shuttingDown_)
+       break; //Exit the thread
     arrayUpload();
   }
 }
@@ -3361,196 +3393,173 @@ asynStatus GalilController::get_integer(int function, epicsInt32 *value, int axi
   * \param[out] value Address of the value to read. */
 asynStatus GalilController::readInt32(asynUser *pasynUser, epicsInt32 *value)
 {
-    int function = pasynUser->reason;		//function requested
-    asynStatus status;				//Used to work out communication_error_ status.  asynSuccess always returned
-    GalilAxis *pAxis = getAxis(pasynUser);	//Retrieve the axis instance
-    int ecatcapable;				//EtherCat capable status
-    unsigned i;					//Looping
+   int function = pasynUser->reason;		//function requested
+   asynStatus status;				//Used to work out communication_error_ status.  asynSuccess always returned
+   GalilAxis *pAxis = getAxis(pasynUser);	//Retrieve the axis instance
+   int ecatcapable;				//EtherCat capable status
+   unsigned i;					//Looping
 
-    //If provided addr does not return an GalilAxis instance, then return asynError
-    if (!pAxis) return asynError;
+   //If provided addr does not return an GalilAxis instance, then return asynError
+   if (!pAxis) return asynError;
 
-    //We dont retrieve values for records at iocInit.  
-    //For output records autosave, or db defaults are pushed to hardware instead
-    if (!dbInitialized) return asynError;
+   //We dont retrieve values for records at iocInit.  
+   //For output records autosave, or db defaults are pushed to hardware instead
+   if (!dbInitialized) return asynError;
     
-    if (function == GalilHomeType_)
-        {
-	//Read home type from controller
-        strcpy(cmd_, "MG _CN1");
-	status = get_integer(GalilHomeType_, value);
-	if (!status)
-		*value = (*value > 0) ? 1 : 0;
-	}
-    else if (function == GalilLimitType_)
-	{
-	//Read limit type from controller
-	strcpy(cmd_, "MG _CN0");
-	status = get_integer(GalilLimitType_, value);
-	if (!status)
-		*value = (*value > 0) ? 1 : 0;
-	}
-   else if (function == GalilMainEncoder_ || function == GalilAuxEncoder_)
-	{
-        unsigned setting;
-	int main, aux;
+   if (function == GalilHomeType_) {
+      //Read home type from controller
+      strcpy(cmd_, "MG _CN1");
+      status = get_integer(GalilHomeType_, value);
+      if (!status)
+         *value = (*value > 0) ? 1 : 0;
+   }
+   else if (function == GalilLimitType_) {
+      //Read limit type from controller
+      strcpy(cmd_, "MG _CN0");
+      status = get_integer(GalilLimitType_, value);
+      if (!status)
+         *value = (*value > 0) ? 1 : 0;
+   }
+   else if (function == GalilMainEncoder_ || function == GalilAuxEncoder_) {
+      unsigned setting;
+      int main, aux;
 	
-	sprintf(cmd_ , "CE%c=?", pAxis->axisName_);
-	if ((status = sync_writeReadController()) == asynSuccess)
-		{
-		setting = (unsigned)atoi(resp_);
-		//Separate setting into main and aux
-		main = setting & 3;
-		aux = setting & 12;
-		*value = (function == GalilMainEncoder_) ? main : aux;
-		}
-	else
-		{
-		//Comms error, return last ParamList value set using setIntegerParam
-		if (function == GalilMainEncoder_)
-			{
-			getIntegerParam(pAxis->axisNo_, GalilMainEncoder_, &main);
-			*value = main;
-			}
-		else
-			{
-			getIntegerParam(pAxis->axisNo_, GalilAuxEncoder_, &aux);
-			*value = aux;
-			}
-		}
-	}
-   else if (function == GalilMotorType_)
-	{
-	float motorType;
-	sprintf(cmd_, "MG _MT%c", pAxis->axisName_);
-	if ((status = sync_writeReadController()) == asynSuccess)
-		{
-		motorType = (float)atof(resp_);
-		//Upscale by factor 10 to create integer representing motor type 
-		*value = (int)(motorType * 10.0);
-		//Translate motor type into 0-7 value for mbbi record
-		switch (*value)
-			{
-			case 10:   *value = 0;
-				   break;
-			case -10:  *value = 1;
-				   break;
-			case -20:  *value = 2;
-				   break;
-			case 20:   *value = 3;
-				   break;
-			case -25:  *value = 4;
-				   break;
-			case 25:   *value = 5;
-				   break;
-			case 15:   *value = 6;
-				   break;
-			case -15:  *value = 7;
-				   break;
-			case 100:  *value = 8;
-				   break;
-			case 110:  *value = 9;
-				   break;
-			case -110: *value = 10;
-				   break;
-			default:   break;
-			}
-		}
-	else    //Comms error, return last ParamList value set using setIntegerParam
-		getIntegerParam(pAxis->axisNo_, function, value);
-	}
-  else if (function >= GalilSSIInput_ && function <= GalilSSIData_)
-	{
-	int ssicapable;	//Local copy of GalilSSICapable_
-	//Retrieve GalilSSICapable_ param
-	getIntegerParam(GalilSSICapable_, &ssicapable);
-	if (ssicapable)
-		status = pAxis->get_ssi(function, value);
-	else
-		status = asynSuccess;
-	}
-  else if (function >= GalilBISSInput_ && function <= GalilBISSLevel_)
-	{
-	int bisscapable = 0;
-	getIntegerParam(GalilBISSCapable_, &bisscapable);
-	if (bisscapable)
-          if (function == GalilBISSLevel_) {
+      sprintf(cmd_ , "CE%c=?", pAxis->axisName_);
+      if ((status = sync_writeReadController()) == asynSuccess) {
+         setting = (unsigned)atoi(resp_);
+         //Separate setting into main and aux
+         main = setting & 3;
+         aux = setting & 12;
+         *value = (function == GalilMainEncoder_) ? main : aux;
+      }
+      else {
+         //Comms error, return last ParamList value set using setIntegerParam
+         if (function == GalilMainEncoder_) {
+            getIntegerParam(pAxis->axisNo_, GalilMainEncoder_, &main);
+            *value = main;
+         }
+         else {
+            getIntegerParam(pAxis->axisNo_, GalilAuxEncoder_, &aux);
+            *value = aux;
+         }
+      }
+   }
+   else if (function == GalilMotorType_) {
+      float motorType;
+      sprintf(cmd_, "MG _MT%c", pAxis->axisName_);
+      if ((status = sync_writeReadController()) == asynSuccess) {
+         motorType = (float)atof(resp_);
+         //Upscale by factor 10 to create integer representing motor type 
+         *value = (int)(motorType * 10.0);
+         //Translate motor type into 0-7 value for mbbi record
+         switch (*value) {
+            case 10:   *value = 0;
+                       break;
+            case -10:  *value = 1;
+                       break;
+            case -20:  *value = 2;
+                       break;
+            case 20:   *value = 3;
+                       break;
+            case -25:  *value = 4;
+                       break;
+            case 25:   *value = 5;
+                       break;
+            case 15:   *value = 6;
+                       break;
+            case -15:  *value = 7;
+                       break;
+            case 100:  *value = 8;
+                       break;
+            case 110:  *value = 9;
+                       break;
+            case -110: *value = 10;
+                       break;
+            default:   break;
+         }//Switch
+      }
+      else    //Comms error, return last ParamList value set using setIntegerParam
+         getIntegerParam(pAxis->axisNo_, function, value);
+   } //GalilMotorType_
+   else if (function >= GalilSSIInput_ && function <= GalilSSIData_) {
+      int ssicapable;	//Local copy of GalilSSICapable_
+      //Retrieve GalilSSICapable_ param
+      getIntegerParam(GalilSSICapable_, &ssicapable);
+      if (ssicapable)
+         status = pAxis->get_ssi(function, value);
+      else
+         status = asynSuccess;
+   }
+   else if (function >= GalilBISSInput_ && function <= GalilBISSLevel_) {
+      int bisscapable = 0;
+      getIntegerParam(GalilBISSCapable_, &bisscapable);
+      if (bisscapable)
+         if (function == GalilBISSLevel_) {
             sprintf(cmd_, "MG _SY%c", pAxis->axisName_);
             status = get_integer(GalilBISSLevel_, value);
-          } 
-          else {
+         } 
+         else {
             status = pAxis->get_biss(function, value);
-          }
-	else
-          status = asynSuccess;
-	}
-  else if (function == GalilCoordSys_)
-	{
-	//Read active coordinate system
-	sprintf(cmd_, "MG _CA");
-	status = get_integer(GalilCoordSys_, value);
-	if (!status)
-		*value = (*value > 0) ? 1 : 0;
-	}
-  else if (function == GalilOffOnError_)
-	{
-	sprintf(cmd_, "MG _OE%c", pAxis->axisName_);
-	status = get_integer(GalilOffOnError_, value);
-	}
-  else if (function == GalilAmpGain_)
-	{
-	sprintf(cmd_, "MG _AG%c", pAxis->axisName_);
-	status = get_integer(GalilAmpGain_, value);
-	}
-  else if (function == GalilAmpCurrentLoopGain_)
-	{
-	sprintf(cmd_, "MG _AU%c", pAxis->axisName_);
-	status = get_integer(GalilAmpCurrentLoopGain_, value);
-	}
-  else if (function == GalilAmpLowCurrent_)
-	{
-	sprintf(cmd_, "MG _LC%c", pAxis->axisName_);
-	status = get_integer(GalilAmpLowCurrent_, value);
-	}
-  else if (function == GalilLimitDisable_)
-	{
-	sprintf(cmd_, "MG _LD%c", pAxis->axisName_);
-	status = get_integer(GalilLimitDisable_, value);
-	}
-  else if (function == GalilCtrlEtherCatFault_)
-        {
-        //Retrieve required params
-        getIntegerParam(GalilEtherCatCapable_, &ecatcapable);
-        if (ecatcapable)
-           {
-           //Controller is EtherCat capable
-           //Determine EtherCat fault code
-           strcpy(cmd_, "MG _EU1");
-           status = get_integer(GalilCtrlEtherCatFault_, value);
-           //Set axis EtherCat fault status PV's
-           for (i = 0; i < MAX_GALIL_AXES; i++)
-              {
-              if (*value & (1 << i))
-                 setIntegerParam(i, GalilEtherCatFault_, 1);
-              else
-                 setIntegerParam(i, GalilEtherCatFault_, 0);
-              }
-           }
-        }
-  else if (function == GalilEtherCatNetwork_)
-        {
-        //Retrieve required params
-        getIntegerParam(GalilEtherCatCapable_, &ecatcapable);
-        if (ecatcapable)
-           {
-           //Controller is EtherCat capable
-           //Determine if EtherCat network up
-           sprintf(cmd_, "MG _EU0");
-           status = get_integer(GalilEtherCatNetwork_, value);
-           }
-        }
-  else
-	status = asynPortDriver::readInt32(pasynUser, value);
+         }
+	 else
+            status = asynSuccess;
+   }
+   else if (function == GalilCoordSys_) {
+      //Read active coordinate system
+      sprintf(cmd_, "MG _CA");
+      status = get_integer(GalilCoordSys_, value);
+      if (!status)
+         *value = (*value > 0) ? 1 : 0;
+   }
+   else if (function == GalilOffOnError_) {
+      sprintf(cmd_, "MG _OE%c", pAxis->axisName_);
+      status = get_integer(GalilOffOnError_, value);
+   }
+   else if (function == GalilAmpGain_) {
+      sprintf(cmd_, "MG _AG%c", pAxis->axisName_);
+      status = get_integer(GalilAmpGain_, value);
+   }
+   else if (function == GalilAmpCurrentLoopGain_) {
+      sprintf(cmd_, "MG _AU%c", pAxis->axisName_);
+      status = get_integer(GalilAmpCurrentLoopGain_, value);
+   }
+   else if (function == GalilAmpLowCurrent_) {
+      sprintf(cmd_, "MG _LC%c", pAxis->axisName_);
+      status = get_integer(GalilAmpLowCurrent_, value);
+   }
+   else if (function == GalilLimitDisable_) {
+      sprintf(cmd_, "MG _LD%c", pAxis->axisName_);
+      status = get_integer(GalilLimitDisable_, value);
+   }
+   else if (function == GalilCtrlEtherCatFault_) {
+      //Retrieve required params
+      getIntegerParam(GalilEtherCatCapable_, &ecatcapable);
+      if (ecatcapable) {
+         //Controller is EtherCat capable
+         //Determine EtherCat fault code
+         strcpy(cmd_, "MG _EU1");
+         status = get_integer(GalilCtrlEtherCatFault_, value);
+         //Set axis EtherCat fault status PV's
+         for (i = 0; i < MAX_GALIL_AXES; i++) {
+            if (*value & (1 << i))
+               setIntegerParam(i, GalilEtherCatFault_, 1);
+            else
+               setIntegerParam(i, GalilEtherCatFault_, 0);
+         }
+      }
+   }
+   else if (function == GalilEtherCatNetwork_) {
+      //Retrieve required params
+      getIntegerParam(GalilEtherCatCapable_, &ecatcapable);
+      if (ecatcapable) {
+         //Controller is EtherCat capable
+         //Determine if EtherCat network up
+         sprintf(cmd_, "MG _EU0");
+         status = get_integer(GalilEtherCatNetwork_, value);
+      }
+   }
+   else
+      status = asynPortDriver::readInt32(pasynUser, value);
 
    //Always return success. Dont need more error mesgs
    return asynSuccess;	
@@ -3723,6 +3732,7 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
   int uploading;				//Array uploading status
   int wlp;					//Wrong limit protection setting
   int limitDisable;				//Limit disable setting
+  bool ctrlType;				//Controller type convenience variable
 
   status = getAddress(pasynUser, &addr);
   if (status != asynSuccess) return(status);
@@ -4023,14 +4033,24 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 	//Clear controller message
 	if (pAxis->axisReady_)
 		setCtrlError("");
-	//Enable/Disable the limits
-	sprintf(cmd_, "LD%c=%d", pAxis->axisName_, value);
-	sync_writeReadController();
-	getIntegerParam(pAxis->axisNo_, GalilWrongLimitProtection_, &wlp);
-	//Check if limitDisable conflicts with WLP
-	if (wlp && value > 0)
+	//Construct controller type convenience variable
+	ctrlType = (bool)(model_[3] != '2' && model_[3] != '1') ? true : false;
+	if (ctrlType) 
 		{
-		sprintf(mesg, "%c axis wrong limit protection disabled whilst limits disabled", pAxis->axisName_);
+		//Enable/Disable the limits
+		sprintf(cmd_, "LD%c=%d", pAxis->axisName_, value);
+		sync_writeReadController();
+		getIntegerParam(pAxis->axisNo_, GalilWrongLimitProtection_, &wlp);
+		//Check if limitDisable conflicts with WLP
+		if (wlp && value > 0)
+			{
+			sprintf(mesg, "%c axis wrong limit protection disabled whilst limits disabled", pAxis->axisName_);
+			setCtrlError(mesg);
+			}
+		}
+	else if (value != 0)
+		{
+		sprintf(mesg, "%s Axis %c does not support limit disable feature", address_, pAxis->axisName_);
 		setCtrlError(mesg);
 		}
 	}
@@ -6003,6 +6023,7 @@ asynStatus GalilController::read_codefile(const char *code_file)
 
 	if (strcmp(code_file, "") == 0)
 	{	//No code file(s) specified, use generated code
+		free(code_file_copy);
 		return asynError;
 	}
 	//Empty the user code buffer

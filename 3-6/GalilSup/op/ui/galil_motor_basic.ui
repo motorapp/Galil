@@ -698,6 +698,9 @@
             <property name="useDbPrecision">
              <bool>false</bool>
             </property>
+            <property name="text">
+             <string>Readback</string>
+            </property>
            </widget>
           </item>
           <item row="2" column="1">
@@ -1200,6 +1203,9 @@
             </property>
             <property name="addUnits">
              <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Retries</string>
             </property>
            </widget>
           </item>

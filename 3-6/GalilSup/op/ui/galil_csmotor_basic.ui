@@ -624,6 +624,9 @@
             <property name="focusPolicy">
              <enum>Qt::NoFocus</enum>
             </property>
+            <property name="toolTip">
+             <string>Readback</string>
+            </property>
             <property name="autoFillBackground">
              <bool>false</bool>
             </property>
@@ -644,6 +647,9 @@
             </property>
             <property name="useDbPrecision">
              <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Readback</string>
             </property>
            </widget>
           </item>
@@ -1148,6 +1154,9 @@
             <property name="addUnits">
              <bool>false</bool>
             </property>
+            <property name="text">
+             <string>Retries</string>
+            </property>
            </widget>
           </item>
           <item row="0" column="2">
@@ -1155,6 +1164,67 @@
             <property name="spacing">
              <number>0</number>
             </property>
+            <item>
+             <widget class="QELabel" name="rbv_6">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <family>Abyssinica SIL</family>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="toolTip">
+               <string>SetPoint</string>
+              </property>
+              <property name="autoFillBackground">
+               <bool>false</bool>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+              <property name="indent">
+               <number>3</number>
+              </property>
+              <property name="variable" stdset="0">
+               <string>$(DMC)$(M$(SLOT))_SP_MON</string>
+              </property>
+              <property name="variableAsToolTip">
+               <bool>false</bool>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QWidget { color: grey }</string>
+              </property>
+              <property name="userLevelVisibility" stdset="0">
+               <enum>QELabel::Scientist</enum>
+              </property>
+              <property name="userLevelEnabled" stdset="0">
+               <enum>QELabel::Scientist</enum>
+              </property>
+              <property name="addUnits">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>SetPoint</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
           <item row="0" column="0">

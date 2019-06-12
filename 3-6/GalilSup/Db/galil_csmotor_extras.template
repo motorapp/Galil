@@ -1,0 +1,62 @@
+# $File: //ASP/Dev/SBS/4_Controls/4_3_Network_Infrastructure/4_3_1_Comms_Common_Services/sw/device_drivers/Galil/1-5/galilSup/Db/galil_motor_extras.template $
+# $Revision: #1 $
+# $DateTime: 2012/03/19 12:39:43 $
+# $Author: cliftm $
+#
+# Description
+# Template file for csaxis motor extra commands/readbacks, that are additional to motor Record functionality
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# Licence as published by the Free Software Foundation; either
+# version 2.1 of the Licence, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public Licence for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# Licence along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Contact details:
+# mark.clift@synchrotron.org.au
+# 800 Blackburn Road, Clayton, Victoria 3168, Australia.
+#
+
+#Motor homing status, including JAH
+record(bi,"$(P)$(M)_HOMING_STATUS")
+{
+	field(DESC, "Homing status")
+	field(DTYP, "asynInt32")
+	field(SCAN, "I/O Intr")
+	field(ZNAM, "No")
+   	field(ZSV,  "NO_ALARM")
+  	field(ONAM, "Yes")
+   	field(ZSV,  "NO_ALARM")
+   	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_HOMING")
+}
+
+#Overall/final homing status
+record(calcout,"$(P)$(M)_HOMING_MONITOR")
+{
+	field(DESC, "Homing status")
+	field(INPA, "$(P)$(M).HOMR CP MS")
+	field(INPB, "$(P)$(M).HOMF CP MS")
+	field(INPC, "$(P)$(M)_HOMING_STATUS CP MS")
+	field(CALC, "A || B || C")
+}
+
+#CSAxis setpoint monitor
+record(ai,"$(P)$(M)_SP_MON")
+{
+	field(DESC,"setpoint mon")
+	field(DTYP,"asynFloat64")
+	field(SCAN,"I/O Intr")
+	field(PREC,"$(PREC)")
+	field(EGU, "$(EGU)")
+	field(INP, "@asyn($(PORT),$(ADDR))CSMOTOR_SETPOINT")
+}
+
+#end

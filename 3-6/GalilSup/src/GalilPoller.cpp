@@ -162,7 +162,11 @@ void GalilPoller::shutdownPoller()
 
 GalilPoller::~GalilPoller()
 {
-	shutdownPoller();
+   //Shutdown poller thread
+   shutdownPoller();
+   //Destroy events
+   epicsEventDestroy(pollerSleepEventId_);
+   epicsEventDestroy(pollerWakeEventId_);
 }
 
 //Put poller in sleep mode, and stop async records if needed

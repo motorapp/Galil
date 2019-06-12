@@ -128,6 +128,10 @@ GalilCSAxis::~GalilCSAxis()
    free(reverse_);
    free(revvars_);
    free(revsubs_);
+
+  //Free RAM used
+  if (profilePositions_ != NULL)
+     free(profilePositions_);
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -1827,6 +1831,7 @@ asynStatus GalilCSAxis::poller(void)
    //static const char *functionName = "GalilAxis::poll";
    GalilAxis *pAxis;		//Galil real axis
    int slipstall, csslipstall;	//Encoder slip stall following error for each motor, and overall cs axis 
+   double mres;			//Motor resolution
    bool moving;			//Moving status
    int homed;			//Real motor homed status
    int csrev, csfwd;		//Determined cs axis limit status
@@ -1954,7 +1959,6 @@ skip:
    //Homing status flag
    //This flag does include JAH
    setIntegerParam(pC_->GalilHoming_, cshoming_);
-
    //Pass step count/aux encoder info to motorRecord
    setDoubleParam(pC_->motorPosition_, motor_position_);
    //Pass encoder value to motorRecord
@@ -1976,6 +1980,9 @@ skip:
    setIntegerParam(pC_->motorStatusMoving_, moving);
    //Pass comms status to motorRecord
    setIntegerParam(pC_->motorStatusCommsError_, status ? 1:0);
+   //Pass CSAxis setpoint to upper layers
+   pC_->getDoubleParam(axisNo_, pC_->motorResolution_, &mres);
+   setDoubleParam(pC_->GalilCSMotorSetPoint_, setPoint_*mres);
    //Update motor status fields in upper layers using asynMotorAxis->callParamCallbacks
    callParamCallbacks();
    //Always return success. Dont need more error mesgs

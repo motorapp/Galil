@@ -118,6 +118,7 @@ GalilAxis::GalilAxis(class GalilController *pC, //Pointer to controller instance
   axisStatusShutdown_ = false;
   axisStatusRunning_ = true;
   axisStatusShutdownId_ = epicsEventMustCreate(epicsEventEmpty);
+  axisStatusShutRequestId_ = epicsEventMustCreate(epicsEventEmpty);
   pC_->setDoubleParam(axisNo_, pC_->GalilStatusPollDelay_, 1);
   // Create the thread for polling axis and encoder status
   epicsThreadCreate("GalilAxisStatusPoll",
@@ -139,6 +140,17 @@ GalilAxis::GalilAxis(class GalilController *pC, //Pointer to controller instance
 GalilAxis::~GalilAxis()
 {
   axisStatusShutdown();
+  //Free RAM used
+  free(enables_string_);
+  if (profilePositions_ != NULL)
+     free(profilePositions_);
+  if (profileBackupPositions_ != NULL)
+     free(profileBackupPositions_);
+
+  //Destroy events
+  epicsEventDestroy(stoppedTimeResetEventId_);
+  epicsEventDestroy(axisStatusShutdownId_);
+  epicsEventDestroy(axisStatusShutRequestId_);
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -746,6 +758,7 @@ asynStatus GalilAxis::setupHome(double maxVelocity, int forwards)
 asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double acceleration, int forwards)
 {
   static const char *functionName = "GalilAxis::home";
+  bool ctrlType;		//Controller type convenience variable
   int homeAllowed;		//Home types allowed
   int ssiinput;			//SSI encoder register
   int ssicapable;		//SSI capable
@@ -777,7 +790,9 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
      sprintf(mesg, "%c motor extra settings do not allow reverse home", axisName_);
 
   //Check if requested home type valid given limit disable setting
-  if (!customHome_ && limit_as_home_ && pC_->model_[3] != '2' && strcmp(mesg, "") == 0)
+  //Construct controller type convenience variable
+  ctrlType = (bool)(pC_->model_[3] != '2' && pC_->model_[3] != '1') ? true : false;
+  if (!customHome_ && limit_as_home_ && ctrlType && strcmp(mesg, "") == 0)
      {
      if (useSwitch && forwards && (limitDisable == 1 || limitDisable ==3))
         sprintf(mesg, "%c axis can't home to fwd limit as fwd limit is disabled", axisName_);
@@ -1440,125 +1455,123 @@ asynStatus GalilAxis::getStatus(void)
    unsigned mask;				//Mask used to calc brake port status
    int brakeport;				//Brake port for this axis
    int limitDisable = 0;                        //Limit disabled param
+   bool ctrlType;				//Controller type
 
    //If data record query success in GalilController::acquireDataRecord
-   if (pC_->recstatus_ == asynSuccess)
-	{
-	//extract relevant axis data from GalilController data-record, store in GalilAxis
-	//If connected, then proceed
-	if (pC_->connected_)
-		{
-		//extract relevant axis data from GalilController record, store in asynParamList
-		//moving status
-		strcpy(src, "_BGx");
-		src[3] = axisName_;
-		inmotion_ = (bool)(pC_->sourceValue(pC_->recdata_, src) == 1) ? 1 : 0;
-		//Stop code
-		strcpy(src, "_SCx");
-		src[3] = axisName_;
-		stop_code_ = (int)pC_->sourceValue(pC_->recdata_, src);
-		//direction
-		if (inmotion_)
-			{
-			strcpy(src, "JGx-");
-			src[2] = axisName_;
-			direction_ = (bool)(pC_->sourceValue(pC_->recdata_, src) == 1) ? 0 : 1;
-			}
-		//Motor error
-		strcpy(src, "_TEx");
-		src[3] = axisName_;
-		error_ = pC_->sourceValue(pC_->recdata_, src);
-		pC_->getDoubleParam(axisNo_, pC_->GalilError_, &errorlast);
-		if (error_ != errorlast)
-			pC_->setDoubleParam(axisNo_, pC_->GalilError_, error_);
-		//Servo motor velocity
-		strcpy(src, "_TVx");
-		src[3] = axisName_;
-		velocity_ = pC_->sourceValue(pC_->recdata_, src);
-		//Adjust velocity given controller time base setting
-		velocity_ *= pC_->timeMultiplier_;
-		pC_->getDoubleParam(axisNo_, pC_->GalilMotorVelocityRAW_, &velocitylast);
-		if (velocity_ != velocitylast)
-			{
-			pC_->setDoubleParam(axisNo_, pC_->GalilMotorVelocityRAW_, velocity_);
-			pC_->getDoubleParam(axisNo_, pC_->GalilEncoderResolution_, &eres);
-			pC_->setDoubleParam(axisNo_, pC_->GalilMotorVelocityEGU_, velocity_ * eres);
-			}
-		//Motor on
-		strcpy(src, "_MOx");
-		src[3] = axisName_;
-		motoron = (pC_->sourceValue(pC_->recdata_, src) == 1) ? 0 : 1;
-		//Set motorRecord status
-		setIntegerParam(pC_->motorStatusPowerOn_, motoron);
-		//aux encoder data
-		strcpy(src, "_TDx");
-		src[3] = axisName_;
-		motor_position_ = pC_->sourceValue(pC_->recdata_, src);
-		//main encoder data
-		strcpy(src, "_TPx");
-		src[3] = axisName_;
-		encoder_position_ = pC_->sourceValue(pC_->recdata_, src);
-		//Invert SSI encoder direction
-		if (invert_ssi_)
-			invert_ssi();
-		//Before setting limits, readback limit disable parameter
-		pC_->getIntegerParam(axisNo_, pC_->GalilLimitDisable_, &limitDisable);
-		//reverse limit
-		strcpy(src, "_LRx");
-		src[3] = axisName_;
-		rev_ = (bool)(pC_->sourceValue(pC_->recdata_, src) == 1) ? 0 : 1;
-		if (limitDisable >= 2)
-			rev_ = 0;
-		//forward limit
-		strcpy(src, "_LFx");
-		src[3] = axisName_;
-		fwd_ = (bool)(pC_->sourceValue(pC_->recdata_, src) == 1) ? 0 : 1;
-		if ((limitDisable == 1) || (limitDisable == 3))
-			fwd_ = 0;
-		//home switch
-		strcpy(src, "_HMx");
-		src[3] = axisName_;
-		home_ = (bool)(pC_->sourceValue(pC_->recdata_, src) == 1) ? 0 : 1;
-		//motor connected status
-		pC_->getIntegerParam(axisNo_, pC_->GalilMotorConnected_, &connectedlast);
-		if (limitDisable == 0)
-			connected = (rev_ && fwd_) ? 0 : 1;
-		else
-			connected = 1;
-		if (connectedlast != connected || !axisReady_)
-			pC_->setIntegerParam(axisNo_, pC_->GalilMotorConnected_, connected);
-		//If motor just connected, then limits are not
-		//confirmed consistent with motor direction yet
-		if (!connectedlast && connected)
-			limitsDirState_ = unknown;
-		//User data
-		strcpy(src, "_ZAx");
-		src[3] = axisName_;
-		userData = pC_->sourceValue(pC_->recdata_, src);
-		//User data dead band
-		pC_->getDoubleParam(pC_->GalilUserDataDeadb_, &userDataDeadb);
-		if ((userData < (userDataPosted_ - userDataDeadb_)) || (userData > (userDataPosted_ + userDataDeadb_)))
-			{
-			//user data is outside dead band, so post it to upper layers
-			pC_->setDoubleParam(axisNo_, pC_->GalilUserData_, userData);
-			userDataPosted_ = userData;
-			}
-		//Brake port status
-		//Retrieve the brake port used for this axis
-		pC_->getIntegerParam(axisNo_, pC_->GalilBrakePort_, &brakeport);
-		//Applies to DMC only, so port numbering begins at 1
-		if (brakeport > 0)
-			{
-			strcpy(src, "_OP0");
-			digport = (unsigned)pC_->sourceValue(pC_->recdata_, src);
-			mask = (unsigned)(1 << (brakeport - 1));
-			digport = digport & mask;
-			//Calculate brake status
-			digport = (digport == mask) ? 0 : 1;
-			pC_->setIntegerParam(axisNo_, pC_->GalilBrake_, digport);
-			}
-		}
-	}
+   if (pC_->recstatus_ == asynSuccess) {
+      //extract relevant axis data from GalilController data-record, store in GalilAxis
+      //If connected, then proceed
+      if (pC_->connected_) {
+         //extract relevant axis data from GalilController record, store in asynParamList
+         //moving status
+         strcpy(src, "_BGx");
+         src[3] = axisName_;
+         inmotion_ = (bool)(pC_->sourceValue(pC_->recdata_, src) == 1) ? 1 : 0;
+         //Stop code
+         strcpy(src, "_SCx");
+         src[3] = axisName_;
+         stop_code_ = (int)pC_->sourceValue(pC_->recdata_, src);
+         //direction
+         if (inmotion_) {
+            strcpy(src, "JGx-");
+            src[2] = axisName_;
+            direction_ = (bool)(pC_->sourceValue(pC_->recdata_, src) == 1) ? 0 : 1;
+         }
+         //Motor error
+         strcpy(src, "_TEx");
+         src[3] = axisName_;
+         error_ = pC_->sourceValue(pC_->recdata_, src);
+         pC_->getDoubleParam(axisNo_, pC_->GalilError_, &errorlast);
+         if (error_ != errorlast)
+            pC_->setDoubleParam(axisNo_, pC_->GalilError_, error_);
+         //Servo motor velocity
+         strcpy(src, "_TVx");
+         src[3] = axisName_;
+         velocity_ = pC_->sourceValue(pC_->recdata_, src);
+         //Adjust velocity given controller time base setting
+         velocity_ *= pC_->timeMultiplier_;
+         pC_->getDoubleParam(axisNo_, pC_->GalilMotorVelocityRAW_, &velocitylast);
+         if (velocity_ != velocitylast) {
+            pC_->setDoubleParam(axisNo_, pC_->GalilMotorVelocityRAW_, velocity_);
+            pC_->getDoubleParam(axisNo_, pC_->GalilEncoderResolution_, &eres);
+            pC_->setDoubleParam(axisNo_, pC_->GalilMotorVelocityEGU_, velocity_ * eres);
+         }
+         //Motor on
+         strcpy(src, "_MOx");
+         src[3] = axisName_;
+         motoron = (pC_->sourceValue(pC_->recdata_, src) == 1) ? 0 : 1;
+         //Set motorRecord status
+         setIntegerParam(pC_->motorStatusPowerOn_, motoron);
+         //aux encoder data
+         strcpy(src, "_TDx");
+         src[3] = axisName_;
+         motor_position_ = pC_->sourceValue(pC_->recdata_, src);
+         //main encoder data
+         strcpy(src, "_TPx");
+         src[3] = axisName_;
+         encoder_position_ = pC_->sourceValue(pC_->recdata_, src);
+         //Invert SSI encoder direction
+         if (invert_ssi_)
+            invert_ssi();
+         //Before setting limits, readback limit disable parameter
+         pC_->getIntegerParam(axisNo_, pC_->GalilLimitDisable_, &limitDisable);
+         //reverse limit
+         strcpy(src, "_LRx");
+         src[3] = axisName_;
+         rev_ = (bool)(pC_->sourceValue(pC_->recdata_, src) == 1) ? 0 : 1;
+         //Construct controller type convenience variable
+         ctrlType = (bool)(pC_->model_[3] != '2' && pC_->model_[3] != '1') ? true : false;
+         if (limitDisable >= 2 && ctrlType)
+            rev_ = 0;
+         //forward limit
+         strcpy(src, "_LFx");
+         src[3] = axisName_;
+         fwd_ = (bool)(pC_->sourceValue(pC_->recdata_, src) == 1) ? 0 : 1;
+         if ((limitDisable == 1 && ctrlType) || (limitDisable == 3 && ctrlType))
+            fwd_ = 0;
+         //home switch
+         strcpy(src, "_HMx");
+         src[3] = axisName_;
+         home_ = (bool)(pC_->sourceValue(pC_->recdata_, src) == 1) ? 0 : 1;
+         //motor connected status
+         pC_->getIntegerParam(axisNo_, pC_->GalilMotorConnected_, &connectedlast);
+         if (limitDisable == 0)
+            connected = (rev_ && fwd_) ? 0 : 1;
+         else
+            connected = 1;
+         if (connectedlast != connected || !axisReady_)
+            pC_->setIntegerParam(axisNo_, pC_->GalilMotorConnected_, connected);
+         //If motor just connected, then limits are not
+         //confirmed consistent with motor direction yet
+         if (!connectedlast && connected)
+            limitsDirState_ = unknown;
+         //User data
+         strcpy(src, "_ZAx");
+         src[3] = axisName_;
+         userData = pC_->sourceValue(pC_->recdata_, src);
+         //User data dead band
+         pC_->getDoubleParam(pC_->GalilUserDataDeadb_, &userDataDeadb);
+         if ((userData < (userDataPosted_ - userDataDeadb_)) || (userData > (userDataPosted_ + userDataDeadb_)))
+            {
+            //user data is outside dead band, so post it to upper layers
+            pC_->setDoubleParam(axisNo_, pC_->GalilUserData_, userData);
+            userDataPosted_ = userData;
+            }
+         //Brake port status
+         //Retrieve the brake port used for this axis
+         pC_->getIntegerParam(axisNo_, pC_->GalilBrakePort_, &brakeport);
+         //Applies to DMC only, so port numbering begins at 1
+         if (brakeport > 0) {
+            strcpy(src, "_OP0");
+            digport = (unsigned)pC_->sourceValue(pC_->recdata_, src);
+            mask = (unsigned)(1 << (brakeport - 1));
+            digport = digport & mask;
+            //Calculate brake status
+            digport = (digport == mask) ? 0 : 1;
+            pC_->setIntegerParam(axisNo_, pC_->GalilBrake_, digport);
+         }
+      }
+   }
   return pC_->recstatus_;
 }
 
@@ -2866,6 +2879,7 @@ void GalilAxis::axisStatusThread()
   int bissInput = 0;
   int bissStatPoll = 0;
   double pollDelay = 1;
+  epicsEventWaitStatus event = epicsEventWaitTimeout;
   int status = asynSuccess;
 
   while (true) {
@@ -2873,29 +2887,27 @@ void GalilAxis::axisStatusThread()
     status = pC_->getIntegerParam(axisNo_, pC_->GalilSSICapable_, &ssiCapable);
     status |= pC_->getIntegerParam(axisNo_, pC_->GalilBISSCapable_, &bissCapable);
 
-    if (!axisStatusShutdown_) {
-
-       if (ssiCapable == 1 && !status) {
+    if (event == epicsEventWaitTimeout && !axisStatusShutdown_) {
+       if (ssiCapable == 1 && !status && !axisStatusShutdown_) {
           //Polling SSI status
        }
-       if (bissCapable == 1 && !status) {
+       if (bissCapable == 1 && !status && !axisStatusShutdown_) {
           status = pC_->getIntegerParam(axisNo_, pC_->GalilBISSStatPoll_, &bissStatPoll);
-	      //Check BiSS is enabled
-	      status |= pC_->getIntegerParam(axisNo_, pC_->GalilBISSInput_, &bissInput);  
-	      if (bissInput != 0 && bissStatPoll == 1 && !status) {
+          //Check BiSS is enabled
+          status |= pC_->getIntegerParam(axisNo_, pC_->GalilBISSInput_, &bissInput);  
+          if (bissInput != 0 && bissStatPoll == 1 && !status) {
              //Grab the lock only when required
              pC_->lock();
              checkBISSStatusService();
              pC_->unlock();
-             }
+          }
        }
-    } else {
-      //Thread will exit
-      if (axisStatusShutdownId_) {
-        epicsEventSignal(axisStatusShutdownId_);
-      }
-      axisStatusRunning_ = false;
-      break;
+    } 
+    else {
+       //Thread will exit
+       epicsEventSignal(axisStatusShutdownId_);
+       axisStatusRunning_ = false;
+       break;
     }
     
     //Retrieve requested pollDelay
@@ -2906,14 +2918,14 @@ void GalilAxis::axisStatusThread()
     if (pollDelay > 10)
        pollDelay = 10;
 
-    //Perform the delay
-    if (!status) {
-      epicsThreadSleep(pollDelay);
-    } else {
+    //Perform interruptable delay
+    if (!status && !axisStatusShutdown_) {
+       event = epicsEventWaitWithTimeout(axisStatusShutRequestId_, pollDelay);
+    } 
+    else if (!axisStatusShutdown_) {
       epicsThreadSleep(1);
     }
   }
-  
 }
 
 /*
@@ -2923,10 +2935,12 @@ void GalilAxis::axisStatusThread()
 void GalilAxis::axisStatusShutdown()
 {
   if (axisStatusRunning_) {
+    //Set flag indicating axisStatusThread will be shutdown
     axisStatusShutdown_ = true;
-    if (axisStatusShutdownId_) {
-      epicsEventWait(axisStatusShutdownId_);
-    }
+    //Request axisStatus thread shutdown
+    epicsEventSignal(axisStatusShutRequestId_);
+    //Wait for axisStatus thread to signal it's shutdown
+    epicsEventWait(axisStatusShutdownId_);
   }
 }
 

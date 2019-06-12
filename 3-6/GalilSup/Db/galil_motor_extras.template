@@ -76,6 +76,29 @@ record(ao,"$(P)$(M)_ESTALLTIME_SP")
 	field(FLNK,"$(P)$(M)_ESTALLTIME_MON")
 }
 
+#Motor homing status, including JAH
+record(bi,"$(P)$(M)_HOMING_STATUS")
+{
+	field(DESC, "Homing status")
+	field(DTYP, "asynInt32")
+	field(SCAN, "I/O Intr")
+	field(ZNAM, "No")
+   	field(ZSV,  "NO_ALARM")
+  	field(ONAM, "Yes")
+   	field(ZSV,  "NO_ALARM")
+   	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_HOMING")
+}
+
+#Overall/final homing status
+record(calcout,"$(P)$(M)_HOMING_MONITOR")
+{
+	field(DESC, "Homing status")
+	field(INPA, "$(P)$(M).HOMR CP MS")
+	field(INPB, "$(P)$(M).HOMF CP MS")
+	field(INPC, "$(P)$(M)_HOMING_STATUS CP MS")
+	field(CALC, "A || B || C")
+}
+
 record(ai,"$(P)$(M)_STEPSMOOTH_MON")
 {
 	field(DESC,"Step smoothing")

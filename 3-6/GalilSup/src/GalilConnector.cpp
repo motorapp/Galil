@@ -63,84 +63,76 @@ GalilConnector::~GalilConnector()
 //We maintain our own connected_ flag outside of asyn
 void GalilConnector::run(void)
 {
-	int sync_status;		//Synchronous communication status
-	int async_status = asynSuccess; //Asynchronous communication status
-	string resp;			//For checking controller response
+   int sync_status;		//Synchronous communication status
+   int async_status = asynSuccess; //Asynchronous communication status
+   string resp;			//For checking controller response
 
-	//Check if Galil actually responds to query
-	while ( true )
-		{
-		//Wait for connect event signal
-		epicsEventWait(pC_->connectEvent_);
-		if (shuttingDown_)
-			break; // exit outer while loop
-		else
-			{
-			pC_->lock();
-			//Check GalilController for response
-			//Test synchronous communication
-			//Query controller for synchronous connection handle
-			strcpy(pC_->cmd_, "WH");
-			sync_status = pC_->sync_writeReadController(true);
-			//Store the handle controller used for sync
-			if (!sync_status)
-				{
-				if (strncmp(pC_->resp_, "IH", 2) == 0)
-					pC_->syncHandle_ = pC_->resp_[2];//TCP
-				else if (strncmp(pC_->resp_, "RS", 2) == 0)
-					pC_->syncHandle_ = 'S';//Serial
-				else//Bad response from controller
-					sync_status = asynError;
-				//Check response to QZ command
-				if (!sync_status)
-					{
-					strcpy(pC_->cmd_, "QZ");
-					sync_status = pC_->sync_writeReadController(true);
-					//Check response from controller
-					if (!sync_status)
-						{
-						//Copy response to std::string for convenience
-						resp = pC_->resp_;
-						//QZ response should contain 3 comma's
-						if (count(resp.begin(), resp.end(), ',') != 3)
-							sync_status = asynError; //Bad response
-						}
-					}
-				}
-			//Check asynchronous communication
-			if (pC_->try_async_ && !sync_status)
-				{
-				//Ensure data record transmission is off
-				strcpy(pC_->cmd_, "DR 0");
-				sync_status = pC_->sync_writeReadController(true);
-				//Close all other connections on controller
-				strcpy(pC_->cmd_, "IHT=>-3");
-				sync_status = pC_->sync_writeReadController(true);
-				//Open UDP connection, and retrieve connection handle
-				strcpy(pC_->asynccmd_, "WH\r");
-				async_status = pC_->async_writeReadController();
-				async_status = (strncmp(pC_->asyncresp_, "IH", 2) == 0) ? async_status : asynError;
-				//Store the handle controller used for udp
-				if (!async_status)
-					{
-					//Udp connection is responsive to query
-					pC_->udpHandle_ = pC_->asyncresp_[2];
-					pC_->async_records_ = true;
-					}
-				else//Error when querying udp handle
-					pC_->async_records_ = false;
-				}
-			//Work out what to do
-			if (!sync_status && !async_status)	//Response received
-				pC_->connected();//Do whats required for GalilController once connection established
-			else
-				{
-				//No response
-				//Continue to force disconnect until device responds
-				pC_->disconnect();
-				}
-			pC_->unlock();
-			}
-		}
+   //Check if Galil actually responds to query
+   while (true) {
+      //Wait for connect event signal
+      epicsEventWait(pC_->connectEvent_);
+      if (shuttingDown_)
+         break; // exit outer while loop
+      else {
+         pC_->lock();
+         //Check GalilController for response
+         //Test synchronous communication
+         //Query controller for synchronous connection handle
+         strcpy(pC_->cmd_, "WH");
+         sync_status = pC_->sync_writeReadController(true);
+         //Store the handle controller used for sync
+         if (!sync_status) {
+            if (strncmp(pC_->resp_, "IH", 2) == 0)
+               pC_->syncHandle_ = pC_->resp_[2];//TCP
+            else if (strncmp(pC_->resp_, "RS", 2) == 0)
+               pC_->syncHandle_ = 'S';//Serial
+            else//Bad response from controller
+               sync_status = asynError;
+            //Check response to QZ command
+            if (!sync_status) {
+               strcpy(pC_->cmd_, "QZ");
+               sync_status = pC_->sync_writeReadController(true);
+               //Check response from controller
+               if (!sync_status) {
+                  //Copy response to std::string for convenience
+                  resp = pC_->resp_;
+                  //QZ response should contain 3 comma's
+                  if (count(resp.begin(), resp.end(), ',') != 3)
+                     sync_status = asynError; //Bad response
+               }
+            }
+         }
+         //Check asynchronous communication
+         if (pC_->try_async_ && !sync_status) {
+            //Ensure data record transmission is off
+            strcpy(pC_->cmd_, "DR 0");
+            sync_status = pC_->sync_writeReadController(true);
+            //Close all other connections on controller
+            strcpy(pC_->cmd_, "IHT=>-3");
+            sync_status = pC_->sync_writeReadController(true);
+            //Open UDP connection, and retrieve connection handle
+            strcpy(pC_->asynccmd_, "WH\r");
+            async_status = pC_->async_writeReadController();
+            async_status = (strncmp(pC_->asyncresp_, "IH", 2) == 0) ? async_status : asynError;
+            //Store the handle controller used for udp
+            if (!async_status) {
+               //Udp connection is responsive to query
+               pC_->udpHandle_ = pC_->asyncresp_[2];
+               pC_->async_records_ = true;
+            }
+            else//Error when querying udp handle
+               pC_->async_records_ = false;
+         }
+         //Work out what to do
+         if (!sync_status && !async_status)	//Response received
+            pC_->connected();//Do whats required for GalilController once connection established
+         else {
+            //No response
+            //Continue to force disconnect until device responds
+            pC_->disconnect();
+         }
+      pC_->unlock();
+      }
+   } //while true
 }
 

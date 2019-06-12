@@ -74,6 +74,25 @@ record(bo,"$(P)$(M)_able") {
 	field(ONAM,"Disable")
 }
 
+record(calcout, "$(P)$(M)_vCh") {
+  field(DESC, "change velocity")
+  field(CALC, "min(max(a*b,c),d)")
+  field(INPB, "$(P)$(M).S")
+  field(INPC, "$(P)$(M).SBAS")
+  field(INPD, "$(P)$(M).SMAX")
+  field(OUT, "$(P)$(M).S")
+}
+
+record(calcout, "$(P)$(M)_twCh") {
+  field(DESC, "change TWV")
+  field(CALC, "min(max(a*b,c),d-e)")
+  field(INPB, "$(P)$(M).TWV")
+  field(INPC, "$(P)$(M).MRES")
+  field(INPD, "$(P)$(M).HLM")
+  field(INPE, "$(P)$(M).LLM")
+  field(OUT, "$(P)$(M).TWV")
+}
+
 #Below records are used to extract data from MR
 #and pass to driver
 record(ao,"$(P)$(M)_PCOF_SP") {
@@ -242,29 +261,6 @@ record(stringout,"$(P)$(M)_POST_CMD")
 	field(DTYP, "asynOctetWrite")
 	field(DOL,  "$(P)$(M).POST CP MS")
 	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_POST")
-}
-
-#Motor homing status, including JAH
-record(bi,"$(P)$(M)_HOMING_STATUS")
-{
-	field(DESC, "Homing status")
-	field(DTYP, "asynInt32")
-	field(SCAN, "I/O Intr")
-	field(ZNAM, "No")
-   	field(ZSV,  "NO_ALARM")
-  	field(ONAM, "Yes")
-   	field(ZSV,  "NO_ALARM")
-   	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_HOMING")
-}
-
-#Overall/final homing status
-record(calcout,"$(P)$(M)_HOMING_MONITOR")
-{
-	field(DESC, "Homing status")
-	field(INPA, "$(P)$(M).HOMR CP MS")
-	field(INPB, "$(P)$(M).HOMF CP MS")
-	field(INPC, "$(P)$(M)_HOMING_STATUS CP MS")
-	field(CALC, "A || B || C")
 }
 
 #driver to mr SPMG field

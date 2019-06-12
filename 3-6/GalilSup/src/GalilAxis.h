@@ -311,7 +311,8 @@ private:
 
   bool axisStatusShutdown_;		//Flag to shutdown axis status thread
   bool axisStatusRunning_;		//Flag to indicate if axis status thread is running
-  epicsEventId axisStatusShutdownId_;	//Shutdown signal for axis status thread
+  epicsEventId axisStatusShutdownId_;	//Signal indicating axis status thread has shutdown
+  epicsEventId axisStatusShutRequestId_;//Request axisStatus thread shutdown
 
 friend class GalilController;
 friend class GalilCSAxis;

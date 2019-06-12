@@ -113,6 +113,8 @@
 #define GalilOutputCompare1IncrString	"OUTPUT_COMPARE_INCR"
 #define GalilOutputCompareMessageString	"OUTPUT_COMPARE_MESSAGE"
 
+#define GalilCSMotorSetPointString	"CSMOTOR_SETPOINT"
+
 #define GalilCSMotorForwardString	"CSMOTOR_FORWARD_TRANSFORM"
 #define GalilCSMotorReverseAString	"CSMOTOR_REVERSEA_TRANSFORM"
 #define GalilCSMotorReverseBString	"CSMOTOR_REVERSEB_TRANSFORM"
@@ -372,7 +374,7 @@ public:
   asynStatus prepSyncStartOnlyMoves(void);
 
   void shutdownController();
-  ~GalilController();
+  virtual ~GalilController();
 
 protected:
   #define FIRST_GALIL_PARAM GalilDriver_
@@ -410,6 +412,7 @@ protected:
   int GalilOutputCompareIncr_;
   int GalilOutputCompareMessage_;
 
+  int GalilCSMotorSetPoint_;
   int GalilCSMotorForward_;
   int GalilCSMotorReverseA_;
   int GalilCSMotorReverseB_;
@@ -530,6 +533,8 @@ private:
 
   GalilPoller *poller_;			//GalilPoller to acquire a datarecord
   GalilConnector *connector_;		//GalilConnector to manage connection status flags
+
+  bool shuttingDown_;			//IOC exit in progress
 
   double timeMultiplier_;		//Controller time base divided by default time base
 

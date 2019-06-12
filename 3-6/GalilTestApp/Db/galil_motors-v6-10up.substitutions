@@ -4,12 +4,8 @@
 # $Author: cliftm $
 #
 # Description
-# Substitution file for motor_withwrappers.template
+# Substitution file for galil_motors.template
 #
-# MOVNFLNK FLNK when moving status is updated
-# LIMITFLNK FLNK when limits are updated
-# READBACK used to set read back to user or dial coordinates
-# 
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # Licence as published by the Free Software Foundation; either
@@ -29,7 +25,7 @@
 # 800 Blackburn Road, Clayton, Victoria 3168, Australia.
 #
 
-file "$(GALIL)/GalilSup/Db/galil_motor.template"
+file "$(GALIL)/GalilSup/Db/galil_motor-v6-10up.template"
 {
 pattern
 {   P,        M,   PORT,    ADDR, EGU, DESC, VELO,  VMAX,  ACCL,  BDST,  BVEL,  BACC,  MRES,  SREV, ERES,     PREC, DHLM,    DLLM,     OFF,     UEIP, RTRY, NTM,   PCOF, ICOF, DCOF}
