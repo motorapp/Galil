@@ -80,7 +80,7 @@ GalilCreateAxis("Galil","H",1,"",1)
 # 3. char *code_file custom code file
 #GalilAddCode("Galil", 1, "customcode.dmc")
 
-# GalilReplaceHome command parameters are:
+# GalilReplaceHomeCode command parameters are:
 # Replace generated axis home code with custom code
 # 1. char *portName Asyn port for controller
 # 2. char *Axis A-H

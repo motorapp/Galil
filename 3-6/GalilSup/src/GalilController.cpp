@@ -331,7 +331,7 @@
 //                  Tidy up GalilConnector
 //                  Alter digital IO MEDM and QEGUI screens so digital input alarm state and value is displayed
 //                  Alter default alarm states for digital in bits
-// 11/05/19 M.Clift
+// 12/05/19 M.Clift
 //                  Alter axisStatusThread for faster ioc exit
 //                  Fix segmentation fault on exit
 //                  Add SP_MON PV to CSAxis for monitoring current setpoint
@@ -403,11 +403,8 @@ static int controller_num = 0;
 static void shutdownCallback(void *pPvt)
 {
   GalilController *pC_ = (GalilController *)pPvt;
-  //Obtain the lock to stop record processing during shutdown
-  pC_->lock();
   //IOC shutdown is in progress
   pC_->shutdownController();
-  pC_->unlock();
 }
 
 //EPICS iocInit status
@@ -913,6 +910,8 @@ void GalilController::shutdownController()
    //Burn parameters, and cleanup
    if (connected_)
       {
+      //Obtain the lock
+      lock();
       //Burn parameters on exit ensuring controller has correct settings at next power on
       //This effects motor type, soft limits, limit configuration etc
       //It does not effect the galil program on the controller
@@ -934,6 +933,8 @@ void GalilController::shutdownController()
       //Asyn exit handler will disconnect sync connection from here
       //We just print message to tell user Asyn epicsAtExit callback is running (next) and will close connection
       cout << "Disconnecting from " << model_ << " at " << address_ << endl;
+      //Release the lock
+      unlock();
       }
 
    //Free the memory where card code is stored
