@@ -4,7 +4,7 @@ The EPICS driver advertised and supported by Galil should be considered a separa
 
 This driver has the following features:  
 
-A) Asyn model 3 architecture  
+<li>Asyn model 3 architecture  </li>
 B) Motor record support  
 C) Motor record PREM/POST function is supported   
 D) Analog and Digital IO  
