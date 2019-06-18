@@ -16,6 +16,7 @@ This driver has the following features:
 <li>Kinematics adjustable via database puts</li>
 <li>Deferred moves facility</li>
 <li>True coordinated motion for up to 8 motors (Motors can be synchronized to within .2ms)</li>
+<li>EtherCat motor drive support</li>
 <li>Auto motor power On/Off with adjustable delays</li>
 <li>Auto motor brake On/Off with adjustable delays</li>
 <li>Sophisticated Galil code generator, no need to program low level</li>
@@ -30,7 +31,7 @@ This driver has the following features:
 <li>Example IOC</li>
 <li>Autosave request files</li>
 <li>RIO PLC supported</li>
-
+<br>
 Intended to replace Galil EPICS 1-5 driver  
 
 Older versions can be found here:   
