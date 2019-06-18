@@ -1,8 +1,0 @@
-title: Galil-3-4
-description: ASYN based EPICS driver for Galil products
-google_analytics: UA-62620602-1
-show_downloads: true
-theme: jekyll-theme-slate
-
-gems:
-  - jekyll-mentions
