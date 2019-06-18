@@ -1,6 +1,6 @@
 ### Welcome
 
-The EPICS driver advertised and supported by Galil should be considered a separate branch.  For assistance with this software post on EPICS tech-talk or email: Mark.Clift@Synchrotron.org.au
+The EPICS driver advertised and supported by Galil should be considered a separate branch.  For assistance with this software post on EPICS tech-talk or email: cliftm@ansto.gov.au
 
 This driver has the following features:  
 
