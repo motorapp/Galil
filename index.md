@@ -30,8 +30,7 @@ This driver has the following features:
 <li>Example Qt/EPICS QE framework screens</li>
 <li>Example IOC</li>
 <li>Autosave request files</li>
-<li>RIO PLC supported</li>
-<br>
+<li>RIO PLC supported</li>   
 
 Intended to replace Galil EPICS 1-5 driver
 
