@@ -1586,18 +1586,18 @@ void GalilAxis::setStatus(bool *moving)
   if (ueip_ || ctrlUseMain_)
      {
      //Check encoder move
-     if (last_encoder_position_ > encoder_position_)
+     if (last_encoder_position_ > (encoder_position_ + enc_tol_))
         {
         encoder_direction = 0;
         encoderMove_ = true;
         }
-     if (last_encoder_position_ < encoder_position_)
+     if (last_encoder_position_ < (encoder_position_ - enc_tol_))
         {
         encoder_direction = 1;
         encoderMove_ = true;
         }
 	 //Encoder not moving
-     if (last_encoder_position_ == encoder_position_)
+     if (fabs(last_encoder_position_ - encoder_position_) <= enc_tol_)
         encoder_direction = direction_;
      //Encoder direction ok flag
      encDirOk_ = (encoder_direction == direction_) ? true : false;
@@ -2303,6 +2303,7 @@ asynStatus GalilAxis::poller(void)
    
    //Retrieve required params
    status = pC_->getIntegerParam(axisNo_, pC_->GalilUseEncoder_, &ueip_);
+   status = pC_->getIntegerParam(axisNo_, pC_->GalilEncoderTolerance_, &enc_tol_);
    status = pC_->getIntegerParam(axisNo_, pC_->GalilDmov_, &dmov);
 
    //Extract axis motion data from controller datarecord, and load into GalilAxis instance

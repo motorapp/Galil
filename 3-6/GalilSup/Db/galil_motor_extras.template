@@ -1370,6 +1370,26 @@ record(mbbi,"$(P)$(M)_LIMITDISABLE_STATUS")
    	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_LIMIT_DISABLE")
 }
 
+# Record to define a tolerance when determining encoder motion and direction
+record(longout,"$(P)$(M)_ENC_TOLERANCE_SP")
+{
+	field(DESC, "Encoder Tolerance")
+	field(DTYP, "asynInt32")
+	field(PINI, "YES")
+	field(EGU,  "Counts")
+	field(VAL,  "0")
+	field(DRVL, "0")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_ENCODER_TOLERANCE")
+}
+record(longin,"$(P)$(M)_ENC_TOLERANCE_MON")
+{
+	field(DESC, "Encoder Tolerance")
+	field(DTYP, "asynInt32")
+	field(SCAN, "I/O Intr")
+	field(EGU, "Counts")
+	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_ENCODER_TOLERANCE")
+}
+
 record(bi,"$(P)$(M)_ON_STATUS")
 {
 	field(DESC, "Mtr on status")

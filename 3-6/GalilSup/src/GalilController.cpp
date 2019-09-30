@@ -337,6 +337,10 @@
 //                  Add SP_MON PV to CSAxis for monitoring current setpoint
 //                  Add galil_motors-v6-9down substitution and template files for motor record 6-9 and below
 //                  Add galil_motors-v6-10up substitution and template files for motor record 6-10 and above
+// 30/09/19 M. Pearson
+//                  Add an encoder tolerance parameter that is used when determining encoder motion and direction
+//                  in the GalilAxis::setStatus function. This helps deal with detecting stall conditions
+//                  with high resolution encoders (that may always be changing by a few counts even when stationary).
 
 #include <stdio.h>
 #include <math.h>
@@ -572,6 +576,7 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilUserDataDeadbString, asynParamFloat64, &GalilUserDataDeadb_);
 
   createParam(GalilLimitDisableString, asynParamInt32, &GalilLimitDisable_);
+  createParam(GalilEncoderToleranceString, asynParamInt32, &GalilEncoderTolerance_);
 
   createParam(GalilMainEncoderString, asynParamInt32, &GalilMainEncoder_);
   createParam(GalilAuxEncoderString, asynParamInt32, &GalilAuxEncoder_);
