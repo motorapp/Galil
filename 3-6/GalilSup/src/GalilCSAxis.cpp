@@ -1410,8 +1410,9 @@ asynStatus GalilCSAxis::parseTransform(char axis, char *equation, char *axes, ch
    status = substituteTransforms(axis, equation);
    //Create axes list from transform equation
    status |= obtainAxisList(axis, equation, axes);
+   //Kinematic variables no longer used.  Left for reference
    //Replace variables in range Q-X with variables in range A-P for sCalcPerform
-   status |= substituteVariables(axis, equation, axes, vars, subs);
+   //status |= substituteVariables(axis, equation, axes, vars, subs);
   
    return asynStatus(status);
 }
@@ -1462,22 +1463,30 @@ asynStatus GalilCSAxis::calcAxisLimitOrientation(void)
    unsigned i, j;		//Looping
    double largs[SCALCARGS];	//Limit arguments
    double orientation;		//How real axis limits are oriented relative to this CSAxis
+   double first, second;	//Used to calculate how this CSAxis RBV changes as real axis RBV grows
+                                //This determines limit orientation of real axis limits relative to this CSAxis
    int status = asynSuccess;    //Return status
 
    if (kinematicsAltered_)
       {
       for (i = 0; revaxes_[i] != '\0'; i++)
          {
-         //Zero limit argument array
+         //Set limit argument array to all 1's
          for (j = 0; j < SCALCARGS; j++)
-            largs[j] = 0;
-         //Retrieve the axis
+            largs[j] = 1;
+         //Retrieve the revaxis
          pAxis = pC_->getAxis(revaxes_[i] - AASCII);
          if (!pAxis) continue;
-         //Insert 1 for this axis, all others are 0
-         largs[revaxes_[i] - AASCII] = 1;
-         //Perform reverse transform to calculate real axis limit orientation
-         status |= doCalc(forward_, largs, &orientation);
+         //Insert 10 (unlikely result will be 0) for this revaxis
+         largs[revaxes_[i] - AASCII] = 10;
+         //Perform reverse transform
+         status |= doCalc(forward_, largs, &first);
+         //Insert 20 for this revaxis (ie. move revaxes forward) 
+         largs[revaxes_[i] - AASCII] = 20;
+         //Perform reverse transform
+         status |= doCalc(forward_, largs, &second);
+         //Orientation depends on how CSAxis changes as revaxes moves forward
+         orientation = (second > first) ? 1 : -1;
          //Set limits orientation
          limitOrientation_[i] = (orientation > 0) ? consistent : not_consistent;
          }

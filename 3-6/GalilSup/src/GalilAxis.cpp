@@ -1596,9 +1596,10 @@ void GalilAxis::setStatus(bool *moving)
         encoder_direction = 1;
         encoderMove_ = true;
         }
-	 //Encoder not moving
+     //Encoder not moving
      if (fabs(last_encoder_position_ - encoder_position_) <= enc_tol_)
         encoder_direction = direction_;
+
      //Encoder direction ok flag
      encDirOk_ = (encoder_direction == direction_) ? true : false;
      }

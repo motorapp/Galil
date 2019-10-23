@@ -341,12 +341,17 @@
 //                  Add an encoder tolerance parameter that is used when determining encoder motion and direction
 //                  in the GalilAxis::setStatus function. This helps deal with detecting stall conditions
 //                  with high resolution encoders (that may always be changing by a few counts even when stationary).
+// 23/10/19 M. Clift
+//                  Fix use of constants in kinematics such as PI, D2R, etc
+//                  Alter CSAxis limit orientation calculation to improve robustness
+//                  Add handler to catch SIGTERM, SIGINT and initiate clean shutdown
 
 #include <stdio.h>
 #include <math.h>
 #include <float.h>
 #include <string.h>
 #include <stdlib.h>
+#include <signal.h>
 #if defined _WIN32 || _WIN64
 #include <process.h>
 #else
@@ -381,7 +386,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "3-6-34";
+static const char *driverVersion = "3-6-38";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);
@@ -395,6 +400,9 @@ static bool dbInitialized = false;
 //Static count of Galil controllers.  Used to derive communications port name L(controller num)
 static int controller_num = 0;
 
+//Signal handler setup for SIGTERM, and SIGINT
+static bool signalHandlerSetup = false; 
+
 //Convenience functions
 #ifndef MAX
 #define MAX(a,b) ((a)>(b)? (a): (b))
@@ -402,6 +410,19 @@ static int controller_num = 0;
 #ifndef MIN
 #define MIN(a,b) ((a)<(b)? (a): (b))
 #endif
+
+//Signal handler for SIGTERM, and SIGINT
+static void signalHandler(int sig)
+{
+   switch (sig) {
+      case SIGINT:
+         epicsExit (128 + sig);
+         break;
+      case SIGTERM:
+         epicsExit (128 + sig);
+         break;
+   }
+}
 
 //EPICS shutdown handler
 static void shutdownCallback(void *pPvt)
@@ -747,6 +768,13 @@ GalilController::GalilController(const char *portName, const char *address, doub
 
   //Static count of controllers.  Used to derive communications port names
   controller_num++;
+
+  //Setup signal handler to catch SIGTERM, and SIGINT
+  if (!signalHandlerSetup) {
+     signal(SIGTERM, signalHandler);
+     signal(SIGINT, signalHandler);
+     signalHandlerSetup = true;
+  }
 }
 
 //Called by GalilController at start up once only.  
