@@ -21,7 +21,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 # Contact details:
-# mark.clift@synchrotron.org.au
+# cliftm@ansto.gov.au
 # 800 Blackburn Road, Clayton, Victoria 3168, Australia.
 #
 
@@ -907,7 +907,7 @@ record(ai,"$(P)$(M)_ERRLIMIT_MON")
 
 record(ai,"$(P)$(M)_ERR_MON")
 {
-	field(DESC, "error limit")
+	field(DESC, "motor error")
 	field(EGU,  "cts")
 	field(DTYP, "asynFloat64")
 	field(SCAN, "I/O Intr")

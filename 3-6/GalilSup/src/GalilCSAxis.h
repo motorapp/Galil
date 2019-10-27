@@ -13,7 +13,7 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 // Contact details:
-// mark.clift@synchrotron.org.au
+// cliftm@ansto.gov.au
 // 800 Blackburn Road, Clayton, Victoria 3168, Australia.
 //
 
@@ -65,7 +65,7 @@ public:
   //Peform forward kinematic transform using real axis readback data, and store results in GalilCSAxis
   asynStatus forwardTransform(void);
   //Perform reverse coordinate and velocity transform
-  asynStatus reverseTransform(double pos, double vel, double accel, CSTargets *targets, double npos[], double nvel[], double naccel[], bool useCSSetpoints = true);
+  asynStatus reverseTransform(double pos, double vel, double accel, CSTargets *targets, double npos[], double nvel[], double naccel[], bool useCSSetpoints = true, bool profileMsg = false);
   //Transform CSAxis profile into Axis profiles
   asynStatus transformCSAxisProfile(void);
   //Selects a free coordinate system S or T and returns coordsys number, or -1 if none free

@@ -14,7 +14,7 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 // Contact details:
-// mark.clift@synchrotron.org.au
+// cliftm@ansto.gov.au
 // 800 Blackburn Road, Clayton, Victoria 3168, Australia.
 //
 // Thread to verify device actually responds when asyn connected true

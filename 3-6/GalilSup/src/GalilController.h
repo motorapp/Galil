@@ -13,7 +13,7 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 // Contact details:
-// mark.clift@synchrotron.org.au
+// cliftm@ansto.gov.au
 // 800 Blackburn Road, Clayton, Victoria 3168, Australia.
 //
 
@@ -298,7 +298,6 @@ public:
   asynStatus writeUInt32Digital(asynUser *pasynUser, epicsUInt32 value, epicsUInt32 mask);
 
   /* These are the functions for profile moves */
-  //asynStatus initializeProfile(size_t maxPoints, const char* ftpUsername, const char* ftpPassword);
   asynStatus buildProfile();
   asynStatus buildProfileFile();
   asynStatus checkCSAxisProfiles(int mesg_function);

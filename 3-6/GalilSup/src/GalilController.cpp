@@ -13,7 +13,7 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 // Contact details:
-// mark.clift@synchrotron.org.au
+// cliftm@ansto.gov.au
 // 800 Blackburn Road, Clayton, Victoria 3168, Australia.
 
 // Change log:
@@ -345,6 +345,9 @@
 //                  Fix use of constants in kinematics such as PI, D2R, etc
 //                  Alter CSAxis limit orientation calculation to improve robustness
 //                  Add handler to catch SIGTERM, SIGINT and initiate clean shutdown
+// 27/10/19 M. Clift
+//                  Improve kinematics messaging
+//                  Add encoder tolerance PV to QEGUI, MEDM motor extras screen
 
 #include <stdio.h>
 #include <math.h>
@@ -386,7 +389,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "3-6-38";
+static const char *driverVersion = "3-6-40";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);
