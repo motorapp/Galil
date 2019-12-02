@@ -348,6 +348,9 @@
 // 27/10/19 M. Clift
 //                  Improve kinematics messaging
 //                  Add encoder tolerance PV to QEGUI, MEDM motor extras screen
+// 02/12/19 M. Pearson
+//                  In GalilAxis::setStatus we check autooffAllowed_ and enforce motorStatusDone=0 if we are
+//                  waiting in GalilAxis::executeAutoOnDelay.
 
 #include <stdio.h>
 #include <math.h>
