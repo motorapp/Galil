@@ -1606,7 +1606,10 @@ void GalilAxis::setStatus(bool *moving)
 
    //Determine move status
    //Motors with deferred moves pending set to status moving
-   if (inmotion_ || deferredMove_)
+   //If we are waiting in executeAutoOnDelay then we need to ensure the moving flag is set. 
+   //This prevents occasional motor status updates that cause the motor record to prematurely 
+   //callback at the beginning of a move.
+   if (inmotion_ || deferredMove_ || !autooffAllowed_)
       {
       *moving = true;		//set flag for moving
       done_ = 0;
