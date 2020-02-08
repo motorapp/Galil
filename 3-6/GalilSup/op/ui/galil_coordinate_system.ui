@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>381</width>
-    <height>197</height>
+    <width>378</width>
+    <height>175</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -60,7 +60,7 @@
        <number>5</number>
       </property>
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout_3" stretch="5,1,1,1">
+       <layout class="QVBoxLayout" name="verticalLayout_3" stretch="5,1,1">
         <property name="spacing">
          <number>1</number>
         </property>
@@ -385,66 +385,6 @@
             </property>
             <property name="alignment" stdset="0">
              <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
-          <property name="spacing">
-           <number>1</number>
-          </property>
-          <item>
-           <widget class="QLabel" name="label_9">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <family>Abyssinica SIL</family>
-              <pointsize>9</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>Go all motors</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QEPushButton" name="qepushbutton_2">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>1</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <family>Abyssinica SIL</family>
-              <pointsize>9</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>Go</string>
-            </property>
-            <property name="variable" stdset="0">
-             <string>$(DMC)$(R)_GO_CMD</string>
             </property>
            </widget>
           </item>

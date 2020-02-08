@@ -609,6 +609,9 @@
           <property name="variable" stdset="0">
            <string>$(RIO)SEND_STR_CMD</string>
           </property>
+          <property name="userLevelEnabled" stdset="0">
+           <enum>QEGenericEdit::Scientist</enum>
+          </property>
          </widget>
         </item>
         <item>

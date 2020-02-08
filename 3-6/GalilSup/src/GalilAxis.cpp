@@ -26,7 +26,7 @@
 #endif /* _WIN32 */
 #include <iostream>  //cout
 #include <sstream>   //ostringstream istringstream
-#include <typeinfo>  //std::bad_typeid
+#include <algorithm> //std::replace
 
 using namespace std; //cout ostringstream vector string
 
@@ -42,6 +42,7 @@ using namespace std; //cout ostringstream vector string
 
 static void pollServicesThreadC(void *pPvt);
 static void axisStatusThreadC(void *pPvt);
+static void eventMonitorThreadC(void *pPvt);
 
 // These are the GalilAxis methods
 
@@ -60,9 +61,9 @@ GalilAxis::GalilAxis(class GalilController *pC, //Pointer to controller instance
   : asynMotorAxis(pC, (toupper(axisname[0]) - AASCII)),
     pC_(pC), pollRequest_(10, sizeof(int))
 {
-  char axis_limit_code[LIMIT_CODE_LEN];   	//Code generated for limits interrupt on this axis
-  char axis_digital_code[INP_CODE_LEN];	     	//Code generated for digital interrupt related to this axis
-  char axis_thread_code[THREAD_CODE_LEN]; 	//Code generated for the axis (eg. home code, limits response)
+  string limit_code;				//Code generated for limits interrupt on this axis
+  string digital_code;				//Code generated for digital interrupt related to this axis
+  string thread_code;				//Code generated for the axis (eg. home code, limits response)
 
   //Initial default for stoppedTime
   epicsTimeGetCurrent(&stop_begint_);
@@ -81,32 +82,41 @@ GalilAxis::GalilAxis(class GalilController *pC, //Pointer to controller instance
   //Increment internal axis counter
   pC_->numAxes_++;
 
-  //Create poller sleep event
-  stoppedTimeResetEventId_ = epicsEventMustCreate(epicsEventEmpty);
+  //Create stop time reset event
+  stoppedTimeReset_ = epicsEventMustCreate(epicsEventEmpty);
+  //Create begin motion event
+  beginEvent_ = epicsEventMustCreate(epicsEventEmpty);
+  //Create stop motion event
+  stopEvent_ = epicsEventMustCreate(epicsEventEmpty);
+  //Create caller event
+  callerEvent_ = epicsEventMustCreate(epicsEventEmpty);
+  //Create event monitor start event
+  eventMonitorStart_ = epicsEventMustCreate(epicsEventEmpty);
+  //Create event monitor done event
+  eventMonitorDone_ = epicsEventMustCreate(epicsEventEmpty);
   //store settings, and set defaults
   setDefaults(limit_as_home, enables_string, switch_type);
   //store the motor enable/disable digital IO setup
   store_motors_enable();
   //Generate the code for this axis based on specified settings
   //Initialize the code generator
-  initialize_codegen(axis_thread_code, axis_limit_code, axis_digital_code);
+  initialize_codegen(thread_code, limit_code, digital_code);
   //Generate code for limits interrupt.  Motor behaviour on limits active
-  gen_limitcode(axisName_, axis_thread_code, axis_limit_code);
+  gen_limitcode(limit_code);
   //Generate code for axis homing routine
-  gen_homecode(axisName_, axis_thread_code);
+  gen_homecode(thread_code);
   /* insert motor interlock code into thread A */
-  if (axisName_ == 'A')
-	{
-	sprintf(axis_thread_code,"%sIF(mlock=1)\n",axis_thread_code);
-	sprintf(axis_thread_code,"%sII ,,dpon,dvalues\nENDIF\n",axis_thread_code);
-	}
-
+  if (axisName_ == 'A') {
+        thread_code += "IF(mlock=1);";
+        thread_code += "II ,,dpon,dvalues;ENDIF\n";
+  }
   //Insert the final jump statement for the current thread code
-  sprintf(axis_thread_code,"%sJP #THREAD%c\n",axis_thread_code, axisName_);
+  thread_code += "JP #THREAD" + string(1, axisName_) + "\n";
+
   //Copy this axis code into the controller class code buffers
-  strcat(pC->thread_code_, axis_thread_code);
-  strcat(pC->limit_code_, axis_limit_code);
-  strcat(pC->digital_code_, axis_digital_code);
+  pC->thread_code_ += thread_code;
+  pC->limit_code_ += limit_code;
+  pC->digital_code_ += digital_code;
   
   // Create the thread that will service poll requests
   // To write to the controller
@@ -115,10 +125,15 @@ GalilAxis::GalilAxis(class GalilController *pC, //Pointer to controller instance
                     epicsThreadGetStackSize(epicsThreadStackMedium),
                     (EPICSTHREADFUNC)pollServicesThreadC, (void *)this);
 
-  axisStatusShutdown_ = false;
+  // Create the event monitor thread
+  epicsThreadCreate("eventMonitor", 
+                    epicsThreadPriorityMax,
+                    epicsThreadGetStackSize(epicsThreadStackMedium),
+                    (EPICSTHREADFUNC)eventMonitorThreadC, (void *)this);
+
   axisStatusRunning_ = true;
-  axisStatusShutdownId_ = epicsEventMustCreate(epicsEventEmpty);
-  axisStatusShutRequestId_ = epicsEventMustCreate(epicsEventEmpty);
+  axisStatusShutRequest_ = epicsEventMustCreate(epicsEventEmpty);
+  axisStatusShutdown_ = epicsEventMustCreate(epicsEventEmpty);
   pC_->setDoubleParam(axisNo_, pC_->GalilStatusPollDelay_, 1);
   // Create the thread for polling axis and encoder status
   epicsThreadCreate("GalilAxisStatusPoll",
@@ -139,6 +154,11 @@ GalilAxis::GalilAxis(class GalilController *pC, //Pointer to controller instance
 //GalilAxis destructor
 GalilAxis::~GalilAxis()
 {
+  //Set flag axis shut down in progress
+  shuttingDown_ = true;
+  //Now flag set, send eventMonitor thread to shutdown
+  epicsEventSignal(eventMonitorStart_);
+  //Shutdown axis status thread
   axisStatusShutdown();
   //Free RAM used
   free(enables_string_);
@@ -148,9 +168,17 @@ GalilAxis::~GalilAxis()
      free(profileBackupPositions_);
 
   //Destroy events
-  epicsEventDestroy(stoppedTimeResetEventId_);
-  epicsEventDestroy(axisStatusShutdownId_);
-  epicsEventDestroy(axisStatusShutRequestId_);
+  //Sleep to preempt this thread, and give time
+  //for event Monitor thread to exit
+  epicsThreadSleep(.002);
+  epicsEventDestroy(beginEvent_);
+  epicsEventDestroy(stopEvent_);
+  epicsEventDestroy(callerEvent_);
+  epicsEventDestroy(eventMonitorStart_);
+  epicsEventDestroy(eventMonitorDone_);
+  epicsEventDestroy(stoppedTimeReset_);
+  epicsEventDestroy(axisStatusShutdown_);
+  epicsEventDestroy(axisStatusShutRequest_);
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -159,100 +187,125 @@ GalilAxis::~GalilAxis()
 
 asynStatus GalilAxis::setDefaults(int limit_as_home, char *enables_string, int switch_type)
 {
-	//const char *functionName = "GalilAxis::setDefaults";
-	
-	//Store limits as home setting						       
-	limit_as_home_ = (limit_as_home > 0) ? 1 : 0;
+   //const char *functionName = "GalilAxis::setDefaults";
 
-	//Store switch type setting for motor enable/disable function			       
-	switch_type_ = (switch_type > 0) ? 1 : 0;
+   //Five polls considered minimum to detect move start, stop
+   double multiplier = 5.0 / (BEGIN_TIMEOUT / (pC_->updatePeriod_ / 1000.0));
+   //Min multiplier is 1
+   multiplier = (multiplier > 1) ? multiplier : 1;
 
-	//Store motor enable/disable string
-	enables_string_ = (char *)calloc(strlen(enables_string) + 1, sizeof(char));
-	strcpy(enables_string_, enables_string);
+   //Not shutting done
+   shuttingDown_ = false;
+
+   //Move method should not signal caller by default
+   signalCaller_ = false;
+
+   //Move has not been pushed to this axis Motor Record
+   moveThruRecord_ = false;
+
+   //Tell poller we dont want signal when events occur
+   requestedEventSent_ = true;
+
+   //Default event timeout
+   requestedTimeout_ = BEGIN_TIMEOUT * multiplier;
+
+   //Store limits as home setting						       
+   limit_as_home_ = (limit_as_home > 0) ? 1 : 0;
+
+   //Store switch type setting for motor enable/disable function			       
+   switch_type_ = (switch_type > 0) ? 1 : 0;
+
+   //Store motor enable/disable string
+   enables_string_ = (char *)calloc(strlen(enables_string) + 1, sizeof(char));
+   strcpy(enables_string_, enables_string);
         
-	//Invert ssi flag
-	invert_ssi_ = false;
+   //Invert ssi flag
+   invert_ssi_ = false;
 
-	//Possible encoder stall not detected
-	pestall_detected_ = false;
+   //Possible encoder stall not detected
+   pestall_detected_ = false;
 
-	//This axis is not performing a deferred move
-	deferredMove_ = false;
+   //This axis is not performing a deferred move
+   deferredMove_ = false;
 
-	//Store axis in ParamList
-	setIntegerParam(pC_->GalilAxis_, axisNo_);
+   //Store axis in ParamList
+   setIntegerParam(pC_->GalilAxis_, axisNo_);
 
-	//Give default readback values for positions, movement direction
-	motor_position_ = 0;
-	last_encoder_position_ = 0;
-	encoder_position_ = 0;
-	direction_ = 1;
+   //Give default readback values for positions, movement direction
+   motor_position_ = 0;
+   last_encoder_position_ = 0;
+   encoder_position_ = 0;
+   direction_ = 1;
 
-	//Pass default step count/aux encoder value to motorRecord
-	setDoubleParam(pC_->motorPosition_, motor_position_);
-	//Pass default encoder value to motorRecord
-	setDoubleParam(pC_->motorEncoderPosition_, encoder_position_);
-	//Pass default direction value to motorRecord
-	setIntegerParam(pC_->motorStatusDirection_, direction_);
+   //Pass default step count/aux encoder value to motorRecord
+   setDoubleParam(pC_->motorPosition_, motor_position_);
+   //Pass default encoder value to motorRecord
+   setDoubleParam(pC_->motorEncoderPosition_, encoder_position_);
+   //Pass default direction value to motorRecord
+   setIntegerParam(pC_->motorStatusDirection_, direction_);
 
-	//Motor not homing now
-	//This flag does not include JAH
-	homing_ = false;
-	//This flag does include JAH
-	setIntegerParam(pC_->GalilHoming_, 0);
-	//Custom home routine hasn't been provided
-	customHome_ = false;
+   //Motor not homing now
+   //This flag does not include JAH
+   homing_ = false;
+   //This flag does include JAH
+   setIntegerParam(pC_->GalilHoming_, 0);
+   //Custom home routine hasn't been provided
+   customHome_ = false;
 
-	//Motor stop mesg not sent to pollServices thread for stall or wrong limit
-	stopSent_ = false;
+   //Motor stop mesg not sent to pollServices thread for stall or wrong limit
+   stopSent_ = false;
 
-	//Motor record post mesg
-	//Do not do post at startup, wait till after move
-	postExecuted_ = postSent_ = true;
+   //Motor record post mesg has not been sent to pollServices thread
+   postExecuted_ = postSent_ = false;
 
-	//Homed mesg not sent to pollServices thread
-	homedExecuted_ = homedSent_ = false;
+   //Homed mesg not sent to pollServices thread
+   homedExecuted_ = homedSent_ = false;
 
-	//Sync encoded stepper at stop message not sent to pollServices
-	syncEncodedStepperAtStopSent_ = syncEncodedStepperAtStopExecuted_ = false;
+   //Sync encoded stepper at stop message not sent to pollServices
+   syncEncodedStepperAtStopSent_ = syncEncodedStepperAtStopExecuted_ = false;
 
-	//Sync encoded stepper at encoder move message not sent to pollServices
-	syncEncodedStepperAtEncSent_ = false;
+   //Sync encoded stepper at encoder move message not sent to pollServices
+   syncEncodedStepperAtEncSent_ = false;
 
-	//Motor power auto on/off mesg not sent to pollServices thread yet
-	autooffSent_ = false;
+   //Motor power auto on/off mesg not sent to pollServices thread yet
+   autooffSent_ = false;
 
-	//Motor brake auto on mesg not sent to pollServices thread yet
-	autobrakeonSent_ = false;
+   //Motor brake auto on mesg not sent to pollServices thread yet
+   autobrakeonSent_ = false;
 
-	//AutoOn delay not in progress so autooff allowed
-	autooffAllowed_ = true;
+   //Axis not ready until necessary motor record fields have been pushed into driver
+   //So we use "use encoder if present" UEIP field to set axisReady_ to true
+   axisReady_ = false;
 
-	//Axis not ready until necessary motor record fields have been pushed into driver
-	//So we use "use encoder if present" UEIP field to set axisReady_ to true
-	axisReady_ = false;
+   //Have not allocated profile data backup array
+   //Data restored automatically after profile built
+   profileBackupPositions_ = NULL;
 
-	//Have not allocated profile data backup array
-	//Data restored automatically after profile built
-	profileBackupPositions_ = NULL;
+   //We dont need to restore any profile data now
+   restoreProfile_ = false;
 
-	//We dont need to restore any profile data now
-	restoreProfile_ = false;
+   //Jog after home not in progress
+   jogAfterHome_ = false;
 
-	//Dont need to start deferred moves now
-	startDeferredMoves_ = false;
+   //Dont use CSAxis dynamics yet
+   useCSADynamics_ = false;
 
-	//Jog after home not in progress
-	jogAfterHome_ = false;
+   //Driver is not requesting axis stop
+   stopInternal_ = false;
 
-	//Dont use CSAxis dynamics yet
-	useCSADynamics_ = false;
+   //Driver has not stopped axis motor record
+   stoppedMR_ = false;
 
-	//Dont stop axis now
-	stop_axis_ = false;
+   //Default motor record write enable
+   pC_->setIntegerParam(axisNo_, pC_->GalilMotorSetValEnable_, 0);
 
-	return asynSuccess;
+   //Default motor record stop
+   pC_->setIntegerParam(axisNo_, pC_->GalilMotorRecordStop_, 0);
+
+   //Default related csaxes list
+   csaxesList_[0] = '\0';
+
+   return asynSuccess;
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -261,106 +314,106 @@ asynStatus GalilAxis::setDefaults(int limit_as_home, char *enables_string, int s
 
 void GalilAxis::store_motors_enable(void)
 {
-	int motors_index;			/* The current index for the motor array */
-	int i,k;				/* General loop variable */
-	char state = switch_type_;		/* The state we are adding to the list */
-	struct Galilmotor_enables *motor_enables=NULL;  //Convenience pointer to GalilController motor_enables[digport]
-	int digport[8];				
-	int add_motor;				/* Add motor to list flag */
+   int motors_index;			/* The current index for the motor array */
+   int i,k;				/* General loop variable */
+   char state = switch_type_;		/* The state we are adding to the list */
+   struct Galilmotor_enables *motor_enables=NULL;  //Convenience pointer to GalilController motor_enables[digport]
+   int digport[8];
+   int add_motor;				/* Add motor to list flag */
 
-	//Load default value into digport before reading user specified values
-	for (i = 0;i < 8;i++)
-		digport[i] = 0;
+   //Load default value into digport before reading user specified values
+   for (i = 0;i < 8;i++)
+      digport[i] = 0;
 
-	//retrieve port numbers from user specified parameter
-	sscanf(enables_string_,"%d,%d,%d,%d,%d,%d,%d,%d",&digport[0],&digport[1],&digport[2],&digport[3],&digport[4],&digport[5],&digport[6],&digport[7]);
+   //retrieve port numbers from user specified parameter
+   sscanf(enables_string_,"%d,%d,%d,%d,%d,%d,%d,%d",&digport[0],&digport[1],&digport[2],&digport[3],&digport[4],&digport[5],&digport[6],&digport[7]);
 
-	k = 0;
-	//Loop until we hit our loaded default
-	while (digport[k] != 0)
-		{
-		//Did user specify interlock function
-		if (digport[k]>0 && digport[k]<9)
-			{
-			//Retrieve structure for digital port from controller instance
-			motor_enables = (Galilmotor_enables *)&pC_->motor_enables_[digport[k]-1];
-			motors_index = (int)strlen(motor_enables->motors);
-			//Add motor, and digital IO state provided into motor_enables structure
-			add_motor = 1;
-			// Check to make sure motor is not already in list
-			for (i=0;i<motors_index;i++)
-				{
-				if (motor_enables->motors[i] == axisName_)
-					add_motor = 0;
-				}
-			if (add_motor)
-				{
-				motor_enables->motors[motors_index] = axisName_;
-				motor_enables->motors[motors_index + 1] = '\0';
-				//Interrupt for digital IO can only be programmed to occur for one state
-				//So we only pickup the last specified state for this digital in port
-				motor_enables->disablestates[motors_index] = state;
-				motor_enables->disablestates[motors_index + 1] = '\0';
-				}
-			}
-		//Move on to next digital port specified by user
-		k++;
-		}
+   k = 0;
+   //Loop until we hit our loaded default
+   while (digport[k] != 0) {
+      //Did user specify interlock function
+      if (digport[k]>0 && digport[k]<9) {
+         //Retrieve structure for digital port from controller instance
+         motor_enables = (Galilmotor_enables *)&pC_->motor_enables_[digport[k]-1];
+         motors_index = (int)strlen(motor_enables->motors);
+         //Add motor, and digital IO state provided into motor_enables structure
+         add_motor = 1;
+         // Check to make sure motor is not already in list
+         for (i=0;i<motors_index;i++) {
+            if (motor_enables->motors[i] == axisName_)
+               add_motor = 0;
+         }
+         if (add_motor) {
+            motor_enables->motors[motors_index] = axisName_;
+            motor_enables->motors[motors_index + 1] = '\0';
+            //Interrupt for digital IO can only be programmed to occur for one state
+            //So we only pickup the last specified state for this digital in port
+            motor_enables->disablestates[motors_index] = state;
+            motor_enables->disablestates[motors_index + 1] = '\0';
+         }
+      }
+      //Move on to next digital port specified by user
+      k++;
+   }//While
 }
 
 /*--------------------------------------------------------------------------------*/
 /* Initialize code buffers, insert program labels, set generator variables */
 
-void GalilAxis::initialize_codegen(char axis_thread_code[],
-			  	   char axis_limit_code[],
-			  	   char axis_digital_code[])
+void GalilAxis::initialize_codegen(string &thread_code,
+			  	   string &limit_code,
+			  	   string &digital_code)
 {
-	//Program label for digital input interrupt program
-	char axis_digital_label[10]="#ININT\n";
-	
-	/*Empty code buffers for this axis*/
-	strcpy(axis_thread_code, "");
-	strcpy(axis_limit_code, "");
+  //Program label for digital input interrupt program
+  string digital_label="#ININT\n";
+
+  /*Empty code buffers for this axis*/
+  thread_code.clear();
+  limit_code.clear();
 		
-	//Insert code to start motor thread that will be constructed
-	//thread 0 (motor A) is auto starting
-	if (axisName_ != 'A')
-		sprintf(pC_->card_code_,"%sXQ #THREAD%c,%d\n",pC_->card_code_, axisName_, axisNo_);
+  //Insert code to start motor thread that will be constructed
+  //thread 0 (motor A) is auto starting
+  if (axisName_ != 'A')
+     pC_->card_code_ += "XQ #THREAD" + string(1, axisName_) + "," + tsp(axisNo_) + "\n";
 
-	//Insert label for motor thread we are constructing	
-	sprintf(axis_thread_code,"%s#THREAD%c\n",axis_thread_code, axisName_);
+  //Insert label for motor thread we are constructing	
+  thread_code += "#THREAD" + string(1, axisName_) + "\n";
 
-	//Setup ININT program label for digital input interrupts.  Used for motor enable/disable.
-	if (pC_->digitalinput_init_ == false && strcmp(enables_string_, "") != 0)
-		{
-		//Insert digital input program label #ININT
-		strcpy(axis_digital_code, axis_digital_label);
-		//Insert code to initialize dpoff (digital ports off) used for motor interlocks management
-		sprintf(axis_digital_code,"%sdpoff=dpon\n",axis_digital_code);
-		//Digital input label has been inserted
-		pC_->digitalinput_init_ = true;
-		}
-	else	//Empty digital input code buffer
-		strcpy(axis_digital_code,"");
+  //Setup ININT program label for digital input interrupts.  Used for motor enable/disable.
+  if (pC_->digitalinput_init_ == false && strcmp(enables_string_, "") != 0) {
+     //Insert digital input program label #ININT
+     digital_code = digital_label;
+     //Insert code to initialize dpoff (digital ports off) used for motor interlocks management
+     digital_code += "dpoff=dpon\n";
+     //Digital input label has been inserted
+     pC_->digitalinput_init_ = true;
+  }
+  else	//Empty digital input code buffer
+     digital_code.clear();
 }
 
 /*--------------------------------------------------------------------------------*/
 /* Generate the required limit code for this axis */
 
-void GalilAxis::gen_limitcode(char c,			 //GalilAxis::axisName_ used very often
-			      char axis_thread_code[],
-			      char axis_limit_code[])
+void GalilAxis::gen_limitcode(string &limit_code)
 {
-	//Setup the LIMSWI interrupt routine. The Galil Code Below, is called once per limit activate on ANY axis **
-	//Determine axis that requires stop based on stop code and moving status
-	//Use user desired deceleration, stop motor, then put deceleration back to that for normal moves
-	if (!limit_as_home_)	//Hitting limit when homing to home switch is a fail, cancel home process
-		{
-		sprintf(axis_limit_code,"%sIF(((_SC%c=2)|(_SC%c=3))&(_BG%c=1))\nDC%c=limdc%c;VDS=limdc%c;VDT=limdc%c\n",axis_limit_code,c,c,c,c,c,c,c);
-		sprintf(axis_limit_code,"%shome%c=0;MG \"home%c\",home%c;ENDIF\n",axis_limit_code,c,c,c);
-		}
-	else    //Hitting limit when homing to limit switch is normal
-		sprintf(axis_limit_code,"%sIF(((_SC%c=2)|(_SC%c=3))&(_BG%c=1))\nDC%c=limdc%c;VDS=limdc%c;VDT=limdc%c;ENDIF\n",axis_limit_code,c,c,c,c,c,c,c);
+  string lc;		//Local limit code
+
+  //Setup the LIMSWI interrupt routine. The Galil Code Below, is called once per limit activate on ANY axis **
+  //Determine axis that requires stop based on stop code and moving status
+  //Use user desired deceleration, stop motor, then put deceleration back to that for normal moves
+  if (!limit_as_home_) {//Hitting limit when homing to home switch is a fail, cancel home process
+     lc = "IF(((_SC?=2)|(_SC?=3))&(_BG?=1))\nDC?=limdc?;VDS=limdc?;VDT=limdc?\n";
+     lc += "home?=0;MG \"home?\",home?;ENDIF\n";
+  }
+  else //Hitting limit when homing to limit switch is normal
+     lc = "IF(((_SC?=2)|(_SC?=3))&(_BG?=1))\nDC?=limdc?;VDS=limdc?;VDT=limdc?;ENDIF\n";
+
+  //Replace ? symbol with axisName_
+  replace( lc.begin(), lc.end(), '?', axisName_);
+
+  //Append code to limit code buffer
+  limit_code += lc;
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -368,24 +421,24 @@ void GalilAxis::gen_limitcode(char c,			 //GalilAxis::axisName_ used very often
    jog speed (hjs)*/
 /*--------------------------------------------------------------------------------*/
 
-void GalilAxis::gen_EnsureOkToMove(char c,			//GalilAxis::axisName_ used very often
-			     char axis_thread_code[])
+void GalilAxis::gen_EnsureOkToMove(string &tc)
 {
-   if (pC_->model_[3] == '2')// Model 21x3 does not have LD (limit disable) command
-      sprintf(axis_thread_code,"%sIF(((_LR%c=1)&(hjs%c<0))|((_LF%c=1)&(hjs%c>0)))\n", axis_thread_code,c,c,c,c);
-   else// All other models have LD (limit disable) command
-      sprintf(axis_thread_code,"%sIF((((_LR%c=1)|(_LD%c>1))&(hjs%c<0))|(((_LF%c=1)|(_LD%c=1)|(_LD%c=3))&(hjs%c>0)))\n", axis_thread_code,c,c,c,c,c,c,c);
+  if (pC_->model_[3] == '2')// Model 21x3 does not have LD (limit disable) command
+     tc += "IF(((_LR?=1)&(hjs?<0))|((_LF?=1)&(hjs?>0)))\n";
+  else// All other models have LD (limit disable) command
+     tc += "IF((((_LR?=1)|(_LD?>1))&(hjs?<0))|(((_LF?=1)|(_LD?=1)|(_LD?=3))&(hjs?>0)))\n";
 }
 
 /*--------------------------------------------------------------------------------*/
 /* Generate home code.*/
 /*--------------------------------------------------------------------------------*/
 
-void GalilAxis::gen_homecode(char c,			//GalilAxis::axisName_ used very often
-			     char axis_thread_code[])
+void GalilAxis::gen_homecode(string &thread_code)
 {
-   sprintf(axis_thread_code,"%sIF(home%c=1)\n",axis_thread_code,c);
-	
+   string tc;	//Temporary thread code string
+
+   tc = "IF(home?=1)\n";
+   
    //Setup home code
    if (limit_as_home_) {
       //hjog%c=1 we have found limit switch outer edge
@@ -393,64 +446,69 @@ void GalilAxis::gen_homecode(char c,			//GalilAxis::axisName_ used very often
       //hjog%c=3 we have found our final home pos
       //Code to jog off limit
 		
-      //Ensure correct limit active
-      sprintf(axis_thread_code,"%sIF((((_LR%c=0)&(hjs%c>0))|((_LF%c=0)&(hjs%c<0)))&(hjog%c=0))\n", axis_thread_code,c,c,c,c,c);
+      //Ensure correct limit active    
+      tc += "IF((((_LR?=0)&(hjs?>0))|((_LF?=0)&(hjs?<0)))&(hjog?=0))\n";
       //Ensure ok to move in desired direction
-      gen_EnsureOkToMove(c, axis_thread_code);
+      gen_EnsureOkToMove(tc);
       //Jog off limit
-      sprintf(axis_thread_code,"%sIF((_MO%c=0)&(_BG%c=0));JG%c=hjs%c;WT10;BG%c;hjog%c=1;ENDIF;ENDIF;ENDIF\n",axis_thread_code,c,c,c,c,c,c);
-      //Stop motor once off limit
-      sprintf(axis_thread_code,"%sIF((((_LR%c=1)&(hjs%c>0))|((_LF%c=1)&(hjs%c<0)))&(hjog%c=1)&(_BG%c=1));ST%c;ENDIF\n", axis_thread_code,c,c,c,c,c,c,c);
-      //Find encoder index 
-      sprintf(axis_thread_code,"%sIF((hjog%c=1)&(_BG%c=0))\n",axis_thread_code,c,c);
+      tc += "IF((_MO?=0)&(_BG?=0));JG?=hjs?;WT10;BG?;hjog?=1;ENDIF;ENDIF;ENDIF\n";
+      tc += "IF((((_LR?=1)&(hjs?>0))|((_LF?=1)&(hjs?<0)))&(hjog?=1)&(_BG?=1));ST?;ENDIF\n";
+      tc += "IF((hjog?=1)&(_BG?=0))\n";
       //Ensure ok to move in desired direction
-      gen_EnsureOkToMove(c, axis_thread_code);
+      gen_EnsureOkToMove(tc);
       //Start index search
-      sprintf(axis_thread_code,"%sIF((_MO%c=0)&(ueip%c=1)&(ui%c=1));JG%c=hjs%c;FI%c;WT10;BG%c;hjog%c=2\nELSE\n",axis_thread_code,c,c,c,c,c,c,c,c);
+      tc += "IF((_MO?=0)&(ueip?=1)&(ui?=1));JG?=hjs?;FI?;WT10;BG?;hjog?=2\nELSE\n";
       }
    else
       {
       //Stop motor once home activated
-      sprintf(axis_thread_code,"%sIF((_HM%c=hswact%c)&(hjog%c=0)&(_BG%c=1));ST%c;DC%c=limdc%c;ENDIF\n",axis_thread_code,c,c,c,c,c,c,c);
+      tc += "IF((_HM?=hswact?)&(hjog?=0)&(_BG?=1));ST?;DC?=limdc?;ENDIF\n";
       //Code to jog off home
-      sprintf(axis_thread_code,"%sIF((_HM%c=hswact%c)&(hjog%c=0))\n",axis_thread_code,c,c,c);
+      tc += "IF((_HM?=hswact?)&(hjog?=0))\n";
       //Ensure ok to move in desired direction
-      gen_EnsureOkToMove(c, axis_thread_code);
+      gen_EnsureOkToMove(tc);
       //Start jog off home
-      sprintf(axis_thread_code,"%sIF((_BG%c=0)&(_MO%c=0));JG%c=hjs%c;WT10;BG%c;hjog%c=1;ENDIF;ENDIF;ENDIF\n",axis_thread_code,c,c,c,c,c,c);
+      tc += "IF((_BG?=0)&(_MO?=0));JG?=hjs?;WT10;BG?;hjog?=1;ENDIF;ENDIF;ENDIF\n";
       //Stop motor once off home
-      sprintf(axis_thread_code,"%sIF((_HM%c=hswiact%c)&(hjog%c=1)&(_BG%c=1));ST%c;ENDIF\n",axis_thread_code,c,c,c,c,c);
+      tc += "IF((_HM?=hswiact?)&(hjog?=1)&(_BG?=1));ST?;ENDIF\n";
       //Find encoder index
-      sprintf(axis_thread_code,"%sIF((hjog%c=1)&(_BG%c=0))\n",axis_thread_code,c,c);
+      tc += "IF((hjog?=1)&(_BG?=0))\n";
       //Ensure ok to move in desired direction
-      gen_EnsureOkToMove(c, axis_thread_code);
+      gen_EnsureOkToMove(tc);
       //Start index search
-      sprintf(axis_thread_code,"%sIF((_MO%c=0)&(ueip%c=1)&(ui%c=1));JG%c=hjs%c;FI%c;WT10;BG%c;hjog%c=2\nELSE\n",axis_thread_code,c,c,c,c,c,c,c,c);
+      tc += "IF((_MO?=0)&(ueip?=1)&(ui?=1));JG?=hjs?;FI?;WT10;BG?;hjog?=2\nELSE\n";
       }
 
    //Common homing code regardless of homing to limit or home switch
    //If no encoder we are home already
-   sprintf(axis_thread_code,"%sIF(_MO%c=0);hjog%c=3;ENDIF;ENDIF;ENDIF;ENDIF\n",axis_thread_code,c,c);
+   tc += "IF(_MO?=0);hjog?=3;ENDIF;ENDIF;ENDIF;ENDIF\n";
    //If encoder index complete we are home
-   sprintf(axis_thread_code,"%sIF((hjog%c=2)&(_BG%c=0));hjog%c=3;ENDIF\n",axis_thread_code,c,c,c);
+   tc += "IF((hjog?=2)&(_BG?=0));hjog?=3;ENDIF\n";
    //Unset home flag
    if (pC_->model_[3] == '2')// Model 21x3 does not have LD (limit disable) command
-      sprintf(axis_thread_code,"%sIF((_LR%c=1)&(_LF%c=1)&(hjog%c=3)&(_BG%c=0))\n",axis_thread_code,c,c,c,c);
-   else
-      sprintf(axis_thread_code,"%sIF((((_LR%c=1)|(_LD%c>1))|((_LF%c=1)|(_LD%c=1)|(_LD%c=3)))&(hjog%c=3)&(_BG%c=0))\n", axis_thread_code,c,c,c,c,c,c,c);
+      tc += "IF((_LR?=1)&(_LF?=1)&(hjog?=3)&(_BG?=0))\n";
+   else 
+      tc += "IF((((_LR?=1)|(_LD?>1))|((_LF?=1)|(_LD?=1)|(_LD?=3)))&(hjog?=3)&(_BG?=0))\n";
    //Flag homing complete, and send unsolicited messages to epics informing of homed status
-   sprintf(axis_thread_code,"%sWT10;hjog%c=0;home%c=0;homed%c=1;MG \"homed%c\",homed%c;ENDIF;ENDIF\n", axis_thread_code,c,c,c,c,c);
+   tc += "WT10;hjog?=0;home?=0;homed?=1;MG \"homed?\",homed?;ENDIF;ENDIF\n";
   
    /*
    //Add code that counts cpu cycles through thread 0
      if (axisName_ == 'A')
         {
         sprintf(axis_thread_code,"%scounter=counter+1\n",axis_thread_code);
+        tc += "counter=counter+1\n";
 	
         //initialise counter variable
         sprintf(pC_->cmd_, "counter=0");
         pC_->sync_writeReadController();
         }*/
+
+   //Replace ? symbol with axisName_
+   replace( tc.begin(), tc.end(), '?', axisName_);
+
+   //Append home code to thread code buffer
+   thread_code += tc;
 }
 
 /*  Sets acceleration and velocity for this axis
@@ -465,23 +523,26 @@ asynStatus GalilAxis::setAccelVelocity(double acceleration, double velocity, boo
    double decel;		//double version of above
    double accel;		//Adjusted acceleration/deceleration for normal moves
    double vel;			//Velocity final value sent to controller
+   char c = axisName_;
+   string cmd = "";
    int status;
 
    //Set acceleration and deceleration for normal moves
    //Find closest hardware setting
    accel = (long)lrint(acceleration/1024.0) * 1024;
-   sprintf(pC_->cmd_, "AC%c=%.0lf;DC%c=%.0lf", axisName_, accel, axisName_, accel);
-   status = pC_->sync_writeReadController();
+   cmd = "AC" + string(1, c) + "=" + tsp(accel, 0) + ";DC" + string(1, c) + "=" + tsp(accel, 0);
 
    //Are we done here?
-   if (!setVelocity)
+   if (!setVelocity) {
+      strcpy(pC_->cmd_, cmd.c_str());
+      status = pC_->sync_writeReadController();
       return (asynStatus)status;
+   }
 
    //Set velocity
    //Find closest hardware setting
    vel = (long)lrint(velocity/2.0) * 2;
-   sprintf(pC_->cmd_, "SP%c=%.0lf", axisName_, vel);
-   status |= pC_->sync_writeReadController();
+   cmd += ";SP" + string(1, c) + "=" + tsp(vel, 0);
 
    //Set deceleration when limit activated
    //Retrieve required values from paramList
@@ -497,36 +558,11 @@ asynStatus GalilAxis::setAccelVelocity(double acceleration, double velocity, boo
    deceleration = (deceleration > pC_->maxAcceleration_) ? pC_->maxAcceleration_ : deceleration;
    //Set limit deceleration
    limdc_ = (double)deceleration;
-   sprintf(pC_->cmd_, "limdc%c=%ld", axisName_, deceleration);
+   cmd += ";limdc" + string(1, c) + "=" + tsp(limdc_, 0);
+   strcpy(pC_->cmd_, cmd.c_str());
    status = pC_->sync_writeReadController();
 
    return (asynStatus)status;
-}
-
-//Check axis motor record settings
-//Return error if record is not ready for new moves
-asynStatus GalilAxis::checkMRSettings(bool moveVelocity, char callaxis)
-{
-   char mesg[MAX_GALIL_STRING_SIZE];
-   int spmg;
-   int set;
-   //Retrieve needed params
-   pC_->getIntegerParam(axisNo_, pC_->GalilStopPauseMoveGo_, &spmg);
-   pC_->getIntegerParam(axisNo_, pC_->GalilMotorSet_, &set);
-   //Check motor record status
-   if (spmg != 3 && spmg != 2)
-      sprintf(mesg, "%c move failed, %c spmg is not set to \"go\" or \"move\"", callaxis, axisName_);
-   if (set && !moveVelocity)
-      sprintf(mesg, "%c move failed, %c set field is not set to \"use\"", callaxis, axisName_);
-   //Update controller message
-   if ((spmg != 3 && spmg != 2) || (set && !moveVelocity))
-      {
-      pC_->setCtrlError(mesg);
-      //Stop if any error
-      return asynError;
-      }
-   //All good to go
-   return asynSuccess;
 }
 
 //Tell this axis to use CSAxis dynamics
@@ -538,22 +574,24 @@ void GalilAxis::setCSADynamics(double acceleration, double velocity)
 }
 
 /** Move the motor to an absolute position
-  * \param[in] position  The absolute position to move to Units=steps */
-asynStatus GalilAxis::moveThruMotorRecord(double position)
+  * \param[in] position  The absolute position to move to Units=steps
+  * \param[in] signalCaller  Should axisEventMonitor signal caller when done */
+asynStatus GalilAxis::moveThruMotorRecord(double position, bool signalCaller)
 {
    double mres;		//Axis motor resolution
    double eres;		//Axis encoder resolution
    int status;		//Success
-   double rdbd;		//Motor record retry deadband
    double off;		//Motor record offset
    int dir, dirm;	//Motor record dir, direction multiplier
    int ueip;		//Motor record ueip
-   double readback;	//Calculated readback
+   double drbv;		//Dial readback value
+   double drbvmpos;	//Dial readback value converted to motor steps
+   long rpos, npos;	//Long readback, and new position
+   long diff;     	//Motor steps between readback and new position
 
    //Retrieve needed motor record parameters
    status = pC_->getDoubleParam(axisNo_, pC_->motorResolution_, &mres);
    status |= pC_->getDoubleParam(axisNo_, pC_->GalilEncoderResolution_, &eres);
-   status |= pC_->getDoubleParam(axisNo_, pC_->GalilMotorRdbd_, &rdbd);
    status |= pC_->getIntegerParam(axisNo_, pC_->GalilUseEncoder_, &ueip);
    status |= pC_->getDoubleParam(axisNo_, pC_->GalilUserOffset_, &off);
    status |= pC_->getIntegerParam(axisNo_, pC_->GalilDirection_, &dir);
@@ -561,30 +599,35 @@ asynStatus GalilAxis::moveThruMotorRecord(double position)
    //Calculate direction multiplier
    dirm = (dir == 0) ? 1 : -1;
 
-   //Calculate motor readback in user coordinates egu
-   //Here we care about mr readback, rather than what controller is using
-   readback = (ueip) ? (encoder_position_ * eres * dirm) + off : (motor_position_ * mres * dirm) + off;
+   //Calculate mr dial readback in motor steps
+   drbv = (ueip) ? encoder_position_ * eres : motor_position_ * mres;
+   drbvmpos = drbv/mres;
+   //Calculate mr readback, and new position in motor steps
+   rpos = NINT(drbvmpos);
+   npos = NINT(position);
+
+   //Calculate difference between dial readback (in motor steps)
+   //and new position in motor steps
+   diff = labs(rpos - npos);
 
    //Calculate requested position in user coordinates
    position = (position * mres * dirm) + off;
 
-   //If new position differs from readback more the rdbd, and
+   //If new position differs from readback by 1 motor step or more, and
    //No asynParam list error, then write new position
-   if ((fabs(position - readback) >= rdbd) && !status)
-      {
+   if (diff >= 1 && !status) {
+      //Set flag that move has been pushed to this axis motor record
+      moveThruRecord_ = true;
+      //Set signalCaller as instructed
+      signalCaller_ = signalCaller;
       //Set requested position
       //This will also set deferred move for this axis
       pC_->setDoubleParam(axisNo_, pC_->GalilMotorSetVal_, position);
-
       //Enable writes to motor record
       pC_->setIntegerParam(axisNo_, pC_->GalilMotorSetValEnable_, 1);
       //Do callbacks
       pC_->callParamCallbacks(axisNo_);
-      epicsThreadSleep(.002);
-
-      //Disable writes to motor records
-      pC_->setIntegerParam(axisNo_, pC_->GalilMotorSetValEnable_, 0);
-      pC_->callParamCallbacks(axisNo_);
+      //Disable writes to motor record in GalilAxis::move
       }
    else //New position same as motor record rbv already
       status = asynError;
@@ -601,7 +644,7 @@ asynStatus GalilAxis::moveThruMotorRecord(double position)
   * \param[in] acceleration The acceleration value. Units=steps/sec/sec*/
 asynStatus GalilAxis::move(double position, int relative, double minVelocity, double maxVelocity, double acceleration)
 {
-  static const char *functionName = "move";
+  static const char *functionName = "GalilAxis::move";
   int deferredMode;				//Deferred move mode
   //Is controller using main or auxillary encoder register for positioning
   double readback = (ctrlUseMain_) ? encoder_position_ : motor_position_;
@@ -609,19 +652,22 @@ asynStatus GalilAxis::move(double position, int relative, double minVelocity, do
 
   //If this axis is being driven by a CSAxis
   //Use the requested CSAxis velocity, acceleration instead of that provided by mr
-  if (useCSADynamics_)
-     {
+  if (useCSADynamics_) {
      maxVelocity = csaVelocity_;
      acceleration = csaAcceleration_;
-     }
+  }
 
-  //Block backlash, retries if requested
-  if (stop_axis_)
-     return asynSuccess;
+  //Check for move thru motor record
+  if (moveThruRecord_) {
+     //Set flag false
+     moveThruRecord_ = false;
+     //Now GalilAxis::move has been called
+     //Disable further writes to axis motor record from driver
+     pC_->setIntegerParam(axisNo_, pC_->GalilMotorSetValEnable_, 0);
+  }
 
   //Are moves to be deferred ?
-  if (pC_->movesDeferred_ != 0)
-     {
+  if (pC_->movesDeferred_ != 0) {
      //Moves are deferred
      //Retrieve deferred moves mode
      pC_->getIntegerParam(pC_->GalilDeferredMode_, &deferredMode);
@@ -635,46 +681,34 @@ asynStatus GalilAxis::move(double position, int relative, double minVelocity, do
      deferredMove_ = true;
      deferredMode_ = deferredMode;
 
-     //If this axis has been told by a CSAxis to start deferred moves
-     //Then start deferred moves
-     if (startDeferredMoves_)
-        {
-        pC_->setDeferredMoves(false);
-        startDeferredMoves_ = false;
-        }
-
      //Clear controller message for ad-hoc deferred moves (not from CSAxis)
      if (!useCSADynamics_)
         pC_->setCtrlError("");
 
      status = asynSuccess;
-     }
-  else
-     {
+  }
+  else {
      //Moves are not deferred
-     //Ensure motor is ok to go
-     if (!beginCheck(functionName, maxVelocity))
-        {
+     //Check axis is ok to go
+     if (!beginCheck(functionName, axisName_, maxVelocity)) {
         //Set absolute or relative move
-        if (relative)
-           {
+        if (relative) {
            //Set the relative move
            sprintf(pC_->cmd_, "PR%c=%.0lf", axisName_, position);
            pC_->sync_writeReadController();
-           }
-        else
-           {
+        }
+        else {
            //Set the absolute move
            sprintf(pC_->cmd_, "PA%c=%.0lf", axisName_, position);
            pC_->sync_writeReadController();
-           }
+        }
         
         //set acceleration and velocity
         setAccelVelocity(acceleration, maxVelocity);
         //Begin the move
         status = beginMotion(functionName, position, relative, true);
-        }
      }
+  }
 
   //Return status
   return status;
@@ -725,8 +759,7 @@ asynStatus GalilAxis::setupHome(double maxVelocity, int forwards)
    //We must use asynMotorAxis version of setIntegerParam to set MSTA bits for this MotorAxis
    setIntegerParam(pC_->motorStatusHomed_, 0);
 
-   if (useSwitch)
-     {
+   if (useSwitch) {
      //Driver will start jog toward switch
      //Then controller home program will be called by setting home%c=1
      //calculate jog toward switch speed, direction
@@ -737,14 +770,13 @@ asynStatus GalilAxis::setupHome(double maxVelocity, int forwards)
      //Tell controller home program that jog off switch is necessary
      sprintf(pC_->cmd_, "hjog%c=0", axisName_);
      pC_->sync_writeReadController();
-     }
-   else
-     {
+   }
+   else {
      //Controller home program will be called by setting home%c=1
      //Tell controller home program that jog off switch is done already
      sprintf(pC_->cmd_, "hjog%c=1", axisName_);
      pC_->sync_writeReadController();
-     }
+   }
 
    return asynSuccess;
 }
@@ -767,7 +799,7 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
   int bissCapable;		//BISS capable
   int useSwitch;		//Use switch when homing
   int limitDisable;		//Limit disable setting
-  char mesg[MAX_GALIL_STRING_SIZE]; //Message to user
+  string mesg;			//Controller mesg
   asynStatus status = asynError;
 
   //Retrieve needed param
@@ -781,44 +813,47 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
   pC_->getIntegerParam(axisNo_, pC_->GalilLimitDisable_, &limitDisable);
 
   //Check if requested home type is allowed
-  strcpy(mesg, "");
-  if (!homeAllowed)
-     sprintf(mesg, "%c motor extra settings do not allow home", axisName_);
-  if (homeAllowed == HOME_REV && forwards)
-     sprintf(mesg, "%c motor extra settings do not allow forward home", axisName_);
-  if (homeAllowed == HOME_FWD && !forwards)
-     sprintf(mesg, "%c motor extra settings do not allow reverse home", axisName_);
+  if (!homeAllowed) {
+     mesg = string(functionName) + ": " + string(1, axisName_) + " ";
+     mesg += "motor extra settings do not allow home";
+  }
+  if (homeAllowed == HOME_REV && forwards) {
+     mesg = string(functionName) + ": " + string(1, axisName_) + " ";
+     mesg += "motor extra settings do not allow forward home";
+  }
+  if (homeAllowed == HOME_FWD && !forwards) {
+     mesg = string(functionName) + ": " + string(1, axisName_) + " ";
+     mesg += "motor extra settings do not allow reverse home";
+  }
 
   //Check if requested home type valid given limit disable setting
   //Construct controller type convenience variable
   ctrlType = (bool)(pC_->model_[3] != '2' && pC_->model_[3] != '1') ? true : false;
-  if (!customHome_ && limit_as_home_ && ctrlType && strcmp(mesg, "") == 0)
-     {
-     if (useSwitch && forwards && (limitDisable == 1 || limitDisable ==3))
-        sprintf(mesg, "%c axis can't home to fwd limit as fwd limit is disabled", axisName_);
-     if (useSwitch && !forwards && limitDisable > 1)
-        sprintf(mesg, "%c axis can't home to rev limit as rev limit is disabled", axisName_);
+  if (!customHome_ && limit_as_home_ && ctrlType) {
+     if (useSwitch && forwards && (limitDisable == 1 || limitDisable ==3)) {
+        mesg = string(functionName) + ": " + string(1, axisName_) + " ";
+        mesg += "axis can't home to fwd limit as fwd limit is disabled";
      }
-
-  //If problem with settings, do nothing
-  if (strcmp(mesg, "") != 0)
-     {
-     pC_->setCtrlError(mesg);
-     return asynSuccess;
+     if (useSwitch && !forwards && limitDisable > 1) {
+        mesg = string(functionName) + ": " + string(1, axisName_) + " ";
+        mesg += "axis can't home to rev limit as rev limit is disabled";
      }
+  }
 
   //Homing not supported for absolute encoders, just move it where you want
-  if ((ssiinput && ssicapable && ssiconnect) || (bissInput && bissCapable))
-     {
-     sprintf(mesg, "%c axis has no home process because of SSI encoder", axisName_);
-     //Set controller error mesg monitor
-     pC_->setCtrlError(mesg);
-     return asynSuccess;  //Nothing to do
-     }
+  if ((ssiinput && ssicapable && ssiconnect) || (bissInput && bissCapable)) {
+     mesg = string(functionName) + ": " + string(1, axisName_) + " ";
+     mesg += "axis has no home process because of SSI encoder";
+  }
 
-  //If motor ok to go, begin motion
-  if (!beginCheck(functionName, maxVelocity))
-     {
+  //If problem with settings, do nothing
+  if (!mesg.empty()) {
+     pC_->setCtrlError(mesg);
+     return asynSuccess;
+  }
+
+  //If axis is ok to go, begin motion
+  if (!beginCheck(functionName, axisName_, maxVelocity)) {
      //set acceleration and velocity
      setAccelVelocity(acceleration, maxVelocity);
      //Setup home parameters on controller
@@ -829,19 +864,17 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
      else//Prepare for a move, but let controller code take over
         status = beginMotion(functionName, 0.0, false, false, false);
      //Set home flags if start successful
-     if (!status)
-        {
-        if (!useSwitch)
-           {
+     if (!status) {
+        if (!useSwitch) {
            //Because we are calling galil code before motion begins (useSwitch=false)
            //Reset stopped time, so homing doesn't timeout immediately
            resetStoppedTime_ = true;  //Request poll thread reset stopped time if done
            //Wait for poller to reset stopped time on this axis
            //ensure synchronous poller is not blocked
            pC_->unlock();
-           epicsEventWaitWithTimeout(stoppedTimeResetEventId_, pC_->updatePeriod_/1000.0);
+           epicsEventWaitWithTimeout(stoppedTimeReset_, pC_->updatePeriod_/1000.0);
            pC_->lock();
-           }
+        }
         //Start was successful
         //This homing status does not include JAH
         //Flag homing true
@@ -856,17 +889,17 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
         //is sitting on opposite limit to which we are homing
         sprintf(pC_->cmd_, "home%c=1", axisName_);
         pC_->sync_writeReadController();
-        }
      }
+  }
 
   //Return status
   return status;
 }
 
-//Do all checks, make sure motor is good to go
-asynStatus GalilAxis::beginCheck(const char *functionName, double maxVelocity, bool resetCtrlMessage)
+//Do all checks, make sure axis is good to go
+asynStatus GalilAxis::beginCheck(const char *caller, char callaxis, double maxVelocity, bool resetCtrlMessage)
 {
-  char mesg[MAX_GALIL_STRING_SIZE];	//Controller message
+  string mesg;				//Controller message
   int rev, fwd;				//Limit status
   int motoron;				//Motor Amp on status
   int autoonoff;			//Auto amp on/off status
@@ -875,13 +908,34 @@ asynStatus GalilAxis::beginCheck(const char *functionName, double maxVelocity, b
   if (resetCtrlMessage)
      pC_->setCtrlError("");
 
-  if (!axisReady_)
-     {
-     sprintf(mesg, "%s failed, %c axis still initializing", functionName, axisName_);
-     //Set controller error mesg monitor
+  if (!axisReady_) {
+     mesg = string(caller) + " " + string(1, callaxis) + " failed, " + string(1, axisName_);
+     mesg += " axis still initializing";
+  }
+
+  //Dont start if velocity 0
+  if (lrint(maxVelocity) == 0) {
+     mesg = string(caller) + " " + string(1, callaxis) + " failed, " + string(1, axisName_);
+     mesg += " requested velocity is 0";
+  }
+
+  //Check motor enable
+  motor_enabled(caller, mesg);
+
+  //Motor on and Amp auto on/off status check
+  pC_->getIntegerParam(axisNo_, pC_->motorStatusPowerOn_, &motoron);
+  pC_->getIntegerParam(axisNo_, pC_->GalilAutoOnOff_, &autoonoff);
+  if (!motoron && !autoonoff) {
+     mesg = string(caller) + " " + string(1, callaxis) + " failed, " + string(1, axisName_);
+     mesg += " motor amplifier is off";
+  }
+
+  //Check for error
+  if (!mesg.empty()) {
+     //Set controller error mesg
      pC_->setCtrlError(mesg);
-     return asynError;  //Nothing to do
-     }
+     return asynError;
+  }
 
   //Used to support wrongLimitProtection
   //Store if move begun whilst on a limit
@@ -892,34 +946,137 @@ asynStatus GalilAxis::beginCheck(const char *functionName, double maxVelocity, b
   else
      beginOnLimit_ = false;
 
-  //Dont start if velocity 0
-  if (lrint(maxVelocity) == 0)
-     {
-     sprintf(mesg, "%s failed, %c requested velocity is 0", functionName, axisName_);
-     //Set controller error mesg monitor
-     pC_->setCtrlError(mesg);
-     return asynError;  //Nothing to do 
-     }
-
-  //Dont start if motor disabled due to digital input
-  if (!motor_enabled())
-     return asynError; //Nothing to do
-
-  //Motor on and Amp auto on/off status check
-  pC_->getIntegerParam(axisNo_, pC_->motorStatusPowerOn_, &motoron);
-  pC_->getIntegerParam(axisNo_, pC_->GalilAutoOnOff_, &autoonoff);
-  if (!motoron && !autoonoff)
-     {
-     sprintf(mesg, "%s failed, %c motor amplifier is off", functionName, axisName_);
-     //Set controller error mesg monitor
-     pC_->setCtrlError(mesg);
-     return asynError;  //Nothing to do 
-     }
-
   //Everything ok so far
   return asynSuccess;
 }
 
+/** Check axis physical limits given move request
+  * \param[in] caller - Caller function name
+  * \param[in] callaxis - Caller axis
+  * \param[in] position  The absolute position to move to Units=steps*/
+asynStatus GalilAxis::checkLimits(const char *caller, char callaxis, double position) {
+   string mesg = "";    	//Controller mesg
+   int status;			//Return status
+   int rev, fwd;		//Motor limit status
+   double readback;		//Readback in steps
+
+   //Retrieve needed motor record parameters
+   status = pC_->getIntegerParam(axisNo_, pC_->motorStatusLowLimit_, &rev);
+   status |= pC_->getIntegerParam(axisNo_, pC_->motorStatusHighLimit_, &fwd);
+
+   if (!status) {
+      //Readback in steps
+      readback = (ctrlUseMain_) ? encoder_position_ : motor_position_;
+      //Check physical limits
+      if ((position < readback && rev) || (position > readback && fwd)) {
+         mesg = string(caller) + " " + string(1, callaxis) + " failed, " + string(1, axisName_) + " ";
+         mesg += "limit active in move direction";
+      }
+   }
+
+   //Display mesg if any
+   if (!mesg.empty()) {
+      pC_->setCtrlError(mesg);
+      status = asynError;
+   }
+
+   //Return result
+   return (asynStatus)status;
+}
+
+/** Check axis soft limits given move request
+  * \param[in] caller - Caller function name
+  * \param[in] callaxis - Caller axis
+  * \param[in] position  The absolute position to move to Units=steps*/
+asynStatus GalilAxis::checkSoftLimits(const char *caller, char callaxis, double position) {
+   bool softlimits;		//Soft limits enable status
+   string mesg = "";    	//Controller mesg
+   int status = asynSuccess;	//Return status
+
+   //Determine if soft limits are active
+   softlimits = (bool)(lowLimit_ == highLimit_ && lowLimit_ == 0.0) ? false : true;
+
+   //Check soft limits
+   if ((position < lowLimit_ && softlimits) || (position > highLimit_ && softlimits)) {
+      mesg = string(caller) + " " + string(1, callaxis) + " failed, " + string(1, axisName_) + " ";
+      mesg += "move would violate soft limits";
+   }
+
+   //Display mesg if any
+   if (!mesg.empty()) {
+      pC_->setCtrlError(mesg);
+      status = asynError;
+   }
+
+   //Return result
+   return (asynStatus)status;
+}
+
+/** Check axis motor record settings
+  * \param[in] caller - Caller function name
+  * \param[in] callaxis - Caller axis
+  * \param[in] moveVelocity - Is the requested move a jog ? */
+asynStatus GalilAxis::checkMRSettings(const char *caller, char callaxis, bool moveVelocity) {
+   string mesg = "";		//Controller mesg
+   int spmg;			//Motor record stop pause move go
+   int set;			//Motor record set
+   int dmov;			//Motor record dmov
+   int status;			//Return status
+
+   //Retrieve needed params
+   status = pC_->getIntegerParam(axisNo_, pC_->GalilStopPauseMoveGo_, &spmg);
+   status |= pC_->getIntegerParam(axisNo_, pC_->GalilMotorSet_, &set);
+   status |= pC_->getIntegerParam(axisNo_, pC_->GalilDmov_, &dmov);
+   //Return if any paramlist error
+   if (status) return asynError;
+
+   //Check motor record status
+   if (spmg != 3 && spmg != 2) {
+      mesg = string(caller) + " " + string(1, callaxis) + " failed, " + string(1, axisName_);
+      mesg += " spmg is not set to \"go\" or \"move\"";
+   }
+   if (set && !moveVelocity) {
+      mesg = string(caller) + " " + string(1, callaxis) + " failed, " + string(1, axisName_);
+      mesg += " set field is not set to \"use\"";
+   }
+   //Galil EPICS driver will allow related CSAxis to move if movesDeferred true
+   //So only check dmov of axis if movesDeferred false
+   if (!pC_->movesDeferred_) {
+      if (!dmov) {
+         mesg = string(caller) + " " + string(1, callaxis) + " failed, " + string(1, axisName_);
+         mesg += " dmov field is false";
+      }
+   }
+
+   //Display any controller mesg
+   if (!mesg.empty()) {
+      pC_->setCtrlError(mesg);
+      status = asynError;
+   }
+
+   //Return status
+   return (asynStatus)status;
+}
+
+/** Check axis motor record settings
+  * \param[in] caller - Caller function name
+  * \param[in] callaxis - Caller axis
+  * \param[in] position - New position setpoint Units=steps
+  * \param[in] maxVelocity - Requested velocity Units=Steps/Sec */
+asynStatus GalilAxis::checkAllSettings(const char *caller, char callaxis, double position, double maxVelocity) {
+   int status;              //Return status
+
+   //Check motor record settings before move
+   status = checkMRSettings(caller, axisName_, false);
+   //Check axis limits
+   status |= checkLimits(caller, axisName_, position);
+   //Check axis softlimits
+   status |= checkSoftLimits(caller, axisName_, position);
+   //Check axis is ready to go
+   status |= beginCheck(caller, axisName_, maxVelocity, false);
+
+   return (asynStatus)status;
+}
 
 /** Move the motor at a fixed velocity until told to stop.
   * \param[in] minVelocity The initial velocity, often called the base velocity. Units=steps/sec.
@@ -930,8 +1087,8 @@ asynStatus GalilAxis::moveVelocity(double minVelocity, double maxVelocity, doubl
   static const char *functionName = "moveVelocity";
   asynStatus status = asynError;
 
-  //If motor ok to go, begin motion
-  if (!beginCheck(functionName, maxVelocity))
+  //If axis ok to go, begin motion
+  if (!beginCheck(functionName, axisName_, maxVelocity))
   	{
 	//set acceleration and velocity
 	setAccelVelocity(acceleration, maxVelocity);
@@ -957,23 +1114,34 @@ asynStatus GalilAxis::stop(double acceleration)
   unsigned j;				//Looping
   bool found;				//Axis found in CSAxis
 
-  if (useCSADynamics_)
-     {
+  //Check source of call to GalilAxis::stop
+  if (stoppedMR_) {
+     //GalilAxis:stop called this time by driver calling stopMotorRecord
+     //Reset flag now GalilAxis:stop has been called
+     stoppedMR_ = false;
+     //Set axis motor record stop to zero
+     pC_->setIntegerParam(axisNo_, pC_->GalilMotorRecordStop_, 0);
+     //Backlash, retries are now prevented
+     //Do nothing further, let internal stop continue undisturbed
+     return asynSuccess;
+  }
+
+  //Should we do coordinated stop?
+  if (useCSADynamics_) {
      //This axis is being driven by a CSAxis
      //Stop entire CSAxis in coordinated way
-     for (i = MAX_GALIL_AXES; i < MAX_GALIL_AXES + MAX_GALIL_CSAXES; i++)
-        {
+     //Loop thru CSAxis
+     for (i = MAX_GALIL_AXES; i < MAX_GALIL_AXES + MAX_GALIL_CSAXES; i++) {
         found = false;
         //Retrieve the CSAxis
         pCSAxis = pC_->getCSAxis(i);
         //Skip or continue
         if (!pCSAxis) continue;
-        //Search retrieved CSAxis for this axis
-        for (j = 0; pCSAxis->revaxes_[j] != '\0'; j++)
-           {
+        //Search retrieved CSAxis revaxes for this axis
+        for (j = 0; pCSAxis->revaxes_[j] != '\0'; j++) {
            if (pCSAxis->revaxes_[j] == axisName_)
               found = true;
-           }
+        }
         //Stop the CSAxis that is moving, and contains this axis
         //Using coordinated stop
         pCSAxis->stopSent_ = true;
@@ -981,35 +1149,29 @@ asynStatus GalilAxis::stop(double acceleration)
         if (found && !pCSAxis->done_ && pCSAxis->move_started_ && (stop_reason_ == MOTOR_STOP_ONWLP || stop_reason_ == MOTOR_STOP_ONSTALL))
            pCSAxis->stopInternal(); //WLP or encoder stall are emergency stop
         else if (found && !pCSAxis->done_  && pCSAxis->move_started_ && stop_reason_ != MOTOR_STOP_ONWLP && stop_reason_ != MOTOR_STOP_ONSTALL)
-           pCSAxis->stopInternal(false); //Normal stop
-        }
+           pCSAxis->stopInternal(false); //Normal stop (eg. spmg)
      }
-  else
-     {
-     //This axis is being driven independently
-     //cancel any home operations that may be underway
-     sprintf(pC_->cmd_, "home%c=0", axisName_);
+  }
+  else {
+     //Stop this axis independently
+     //cancel any home, and home switch jog off operations that may be underway
+     sprintf(pC_->cmd_, "home%c=0;hjog%c=0", axisName_, axisName_);
      pC_->sync_writeReadController();
      //Set homing flag false
      //This flag does not include JAH
      homing_ = false;
      //This flag does include JAH
      setIntegerParam(pC_->GalilHoming_, 0);
-
-     //cancel any home switch jog off operations that may be underway
-     sprintf(pC_->cmd_, "hjog%c=0", axisName_);
-     pC_->sync_writeReadController();
-
+     //For internal stop, prevent backlash, retries from this axis motor record
+     stopMotorRecord();
      //Stop the axis
      sprintf(pC_->cmd_, "ST%c", axisName_);
      pC_->sync_writeReadController();
-
      //After stop, set deceleration specified
      setAccelVelocity(acceleration, 0, false);
-
      //Clear defer move flag
      deferredMove_ = false;
-     }
+  }
 
   //Always return success. Dont need more error mesgs
   return asynSuccess;
@@ -1020,14 +1182,32 @@ asynStatus GalilAxis::stop(double acceleration)
   * \param[in] acceleration The acceleration value. Units=steps/sec/sec. */
 asynStatus GalilAxis::stopInternal(double acceleration)
 {
-  //Prevent retries, backlash
-  stop_axis_ = true;
+  //Indicate stop source is the driver not motor record
+  stopInternal_ = true;
 
   //Stop the motor
   stop(acceleration);
 
   //Always return success. Dont need more error mesgs
   return asynSuccess;
+}
+
+/** Stop axis motor record.  Called by driver internally.
+  * Prevents backlash, and retry attempts from motorRecord */
+asynStatus GalilAxis::stopMotorRecord(void) {
+   int status;		//Return status
+   //What is the source of the stop request ?
+   //Possible sources are the driver, or the motor record
+   if (stopInternal_) {
+      //Set flag indicating next call to GalilAxis::stop caused by
+      //setting axis motor record stop field 1
+      stoppedMR_ = true;
+      //Stop request is from driver, not motor record
+      //Send stop to this axis MR to prevent backlash, and retry attempts
+      status = pC_->setIntegerParam(axisNo_, pC_->GalilMotorRecordStop_, 1);
+   }
+   //Return result
+   return (asynStatus)status;
 }
 
 /** Copy encoder position into motor step count (aux) register
@@ -1146,35 +1326,31 @@ asynStatus GalilAxis::setHighLimit(double highLimit)
   char mesg[MAX_GALIL_STRING_SIZE];	//Controller mesg
 
   //this gets called at init for every mR
-  if (highLimit < -2147483648.0)
-     {
+  if (highLimit < -2147483648.0) {
      //Specified high limit too low
      highLimit = -2147483648.0;
      sprintf(mesg, "%c limiting high soft limit to min of -2147483648 cts", axisName_);
      pC_->setCtrlError(mesg);
-     }
-  if (highLimit > 2147483646.0)
-     {
+  }
+  if (highLimit > 2147483646.0) {
      //Specified high limit too large
      highLimit = 2147483646.0;
      sprintf(mesg, "%c limiting high soft limit to max of 2147483646 cts", axisName_);
      pC_->setCtrlError(mesg);
-     }
+  }
 
   //Assemble Galil Set High Limit, forward limit in Galil language
   highLimit_ = highLimit;
-  if (highLimit_ == 0.0 && lowLimit_ == 0.0)
-     {
+  if (highLimit_ == 0.0 && lowLimit_ == 0.0) {
      //Construct command, and mesg
      sprintf(pC_->cmd_, "FL%c=%lf;BL%c=%lf", axisName_, 2147483647.0, axisName_, -2147483648.0);
      sprintf(mesg, "%c soft limits disabled", axisName_);
-     }
-  else
-     {
+  }
+  else {
      //Construct command, and mesg
      sprintf(pC_->cmd_, "FL%c=%lf;BL%c=%lf", axisName_, highLimit_, axisName_, lowLimit_);
      strcpy(mesg, "");
-     }
+  }
 
   //Write mesg
   pC_->setCtrlError(mesg);
@@ -1193,36 +1369,32 @@ asynStatus GalilAxis::setLowLimit(double lowLimit)
   char mesg[MAX_GALIL_STRING_SIZE];	//Controller mesg
 
   //this gets called at init for every mR
-  if (lowLimit > 2147483647.0)
-     {
+  if (lowLimit > 2147483647.0) {
      //Specified low limit too high
      lowLimit = 2147483647.0;
      sprintf(mesg, "%c limiting low soft limit to max of 2147483647 cts", axisName_);
      pC_->setCtrlError(mesg);
-     }
-  if (lowLimit < -2147483647.0)
-     {
+  }
+  if (lowLimit < -2147483647.0) {
      //Specified low limit too low
      lowLimit = -2147483647.0;
      sprintf(mesg, "%c limiting low soft limit to min of -2147483647 cts", axisName_);
      pC_->setCtrlError(mesg);
-     }
+  }
 
   //Assemble Galil Set low Limit, reverse limit in Galil language
   lowLimit_ = lowLimit;
-  if (highLimit_ == 0.0 && lowLimit_ == 0.0)
-     {
+  if (highLimit_ == 0.0 && lowLimit_ == 0.0) {
      //Disable soft limits
      //Construct command, and mesg
      sprintf(pC_->cmd_, "FL%c=%lf;BL%c=%lf", axisName_, 2147483647.0, axisName_, -2147483648.0);
      sprintf(mesg, "%c soft limits disabled", axisName_);
-     }
-  else
-     {
+  }
+  else {
      //Construct command, and mesg
      sprintf(pC_->cmd_, "FL%c=%lf;BL%c=%lf", axisName_, highLimit_, axisName_, lowLimit_);
      strcpy(mesg, "");
-     }
+  }
 
   //Write mesg
   pC_->setCtrlError(mesg);
@@ -1606,19 +1778,11 @@ void GalilAxis::setStatus(bool *moving)
 
    //Determine move status
    //Motors with deferred moves pending set to status moving
-   //If we are waiting in executeAutoOnDelay then we need to ensure the moving flag is set. 
-   //This prevents occasional motor status updates that cause the motor record to prematurely 
-   //callback at the beginning of a move.
-   if (inmotion_ || deferredMove_ || !autooffAllowed_)
+   if (inmotion_ || deferredMove_)
       {
-      *moving = true;		//set flag for moving
+      //Set moving flags
+      *moving = true;
       done_ = 0;
-      //Motor record post not sent as motor is moving
-      postExecuted_ = postSent_ = false;
-      //Motor auto off not yet sent as motor is moving
-      autooffSent_ = false;
-      //Motor brake auto on mesg not sent as motor is moving
-      autobrakeonSent_ = false;
       }
 }
 
@@ -1700,39 +1864,37 @@ void GalilAxis::syncEncodedStepper(void)
    pC_->getIntegerParam(axisNo_, pC_->GalilHoming_, &homing);
 
    //Motor just stopped
-   if (ueip_ && !ctrlUseMain_ && done_ && !last_done_ && !syncEncodedStepperAtStopSent_ && !homing_ && !homing)
-      {
+   if (ueip_ && !ctrlUseMain_ && done_ && !last_done_ && !syncEncodedStepperAtStopSent_ &&
+       !homing_ && !homing) {
       //Request encoder value be copied to step register
       pollRequest_.send((void*)&MOTOR_STEP_SYNC_ATSTOP, sizeof(int));
       //Flag that sync encoded stepper message has been sent
       syncEncodedStepperAtStopSent_ = true;
-      }
+   }
 
    //Calculate dial readbacks
    status = pC_->getDoubleParam(axisNo_, pC_->motorResolution_, &mres);
    status |= pC_->getDoubleParam(axisNo_, pC_->GalilEncoderResolution_, &eres);
    status |= pC_->getDoubleParam(axisNo_, pC_->GalilMotorRdbd_, &rdbd);
-   if (!status)
-      {
+   if (!status) {
       mreadback = motor_position_ * mres;
       ereadback = encoder_position_ * eres;
       //Stepper motor not moving, but encoder moved more than retry deadband
-      if (ueip_ && !ctrlUseMain_ && done_ && last_done_ && !homing_ && !homing && !syncEncodedStepperAtEncSent_ &&
-          (mreadback < ereadback - rdbd || mreadback > ereadback + rdbd))
-         {
+      if (ueip_ && !ctrlUseMain_ && done_ && last_done_ && !homing_ && !homing && 
+          !syncEncodedStepperAtEncSent_ && (mreadback < ereadback - rdbd || mreadback > ereadback + rdbd)) {
          //Request encoder value be copied to step register
          pollRequest_.send((void*)&MOTOR_STEP_SYNC_ATENC, sizeof(int));
-         //Flag that sync encoded stepper at encoder move message sent
+         //Flag that sync encoded stepper at encoder move (drift) message sent
          syncEncodedStepperAtEncSent_ = true;
-         }
       }
+   }
 
-   if (!done_ && (syncEncodedStepperAtStopSent_ || syncEncodedStepperAtStopExecuted_))
-      {
+   //Clear syncEncodedStepperAtStop flags when inmotion_
+   if ((inmotion_ && syncEncodedStepperAtStopSent_ && syncEncodedStepperAtStopExecuted_)) {
       //Encoder stepper at stop not yet synchronized
       syncEncodedStepperAtStopSent_ = false;
       syncEncodedStepperAtStopExecuted_ = false;
-      }
+   }
 }
 
 //Called by poll without lock
@@ -1782,7 +1944,7 @@ void GalilAxis::wrongLimitProtection(void)
 }
 
 //Called by poll
-//Returns time motor has been stopped for
+//Sets motor stop time
 void GalilAxis::setStopTime(void)
 {   
    //Reset stopped time if moving
@@ -1797,7 +1959,7 @@ void GalilAxis::setStopTime(void)
       //Request completed
       resetStoppedTime_ = false;
       //Signal requesting thread that stopped time has been reset
-      epicsEventSignal(stoppedTimeResetEventId_);
+      epicsEventSignal(stoppedTimeReset_);
       }
    if (done_ && !last_done_)
       {
@@ -1827,6 +1989,15 @@ void GalilAxis::checkHoming(void)
 
    //Is controller using main or auxillary encoder register for positioning
    double readback = (ctrlUseMain_) ? encoder_position_ : motor_position_;
+
+   //Dont show limits whilst homing otherwise mr may interrupt custom routines
+   //Also stops wrongLimitProtection function during homing
+   if (homing_) {
+      //Dont show reverse limit when homing
+      rev_ = 0;
+      //Dont show forward limit when homing
+      fwd_ = 0;
+   }
 
    if ((homing_ && (stoppedTime_ >= HOMING_TIMEOUT) && !cancelHomeSent_) ||
        (((readback > highLimit_ && softlimits) || (readback < lowLimit_ && softlimits)) && homing_ && !cancelHomeSent_ && done_))
@@ -1858,20 +2029,7 @@ void GalilAxis::pollServices(void)
 {
   char post[MAX_GALIL_STRING_SIZE];	//Motor record post field
   int request = -1; 			//Real service numbers start at 0
-  int jah;				//Jog after home feature status
-  double jahv;				//Jog after home value in egu
-  int dir, dirm = 1;			//Motor record dir, and dirm direction multiplier based on motor record DIR field
-  int autoonoff;			//Motor Amp Auto on/off
-  double mres, eres;			//Motor record mres, eres
-  double off;				//Motor record off
-  double ondelay;			//Motor on delay
-  double position;			//Absolute position Units=steps
-  double begin_time;			//Time spent waiting for motion to begin
-  epicsTimeStamp lbegin_nowt_;		//Used to track length of time motor begin takes
-  epicsTimeStamp lbegin_begint_;	//Used to track length of time motor begin takes
-  bool fail = false;			//Fail flag
-  int moving;				//Motor moving status
-  int status = asynSuccess;		//Asyn param status
+  int status;				//Asyn param status
 
   while (true)
      {
@@ -1890,142 +2048,40 @@ void GalilAxis::pollServices(void)
                                 //break; Delibrate fall through to MOTOR_STOP
         case MOTOR_STOP: stopInternal(limdc_);
                          break;
-        case MOTOR_POST: if (pC_->getStringParam(axisNo_, pC_->GalilPost_, (int)sizeof(post), post) == asynSuccess)
+        case MOTOR_POST: status = pC_->getStringParam(axisNo_, pC_->GalilPost_, (int)sizeof(post), post);
+                         if (!status) 
                             {
                             //Copy post field into cmd 
                             strcpy(pC_->cmd_, post);
                             //Write command to controller
                             pC_->sync_writeReadController();
-                            postExecuted_ = true;
                             }
+                         //Motor post complete
+                         postExecuted_ = true;
                          break;
-        case MOTOR_OFF:  //Block auto motor off if again inmotion_ or auto on delay active
-                         if (!inmotion_ && autooffAllowed_)
-                            setClosedLoop(false);	//Execute the motor off command
+        case MOTOR_OFF:  //Block auto motor off if again inmotion_
+                         if (!inmotion_)
+                            setClosedLoop(false);//Execute the motor off command
                          break;
-        case MOTOR_BRAKE_ON://Block auto brake on if again inmotion_ or auto on delay active
-                         if (!inmotion_ && autooffAllowed_)
-                            setBrake(true);	//Execute the brake on command
+        case MOTOR_BRAKE_ON://Block auto brake on if again inmotion_
+                         if (!inmotion_)
+                            setBrake(true);//Execute the brake on command
                          break;
         case MOTOR_STEP_SYNC_ATSTOP:
                          //Holds up done status until complete
-                         status = syncPosition();
+                         syncPosition();
                          //Sync encoded stepper executed
                          syncEncodedStepperAtStopExecuted_ = true;
                          break;
         case MOTOR_STEP_SYNC_ATENC:
-                         //Dont act if a new move is on its way to controller
-                         if (!inmotion_ && autooffAllowed_)
-                            status = syncPosition();
+                         //Block sync encoded stepper if again inmotion_
+                         if (!inmotion_)
+                            syncPosition();
                          //Sync encoded stepper at encoder move completed
                          syncEncodedStepperAtEncSent_ = false;
                          break;
-        case MOTOR_HOMED:
-                         //Retrieve needed params
-                         status = pC_->getDoubleParam(axisNo_, pC_->GalilJogAfterHomeValue_, &jahv);
-                         status |= pC_->getDoubleParam(axisNo_, pC_->motorResolution_, &mres);
-                         status |= pC_->getIntegerParam(axisNo_, pC_->GalilDirection_, &dir);
-                         status |= pC_->getDoubleParam(axisNo_, pC_->GalilEncoderResolution_, &eres);
-                         status |= pC_->getDoubleParam(axisNo_, pC_->GalilUserOffset_, &off);
-                         status |= pC_->getIntegerParam(axisNo_, pC_->GalilJogAfterHome_, &jah);
-
-                         //Program home registers
-                         if (!status)
-                            {
-                            //Slight delay before setting position registers
-                            epicsThreadSleep(.1);
-                            //Position registers always set to 0 in dial coordinates
-                            //Use OFF to give correct user position
-                            //Program motor position register
-                            sprintf(pC_->cmd_, "DP%c=0", axisName_);
-                            pC_->sync_writeReadController();
-                            //Program encoder position register
-                            if (ueip_ || ctrlUseMain_)
-                               {
-                               sprintf(pC_->cmd_, "DE%c=0", axisName_);
-                               pC_->sync_writeReadController();
-                               }
-                            //Give ample time for position register updates to complete
-                            epicsThreadSleep(.2);
-                            }
-
-                         //Homed pollService completed
-                         //This will cause moving status to become false
-                         homedExecuted_ = true;
-                         homedSent_ = false;
-
-                         //Do jog after home move
-                         if (!status && jah)
-                            {
-                            //Wait till MR sees motion complete
-                            moving = 1;
-                            //Give sync poller chance to get the lock
-                            pC_->unlock();
-                            while (moving == 1)
-                               {
-                               epicsThreadSleep(.001);
-                               pC_->getIntegerParam(axisNo_, pC_->motorStatusMoving_, &moving);
-                               }
-                            pC_->lock();
-                            //Calculate direction multiplier
-                            dirm = (dir == 0) ? 1 : -1;
-                            //Calculate position in steps from jog after home value in user coordinates
-                            position = (double)((jahv - off)/mres) * dirm;
-                            //Check motor record settings before move
-                            status = checkMRSettings(false, axisName_);
-                            //Extra cautious here
-                            //Check motor interlock before move
-                            status |= beginCheck("jogAfterHome", 100, false);
-                            if (!status)
-                               {
-                               //If all settings OK, do the move
-                               if (!moveThruMotorRecord(position))
-                                  {
-                                  //Move success
-                                  moving = 0;
-                                  //Get time when attempt motor begin
-                                  epicsTimeGetCurrent(&lbegin_begint_);
-                                  begin_time = 0.0;
-                                  fail = false;
-                                  //Retrieve AutoOn delay from ParamList
-                                  pC_->getDoubleParam(axisNo_, pC_->GalilAutoOnDelay_, &ondelay);
-                                  //Retrieve Auto on off status from ParamList
-                                  pC_->getIntegerParam(axisNo_, pC_->GalilAutoOnOff_, &autoonoff);
-                                  if (!autoonoff)
-                                     ondelay = 0.0;
-                                  //Unlock mutex so GalilAxis::move is called
-                                  //Also give chance for sync poller to get the lock
-                                  pC_->unlock();
-                                  //Loop until movement begins, or timeout
-                                  while (!moving) //Allow time for motion to begin
-                                     {
-                                     //Retrieve moving status
-                                     pC_->getIntegerParam(axisNo_, pC_->motorStatusMoving_, &moving);
-                                     if (!moving)
-                                        {
-                                        epicsThreadSleep(.001);
-                                        epicsTimeGetCurrent(&lbegin_nowt_);
-                                        //Calculate time begin has taken so far
-                                        begin_time = epicsTimeDiffInSeconds(&lbegin_nowt_, &lbegin_begint_);
-                                        if (begin_time > (BEGIN_TIMEOUT + ondelay))
-                                           {
-                                           fail = true;  //Time is up, give up
-                                           break;
-                                           }
-                                        }
-                                     }
-                                  if (!fail)//Jog after home started
-                                     jogAfterHome_ = true;
-                                  //Move started, move on to next motor
-                                  pC_->lock();
-                                  }
-                               }
-                            }//JAH
-
-                         //Check for failure
-                         //If no jog after home, then homing completed
-                         if (status || fail || !jah)//JAH failed, homing complete
-                            setIntegerParam(pC_->GalilHoming_, 0);
+        case MOTOR_HOMED://Perform jog after home if requested
+                         jogAfterHome();
                          break;
         default: break;
         }
@@ -2063,18 +2119,18 @@ bool GalilAxis::executeAutoOn(void)
   pC_->getIntegerParam(axisNo_, pC_->GalilAutoOnOff_, &autoonoff);
   
   //Execute motor auto on if feature is enabled and motor is off
-  if (autoonoff)
-     {
+  if (autoonoff) {
      //Query motor off status direct from controller
      sprintf(pC_->cmd_, "MG _MO%c", axisName_);
      pC_->sync_writeReadController();
      motoroff = atoi(pC_->resp_);
-     if (motoroff) //motor on command
-        {
+     if (motoroff) {
+        //motor on command
         setClosedLoop(true);
-        return true;  //Did some work
-        }
+        return true;//Did some work
      }
+  }
+
   //Did no work
   return false;
 }
@@ -2094,23 +2150,23 @@ bool GalilAxis::executeAutoBrakeOff(void)
   pC_->getIntegerParam(axisNo_, pC_->GalilBrakePort_, &brakeport);
 
   //Execute motor auto brake if feature is enabled and brake is on
-  if (autobrake && brakeport > 0)
-     {
+  if (autobrake && brakeport > 0) {
      //Query brake status direct from controller
      sprintf(pC_->cmd_, "MG @OUT[%d]", brakeport);
      pC_->sync_writeReadController();
      brakeoff = atoi(pC_->resp_);
-     if (!brakeoff)
-        {
+     if (!brakeoff) {
         //brake off command
         setBrake(false);
-        return true;
-        }
+        return true;//Did some work
      }
+  }
+
   //Did no work
   return false;
 }
 
+//Execute auto on delay
 void GalilAxis::executeAutoOnDelay(void)
 {
   double ondelay;	//Motor power on delay
@@ -2119,94 +2175,146 @@ void GalilAxis::executeAutoOnDelay(void)
   pC_->getDoubleParam(axisNo_, pC_->GalilAutoOnDelay_, &ondelay);
 
   //Wait required on delay if AutoOn did some work
-  if (ondelay >= 0.035)
-     {
+  if (ondelay >= 0.035) {
      //AutoOn delay long enough to justify releasing lock to other threads
-     //Case where autoon delay greater than autooff delay.  Dont wont motor turning off or brake turning on
-     //Whilst still waiting AutoOn delay
-     //Block autooff whilst lock released for AutoOn delay
-     autooffAllowed_ = false;
      pC_->unlock();
      epicsThreadSleep(ondelay);
      pC_->lock();
-     //Reset stop timer for auto off
-     stop_begint_ = stop_nowt_;
-     autooffSent_ = false;
-     //Autooff now allowed as we have lock now anyway
-     autooffAllowed_ = true;
-     }
+  }
   else //AutoOn delay too short to bother releasing lock to other threads
      epicsThreadSleep(ondelay);
 }
 
-//Send motor record post mesg to pollServices thread
-//Called by poll thread without lock
-void GalilAxis::executePost(void)
+/** Execute axis post command
+  * Called by poller without lock
+  * Executed after this axis dmov becomes true
+  * \param[in] dmov The MR dmov of this axis*/
+void GalilAxis::executePost(int dmov)
 {
   int homing;				//Homing status that includes JAH
   char post[MAX_GALIL_STRING_SIZE];	//Motor record post field
+  int status;				//Asyn paramlist status
 
-  //Process motor record post field
-  if ((pC_->getStringParam(axisNo_, pC_->GalilPost_, (int)sizeof(post), post) == asynSuccess) &&
-      (pC_->getIntegerParam(axisNo_, pC_->GalilHoming_, &homing) == asynSuccess))
-     if (!homing_ && !homing && !homedSent_ && done_ && strcmp(post, "") && !postSent_)
-        {
-        //Send the post command
-        pollRequest_.send((void*)&MOTOR_POST, sizeof(int));
-        postSent_ = true;
-        }
+  //Retrieve required params
+  status = pC_->getStringParam(axisNo_, pC_->GalilPost_, (int)sizeof(post), post);
+  //Homing status that includes JAH
+  status |= pC_->getIntegerParam(axisNo_, pC_->GalilHoming_, &homing);
+
+  //Execute post when required
+  if (strcmp(post, "") && dmov && !status && !homing_ && !homing && !homedSent_ && !postSent_) {
+     //Send the post command
+     pollRequest_.send((void*)&MOTOR_POST, sizeof(int));
+     //Set post flags
+     postSent_ = true;
+  }
+
+  //Clear post flags when motor record dmov false
+  if (!dmov) {
+     postExecuted_ = postSent_ = false;
+  }
 }
 
-//Send motor auto power off mesg to pollServices thread
-//Called by poll thread without lock
-void GalilAxis::executeAutoOff(void)
+/** Are all related CSAxis done
+  * Called by poller without lock
+  * \param[out] csdmov The MR dmov of CSAxes this axis is a member of AND'd together */
+asynStatus GalilAxis::allCSAxisDoneMoving(bool *csdmov) {
+   int status = asynSuccess;	//Return status
+   int axisNo;			//CSAxis axis number
+   int pcsdmov = 0;		//Param list csaxis dmov
+   unsigned i;			//Looping
+
+   //Default csdmov
+   *csdmov = true;
+
+   //Are all related CSAxis done ?
+   for (i = 0; csaxesList_[i] != '\0'; i++) {
+      //Determine axis
+      axisNo = csaxesList_[i] - AASCII;
+      //Retrieve related csaxis dmov
+      status |= pC_->getIntegerParam(axisNo, pC_->GalilDmov_, &pcsdmov);
+      //AND CSAxis dmov together
+      *csdmov &= (bool)pcsdmov;
+   }
+
+   //Return status
+   return (asynStatus)status;
+}
+
+/** Send motor power off mesg to pollServices thread
+  * Called by poller without lock
+  * Executed after axis, and related csaxes dmov are all true (all moves done)
+  * \param[in] dmov  The axis motor record dmov includes backlash, retries
+  * \param[in] csdmov The CSAxes this axis is a member of MR dmov And'd together */
+void GalilAxis::executeAutoOff(int dmov, int csdmov)
 {
   int autoonoff;	//Motor auto power on/off setting
   int homing;		//Homing status that includes JAH
   double offdelay;	//Motor auto off delay in seconds
+  int status;		//Asyn param status
+
+  //Retrieve required params
+  status = pC_->getIntegerParam(axisNo_, pC_->GalilAutoOnOff_, &autoonoff);
+  status |= pC_->getDoubleParam(axisNo_, pC_->GalilAutoOffDelay_, &offdelay);
+  //Homing status that includes JAH
+  status |= pC_->getIntegerParam(axisNo_, pC_->GalilHoming_, &homing);
 
   //Execute motor auto power off if activated
-  if ((pC_->getIntegerParam(axisNo_, pC_->GalilAutoOnOff_, &autoonoff) == asynSuccess) &&
-      (pC_->getDoubleParam(axisNo_, pC_->GalilAutoOffDelay_, &offdelay) == asynSuccess) &&
-      (pC_->getIntegerParam(axisNo_, pC_->GalilHoming_, &homing) == asynSuccess))
-     if (autoonoff && autooffAllowed_ && !homing_ && !homing && !homedSent_ && !autooffSent_ && stoppedTime_ >= offdelay)
-        {
-        //Send the motor off command
-        pollRequest_.send((void*)&MOTOR_OFF, sizeof(int));
-        autooffSent_ = true;
-        }
+  if (autoonoff && dmov && csdmov && !status && !homing_ && !homing && !homedSent_ &&
+      !autooffSent_ && stoppedTime_ >= offdelay) {
+     //Send the motor off command
+     pollRequest_.send((void*)&MOTOR_OFF, sizeof(int));
+     autooffSent_ = true;
+  }
+
+  //Clear auto off flags when motor record dmov false
+  if (!dmov) {
+     autooffSent_ = false;
+  }
 }
 
-//Send auto brake on mesg to pollServices thread
-//Called by poll thread without lock
-void GalilAxis::executeAutoBrakeOn(void)
+/** Send brake on mesg to pollServices thread
+  * Called by poller without lock
+  * Executed after axis, and related csaxes dmov are all true (all moves done)
+  * \param[in] dmov  The axis motor record dmov includes backlash, retries
+  * \param[in] csdmov The CSAxes this axis is a member of MR dmov And'd together */
+void GalilAxis::executeAutoBrakeOn(int dmov, int csdmov)
 {
   int autobrake;	//Brake auto disable/enable setting
   int homing;		//Homing status that includes JAH
   double ondelay;	//Brake auto on delay in seconds
+  int status;		//Asyn param status
+
+  //Retrieve required params
+  status = pC_->getIntegerParam(axisNo_, pC_->GalilAutoBrake_, &autobrake);
+  status |= pC_->getDoubleParam(axisNo_, pC_->GalilAutoBrakeOnDelay_, &ondelay);
+  //Homing status that includes JAH
+  status |= pC_->getIntegerParam(axisNo_, pC_->GalilHoming_, &homing);
  
-  //Execute auto brake off if activated
-  if ((pC_->getIntegerParam(axisNo_, pC_->GalilAutoBrake_, &autobrake) == asynSuccess) &&
-      (pC_->getDoubleParam(axisNo_, pC_->GalilAutoBrakeOnDelay_, &ondelay) == asynSuccess) &&
-      (pC_->getIntegerParam(axisNo_, pC_->GalilHoming_, &homing) == asynSuccess))
-     if (autobrake && autooffAllowed_ && !homing_ && !homing && !homedSent_ && !autobrakeonSent_ && stoppedTime_ >= ondelay)
-        {
-        //Send the brake on command
-        pollRequest_.send((void*)&MOTOR_BRAKE_ON, sizeof(int));
-        autobrakeonSent_ = true;
-        }
+  //Execute auto brake on if activated
+  if (autobrake && dmov && csdmov && !status && !homing_ && !homing && !homedSent_ &&
+      !autobrakeonSent_ && stoppedTime_ >= ondelay) {
+     //Send the brake on command
+     pollRequest_.send((void*)&MOTOR_BRAKE_ON, sizeof(int));
+     autobrakeonSent_ = true;
+  }
+
+  //Clear auto brake off flags when motor record dmov false
+  if (!dmov) {
+     autobrakeonSent_ = false;
+  }
 }
 
-//Starts motion, and delay until it begins or timeout happens
-//Called by move, moveVelocity, home
+/** Starts motion, and delay until it begins or timeout happens
+  * Called by move, moveVelocity, home
+  * \param[in] caller  Method calling beginMotion
+  * \param[in] position The axis position Units=steps
+  * \param[in] relative Move relative or absolute - default false
+  * \param[in] checkpos Check requested position true/false - default false
+  * \param[in] move Really move the motor (or just prepare) true/false - default true*/
 asynStatus GalilAxis::beginMotion(const char *caller, double position, bool relative, bool checkpos, bool move)
 {
-   int ueip;		//Motor record ueip
    double readback;	//Calculated readback
-   double begin_time = 0;		//Time taken for motion to begin
    char mesg[MAX_GALIL_STRING_SIZE];	//Controller error mesg if begin fail
-   int moving = 0;			//Motor moving status
-   bool fail = false;			//Fail flag
    bool autoOn = false;			//Did auto on do any work?
 
    //Execute motor auto on and brake off function
@@ -2232,8 +2340,7 @@ asynStatus GalilAxis::beginMotion(const char *caller, double position, bool rela
       if (!relative)
          {
          //Retrieve readback
-         pC_->getIntegerParam(axisNo_, pC_->GalilUseEncoder_, &ueip);
-         readback = (ueip) ? encoder_position_ : motor_position_;
+         readback = (ctrlUseMain_) ? encoder_position_ : motor_position_;
          //If new position differs from readback, then write new position
          if (trunc(position) == trunc(readback))
             return asynSuccess;//Nothing to do
@@ -2241,45 +2348,215 @@ asynStatus GalilAxis::beginMotion(const char *caller, double position, bool rela
       }
 
    //Begin the move
-   //Get time when attempt motor begin
-   epicsTimeGetCurrent(&begin_begint_);
    sprintf(pC_->cmd_, "BG%c", axisName_);
-   if (pC_->sync_writeReadController() == asynSuccess)
-      {
-      //Give sync poller chance to get lock
-      pC_->unlock();
-      while (!moving) //Allow time for motion to begin
-         {
-         //Retrieve moving status
-         pC_->getIntegerParam(axisNo_, pC_->motorStatusMoving_, &moving);
-         if (!moving)
-            {
-            epicsThreadSleep(.001);
-            epicsTimeGetCurrent(&begin_nowt_);
-            //Calculate time begin has taken so far
-            begin_time = epicsTimeDiffInSeconds(&begin_nowt_, &begin_begint_);
-            if (begin_time > BEGIN_TIMEOUT)
-               {
-               fail = true;  //Time is up, give up
-               break;
-               }
-            }
-         }
-      pC_->lock();
-      }
-   else
-      fail = true;  //Controller complained at begin.
-
-   if (fail)
-      {
+   if (pC_->sync_writeReadController() == asynSuccess) {
+      //Wait until axis moving true status delivered to mr, or timeout
+      axisEventMonitor(beginEvent_);
+   }
+   else {
+      //Controller gave error at begin
       sprintf(mesg, "%s begin failure axis %c", caller, axisName_);
       //Set controller error mesg monitor
       pC_->setCtrlError(mesg);
       return asynError;
-      }
+   }
 
    //Success
    return asynSuccess;
+}
+
+//Executes jog after home if requested
+//Called by pollServices in response to MOTOR_HOMED unsolicited message from controller
+//MOTOR_HOMED message only sent by controller if axis homed successfully
+asynStatus GalilAxis::jogAfterHome(void) {
+   const char *functionName = "jogAfterHome";
+   epicsEventWaitStatus eventCaller;	//Caller signal recieve.  Used to synchronize threads
+   int status = asynSuccess;		//Asyn param status
+   double mres, eres;			//Motor record mres, eres
+   double jahv;				//Jog after home value in egu
+   int jah;				//Jog after home feature status
+   double off;				//Motor record off
+   int dir, dirm;			//Motor record dir, and dirm direction multiplier based on motor record DIR field
+   int autoonoff;			//Motor Amp Auto on/off
+   double ondelay;			//Motor on delay
+   double position;			//Absolute position Units=steps
+   int j = 0;				//Ensure while loop doesnt get stuck
+   string mesg;				//Controller mesg
+   int dmov;				//Axis motor record dmov
+
+   //Retrieve needed params
+   status = pC_->getDoubleParam(axisNo_, pC_->GalilJogAfterHomeValue_, &jahv);
+   status |= pC_->getDoubleParam(axisNo_, pC_->motorResolution_, &mres);
+   status |= pC_->getIntegerParam(axisNo_, pC_->GalilDirection_, &dir);
+   status |= pC_->getDoubleParam(axisNo_, pC_->GalilEncoderResolution_, &eres);
+   status |= pC_->getDoubleParam(axisNo_, pC_->GalilUserOffset_, &off);
+   status |= pC_->getIntegerParam(axisNo_, pC_->GalilJogAfterHome_, &jah);
+
+   //Motor is stopped
+   //Program home registers
+   if (!status) {
+      //Slight delay before setting position registers
+      epicsThreadSleep(.1);
+      //Position registers always set to 0 in dial coordinates
+      //Use OFF to give correct user position
+      //Program motor position register
+      sprintf(pC_->cmd_, "DP%c=0", axisName_);
+      pC_->sync_writeReadController();
+      //Program encoder position register
+      if (ueip_ || ctrlUseMain_) {
+         sprintf(pC_->cmd_, "DE%c=0", axisName_);
+         pC_->sync_writeReadController();
+      }
+      
+      //Give ample time for position register updates to complete
+      epicsThreadSleep(.2);
+   }
+
+   //Homed pollService completed
+   //This will cause moving status to become false
+   homedExecuted_ = true;
+   homedSent_ = false;
+
+   //Do jog after home move
+   if (!status && jah) {
+
+      //Ensure MR dmov true before continuing
+      pC_->getIntegerParam(axisNo_, pC_->GalilDmov_, &dmov);
+      if (!dmov) {
+         //Unlock mutex give chance for sync poller to get the lock
+         pC_->unlock();
+         while (!dmov) {
+            epicsThreadSleep(.001);
+            //Give up after 2000 ms
+            if (j++ > 2000) {
+               mesg = "Jog after home failed, " + string(1, axisName_) + " motor record busy";
+               pC_->setCtrlError(mesg);
+               status = asynError;
+               break;
+            }
+            //Get updated dmov value
+            pC_->getIntegerParam(axisNo_, pC_->GalilDmov_, &dmov);
+         }
+         //Obtain lock, continue with jog after home
+         pC_->lock();
+      }
+
+      //Ensure useCSADynamics is false before continuing
+      //jogAfterHome is for independant axis home
+      //Case where user pressed axis HOMR/HOMF during CSAxis move
+      //And GalilCSAxis::clearCSAxisDynamics hasn't had time to execute
+      useCSADynamics_ = false;
+
+      //Calculate direction multiplier
+      dirm = (dir == 0) ? 1 : -1;
+      //Calculate position in steps from jog after home value in user coordinates
+      position = (double)((jahv - off)/mres) * dirm;
+      //Check all axis settings
+      status |= checkAllSettings(functionName, axisName_, position, 100);
+
+      if (!status) {
+         //If all settings OK, do the move
+         if (!moveThruMotorRecord(position, true)) {
+            //Requested move equal or larger than rdbd, move success
+            //Retrieve AutoOn delay from ParamList
+            pC_->getDoubleParam(axisNo_, pC_->GalilAutoOnDelay_, &ondelay);
+            //Retrieve Auto on off status from ParamList
+            pC_->getIntegerParam(axisNo_, pC_->GalilAutoOnOff_, &autoonoff);
+            if (!autoonoff)
+               ondelay = 0.0;
+            //Unlock mutex so GalilAxis::move is called
+            //Also give chance for sync poller to get the lock
+            pC_->unlock();
+            //Wait for GalilAxis::move method to signal move status true given to MR
+            eventCaller = epicsEventWaitWithTimeout(callerEvent_, requestedTimeout_ + ondelay);
+            //Check result
+            if (eventCaller == epicsEventWaitOK)
+               jogAfterHome_ = true;//Jog after home started
+            else if (moveThruRecord_) {
+               //GalilAxis::move wasn't called
+               //Set flag false
+               moveThruRecord_ = false;
+               //Disable further writes to axis motor record from driver
+               pC_->setIntegerParam(axisNo_, pC_->GalilMotorSetValEnable_, 0);
+            }
+            //Done, move on to next motor
+            pC_->lock();
+         }
+      }
+   }//JAH
+
+   //If no jog after home, then homing completed
+   if (!jogAfterHome_)
+      setIntegerParam(pC_->GalilHoming_, 0);
+
+   return (asynStatus)status;
+}
+
+/** Delay until event or timeout
+  * May signal interested caller thread if signalCaller_ true and event received successfully
+  * \param[in] requestedEvent Requested event (ie. beginEvent_, stopEvent_) */
+asynStatus GalilAxis::axisEventMonitor(epicsEventId requestedEvent) {
+   asynStatus result = asynSuccess; //Default result
+
+   //Set the requested event
+   requestedEvent_ = requestedEvent;
+   //Signal event monitor to start monitoring
+   epicsEventSignal(eventMonitorStart_);
+   //Tell poller to signal when event occurs
+   requestedEventSent_ = false;
+
+   //Poller sends the signal we wait on
+   //Release lock so sync poller can get lock
+   pC_->unlock();
+   //Wait for event monitor to finish
+   epicsEventWait(eventMonitorDone_);
+   //Check result
+   if (eventResult_ != epicsEventWaitOK)
+      result = asynError; //Timeout, or error
+   else {
+      //Inform interested caller thread that eventMonitor got event
+      if (signalCaller_) {
+         //Signal caller if eventMonitor got event
+         epicsEventSignal(callerEvent_);
+         //Caller has been signaled
+         //Set true in moveThruMotorRecord only
+         signalCaller_ = false;
+      }
+   }
+   //Retake lock
+   pC_->lock();
+
+   //Return result
+   return result;
+}
+
+/** Send axis events to waiting threads
+  * Called by poller without lock after passing
+  * motor status to motor record */
+void GalilAxis::sendAxisEvents(void) {
+
+   //Check for work
+   if (requestedEventSent_) return; //Nothing to do
+
+   //Motion begin event = confirmed moving status true delivered to MR
+   if (requestedEvent_ == beginEvent_)
+      if (inmotion_) {
+         //Axis is really moving
+         //Begin event
+         epicsEventSignal(beginEvent_);
+         //Tell poller we dont want signal when events occur
+         requestedEventSent_ = true;
+      }
+
+   //Motion stop event = confirmed moving status false delivered to MR
+   if (requestedEvent_ == stopEvent_)
+      if (!inmotion_) {
+         //Axis is really stopped
+         //Stop event
+         epicsEventSignal(stopEvent_);
+         //Tell poller we dont want signal when events occur
+         requestedEventSent_ = true;
+      }
 }
 
 /** Polls the axis.
@@ -2293,6 +2570,7 @@ asynStatus GalilAxis::poller(void)
    //static const char *functionName = "GalilAxis::poll";
    bool moving;			//Moving status
    int dmov;			//Motor record dmov
+   bool csdmov;			//Related CSAxis dmov And'd together
    int home;			//Home status to give to motorRecord
    int status;			//Communication status with controller
    double stopDelay;		//Delay stop reporting
@@ -2307,8 +2585,13 @@ asynStatus GalilAxis::poller(void)
    
    //Retrieve required params
    status = pC_->getIntegerParam(axisNo_, pC_->GalilUseEncoder_, &ueip_);
-   status = pC_->getIntegerParam(axisNo_, pC_->GalilEncoderTolerance_, &enc_tol_);
-   status = pC_->getIntegerParam(axisNo_, pC_->GalilDmov_, &dmov);
+   status |= pC_->getIntegerParam(axisNo_, pC_->GalilEncoderTolerance_, &enc_tol_);
+   status |= pC_->getIntegerParam(axisNo_, pC_->GalilDmov_, &dmov);
+   status |= pC_->getDoubleParam(axisNo_, pC_->GalilStopDelay_, &stopDelay);
+
+   //Are all related CSAxis done (includes retries, backlash)
+   //Used for auto amp off, and auto brake on for this axis
+   status |= allCSAxisDoneMoving(&csdmov);
 
    //Extract axis motion data from controller datarecord, and load into GalilAxis instance
    status |= getStatus();
@@ -2324,13 +2607,13 @@ asynStatus GalilAxis::poller(void)
    checkHoming();
 
    //Execute motor record post if stopped and not homing
-   executePost();
+   executePost(dmov);
 
-   //Execute auto brake on function if stopped, not homing and no new move comming
-   executeAutoBrakeOn();
+   //Execute auto brake on function if stopped, not homing and no new move coming
+   executeAutoBrakeOn(dmov, csdmov);
 
-   //Execute motor auto power off function if stopped, not homing and no new move comming
-   executeAutoOff();
+   //Execute motor auto power off function if stopped, not homing and no new move coming
+   executeAutoOff(dmov, csdmov);
 
    //check for stalled encoders, whilst we are moving
    //stop motors with stalled encoders
@@ -2365,21 +2648,19 @@ asynStatus GalilAxis::poller(void)
       home = 1;
 
    //Reset homing status that includes JAH
-   if (dmov && jogAfterHome_ && done_ && last_done_)
-      {
+   if (dmov && jogAfterHome_ && done_ && last_done_) {
       //JAH completed
       jogAfterHome_ = false;
       //Set homing flag that includes JAH to 0
       pC_->setIntegerParam(axisNo_, pC_->GalilHoming_, 0);
-      }
+   }
 
    //Clear stop axis flags now dmov true
-   if (dmov && last_done_ && done_)
-      {
-      stop_axis_ = false;
+   if (stopInternal_ && dmov && last_done_ && done_) {
+      stopInternal_ = false;
       stopSent_ = false;
       stop_reason_ = MOTOR_OKAY;
-      }
+   }
 
 skip:
    //Save encoder position, and done for next poll cycle
@@ -2396,32 +2677,17 @@ skip:
    setIntegerParam(pC_->motorStatusHome_, home);
    //Pass direction to motorRecord
    setIntegerParam(pC_->motorStatusDirection_, direction_);
-   //Tell upper layers motor is moving whilst post, sync encoded stepper, and homing requests are being executed
+   //Tell upper layers motor is moving whilst sync encoded stepper, and homing requests are being executed
+   //Also when stopDelay has yet to expire
    //This prevents new moves being initiated whilst above functions are being executed
    //Also keeps HOMR and HOMF 1 until homing finished
    //Done late in poll to allow parallel execution with pollServices
-   if ((postSent_ && !postExecuted_) || (homedSent_ && !homedExecuted_) || homing_ ||
-       (syncEncodedStepperAtStopSent_ && !syncEncodedStepperAtStopExecuted_))
-      {
+   if ((homedSent_ && !homedExecuted_) || homing_ ||
+       (syncEncodedStepperAtStopSent_ && !syncEncodedStepperAtStopExecuted_) ||
+       (stoppedTime_ < stopDelay && !status)) {
       moving = true;
       done_ = 0;
-      if (homing_)
-         {
-         //Dont show reverse limit when homing
-         rev_ = 0;
-         //Dont show forward limit when homing
-         fwd_ = 0;
-         }
-      }
-
-   //Retrieve the stopDelay
-   status = pC_->getDoubleParam(axisNo_, pC_->GalilStopDelay_, &stopDelay);
-   if (stoppedTime_ < stopDelay)
-      {
-      //Show motor record done only when stopDelay expired
-      moving = true;
-      done_ = 0;
-      }
+   }
 
    //Pass limit status to motorRecord
    setIntegerParam(pC_->motorStatusLowLimit_, rev_);
@@ -2433,6 +2699,8 @@ skip:
    setIntegerParam(pC_->motorStatusCommsError_, status ? 1:0);
    //Update motor status fields in upper layers using asynMotorAxis->callParamCallbacks
    callParamCallbacks();
+   //Status delivered to MR, now send events to waiting threads
+   sendAxisEvents();
    //Always return success. Dont need more error mesgs
    return asynSuccess;
 }
@@ -2441,60 +2709,52 @@ skip:
 /* Returns true if motor is enabled with current digital IO status
 */
 
-bool GalilAxis::motor_enabled(void)
+bool GalilAxis::motor_enabled(const char *caller, string &mesg)
 {
-    unsigned mask;				//Mask used to check motor go/no go status
-    unsigned i, j;				//General loop counters
-    struct Galilmotor_enables *motor_enables = NULL;  //Convenience pointer to GalilController motor_enables[digport]
-    unsigned binaryin;				//binary in state
-    char mesg[MAX_GALIL_STRING_SIZE];		//To inform user when disabled
+   unsigned mask;				//Mask used to check motor go/no go status
+   unsigned i, j;				//General loop counters
+   struct Galilmotor_enables *motor_enables = NULL;  //Convenience pointer to GalilController motor_enables[digport]
+   unsigned binaryin;				//binary in state
 
-    //Retrieve binary in data for 1st bank from ParamList (ie. bits 0-7)
-    pC_->getUIntDigitalParam(0, pC_->GalilBinaryIn_ , &binaryin, 0xFF);
+   //Retrieve binary in data for 1st bank from ParamList (ie. bits 0-7)
+   pC_->getUIntDigitalParam(0, pC_->GalilBinaryIn_ , &binaryin, 0xFF);
 
-    //Cycle through digital inputs structure looking for current motor
-    for (i=0;i<8;i++)
-	{
-        //Retrieve structure for digital port from controller instance
-	motor_enables = (Galilmotor_enables *)&pC_->motor_enables_[i];
-	//Scan through motors in the disable list
-	for (j=0;j<strlen(motor_enables->motors);j++)
-		{
-		//Is the current GalilAxis found in disable list
-		if (motor_enables->motors[j] == axisName_)
-			{
-			//motor found
-			//Calculate mask
-			mask = (1 << (i));
-			//Check "no go" status
-			if ((binaryin & mask) == mask)
-				{
-				/* Motor is "no go", due to digital IO state */
-				if (motor_enables->disablestates[j] == 1)
-					{
-					sprintf(mesg, "%c disabled due to digital input", axisName_);
-					//Set controller error mesg monitor
-					pC_->setCtrlError(mesg);
-					return(false);
-					}
-				}
-			else
-				{
-				/* Motor is "no go", due to digital IO state */
-				if (motor_enables->disablestates[j] == 0)
-					{
-					sprintf(mesg, "%c disabled due to digital input", axisName_);
-					//Set controller error mesg monitor
-					pC_->setCtrlError(mesg);
-					return(false);
-					}
-				}				
-			}
-		}
-	}
+   //Cycle through digital inputs structure looking for current motor
+   for (i = 0; i < 8; i++) {
+      //Retrieve structure for digital port from controller instance
+      motor_enables = (Galilmotor_enables *)&pC_->motor_enables_[i];
+      //Scan through motors in the disable list
+      for (j = 0; j < strlen(motor_enables->motors); j++) {
+         //Is the current GalilAxis found in disable list
+         if (motor_enables->motors[j] == axisName_) {
+            //motor found
+            //Calculate mask
+            mask = (1 << (i));
+            //Check "no go" status
+            if ((binaryin & mask) == mask) {
+               /* Motor is "no go", due to digital IO state */
+               if (motor_enables->disablestates[j] == 1) {
+                  //Set controller error mesg
+                  mesg = string(caller) + " failed, " + string(1, axisName_) + " ";
+                  mesg += "disabled due to digital input";
+                  return(false);
+               }
+            }
+            else {
+               /* Motor is "no go", due to digital IO state */
+               if (motor_enables->disablestates[j] == 0) {
+                  //Set controller error mesg
+                  mesg = string(caller) + " failed, " + string(1, axisName_) + " ";
+                  mesg += "disabled due to digital input";
+                  return(false);
+               }
+            }				
+         }
+      } //For
+   } //For
 	
-    // Motor is enabled
-    return(true);
+   // Motor is enabled
+   return(true);
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -2892,11 +3152,11 @@ void GalilAxis::axisStatusThread()
     status = pC_->getIntegerParam(axisNo_, pC_->GalilSSICapable_, &ssiCapable);
     status |= pC_->getIntegerParam(axisNo_, pC_->GalilBISSCapable_, &bissCapable);
 
-    if (event == epicsEventWaitTimeout && !axisStatusShutdown_) {
-       if (ssiCapable == 1 && !status && !axisStatusShutdown_) {
+    if (event == epicsEventWaitTimeout && !shuttingDown_) {
+       if (ssiCapable == 1 && !status && !shuttingDown_) {
           //Polling SSI status
        }
-       if (bissCapable == 1 && !status && !axisStatusShutdown_) {
+       if (bissCapable == 1 && !status && !shuttingDown_) {
           status = pC_->getIntegerParam(axisNo_, pC_->GalilBISSStatPoll_, &bissStatPoll);
           //Check BiSS is enabled
           status |= pC_->getIntegerParam(axisNo_, pC_->GalilBISSInput_, &bissInput);  
@@ -2907,10 +3167,10 @@ void GalilAxis::axisStatusThread()
              pC_->unlock();
           }
        }
-    } 
+    }
     else {
        //Thread will exit
-       epicsEventSignal(axisStatusShutdownId_);
+       epicsEventSignal(axisStatusShutdown_);
        axisStatusRunning_ = false;
        break;
     }
@@ -2924,28 +3184,56 @@ void GalilAxis::axisStatusThread()
        pollDelay = 10;
 
     //Perform interruptable delay
-    if (!status && !axisStatusShutdown_) {
-       event = epicsEventWaitWithTimeout(axisStatusShutRequestId_, pollDelay);
+    if (!status && !shuttingDown_) {
+       event = epicsEventWaitWithTimeout(axisStatusShutRequest_, pollDelay);
     } 
-    else if (!axisStatusShutdown_) {
+    else if (!shuttingDown_) {
       epicsThreadSleep(1);
     }
+  } //while
+}
+
+/* C Function which runs the event monitor thread */ 
+static void eventMonitorThreadC(void *pPvt)
+{
+  GalilAxis *pC = (GalilAxis*)pPvt;
+  pC->eventMonitorThread();
+}
+
+//Event monitor runs in its own thread
+//Used to synchronize threads to events sent by poller
+void GalilAxis::eventMonitorThread()
+{ 
+  while (true) {
+    //Wait for request
+    epicsEventWait(eventMonitorStart_);
+    //Check for shutdown request
+    if (shuttingDown_)
+       return; //Exit the thread
+    //Wait for requested event
+    eventResult_ = epicsEventWaitWithTimeout(requestedEvent_, requestedTimeout_);
+    if (eventResult_ != epicsEventWaitOK) {
+       //Timeout, or error occurred
+       //Tell poller we dont want signal when events occur
+       requestedEventSent_ = true;
+    }
+    //Signal waiting thread begin monitor done
+    epicsEventSignal(eventMonitorDone_);
   }
 }
 
 /*
- * Safely shutdown axis status thread when performing controller shutdown.
- * This blocks until the thread has finished.
+ * Confirms shutdown of axis status thread
+ * Blocks until the thread has finished
+ * Required due to controller lock usage in axisStatusThread
  */
 void GalilAxis::axisStatusShutdown()
 {
   if (axisStatusRunning_) {
-    //Set flag indicating axisStatusThread will be shutdown
-    axisStatusShutdown_ = true;
     //Request axisStatus thread shutdown
-    epicsEventSignal(axisStatusShutRequestId_);
+    epicsEventSignal(axisStatusShutRequest_);
     //Wait for axisStatus thread to signal it's shutdown
-    epicsEventWait(axisStatusShutdownId_);
+    epicsEventWait(axisStatusShutdown_);
   }
 }
 

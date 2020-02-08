@@ -1,14 +1,14 @@
 
 file {
-	name="/home/ics/git/Galil-3-0/3-1/GalilSup/op/adl/galil_coordinate_system.adl"
-	version=030109
+	name="/home/ics/git/Galil-3-0/3-6/GalilSup/op/adl/galil_coordinate_system.adl"
+	version=030114
 }
 display {
 	object {
 		x=273
 		y=126
 		width=400
-		height=224
+		height=195
 	}
 	clr=14
 	bclr=4
@@ -220,20 +220,6 @@ text {
 	limits {
 	}
 }
-"choice button" {
-	object {
-		x=153
-		y=193
-		width=89
-		height=20
-	}
-	control {
-		chan="$(P)DEFER_CMD"
-		clr=14
-		bclr=51
-	}
-	stacking="column"
-}
 text {
 	object {
 		x=23
@@ -245,18 +231,6 @@ text {
 		clr=14
 	}
 	textix="Stop all motors"
-}
-text {
-	object {
-		x=23
-		y=174
-		width=97
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Go all motors"
 }
 "message button" {
 	object {
@@ -274,46 +248,55 @@ text {
 	press_msg="1"
 	release_msg="1"
 }
-"message button" {
-	object {
-		x=153
-		y=172
-		width=89
-		height=20
-	}
-	control {
-		chan="$(P)$(R)_GO_CMD"
-		clr=14
-		bclr=51
-	}
-	label="Go"
-	press_msg="1"
-	release_msg="1"
-}
-text {
+composite {
 	object {
 		x=23
-		y=197
-		width=97
-		height=13
+		y=170
+		width=335
+		height=20
 	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Defer moves"
-}
-"text update" {
-	object {
-		x=277
-		y=197
-		width=81
-		height=13
-	}
-	monitor {
-		chan="$(P)DEFER_STATUS"
-		clr=54
-		bclr=4
-	}
-	limits {
+	"composite name"=""
+	children {
+		"choice button" {
+			object {
+				x=153
+				y=170
+				width=89
+				height=20
+			}
+			control {
+				chan="$(P)DEFER_CMD"
+				clr=14
+				bclr=51
+			}
+			stacking="column"
+		}
+		"text update" {
+			object {
+				x=277
+				y=174
+				width=81
+				height=13
+			}
+			monitor {
+				chan="$(P)DEFER_STATUS"
+				clr=54
+				bclr=4
+			}
+			limits {
+			}
+		}
+		text {
+			object {
+				x=23
+				y=174
+				width=97
+				height=13
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="Defer moves"
+		}
 	}
 }

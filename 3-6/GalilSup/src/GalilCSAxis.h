@@ -73,15 +73,17 @@ public:
   //Uses vector mathematics to check requested real motor velocities
   asynStatus checkMotorVelocities(double npos[], double nvel[], double naccel[]);
   //Check motor enable interlock status of all reverse axis
-  asynStatus beginCheck(void);
-  //Validate motor record status of all related axis
-  asynStatus validateMRSettings(void);
+  asynStatus beginCheck(const char *caller);
   //Check motor record status for this axis
-  asynStatus checkMRSettings(bool moveVelocity, char callaxis);
+  asynStatus checkMRSettings(const char *caller);
   //Enforce CSAxis completion order
   int enforceCSAxisCompletionOrder(int csmoving);
-  //Check CSAxis limit switch in requested move direction
-  asynStatus checkLimits(double position, int relative);
+  //Check CSAxis revaxes limit switch given move request
+  asynStatus checkLimits(const char *caller, double npos[]);
+  //Check CSAxis revaxes soft limit given move request
+  asynStatus checkSoftLimits(const char *caller, double npos[]);
+  //Check CSAxis all parameters
+  asynStatus checkAllSettings(const char *caller, double npos[], double nvel[], double naccel[], bool bCheck = true);
   //Monitor CSAxis move, stop if problem
   asynStatus monitorCSAxisMove(void);
   //Clear CSAxis move dynamics at move completion
@@ -94,6 +96,16 @@ public:
   void pollServices(void);
   //Driver internal version of CSAxis stop, prevents backlash, retries till dmov
   asynStatus stopInternal(bool emergencyStop = true);
+  //Driver to motor record stop.  Stops backlash, retries.
+  asynStatus stopMotorRecord(void);
+  //Thread to start CSAxis moves when moveDeferred set false
+  void startDeferredMovesThread();
+  //Thread to receive axis events as they occur (eg. start, stop)
+  void eventMonitorThread();
+  //Start CSAxis moves that are not deferred
+  void startCSAxisMoveThread();
+  //Send axis events
+  void sendAxisEvents(bool inmotion);
 
   /* These are the methods we override from the base class */
   asynStatus move(double position, int relative, double min_velocity, double max_velocity, double acceleration);
@@ -101,6 +113,8 @@ public:
   asynStatus home(double minVelocity, double maxVelocity, double acceleration, int forwards);
   asynStatus stop(double acceleration);
   asynStatus initializeProfile(size_t maxProfilePoints);
+  asynStatus setHighLimit(double highLimit);
+  asynStatus setLowLimit(double lowLimit);
 
   virtual ~GalilCSAxis();
 
@@ -118,7 +132,8 @@ private:
   char **reverse_;			//Reverse transforms to calculate each axis position in the coordinate system
   char **revvars_;			//Reverse kinematic variables List of Q-Z
   char **revsubs_;			//Reverse kinematic substitutes List of A-P
-  bool stop_csaxis_;			//Stop all motors in CSAxis
+  bool stopInternal_;			//Flag indicates stop request is from driver not MR
+  bool stoppedMR_;			//Indicates motor record for this axis has been stopped
   bool stopSent_;			//Has stop request been sent to pollServices
   int stop_reason_;			//Reason for requested stop
   bool kinematicsAltered_;              //Have the kinematics equations been altered
@@ -127,6 +142,8 @@ private:
   bool kinematic_error_reported_;	//Kinematic error has been reported to user
   int last_done_;			//Done status stored from previous poll cycle
   int done_;				//Done status
+  double highLimit_;			//High soft limit
+  double lowLimit_;			//Low soft limit
   bool moveVelocity_;			//Indicates a jog move in progress
   double motor_position_;		//aux encoder or step count register
   double encoder_position_;		//main encoder register
@@ -143,6 +160,17 @@ private:
   int cshoming_;			//CSAxis homing status
   int last_cshoming_;			//CSAxis last homing status
   epicsMessageQueue pollRequest_;	//The service numbers poll would like done
+
+  bool shuttingDown_;			//Ioc shutdown
+  bool requestedEventSent_;		//Poller has sent the requested event
+  double requestedTimeout_;		//Event timeout
+  epicsEventId beginEvent_;		//Axis begin event
+  epicsEventId requestedEvent_;		//Event requested
+  epicsEventId eventMonitorStart_;	//Tell event monitor thread to start monitoring
+  epicsEventId eventMonitorDone_;	//Event monitor signals done to other threads
+  epicsEventWaitStatus eventResult_;	//Event received or timeout
+
+  epicsEventId deferredMoveStart_;	//Event to start CSAxis moves when movesDeferred set false
 
 friend class GalilController;
 friend class GalilAxis;

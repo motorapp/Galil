@@ -35,8 +35,7 @@
 //Number of communication retries
 #define ALLOWED_TIMEOUTS 3
 #define MAX_UPDATE_PERIOD 200
-#define MAX_GALIL_UNSOLICTED_SIZE 29
-#define MAX_GALIL_STRING_SIZE 768
+#define MAX_GALIL_STRING_SIZE 80
 #define MAX_GALIL_DATAREC_SIZE 768
 #define MAX_GALIL_AXES 8
 #define MAX_GALIL_LINEAR_INCREMENT 8388607
@@ -65,6 +64,9 @@
 #define ECAT_TIMEOUT 181
 #define ECAT_DRIVENOTFOUND 182
 #define ECAT_NODRIVECONFIGURED 187
+
+//Nearest integer
+#define NINT(f) (long)((f)>0 ? (f)+0.5 : (f)-0.5)
 
 #include "macLib.h"
 #include "GalilAxis.h"
@@ -128,7 +130,7 @@
 #define GalilMotorSetValString		"MOTOR_SET_VAL"
 #define GalilMotorSetValEnableString	"MOTOR_SETVAL_ENABLE"
 #define GalilMotorSetString		"MOTOR_SET"
-#define GalilMotorStopGoString		"MOTOR_STOPGO"
+#define GalilMotorStopString		"MOTOR_RECORD_STOP"
 #define GalilSSIConnectedString		"MOTOR_SSI_CONNECTED"
 #define GalilEncoderStallTimeString	"MOTOR_ENCODER_STALL_TIME"
 #define GalilStepSmoothString		"MOTOR_STEPSMOOTH"
@@ -229,6 +231,10 @@
 
 #define GalilStatusPollDelayString	"MOTOR_STATUS_POLL_DELAY"
 
+//C++ "To String with Precision" static function template
+template <typename T>
+string tsp(const T a_value, const int n = 6);
+
 /* For each digital input, we maintain a list of motors, and the state the input should be in*/
 /* To disable the motor */
 struct Galilmotor_enables {
@@ -256,8 +262,9 @@ public:
   //These variables need to be accessible from static callbacks
   epicsEventId connectEvent_;		//Connection event
   int connected_;			//Is the synchronous communication socket connected according to asyn.  Async UDP is connectionless
-  char address_[MAX_GALIL_STRING_SIZE];	//address string
-  char model_[MAX_GALIL_STRING_SIZE];	//model string
+
+  string address_;			//address string
+  string model_;			//model string
 
   //Class constructor
   GalilController(const char *portName, const char *address, double updatePeriod);
@@ -300,7 +307,7 @@ public:
   /* These are the functions for profile moves */
   asynStatus buildProfile();
   asynStatus buildProfileFile();
-  asynStatus checkCSAxisProfiles(int mesg_function);
+  asynStatus checkCSAxisProfiles(string &mesg);
   asynStatus transformCSAxisProfiles();
   asynStatus prepRunProfile(FILE **profFile, int *coordsys, char *coordName, double startp[]);
   asynStatus executeProfile();
@@ -308,12 +315,14 @@ public:
   asynStatus initializeProfile(size_t maxProfilePoints);
   asynStatus beginProfileMotion(int coordsys, char coordName);
   asynStatus beginPVTProfileMotion();
+  asynStatus runProfileFile();
   asynStatus runProfile();
   bool anyMotorMoving();
-  bool allMotorsMoving(char *axes);
+  bool allMotorsMoving();
   bool motorsAtStart(double startp[]);
-  asynStatus motorsToProfileStartPosition(FILE *profFile, double startp[], bool move);
+  asynStatus motorsToProfileStartPosition(double startp[], bool move);
   void profileGetSegsMoving(int profStarted, int coordsys, int *moving, int *segprocessed);
+
   //asynStatus readbackProfile();
 
   /* These are the methods that are new to this class */
@@ -330,6 +339,7 @@ public:
   void getStatus(void);
   void setParamDefaults(void);
   void gen_code_headers();
+  void gen_rio_code(void);
   void gen_card_codeend(void);
   void gen_motor_enables_code(void);
   void write_gen_codefile(const char* suffix);
@@ -340,18 +350,30 @@ public:
   void profileThread();
   void arrayUploadThread();
   asynStatus setOutputCompare(int oc);
-  asynStatus beginLinearGroupMotion(int coordsys, char coordName, const char *axes, bool profileAbort);
-  asynStatus beginGroupMotion(char *maxes, char *paxes = (char *)"");
-  bool allMotorsInMotion(char *axes);
+  asynStatus beginLinearGroupMotion(char coordName, const char *axes);
+  asynStatus beginGroupMotion(const char *maxes, const char *paxes = (const char *)"");
+  bool axesEventMonitor(const char *axes, unsigned requestedEvent = 0);
+  bool csaxesBeginMonitor(const char *axes);
+  void clearDeferredMoves(const char *axes);
   //Execute motor record prem function for motor list
   void executePrem(const char *axes);
   //Execute auto motor power on, and brake off 
   void executeAutoOnBrakeOff(const char *axes);
   void processUnsolicitedMesgs(void);
   static std::string extractEthAddr(const char* str);
-  void setCtrlError(const char* mesg);
+  void setCtrlError(string mesg);
   //Enable/Disable EtherCat network
   void enableEtherCatNetwork(int value);
+  //Check axes are good to go
+  asynStatus beginCheck(const char *caller, const char *axes, char *axis);
+  //Check axes limits given move request
+  asynStatus checkLimits(const char *caller, const char *axes, double npos[], char *axis);
+  //Check axes soft limits given move request
+  asynStatus checkSoftLimits(const char *caller, const char *axes, double npos[], char *axis);
+  //Check motor record status of axes
+  asynStatus checkMRSettings(const char *caller, const char *axes, char *axis);
+  //Check axes settings given move request
+  asynStatus checkAllSettings(const char *caller, const char *axes, double npos[], char *axis);
 
   void InitializeDataRecord(void);
   double sourceValue(const std::vector<char>& record, const std::string& source);
@@ -368,8 +390,8 @@ public:
   void dq_analog(int byte, int input_num);
 
   /* Deferred moves functions.*/
-  asynStatus beginSyncStartStopMove(int coordsys, char *axes, char *moves, double acceleration, double velocity);
-  asynStatus beginSyncStartOnlyMove(char *axes);
+  asynStatus beginSyncStartStopMove(int coordsys, const char *axes, const char *moves, double acceleration, double velocity);
+  asynStatus beginSyncStartOnlyMove(const char *axes);
   asynStatus prepSyncStartStopMoves(void);
   asynStatus prepSyncStartOnlyMoves(void);
 
@@ -423,7 +445,7 @@ protected:
   int GalilCSMotorReverseG_;
   int GalilCSMotorReverseH_;
 
-  int GalilMotorStopGo_;
+  int GalilMotorRecordStop_;
   int GalilMotorSetVal_;
   int GalilMotorSetValEnable_;
   int GalilMotorSet_;
@@ -554,9 +576,6 @@ private:
   bool async_records_;			//Are the data records obtained async(DR), or sync (QR)
   bool try_async_;			//Should we even try async udp (DR) before going to synchronous tcp (QR) mode
 
-  epicsTimeStamp begin_nowt_;		//Used to track length of time motor begin takes
-  epicsTimeStamp begin_begint_;		//Used to track length of time motor begin takes
-
   bool movesDeferred_;			//Should moves be deferred for this controller
 
   double analogIndeadb_[ANALOG_PORTS+2];//Analog input dead bands
@@ -588,11 +607,12 @@ private:
   unsigned numThreads_;			//Number of threads the controller supports
   bool codegen_init_;			//Has the code generator been initialised for this controller
   bool digitalinput_init_;		//Has the digital input label #ININT been included for this controller
-  char *thread_code_;			//Code generated for every axis on this controller (eg. home code, stepper pos maintenance)
-  char *limit_code_;			//Code generated for limit switches on this controller
-  char *digital_code_;			//Code generated for digital inputs on this controller
-  char *card_code_;			//All code generated for the controller.  This is the buffer actually sent to controller
-  char *user_code_;			//Code supplied by user for the controller.  This is copied to card_code_ above if all goes well
+
+  string thread_code_ = "";
+  string limit_code_ = "";
+  string digital_code_ = "";
+  string card_code_ = "";
+  string user_code_ = "";
 
   char asynccmd_[MAX_GALIL_STRING_SIZE];	//holds the assembled Galil cmd string
   char asyncresp_[MAX_GALIL_DATAREC_SIZE];	//For asynchronous messages including datarecord

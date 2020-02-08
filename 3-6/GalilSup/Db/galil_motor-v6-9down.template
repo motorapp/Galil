@@ -263,21 +263,21 @@ record(stringout,"$(P)$(M)_POST_CMD")
 	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_POST")
 }
 
-#driver to mr SPMG field
-#motors in coordsys
-record(ai,"$(P)$(M)_STOPGO_MON")
+#Driver to mr STOP field
+#Prevents backlash, and retries
+record(ai,"$(P)$(M)_STOP_MON")
 {
-	field(DESC, "stop/go")
+	field(DESC, "stop")
 	field(DTYP, "asynInt32")
 	field(SCAN, "I/O Intr")
-	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_STOPGO")
+	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_RECORD_STOP")
 }
 
-record(ao, "$(P)$(M)_STOPGO_CMD")
+record(ao, "$(P)$(M)_STOP_CMD")
 {
 	field(OMSL, "closed_loop")
-	field(DOL,  "$(P)$(M)_STOPGO_MON CP MS")
-	field(OUT,  "$(P)$(M).SPMG PP")
+	field(DOL,  "$(P)$(M)_STOP_MON CP MS")
+	field(OUT,  "$(P)$(M).STOP PP")
 }
 
 #Below records are for writing values from driver to motor record
