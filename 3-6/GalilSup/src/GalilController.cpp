@@ -686,6 +686,8 @@ GalilController::GalilController(const char *portName, const char *address, doub
 
   createParam(GalilCommunicationErrorString, asynParamInt32, &GalilCommunicationError_);
 
+  //Not connected to controller yet
+  connected_ = false;
   //Store address
   address_ = address;
   //Default model
