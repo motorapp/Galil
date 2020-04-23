@@ -211,8 +211,8 @@
 #define GalilBISSStatTimeoutString	"MOTOR_BISSSTAT_TIMEOUT"
 #define GalilBISSStatCRCString	        "MOTOR_BISSSTAT_CRC"
 #define GalilBISSStatErrorString	"MOTOR_BISSSTAT_ERROR"
-#define GalilBISSStatWarnString	"MOTOR_BISSSTAT_WARN"
-#define GalilBISSStatPollString	"MOTOR_BISSSTAT_POLL"
+#define GalilBISSStatWarnString	        "MOTOR_BISSSTAT_WARN"
+#define GalilBISSStatPollString	        "MOTOR_BISSSTAT_POLL"
 
 #define GalilErrorLimitString		"MOTOR_ERRLIM"
 #define GalilErrorString		"MOTOR_ERR"

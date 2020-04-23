@@ -28,8 +28,8 @@ GalilTest_SRCS += GalilTest_registerRecordDeviceDriver.cpp
 GalilTest_SRCS_DEFAULT += GalilTestMain.cpp
 
 #add a definition for each support application used by this application
-GalilTest_LIBS += asyn motor calc sscan autosave busy
 GalilTest_LIBS += GalilSupport
+GalilTest_LIBS += asyn motor calc sscan autosave busy
 GalilTest_LIBS += $(EPICS_BASE_IOC_LIBS)
 
 #===========================

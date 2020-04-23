@@ -361,6 +361,8 @@
 //                  Improved internal stop mechanism.  Backlash, retries now prevented as necessary
 //                  Add analog output readbacks for DMC30000 series
 //                  Altered coordinate system stop mechanism for ad-hoc deferred moves
+// 23/04/2020 M. Clift
+//                  Fix issue with limit switch interrupt routine in generated code
 
 #include <stdio.h>
 #include <math.h>
@@ -399,7 +401,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "3-6-51";
+static const char *driverVersion = "3-6-54";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);
@@ -694,6 +696,8 @@ GalilController::GalilController(const char *portName, const char *address, doub
   model_ = "Unknown";
   //Default rio
   rio_ = false;
+  //Default numAxesMax_
+  numAxesMax_ = 0;
   //IOC is not shutting down yet
   shuttingDown_ = false;
   //Code for the controller has not been assembled yet
@@ -5619,17 +5623,17 @@ int GalilController::GalilInitializeVariables(bool burn_variables)
   * \param[in] axis Axis home code to replace
   * \param[in] filename User provided home code */
 void GalilController::GalilReplaceHomeCode(char *axis, string filename) {
-   GalilAxis *pAxis;				//GalilAxis
-   char axisName;				//Axis name specified
-   string str;					//Search string.  Home section start string (eg. IF(HOMEA=1))	
-   string line;					//Read the file line by line
-   string mesg = "";				//Error messages
-   ifstream file(filename);			//Input file stream
-   size_t found;				//Location of search string in thread code
-   int limit_sw_code_size;			//Generated code size in bytes for homing to limit switch
-   int home_sw_code_size;			//Generated code size in bytes for homing to home switch
-   size_t cut;					//Number of bytes to cut from thread code
-   size_t inpos;				//Position in code to insert custom code line
+   GalilAxis *pAxis;              //GalilAxis
+   char axisName;                 //Axis name specified
+   string str;                    //Search string.  Home section start string (eg. IF(HOMEA=1))	
+   string line;                   //Read the file line by line
+   string mesg = "";              //Error messages
+   ifstream file(filename);       //Input file stream
+   size_t found;                  //Location of search string in thread code
+   int limit_sw_code_size;        //Generated code size in bytes for homing to limit switch
+   int home_sw_code_size;         //Generated code size in bytes for homing to home switch
+   size_t cut;                    //Number of bytes to cut from thread code
+   size_t inpos;                  //Position in code to insert custom code line
 
    // Axis letter A-H
    axisName = (char)(toupper(axis[0]));
@@ -5720,12 +5724,12 @@ void GalilController::GalilReplaceHomeCode(char *axis, string filename) {
                        3 = Digital code
   * \param[in] filename Code file specified by user */
 void GalilController::GalilAddCode(int section, string filename) {
-   size_t found = string::npos; 	//Location of search string in thread code
-   char axis = 'A';					//Axis associated with specified section of thread code
-   string line;		    			//Read the file line by line
-   string mesg = "";				//Error messages
-   ifstream file(filename);			//Custom code to add
-   size_t inpos;	    			//Position in code to insert custom code line
+   size_t found = string::npos;     //Location of search string in thread code
+   char axis = 'A';                 //Axis associated with specified section of thread code
+   string line;                     //Read the file line by line
+   string mesg = "";                //Error messages
+   ifstream file(filename);         //Custom code to add
+   size_t inpos;                    //Position in code to insert custom code line
 
    if (section == 3 && !digitalinput_init_) {
       mesg = "GalilAddCode: Digital section not defined, review GalilCreateAxis";
@@ -6030,18 +6034,11 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
    }
 }
 
-/* Generate code headers that are always required for a dmc
-   Required headers are for card, and limit code
-   We dont add header for digital code (ie #ININT) as we dont know if it's required yet */
+//Generate code headers that are always required for both dmc and rio
 void GalilController::gen_code_headers(void)
 {
    //setup #AUTO label
    card_code_ = "#AUTO\n";
-   //Below for dmc only
-   if (!rio_ && numAxes_ != 0) {
-      //setup #LIMSWI label
-      limit_code_ = "#LIMSWI\n";
-   }
 }
 
 /* Generate code for rio */

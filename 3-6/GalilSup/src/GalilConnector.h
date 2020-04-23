@@ -26,7 +26,7 @@ public:
   ~GalilConnector();
 
 private:
-  bool shuttingDown_;
+  bool shutDownConnector_;
   class GalilController *pC_;
 };
 

@@ -94,10 +94,12 @@ GalilAxis::GalilAxis(class GalilController *pC, //Pointer to controller instance
   eventMonitorStart_ = epicsEventMustCreate(epicsEventEmpty);
   //Create event monitor done event
   eventMonitorDone_ = epicsEventMustCreate(epicsEventEmpty);
+
   //store settings, and set defaults
   setDefaults(limit_as_home, enables_string, switch_type);
   //store the motor enable/disable digital IO setup
   store_motors_enable();
+
   //Generate the code for this axis based on specified settings
   //Initialize the code generator
   initialize_codegen(thread_code, limit_code, digital_code);
@@ -378,6 +380,12 @@ void GalilAxis::initialize_codegen(string &thread_code,
 
   //Insert label for motor thread we are constructing	
   thread_code += "#THREAD" + string(1, axisName_) + "\n";
+
+  //Insert limit switch interrupt label, if not done so already
+  if (!pC_->rio_ && pC_->limit_code_.empty()) {
+     //setup #LIMSWI label
+     pC_->limit_code_ = "#LIMSWI\n";
+  }
 
   //Setup ININT program label for digital input interrupts.  Used for motor enable/disable.
   if (pC_->digitalinput_init_ == false && strcmp(enables_string_, "") != 0) {

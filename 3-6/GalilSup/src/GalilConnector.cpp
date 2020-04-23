@@ -41,7 +41,7 @@ GalilConnector::GalilConnector(GalilController *pcntrl)
 	//Flag not connected at startup
 	pC_->connected_ = false;
 	//Flag GalilConnector thread not shutting down
-	shuttingDown_ = false;
+	shutDownConnector_ = false;
 	//Start GalilConnector thread
 	thread.start();
 }
@@ -50,7 +50,7 @@ GalilConnector::GalilConnector(GalilController *pcntrl)
 GalilConnector::~GalilConnector()
 {
 	//Flag to GalilConnector run thread that IOC is shutting down
-	shuttingDown_ = true;
+	shutDownConnector_ = true;
 	//Wake GalilConnector thread now shutdown flag is set
 	epicsEventSignal(pC_->connectEvent_);
 	//Wait for run thread to exit
@@ -71,8 +71,10 @@ void GalilConnector::run(void)
    while (true) {
       //Wait for connect event signal
       epicsEventWait(pC_->connectEvent_);
-      if (shuttingDown_)
-         break; // exit outer while loop
+      if (shutDownConnector_) {
+         //Thread shutdown requested
+         break;
+      }
       else {
          pC_->lock();
          //Check GalilController for response
@@ -126,7 +128,8 @@ void GalilConnector::run(void)
          //Work out what to do
          if (!sync_status && !async_status)	//Response received
             pC_->connected();//Do whats required for GalilController once connection established
-         else {
+         else if (!pC_->shuttingDown_) {
+            //IOC isn't shutting down
             //No response
             //Continue to force disconnect until device responds
             pC_->disconnect();
