@@ -1,0 +1,119 @@
+# .appveyor.yml for use with EPICS Base ci-scripts
+# (see: https://github.com/epics-base/ci-scripts)
+
+# This is YAML - indentation levels are crucial
+
+#---------------------------------#
+#       build cache               #
+#---------------------------------#
+# The AppVeyor cache allowance is way too small (1GB per account across all projects, branches and jobs)
+# to be used for the dependency builds.
+
+cache:
+  - C:\Users\appveyor\.tools
+
+#---------------------------------#
+#       repository cloning        #
+#---------------------------------#
+
+# Called at very beginning, before repo cloning
+init:
+  # - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+  # Set autocrlf to make batch files work
+  - git config --global core.autocrlf true
+
+# Set clone depth (do not fetch complete history)
+clone_depth: 50
+
+# Skipping commits affecting only specific files
+skip_commits:
+  files:
+    - 'documentation/*'
+    - 'templates/*'
+    - '**/*.html'
+    - '**/*.md'
+
+#---------------------------------#
+#   build matrix configuration    #
+#---------------------------------#
+# Since dependencies cannot be cached and AppVeyor only grants a single builder VM, all jobs
+# are executed sequentially, each one taking 10-15 minutes.
+# Consider this when defining your build matrix. (A full matrix build takes more than 8 hours.)
+
+# Build Configurations: dll/static, regular/debug
+configuration:
+  - dynamic
+  - static
+  - dynamic-debug
+  - static-debug
+
+# Environment variables: compiler toolchain, base version, setup file, ...
+environment:
+  # common / default variables for all jobs
+  SETUP_PATH: 3-6/.ci-local:3-6/.ci
+  SET: stable
+  VV: 1
+
+  matrix:
+  - CMP: vs2019
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+  - CMP: mingw
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+  - CMP: vs2019
+    BASE: 3.15
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+  - CMP: vs2019
+    BASE: 3.14
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+  - CMP: vs2017
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+  - CMP: vs2015
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+  - CMP: vs2013
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+
+# Platform: architecture
+platform:
+  - x86
+  - x64
+
+#---------------------------------#
+#     building & testing          #
+#---------------------------------#
+
+install:
+# for the sequencer
+  - cinst re2c
+  - cmd: git submodule update --init --recursive
+  - cmd: python 3-6/.ci/appveyor/do.py prepare
+
+build_script:
+  - cmd: python 3-6/.ci/appveyor/do.py build
+
+#test_script:
+#  - cmd: python 3-6/.ci/appveyor/do.py test
+
+#---------------------------------#
+#         debugging               #
+#---------------------------------#
+
+## if you want to connect by remote desktop to a failed build, uncomment these lines
+## note that you will need to connect within the usual build timeout limit (60 minutes)
+## so you may want to adjust the build matrix above to just build the one of interest
+
+#on_failure:
+#  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
+
+#---------------------------------#
+#         notifications           #
+#---------------------------------#
+
+#notifications:
+#
+#  - provider: Email
+#    to:
+#      - core-talk@aps.anl.gov
+#    on_build_success: false
+
+#  - provider: GitHubPullRequest
