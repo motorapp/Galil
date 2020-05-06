@@ -363,6 +363,8 @@
 //                  Altered coordinate system stop mechanism for ad-hoc deferred moves
 // 23/04/2020 M. Clift
 //                  Fix issue with limit switch interrupt routine in generated code
+// 06/05/2020 M.Clift
+//                  Fix/Add use synchronous comms if sync/tcp connects but async/udp doesn't
 
 #include <stdio.h>
 #include <math.h>
@@ -401,7 +403,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "3-6-53";
+static const char *driverVersion = "3-6-54";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);
@@ -1072,11 +1074,11 @@ std::string GalilController::extractEthAddr(const char* str)
 void GalilController::connected(void)
 {
   //static const char *functionName = "connected";
-  char RV[] = {0x12,0x16,0x0};  //Galil command string for model and firmware version query
+  char RV[] = {0x12,0x16,0x0};   //Galil command string for model and firmware version query
   int status;
-  double minUpdatePeriod;		//Min update period given model
-  string mesg = "";				//Connected mesg
-  unsigned i;
+  double minUpdatePeriod;        //Min update period given model
+  string mesg = "";              //Connected mesg
+  unsigned i;                    //Looping
 
   //Flag connected as true
   connected_ = true;
@@ -1207,14 +1209,14 @@ void GalilController::connected(void)
   numThreads_ = (model_[3] == '1')? 2 : numThreads_;
 
   //Stop all threads running on the controller
-  for (i=0;i<numThreads_;i++)
+  for (i = 0; i < numThreads_; i++)
      {
      sprintf(cmd_, "HX%d",i);
      sync_writeReadController();
      }
 
   //Stop all moving motors
-  for (i=0;i<numAxesMax_;i++)
+  for (i = 0; i < numAxesMax_; i++)
      {
      //Query moving status
      sprintf(cmd_, "MG _BG%c", (i + AASCII));

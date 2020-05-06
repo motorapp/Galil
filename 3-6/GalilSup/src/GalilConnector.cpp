@@ -122,15 +122,25 @@ void GalilConnector::run(void)
                pC_->udpHandle_ = pC_->asyncresp_[2];
                pC_->async_records_ = true;
             }
-            else//Error when querying udp handle
+            else {
+               //Error when querying udp handle
+               pC_->setCtrlError("Asynchronous UDP failed, switching to TCP synchronous");
+               //Disable async if not responding whilst sync is responding
                pC_->async_records_ = false;
+               pC_->try_async_ = false;
+            }
          }
          //Work out what to do
-         if (!sync_status && !async_status)	//Response received
-            pC_->connected();//Do whats required for GalilController once connection established
+         if (!sync_status && ((!async_status && pC_->try_async_) || 
+                             (!pC_->try_async_))) {
+            //Response received for synchronous connection
+            //Response received for asynchronous connection, or it's not required (off)
+            //Do whats required for GalilController once connection established
+            pC_->connected();
+         }
          else if (!pC_->shuttingDown_) {
-            //IOC isn't shutting down
             //No response
+            //IOC isn't shutting down
             //Continue to force disconnect until device responds
             pC_->disconnect();
          }
