@@ -1,6 +1,6 @@
 ### Welcome
 
-The EPICS driver advertised and supported by Galil should be considered a separate branch.  For assistance with this software post on EPICS tech-talk or email: cliftm@ansto.gov.au
+For assistance with this software post on EPICS tech-talk or email: cliftm@ansto.gov.au, or support@galil.com
 
 This driver has the following features:  
 
@@ -33,10 +33,11 @@ This driver has the following features:
 <li>Autosave request files</li>
 <li>RIO PLC supported</li>   
 
-Intended to replace Galil EPICS 1-5 driver
+Intended to replace Galil EPICS 1-x driver
 
 Older versions can be found here:   
 
 https://github.com/motorapp/Galil-3-0/releases   
 
 I hope you find this software useful :)  
+Mark Clift   
