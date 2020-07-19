@@ -37,7 +37,7 @@ This driver has the following features:
 <br>
 Intended to replace Galil EPICS 1-x driver   
 
-Older versions can be found here:   
+Previous 3-x versions can be found here:   
 
 https://github.com/motorapp/Galil-3-0/releases   
 
