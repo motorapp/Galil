@@ -4,7 +4,7 @@ For assistance with this software post on EPICS tech-talk or email:
 cliftm@ansto.gov.au   
 support@galil.com   
 
-<li>This driver has the following features:  </li>
+This driver has the following features:  
 
 <li>Asyn model 3 architecture</li>
 <li>Motor record support</li>
