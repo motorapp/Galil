@@ -365,6 +365,9 @@
 //                  Fix issue with limit switch interrupt routine in generated code
 // 06/05/2020 M.Clift
 //                  Fix/Add use synchronous comms if sync/tcp connects but async/udp doesn't
+// 11/07/2020 M.Clift
+//                  Removed motor extras manual brake on/off command
+//                  Minor tidy up
 
 #include <stdio.h>
 #include <math.h>
@@ -403,7 +406,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "3-6-54";
+static const char *driverVersion = "3-6-56";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);
@@ -3842,16 +3845,6 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
         status = sync_writeReadController();
      }
   }
-  else if (function == GalilBrake_) {
-     if (value) {
-        status = pAxis->setBrake(true);
-        pAxis->brakeInit_ = true;
-     }
-     else {
-        status = pAxis->setBrake(false);
-        pAxis->brakeInit_ = false;
-     }
-  }
   else if (function == GalilMotorType_) {
      float newmtr;
 
@@ -3941,8 +3934,6 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
      //Axis now ready for move commands
      if (addr < MAX_GALIL_AXES) {
         pAxis->axisReady_ = true;//Real motor
-        //Restore brake cmd state
-        pAxis->restoreBrake();
      }
      else
         pCSAxis->axisReady_ = true;//CS motor
@@ -4143,7 +4134,6 @@ asynStatus GalilController::writeFloat64(asynUser *pasynUser, epicsFloat64 value
         {
         //Write new stepper smoothing factor to GalilController
         sprintf(cmd_, "KS%c=%lf",pAxis->axisName_, value);
-        //printf("GalilStepSmooth_ cmd:%s value %lf\n", cmd, value);
         status = sync_writeReadController();
         }
      }
@@ -4153,7 +4143,6 @@ asynStatus GalilController::writeFloat64(asynUser *pasynUser, epicsFloat64 value
         {
         //Write new error limit to GalilController
         sprintf(cmd_, "ER%c=%lf",pAxis->axisName_, value);
-        //printf("GalilErrorLimit_ cmd:%s value %lf\n", cmd, value);
         status = sync_writeReadController();
         }
      }
@@ -4176,7 +4165,6 @@ asynStatus GalilController::writeFloat64(asynUser *pasynUser, epicsFloat64 value
      {
      //Write new analog value to specified output (addr)
      sprintf(cmd_, "AO %d, %f", addr, value);
-     //printf("GalilAnalogOut_ cmd:%s value %lf\n", cmd, value);
      status = sync_writeReadController();
      }
   else if (function == GalilOutputCompareStart_ || function == GalilOutputCompareIncr_)

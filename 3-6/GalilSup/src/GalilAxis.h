@@ -190,8 +190,6 @@ public:
   void sendAxisEvents(void);
   //Set axis brake state
   asynStatus setBrake(bool enable);
-  //Restore the motor brake status after axisReady_
-  asynStatus restoreBrake(void);
   //Setup home move, but dont start it
   asynStatus setupHome(double maxVelocity, int forwards);
   //Copy profileBackupPositions_ back into profilePositions_ after a CSAxis profile has been built
@@ -323,7 +321,6 @@ private:
   bool autooffSent_;			//Has motor auto off mesg been sent to pollServices thread after motor stop
   bool postExecuted_;			//Has pollServices executed post
   bool autobrakeonSent_;		//Auto brake on message sent to pollServices
-  bool brakeInit_;			//Brake initial state
   bool homedSent_;			//Homed message sent to pollServices
   bool homedExecuted_;			//Homed message has been executed by pollServices
   bool cancelHomeSent_;			//Cancel home process message sent to pollServices

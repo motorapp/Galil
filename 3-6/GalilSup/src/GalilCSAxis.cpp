@@ -201,6 +201,8 @@ asynStatus GalilCSAxis::setDefaults(void)
   last_motor_position_ = 0;
   encoder_position_ = 0;
   direction_ = 1;
+  //Default setpoint
+  setPoint_ = 0.0;
   //Pass default step count/aux encoder value to motorRecord
   setDoubleParam(pC_->motorPosition_, motor_position_);
   //Pass default encoder value to motorRecord
@@ -227,7 +229,6 @@ asynStatus GalilCSAxis::setDefaults(void)
   //Kinematics haven't been altered
   kinematicsAltered_ = false;
   //Axis not ready until necessary motor record fields have been pushed into driver
-  //So we use "use encoder if present" UEIP field to set axisReady_ to true
   lastaxisReady_ = axisReady_ = false;
   //This csaxis is not performing a deferred move
   deferredMove_ = false;
@@ -677,7 +678,7 @@ static void startDeferredMovesThreadC(void *pPvt)
 }
 
 //Start deferred moves runs in it's own thread
-//Used to start CSAxis moves automaticallyz
+//Used to start CSAxis moves automatically
 //when movesDeferred is set false, not for jog
 void GalilCSAxis::startDeferredMovesThread() {
   string mesg;			//Controller message
@@ -1195,6 +1196,8 @@ asynStatus GalilCSAxis::stopMotorRecord(void) {
       //Stop request is from driver, not motor record
       //Send stop to this axis MR to prevent backlash, and retry attempts
       status = pC_->setIntegerParam(axisNo_, pC_->GalilMotorRecordStop_, 1);
+      //Do callbacks
+      pC_->callParamCallbacks(axisNo_);
    }
    //Return result
    return (asynStatus)status;
@@ -2154,8 +2157,7 @@ asynStatus GalilCSAxis::poller(void)
 
    //Perform forward kinematic transform using real axis readback data, variable values, and
    //store results in GalilCSAxis, or asyn ParamList
-   if (axisReady_)
-      status = forwardTransform();
+   status = forwardTransform();
    if (status) goto skip;
 
    //Get real axis status, and work out what to propagate to CSAxis

@@ -235,18 +235,6 @@ text {
 text {
 	object {
 		x=2
-		y=268
-		width=69
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Motor brake"
-}
-text {
-	object {
-		x=2
 		y=250
 		width=69
 		height=13
@@ -255,78 +243,6 @@ text {
 		clr=14
 	}
 	textix="Brake on delay"
-}
-text {
-	object {
-		x=2
-		y=286
-		width=69
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Motor brake on/off port"
-}
-text {
-	object {
-		x=2
-		y=304
-		width=69
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Motor brake auto on/off"
-}
-text {
-	object {
-		x=2
-		y=362
-		width=100
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Error limit (cts)"
-}
-text {
-	object {
-		x=2
-		y=397
-		width=69
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Encoder stall"
-}
-text {
-	object {
-		x=2
-		y=343
-		width=97
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Motor off on error"
-}
-text {
-	object {
-		x=2
-		y=379
-		width=97
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Error (cts)"
 }
 text {
 	object {
@@ -354,18 +270,6 @@ text {
 	}
 	limits {
 	}
-}
-text {
-	object {
-		x=2
-		y=323
-		width=69
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Motor stop delay"
 }
 "text update" {
 	object {
@@ -491,133 +395,12 @@ text {
 "text update" {
 	object {
 		x=319
-		y=268
-		width=81
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M)_BRAKE_STATUS"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=319
 		y=250
 		width=81
 		height=13
 	}
 	monitor {
 		chan="$(P)$(M)_BRAKEONDELAY_MON"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=319
-		y=286
-		width=81
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M)_BRAKEPORT_MON"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=319
-		y=304
-		width=81
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M)_AUTOBRAKE_STATUS"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=319
-		y=363
-		width=58
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M)_ERRLIMIT_MON"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=319
-		y=398
-		width=81
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M)_ESTALL_STATUS"
-		clr=54
-		bclr=4
-	}
-	clrmod="alarm"
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=319
-		y=344
-		width=100
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M)_OFFONERR_STATUS"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=319
-		y=381
-		width=58
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M)_ERR_MON"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=319
-		y=323
-		width=81
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M)_STOPDELAY_MON"
 		clr=54
 		bclr=4
 	}
@@ -765,20 +548,6 @@ menu {
 	limits {
 	}
 }
-"choice button" {
-	object {
-		x=174
-		y=265
-		width=135
-		height=18
-	}
-	control {
-		chan="$(P)$(M)_BRAKE_CMD"
-		clr=14
-		bclr=51
-	}
-	stacking="column"
-}
 "text entry" {
 	object {
 		x=174
@@ -797,7 +566,227 @@ menu {
 "text entry" {
 	object {
 		x=174
-		y=283
+		y=229
+		width=135
+		height=19
+	}
+	control {
+		chan="$(P)$(M)_OFFDELAY_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=2
+		y=268
+		width=69
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Motor brake on/off port"
+}
+text {
+	object {
+		x=2
+		y=286
+		width=69
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Motor brake auto on/off"
+}
+text {
+	object {
+		x=2
+		y=344
+		width=100
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Error limit (cts)"
+}
+text {
+	object {
+		x=2
+		y=379
+		width=69
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Encoder stall"
+}
+text {
+	object {
+		x=2
+		y=325
+		width=97
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Motor off on error"
+}
+text {
+	object {
+		x=2
+		y=361
+		width=97
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Error (cts)"
+}
+text {
+	object {
+		x=2
+		y=305
+		width=69
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Motor stop delay"
+}
+"text update" {
+	object {
+		x=338
+		y=268
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_BRAKE_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=319
+		y=268
+		width=10
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_BRAKEPORT_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=319
+		y=286
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_AUTOBRAKE_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=319
+		y=345
+		width=58
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_ERRLIMIT_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=319
+		y=380
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_ESTALL_STATUS"
+		clr=54
+		bclr=4
+	}
+	clrmod="alarm"
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=319
+		y=326
+		width=100
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_OFFONERR_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=319
+		y=363
+		width=58
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_ERR_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=319
+		y=305
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_STOPDELAY_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text entry" {
+	object {
+		x=174
+		y=265
 		width=135
 		height=19
 	}
@@ -812,7 +801,7 @@ menu {
 "choice button" {
 	object {
 		x=174
-		y=301
+		y=283
 		width=135
 		height=18
 	}
@@ -826,7 +815,7 @@ menu {
 "text entry" {
 	object {
 		x=174
-		y=358
+		y=340
 		width=135
 		height=19
 	}
@@ -841,7 +830,7 @@ menu {
 menu {
 	object {
 		x=174
-		y=340
+		y=322
 		width=135
 		height=20
 	}
@@ -854,22 +843,7 @@ menu {
 "text entry" {
 	object {
 		x=174
-		y=229
-		width=135
-		height=19
-	}
-	control {
-		chan="$(P)$(M)_OFFDELAY_SP"
-		clr=14
-		bclr=51
-	}
-	limits {
-	}
-}
-"text entry" {
-	object {
-		x=174
-		y=320
+		y=302
 		width=135
 		height=19
 	}
@@ -884,7 +858,7 @@ menu {
 composite {
 	object {
 		x=3
-		y=451
+		y=433
 		width=398
 		height=219
 	}
@@ -893,7 +867,7 @@ composite {
 		text {
 			object {
 				x=3
-				y=453
+				y=435
 				width=89
 				height=13
 			}
@@ -905,7 +879,7 @@ composite {
 		text {
 			object {
 				x=3
-				y=471
+				y=453
 				width=69
 				height=13
 			}
@@ -917,7 +891,7 @@ composite {
 		"text update" {
 			object {
 				x=320
-				y=452
+				y=434
 				width=58
 				height=13
 			}
@@ -932,7 +906,7 @@ composite {
 		"text update" {
 			object {
 				x=320
-				y=470
+				y=452
 				width=81
 				height=13
 			}
@@ -947,7 +921,7 @@ composite {
 		"text entry" {
 			object {
 				x=175
-				y=451
+				y=433
 				width=135
 				height=19
 			}
@@ -962,7 +936,7 @@ composite {
 		"text entry" {
 			object {
 				x=175
-				y=469
+				y=451
 				width=135
 				height=19
 			}
@@ -977,7 +951,7 @@ composite {
 		menu {
 			object {
 				x=176
-				y=488
+				y=470
 				width=135
 				height=20
 			}
@@ -990,7 +964,7 @@ composite {
 		text {
 			object {
 				x=3
-				y=490
+				y=472
 				width=69
 				height=13
 			}
@@ -1002,7 +976,7 @@ composite {
 		"text update" {
 			object {
 				x=320
-				y=491
+				y=473
 				width=81
 				height=13
 			}
@@ -1017,7 +991,7 @@ composite {
 		composite {
 			object {
 				x=3
-				y=508
+				y=490
 				width=398
 				height=162
 			}
@@ -1026,7 +1000,7 @@ composite {
 				composite {
 					object {
 						x=3
-						y=527
+						y=509
 						width=398
 						height=143
 					}
@@ -1035,7 +1009,7 @@ composite {
 						text {
 							object {
 								x=3
-								y=529
+								y=511
 								width=69
 								height=13
 							}
@@ -1047,7 +1021,7 @@ composite {
 						text {
 							object {
 								x=3
-								y=546
+								y=528
 								width=69
 								height=13
 							}
@@ -1059,7 +1033,7 @@ composite {
 						text {
 							object {
 								x=3
-								y=564
+								y=546
 								width=69
 								height=13
 							}
@@ -1071,7 +1045,7 @@ composite {
 						text {
 							object {
 								x=3
-								y=583
+								y=565
 								width=69
 								height=13
 							}
@@ -1083,7 +1057,7 @@ composite {
 						text {
 							object {
 								x=3
-								y=657
+								y=639
 								width=69
 								height=13
 							}
@@ -1095,7 +1069,7 @@ composite {
 						text {
 							object {
 								x=3
-								y=639
+								y=621
 								width=69
 								height=13
 							}
@@ -1107,7 +1081,7 @@ composite {
 						text {
 							object {
 								x=3
-								y=602
+								y=584
 								width=69
 								height=13
 							}
@@ -1119,7 +1093,7 @@ composite {
 						text {
 							object {
 								x=3
-								y=620
+								y=602
 								width=97
 								height=13
 							}
@@ -1131,7 +1105,7 @@ composite {
 						"text update" {
 							object {
 								x=320
-								y=529
+								y=511
 								width=81
 								height=13
 							}
@@ -1146,7 +1120,7 @@ composite {
 						"text update" {
 							object {
 								x=320
-								y=546
+								y=528
 								width=81
 								height=13
 							}
@@ -1161,7 +1135,7 @@ composite {
 						"text update" {
 							object {
 								x=320
-								y=564
+								y=546
 								width=81
 								height=13
 							}
@@ -1176,7 +1150,7 @@ composite {
 						"text update" {
 							object {
 								x=320
-								y=581
+								y=563
 								width=81
 								height=13
 							}
@@ -1191,7 +1165,7 @@ composite {
 						"text update" {
 							object {
 								x=320
-								y=655
+								y=637
 								width=81
 								height=13
 							}
@@ -1206,7 +1180,7 @@ composite {
 						"text update" {
 							object {
 								x=320
-								y=638
+								y=620
 								width=81
 								height=13
 							}
@@ -1221,7 +1195,7 @@ composite {
 						"text update" {
 							object {
 								x=320
-								y=622
+								y=604
 								width=58
 								height=13
 							}
@@ -1236,7 +1210,7 @@ composite {
 						"choice button" {
 							object {
 								x=175
-								y=527
+								y=509
 								width=135
 								height=18
 							}
@@ -1250,7 +1224,7 @@ composite {
 						"choice button" {
 							object {
 								x=175
-								y=544
+								y=526
 								width=135
 								height=18
 							}
@@ -1264,7 +1238,7 @@ composite {
 						"text entry" {
 							object {
 								x=175
-								y=580
+								y=562
 								width=135
 								height=19
 							}
@@ -1279,7 +1253,7 @@ composite {
 						"text entry" {
 							object {
 								x=175
-								y=599
+								y=581
 								width=135
 								height=19
 							}
@@ -1294,7 +1268,7 @@ composite {
 						"choice button" {
 							object {
 								x=175
-								y=562
+								y=544
 								width=135
 								height=18
 							}
@@ -1310,7 +1284,7 @@ composite {
 				composite {
 					object {
 						x=3
-						y=508
+						y=490
 						width=398
 						height=20
 					}
@@ -1319,7 +1293,7 @@ composite {
 						menu {
 							object {
 								x=176
-								y=508
+								y=490
 								width=135
 								height=20
 							}
@@ -1332,7 +1306,7 @@ composite {
 						text {
 							object {
 								x=3
-								y=510
+								y=492
 								width=69
 								height=13
 							}
@@ -1344,7 +1318,7 @@ composite {
 						"text update" {
 							object {
 								x=320
-								y=511
+								y=493
 								width=81
 								height=13
 							}
@@ -1365,7 +1339,7 @@ composite {
 composite {
 	object {
 		x=2
-		y=414
+		y=396
 		width=398
 		height=19
 	}
@@ -1374,7 +1348,7 @@ composite {
 		text {
 			object {
 				x=2
-				y=417
+				y=399
 				width=69
 				height=13
 			}
@@ -1386,7 +1360,7 @@ composite {
 		"text entry" {
 			object {
 				x=175
-				y=414
+				y=396
 				width=135
 				height=19
 			}
@@ -1401,7 +1375,7 @@ composite {
 		"text update" {
 			object {
 				x=319
-				y=415
+				y=397
 				width=81
 				height=13
 			}
@@ -1418,7 +1392,7 @@ composite {
 composite {
 	object {
 		x=2
-		y=433
+		y=415
 		width=398
 		height=19
 	}
@@ -1427,7 +1401,7 @@ composite {
 		text {
 			object {
 				x=2
-				y=436
+				y=418
 				width=69
 				height=13
 			}
@@ -1439,7 +1413,7 @@ composite {
 		"text entry" {
 			object {
 				x=175
-				y=433
+				y=415
 				width=135
 				height=19
 			}
@@ -1454,7 +1428,7 @@ composite {
 		"text update" {
 			object {
 				x=319
-				y=434
+				y=416
 				width=81
 				height=13
 			}

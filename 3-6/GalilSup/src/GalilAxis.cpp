@@ -276,7 +276,6 @@ asynStatus GalilAxis::setDefaults(int limit_as_home, char *enables_string, int s
    autobrakeonSent_ = false;
 
    //Axis not ready until necessary motor record fields have been pushed into driver
-   //So we use "use encoder if present" UEIP field to set axisReady_ to true
    axisReady_ = false;
 
    //Have not allocated profile data backup array
@@ -604,41 +603,48 @@ asynStatus GalilAxis::moveThruMotorRecord(double position, bool signalCaller)
    status |= pC_->getDoubleParam(axisNo_, pC_->GalilUserOffset_, &off);
    status |= pC_->getIntegerParam(axisNo_, pC_->GalilDirection_, &dir);
 
-   //Calculate direction multiplier
-   dirm = (dir == 0) ? 1 : -1;
+   if (!status) {
+      //Params retrieved okay
 
-   //Calculate mr dial readback in motor steps
-   drbv = (ueip) ? encoder_position_ * eres : motor_position_ * mres;
-   drbvmpos = drbv/mres;
-   //Calculate mr readback, and new position in motor steps
-   rpos = NINT(drbvmpos);
-   npos = NINT(position);
+      //Calculate direction multiplier
+      dirm = (dir == 0) ? 1 : -1;
 
-   //Calculate difference between dial readback (in motor steps)
-   //and new position in motor steps
-   diff = labs(rpos - npos);
+      //Calculate mr dial readback in motor steps
+      drbv = (ueip) ? encoder_position_ * eres : motor_position_ * mres;
+      drbvmpos = drbv / mres;
+      //Calculate mr readback, and new position in motor steps
+      rpos = NINT(drbvmpos);
+      npos = NINT(position);
 
-   //Calculate requested position in user coordinates
-   position = (position * mres * dirm) + off;
+      //Calculate difference between dial readback (in motor steps)
+      //and new position in motor steps
+      diff = labs(rpos - npos);
 
-   //If new position differs from readback by 1 motor step or more, and
-   //No asynParam list error, then write new position
-   if (diff >= 1 && !status) {
-      //Set flag that move has been pushed to this axis motor record
-      moveThruRecord_ = true;
-      //Set signalCaller as instructed
-      signalCaller_ = signalCaller;
-      //Set requested position
-      //This will also set deferred move for this axis
-      pC_->setDoubleParam(axisNo_, pC_->GalilMotorSetVal_, position);
-      //Enable writes to motor record
-      pC_->setIntegerParam(axisNo_, pC_->GalilMotorSetValEnable_, 1);
-      //Do callbacks
-      pC_->callParamCallbacks(axisNo_);
-      //Disable writes to motor record in GalilAxis::move
+      //Calculate requested position in user coordinates
+      position = (position * mres * dirm) + off;
+
+      //If new position differs from readback by 1 motor step or more, and
+      //No asynParam list error, then write new position
+      if (diff >= 1) {
+         //Set flag that move has been pushed to this axis motor record
+         moveThruRecord_ = true;
+         //Set signalCaller as instructed
+         signalCaller_ = signalCaller;
+         //Set requested position
+         pC_->setDoubleParam(axisNo_, pC_->GalilMotorSetVal_, position);
+         //Enable writes to motor record
+         //Writes are disabled by GalilAxis::move when called by MR
+         //Writes are disabled by caller, or GalilCSAxis::startDeferredMovesThread when
+         //GalilAxis::move is not called by MR
+         //A timeout period, and moveThruRecord_ are used to detect if MR calls GalilAxis::move
+         //Eg. GalilAxis::move isn't called by MR when new position - readback < rdbd, spdb
+         pC_->setIntegerParam(axisNo_, pC_->GalilMotorSetValEnable_, 1);
+         //Do callbacks
+         pC_->callParamCallbacks(axisNo_);
       }
-   else //New position same as motor record rbv already
-      status = asynError;
+      else //New position same as motor record rbv already
+         status = asynError;
+   }
 
    return (asynStatus)status;
 }
@@ -1213,6 +1219,8 @@ asynStatus GalilAxis::stopMotorRecord(void) {
       //Stop request is from driver, not motor record
       //Send stop to this axis MR to prevent backlash, and retry attempts
       status = pC_->setIntegerParam(axisNo_, pC_->GalilMotorRecordStop_, 1);
+      //Do callbacks
+      pC_->callParamCallbacks(axisNo_);
    }
    //Return result
    return (asynStatus)status;
@@ -1515,7 +1523,7 @@ asynStatus GalilAxis::initializeProfile(size_t maxProfilePoints)
   return asynSuccess;
 }
 
-/** Set the motor brake status. 
+/** Set the motor brake
   * \param[in] enable true = brake, false = release brake. */
 asynStatus GalilAxis::setBrake(bool enable)
 {
@@ -1527,26 +1535,6 @@ asynStatus GalilAxis::setBrake(bool enable)
   if (axisReady_ && brakeport > 0 && !status)
      {
      if (!enable)
-        sprintf(pC_->cmd_, "SB %d", brakeport);
-     else
-        sprintf(pC_->cmd_, "CB %d", brakeport);
-     //Write setting to controller
-     status = pC_->sync_writeReadController();
-     }
-  return status;
-}
-
-//Restore the motor brake status after axisReady_
-asynStatus GalilAxis::restoreBrake(void)
-{
-  asynStatus status = asynSuccess;
-  int brakeport;
-  //Retrieve the digital port used to actuate this axis brake
-  status = pC_->getIntegerParam(axisNo_, pC_->GalilBrakePort_, &brakeport);
-  //Enable or disable motor brake
-  if (brakeport > 0 && !status)
-     {
-     if (!brakeInit_)
         sprintf(pC_->cmd_, "SB %d", brakeport);
      else
         sprintf(pC_->cmd_, "CB %d", brakeport);
@@ -1750,6 +1738,8 @@ asynStatus GalilAxis::getStatus(void)
             digport = (digport == mask) ? 0 : 1;
             pC_->setIntegerParam(axisNo_, pC_->GalilBrake_, digport);
          }
+         else//This axis doesn't have a brake port assigned
+            pC_->setIntegerParam(axisNo_, pC_->GalilBrake_, 0);
       }
    }
   return pC_->recstatus_;
@@ -2465,7 +2455,7 @@ asynStatus GalilAxis::jogAfterHome(void) {
       if (!status) {
          //If all settings OK, do the move
          if (!moveThruMotorRecord(position, true)) {
-            //Requested move equal or larger than rdbd, move success
+            //Requested move equal or larger than 1 motor step, move success
             //Retrieve AutoOn delay from ParamList
             pC_->getDoubleParam(axisNo_, pC_->GalilAutoOnDelay_, &ondelay);
             //Retrieve Auto on off status from ParamList

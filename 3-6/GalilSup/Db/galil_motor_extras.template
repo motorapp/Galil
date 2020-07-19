@@ -1241,18 +1241,7 @@ record(ao,"$(P)$(M)_OFFDELAY_SP")
 	field(FLNK, "$(P)$(M)_OFFDELAY_MON")
 }
 
-#Motor brake manual control
-record(bo,"$(P)$(M)_BRAKE_CMD")
-{
-	field(DESC, "mtr brake")
-	field(DTYP, "asynInt32")
-	field(PINI, "YES")
-	field(ZNAM, "Off")
-	field(ONAM, "On")
-	field(VAL,  "0")
-	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_BRAKE")
-}
-
+#Motor brake status
 record(bi,"$(P)$(M)_BRAKE_STATUS")
 {
 	field(DESC, "mtr brake")

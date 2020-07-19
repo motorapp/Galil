@@ -19,7 +19,7 @@
   <property name="windowTitle">
    <string>EFrame</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout" stretch="2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2">
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2">
    <property name="spacing">
     <number>1</number>
    </property>
@@ -1106,97 +1106,6 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_14">
-     <property name="spacing">
-      <number>1</number>
-     </property>
-     <item>
-      <widget class="QLabel" name="label_17">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>124</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="font">
-        <font>
-         <family>Abyssinica SIL</family>
-         <pointsize>8</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Motor brake</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QEComboBox" name="qecombobox_8">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>140</width>
-         <height>1</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>140</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="font">
-        <font>
-         <family>Abyssinica SIL</family>
-         <pointsize>8</pointsize>
-        </font>
-       </property>
-       <property name="variable" stdset="0">
-        <string>$(DMC)$(M)_BRAKE_CMD</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QELabel" name="qelabel_16">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="font">
-        <font>
-         <family>Abyssinica SIL</family>
-         <pointsize>8</pointsize>
-        </font>
-       </property>
-       <property name="layoutDirection">
-        <enum>Qt::LeftToRight</enum>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-       </property>
-       <property name="variable" stdset="0">
-        <string>$(DMC)$(M)_BRAKE_STATUS</string>
-       </property>
-       <property name="text">
-        <string>type</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_31">
      <property name="spacing">
       <number>0</number>
@@ -1282,6 +1191,34 @@
        </property>
        <property name="variable" stdset="0">
         <string>$(DMC)$(M)_BRAKEPORT_MON</string>
+       </property>
+       <property name="text">
+        <string>type</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QELabel" name="qelabel_16">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <family>Abyssinica SIL</family>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+       </property>
+       <property name="variable" stdset="0">
+        <string>$(DMC)$(M)_BRAKE_STATUS</string>
        </property>
        <property name="text">
         <string>type</string>
