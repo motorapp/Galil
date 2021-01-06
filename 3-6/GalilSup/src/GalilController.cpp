@@ -368,6 +368,10 @@
 // 11/07/2020 M.Clift
 //                  Removed motor extras manual brake on/off command
 //                  Minor tidy up
+// 05/11/2020 M.Clift
+//                  Add motor direction / limit consistent indicator to motor extras
+// 06/01/2021 M.Clift
+//                  Fix home process no longer disables wrong limit protection (wlp)
 
 #include <stdio.h>
 #include <math.h>
@@ -406,7 +410,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "3-6-56";
+static const char *driverVersion = "3-6-58";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);
@@ -627,6 +631,7 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilUserDataDeadbString, asynParamFloat64, &GalilUserDataDeadb_);
 
   createParam(GalilLimitDisableString, asynParamInt32, &GalilLimitDisable_);
+  createParam(GalilLimitConsistentString, asynParamInt32, &GalilLimitConsistent_);
   createParam(GalilEncoderToleranceString, asynParamInt32, &GalilEncoderTolerance_);
 
   createParam(GalilMainEncoderString, asynParamInt32, &GalilMainEncoder_);
@@ -5983,11 +5988,13 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
             errlogPrintf("Code started successfully on model %s, address %s\n",model_.c_str(), address_.c_str());
       }
 
-      //Limits motor direction consistency unknown
+      //Limits motor direction consistency unknown at connect/reconnect
       for (i = 0; i < numAxes_; i++) {
          pAxis = getAxis(axisList_[i] - AASCII);
          if (!pAxis) continue;
          pAxis->limitsDirState_ = unknown;
+         //Pass motor/limits consistency to paramList
+         setIntegerParam(pAxis->axisNo_, GalilLimitConsistent_, pAxis->limitsDirState_);
       }
 
       //Retrieve controller time base

@@ -302,7 +302,7 @@ asynStatus GalilAxis::setDefaults(int limit_as_home, char *enables_string, int s
 
    //Default motor record stop
    pC_->setIntegerParam(axisNo_, pC_->GalilMotorRecordStop_, 0);
-
+   
    //Default related csaxes list
    csaxesList_[0] = '\0';
 
@@ -1988,15 +1988,6 @@ void GalilAxis::checkHoming(void)
    //Is controller using main or auxillary encoder register for positioning
    double readback = (ctrlUseMain_) ? encoder_position_ : motor_position_;
 
-   //Dont show limits whilst homing otherwise mr may interrupt custom routines
-   //Also stops wrongLimitProtection function during homing
-   if (homing_) {
-      //Dont show reverse limit when homing
-      rev_ = 0;
-      //Dont show forward limit when homing
-      fwd_ = 0;
-   }
-
    if ((homing_ && (stoppedTime_ >= HOMING_TIMEOUT) && !cancelHomeSent_) ||
        (((readback > highLimit_ && softlimits) || (readback < lowLimit_ && softlimits)) && homing_ && !cancelHomeSent_ && done_))
       {
@@ -2012,6 +2003,20 @@ void GalilAxis::checkHoming(void)
       //Set controller error mesg monitor
       pC_->setCtrlError(message);
       }
+}
+
+//Called by poll thread
+//Check motor direction/limits consistency
+void GalilAxis::checkMotorLimitConsistency(void)
+{
+   //Check motor/limits consistency
+   if (!done_ && rev_ && !direction_)
+      limitsDirState_ = consistent;
+
+   if (!done_ && fwd_ && direction_)
+      limitsDirState_ = consistent;
+   //Pass motor/limits consistency to paramList
+   pC_->setIntegerParam(axisNo_, pC_->GalilLimitConsistent_, limitsDirState_);
 }
 
 /* C Function which runs the pollServices thread */ 
@@ -2601,6 +2606,9 @@ asynStatus GalilAxis::poller(void)
    //Set motor stop time
    setStopTime();
 
+   //Check motor direction/limits consistency
+   checkMotorLimitConsistency();
+
    //Check homing flag
    checkHoming();
 
@@ -2623,13 +2631,6 @@ asynStatus GalilAxis::poller(void)
    //check ssi encoder connect status
    set_ssi_connectflag();
 
-   //Check limits consistent with motor direction
-   if (rev_ && !direction_)
-      limitsDirState_ = consistent;
-
-   if (fwd_ && direction_)
-      limitsDirState_ = consistent;
-
    //Enforce wrong limit protection if enabled
    wrongLimitProtection();
 
@@ -2637,11 +2638,11 @@ asynStatus GalilAxis::poller(void)
    if (home_ && !limit_as_home_)
       home = 1;
 
-   /*if Rev switch is on and we are using it as a home, set the appropriate flag*/
+   /*If Rev switch is on and we are using it as a home, set the appropriate flag*/
    if (rev_ && limit_as_home_)
       home = 1;
 
-   /*if fwd switch is on and we are using it as a home, set the appropriate flag*/
+   /*If fwd switch is on and we are using it as a home, set the appropriate flag*/
    if (fwd_ && limit_as_home_)
       home = 1;
 
@@ -2685,6 +2686,14 @@ skip:
        (stoppedTime_ < stopDelay && !status)) {
       moving = true;
       done_ = 0;
+   }
+
+   //Dont show limits whilst homing otherwise mr may interrupt custom routines
+   if (homing_) {
+      //Dont show reverse limit when homing
+      rev_ = 0;
+      //Dont show forward limit when homing
+      fwd_ = 0;
    }
 
    //Pass limit status to motorRecord

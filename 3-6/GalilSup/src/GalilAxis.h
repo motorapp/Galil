@@ -150,6 +150,8 @@ public:
   void setStopTime(void);
   //Reset homing if stoppedTime_ greater than HOMING_TIMEOUT
   void checkHoming(void);
+  //Check motor direction/limits consistency
+  void checkMotorLimitConsistency(void);
   //Service slow and infrequent requests from poll thread to write to the controller
   //We do this in a separate thread so the poll thread is not slowed
   //Also poll thread doesnt have a lock and is not allowed to call writeReadController

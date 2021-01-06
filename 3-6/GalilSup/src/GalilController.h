@@ -175,6 +175,7 @@
 #define GalilUserDataString		"MOTOR_USER_DATA"
 #define GalilUserDataDeadbString	"MOTOR_USER_DATA_DEADB"
 #define GalilLimitDisableString		"MOTOR_LIMIT_DISABLE"
+#define GalilLimitConsistentString	"MOTOR_LIMIT_CONSISTENT"
 #define GalilEncoderToleranceString     "MOTOR_ENCODER_TOLERANCE"
 
 #define GalilMainEncoderString		"MOTOR_MAIN_ENCODER"
@@ -490,6 +491,7 @@ protected:
   int GalilUserData_;
   int GalilUserDataDeadb_;
   int GalilLimitDisable_;
+  int GalilLimitConsistent_;
   int GalilEncoderTolerance_;
 
   int GalilMainEncoder_;

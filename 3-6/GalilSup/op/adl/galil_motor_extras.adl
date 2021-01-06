@@ -5,7 +5,7 @@ file {
 }
 display {
 	object {
-		x=602
+		x=567
 		y=51
 		width=456
 		height=672
@@ -148,265 +148,6 @@ text {
 	textix="Galil motor extras"
 	align="horiz. centered"
 }
-text {
-	object {
-		x=2
-		y=102
-		width=97
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Motor type"
-}
-text {
-	object {
-		x=2
-		y=122
-		width=97
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Main encoder"
-}
-text {
-	object {
-		x=2
-		y=142
-		width=97
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Auxiliary encoder"
-}
-text {
-	object {
-		x=2
-		y=178
-		width=89
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Motor amplifier"
-}
-text {
-	object {
-		x=2
-		y=160
-		width=89
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Wrong limit protection"
-}
-text {
-	object {
-		x=2
-		y=195
-		width=69
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Amp auto on/off"
-}
-text {
-	object {
-		x=2
-		y=213
-		width=69
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Amp on/brake off delay"
-}
-text {
-	object {
-		x=2
-		y=250
-		width=69
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Brake on delay"
-}
-text {
-	object {
-		x=2
-		y=232
-		width=69
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Amp off delay"
-}
-"text update" {
-	object {
-		x=319
-		y=232
-		width=81
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M)_OFFDELAY_MON"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=319
-		y=104
-		width=100
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M)_MTRTYPE_STATUS"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=319
-		y=124
-		width=200
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M)_MENCTYPE_STATUS"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=319
-		y=144
-		width=200
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M)_AENCTYPE_STATUS"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=319
-		y=179
-		width=58
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M)_ON_STATUS"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=319
-		y=162
-		width=30
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M)_WLP_STATUS"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=351
-		y=162
-		width=58
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M)_WLPACTIVE_STATUS"
-		clr=54
-		bclr=4
-	}
-	clrmod="alarm"
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=319
-		y=196
-		width=81
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M)_AUTOONOFF_STATUS"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=319
-		y=214
-		width=81
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M)_ONDELAY_MON"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=319
-		y=250
-		width=81
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M)_BRAKEONDELAY_MON"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
 "text update" {
 	object {
 		x=174
@@ -452,413 +193,10 @@ text {
 	limits {
 	}
 }
-menu {
-	object {
-		x=174
-		y=99
-		width=135
-		height=20
-	}
-	control {
-		chan="$(P)$(M)_MTRTYPE_CMD"
-		clr=51
-		bclr=51
-	}
-}
-menu {
-	object {
-		x=174
-		y=119
-		width=135
-		height=20
-	}
-	control {
-		chan="$(P)$(M)_MENCTYPE_CMD"
-		clr=51
-		bclr=51
-	}
-}
-menu {
-	object {
-		x=174
-		y=139
-		width=135
-		height=18
-	}
-	control {
-		chan="$(P)$(M)_AENCTYPE_CMD"
-		clr=51
-		bclr=51
-	}
-}
-"choice button" {
-	object {
-		x=174
-		y=175
-		width=135
-		height=18
-	}
-	control {
-		chan="$(P)$(M)_ON_CMD"
-		clr=14
-		bclr=51
-	}
-	stacking="column"
-}
-"choice button" {
-	object {
-		x=174
-		y=158
-		width=135
-		height=18
-	}
-	control {
-		chan="$(P)$(M)_WLP_CMD"
-		clr=14
-		bclr=51
-	}
-	stacking="column"
-}
-"choice button" {
-	object {
-		x=174
-		y=193
-		width=135
-		height=18
-	}
-	control {
-		chan="$(P)$(M)_AUTOONOFF_CMD"
-		clr=14
-		bclr=51
-	}
-	stacking="column"
-}
-"text entry" {
-	object {
-		x=174
-		y=211
-		width=135
-		height=19
-	}
-	control {
-		chan="$(P)$(M)_ONDELAY_SP"
-		clr=14
-		bclr=51
-	}
-	limits {
-	}
-}
-"text entry" {
-	object {
-		x=174
-		y=247
-		width=135
-		height=19
-	}
-	control {
-		chan="$(P)$(M)_BRAKEONDELAY_SP"
-		clr=14
-		bclr=51
-	}
-	limits {
-	}
-}
-"text entry" {
-	object {
-		x=174
-		y=229
-		width=135
-		height=19
-	}
-	control {
-		chan="$(P)$(M)_OFFDELAY_SP"
-		clr=14
-		bclr=51
-	}
-	limits {
-	}
-}
-text {
-	object {
-		x=2
-		y=268
-		width=69
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Motor brake on/off port"
-}
-text {
-	object {
-		x=2
-		y=286
-		width=69
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Motor brake auto on/off"
-}
-text {
-	object {
-		x=2
-		y=344
-		width=100
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Error limit (cts)"
-}
-text {
-	object {
-		x=2
-		y=379
-		width=69
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Encoder stall"
-}
-text {
-	object {
-		x=2
-		y=325
-		width=97
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Motor off on error"
-}
-text {
-	object {
-		x=2
-		y=361
-		width=97
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Error (cts)"
-}
-text {
-	object {
-		x=2
-		y=305
-		width=69
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Motor stop delay"
-}
-"text update" {
-	object {
-		x=338
-		y=268
-		width=81
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M)_BRAKE_STATUS"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=319
-		y=268
-		width=10
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M)_BRAKEPORT_MON"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=319
-		y=286
-		width=81
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M)_AUTOBRAKE_STATUS"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=319
-		y=345
-		width=58
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M)_ERRLIMIT_MON"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=319
-		y=380
-		width=81
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M)_ESTALL_STATUS"
-		clr=54
-		bclr=4
-	}
-	clrmod="alarm"
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=319
-		y=326
-		width=100
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M)_OFFONERR_STATUS"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=319
-		y=363
-		width=58
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M)_ERR_MON"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=319
-		y=305
-		width=81
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M)_STOPDELAY_MON"
-		clr=54
-		bclr=4
-	}
-	limits {
-	}
-}
-"text entry" {
-	object {
-		x=174
-		y=265
-		width=135
-		height=19
-	}
-	control {
-		chan="$(P)$(M)_BRAKEPORT_SP"
-		clr=14
-		bclr=51
-	}
-	limits {
-	}
-}
-"choice button" {
-	object {
-		x=174
-		y=283
-		width=135
-		height=18
-	}
-	control {
-		chan="$(P)$(M)_AUTOBRAKE_CMD"
-		clr=14
-		bclr=51
-	}
-	stacking="column"
-}
-"text entry" {
-	object {
-		x=174
-		y=340
-		width=135
-		height=19
-	}
-	control {
-		chan="$(P)$(M)_ERRLIMIT_SP"
-		clr=14
-		bclr=51
-	}
-	limits {
-	}
-}
-menu {
-	object {
-		x=174
-		y=322
-		width=135
-		height=20
-	}
-	control {
-		chan="$(P)$(M)_OFFONERR_CMD"
-		clr=51
-		bclr=51
-	}
-}
-"text entry" {
-	object {
-		x=174
-		y=302
-		width=135
-		height=19
-	}
-	control {
-		chan="$(P)$(M)_STOPDELAY_SP"
-		clr=14
-		bclr=51
-	}
-	limits {
-	}
-}
 composite {
 	object {
 		x=3
-		y=433
+		y=453
 		width=398
 		height=219
 	}
@@ -867,7 +205,7 @@ composite {
 		text {
 			object {
 				x=3
-				y=435
+				y=455
 				width=89
 				height=13
 			}
@@ -879,7 +217,7 @@ composite {
 		text {
 			object {
 				x=3
-				y=453
+				y=473
 				width=69
 				height=13
 			}
@@ -891,7 +229,7 @@ composite {
 		"text update" {
 			object {
 				x=320
-				y=434
+				y=454
 				width=58
 				height=13
 			}
@@ -906,7 +244,7 @@ composite {
 		"text update" {
 			object {
 				x=320
-				y=452
+				y=472
 				width=81
 				height=13
 			}
@@ -921,7 +259,7 @@ composite {
 		"text entry" {
 			object {
 				x=175
-				y=433
+				y=453
 				width=135
 				height=19
 			}
@@ -936,7 +274,7 @@ composite {
 		"text entry" {
 			object {
 				x=175
-				y=451
+				y=471
 				width=135
 				height=19
 			}
@@ -951,7 +289,7 @@ composite {
 		menu {
 			object {
 				x=176
-				y=470
+				y=490
 				width=135
 				height=20
 			}
@@ -964,7 +302,7 @@ composite {
 		text {
 			object {
 				x=3
-				y=472
+				y=492
 				width=69
 				height=13
 			}
@@ -976,7 +314,7 @@ composite {
 		"text update" {
 			object {
 				x=320
-				y=473
+				y=493
 				width=81
 				height=13
 			}
@@ -991,7 +329,7 @@ composite {
 		composite {
 			object {
 				x=3
-				y=490
+				y=510
 				width=398
 				height=162
 			}
@@ -1000,7 +338,7 @@ composite {
 				composite {
 					object {
 						x=3
-						y=509
+						y=529
 						width=398
 						height=143
 					}
@@ -1009,7 +347,7 @@ composite {
 						text {
 							object {
 								x=3
-								y=511
+								y=531
 								width=69
 								height=13
 							}
@@ -1021,7 +359,7 @@ composite {
 						text {
 							object {
 								x=3
-								y=528
+								y=548
 								width=69
 								height=13
 							}
@@ -1033,7 +371,7 @@ composite {
 						text {
 							object {
 								x=3
-								y=546
+								y=566
 								width=69
 								height=13
 							}
@@ -1045,7 +383,7 @@ composite {
 						text {
 							object {
 								x=3
-								y=565
+								y=585
 								width=69
 								height=13
 							}
@@ -1057,7 +395,7 @@ composite {
 						text {
 							object {
 								x=3
-								y=639
+								y=659
 								width=69
 								height=13
 							}
@@ -1069,7 +407,7 @@ composite {
 						text {
 							object {
 								x=3
-								y=621
+								y=641
 								width=69
 								height=13
 							}
@@ -1081,7 +419,7 @@ composite {
 						text {
 							object {
 								x=3
-								y=584
+								y=604
 								width=69
 								height=13
 							}
@@ -1093,7 +431,7 @@ composite {
 						text {
 							object {
 								x=3
-								y=602
+								y=622
 								width=97
 								height=13
 							}
@@ -1105,7 +443,7 @@ composite {
 						"text update" {
 							object {
 								x=320
-								y=511
+								y=531
 								width=81
 								height=13
 							}
@@ -1120,7 +458,7 @@ composite {
 						"text update" {
 							object {
 								x=320
-								y=528
+								y=548
 								width=81
 								height=13
 							}
@@ -1135,7 +473,7 @@ composite {
 						"text update" {
 							object {
 								x=320
-								y=546
+								y=566
 								width=81
 								height=13
 							}
@@ -1150,7 +488,7 @@ composite {
 						"text update" {
 							object {
 								x=320
-								y=563
+								y=583
 								width=81
 								height=13
 							}
@@ -1165,7 +503,7 @@ composite {
 						"text update" {
 							object {
 								x=320
-								y=637
+								y=657
 								width=81
 								height=13
 							}
@@ -1180,7 +518,7 @@ composite {
 						"text update" {
 							object {
 								x=320
-								y=620
+								y=640
 								width=81
 								height=13
 							}
@@ -1195,7 +533,7 @@ composite {
 						"text update" {
 							object {
 								x=320
-								y=604
+								y=624
 								width=58
 								height=13
 							}
@@ -1210,7 +548,7 @@ composite {
 						"choice button" {
 							object {
 								x=175
-								y=509
+								y=529
 								width=135
 								height=18
 							}
@@ -1224,7 +562,7 @@ composite {
 						"choice button" {
 							object {
 								x=175
-								y=526
+								y=546
 								width=135
 								height=18
 							}
@@ -1238,7 +576,7 @@ composite {
 						"text entry" {
 							object {
 								x=175
-								y=562
+								y=582
 								width=135
 								height=19
 							}
@@ -1253,7 +591,7 @@ composite {
 						"text entry" {
 							object {
 								x=175
-								y=581
+								y=601
 								width=135
 								height=19
 							}
@@ -1268,7 +606,7 @@ composite {
 						"choice button" {
 							object {
 								x=175
-								y=544
+								y=564
 								width=135
 								height=18
 							}
@@ -1284,7 +622,7 @@ composite {
 				composite {
 					object {
 						x=3
-						y=490
+						y=510
 						width=398
 						height=20
 					}
@@ -1293,7 +631,7 @@ composite {
 						menu {
 							object {
 								x=176
-								y=490
+								y=510
 								width=135
 								height=20
 							}
@@ -1306,7 +644,7 @@ composite {
 						text {
 							object {
 								x=3
-								y=492
+								y=512
 								width=69
 								height=13
 							}
@@ -1318,7 +656,7 @@ composite {
 						"text update" {
 							object {
 								x=320
-								y=493
+								y=513
 								width=81
 								height=13
 							}
@@ -1339,106 +677,982 @@ composite {
 composite {
 	object {
 		x=2
-		y=396
-		width=398
-		height=19
+		y=120
+		width=517
+		height=334
 	}
 	"composite name"=""
 	children {
-		text {
+		composite {
 			object {
 				x=2
-				y=399
-				width=69
-				height=13
+				y=120
+				width=417
+				height=20
 			}
-			"basic attribute" {
-				clr=14
+			"composite name"=""
+			children {
+				"text update" {
+					object {
+						x=319
+						y=125
+						width=100
+						height=13
+					}
+					monitor {
+						chan="$(P)$(M)_MTRTYPE_STATUS"
+						clr=54
+						bclr=4
+					}
+					limits {
+					}
+				}
+				menu {
+					object {
+						x=174
+						y=120
+						width=135
+						height=20
+					}
+					control {
+						chan="$(P)$(M)_MTRTYPE_CMD"
+						clr=51
+						bclr=51
+					}
+				}
+				text {
+					object {
+						x=2
+						y=123
+						width=97
+						height=13
+					}
+					"basic attribute" {
+						clr=14
+					}
+					textix="Motor type"
+				}
 			}
-			textix="Encoder stall time (s)"
 		}
-		"text entry" {
+		composite {
 			object {
-				x=175
-				y=396
-				width=135
+				x=2
+				y=140
+				width=517
+				height=20
+			}
+			"composite name"=""
+			children {
+				text {
+					object {
+						x=2
+						y=143
+						width=97
+						height=13
+					}
+					"basic attribute" {
+						clr=14
+					}
+					textix="Main encoder"
+				}
+				menu {
+					object {
+						x=174
+						y=140
+						width=135
+						height=20
+					}
+					control {
+						chan="$(P)$(M)_MENCTYPE_CMD"
+						clr=51
+						bclr=51
+					}
+				}
+				"text update" {
+					object {
+						x=319
+						y=145
+						width=200
+						height=13
+					}
+					monitor {
+						chan="$(P)$(M)_MENCTYPE_STATUS"
+						clr=54
+						bclr=4
+					}
+					limits {
+					}
+				}
+			}
+		}
+		composite {
+			object {
+				x=2
+				y=160
+				width=517
+				height=18
+			}
+			"composite name"=""
+			children {
+				"text update" {
+					object {
+						x=319
+						y=165
+						width=200
+						height=13
+					}
+					monitor {
+						chan="$(P)$(M)_AENCTYPE_STATUS"
+						clr=54
+						bclr=4
+					}
+					limits {
+					}
+				}
+				menu {
+					object {
+						x=174
+						y=160
+						width=135
+						height=18
+					}
+					control {
+						chan="$(P)$(M)_AENCTYPE_CMD"
+						clr=51
+						bclr=51
+					}
+				}
+				text {
+					object {
+						x=2
+						y=163
+						width=97
+						height=13
+					}
+					"basic attribute" {
+						clr=14
+					}
+					textix="Auxiliary encoder"
+				}
+			}
+		}
+		composite {
+			object {
+				x=2
+				y=179
+				width=407
+				height=18
+			}
+			"composite name"=""
+			children {
+				text {
+					object {
+						x=2
+						y=181
+						width=89
+						height=13
+					}
+					"basic attribute" {
+						clr=14
+					}
+					textix="Wrong limit protection"
+				}
+				"choice button" {
+					object {
+						x=174
+						y=179
+						width=135
+						height=18
+					}
+					control {
+						chan="$(P)$(M)_WLP_CMD"
+						clr=14
+						bclr=51
+					}
+					stacking="column"
+				}
+				"text update" {
+					object {
+						x=319
+						y=183
+						width=30
+						height=13
+					}
+					monitor {
+						chan="$(P)$(M)_WLP_STATUS"
+						clr=54
+						bclr=4
+					}
+					limits {
+					}
+				}
+				"text update" {
+					object {
+						x=351
+						y=183
+						width=58
+						height=13
+					}
+					monitor {
+						chan="$(P)$(M)_WLPACTIVE_STATUS"
+						clr=54
+						bclr=4
+					}
+					clrmod="alarm"
+					limits {
+					}
+				}
+			}
+		}
+		composite {
+			object {
+				x=2
+				y=196
+				width=375
+				height=18
+			}
+			"composite name"=""
+			children {
+				"text update" {
+					object {
+						x=319
+						y=200
+						width=58
+						height=13
+					}
+					monitor {
+						chan="$(P)$(M)_ON_STATUS"
+						clr=54
+						bclr=4
+					}
+					limits {
+					}
+				}
+				"choice button" {
+					object {
+						x=174
+						y=196
+						width=135
+						height=18
+					}
+					control {
+						chan="$(P)$(M)_ON_CMD"
+						clr=14
+						bclr=51
+					}
+					stacking="column"
+				}
+				text {
+					object {
+						x=2
+						y=199
+						width=89
+						height=13
+					}
+					"basic attribute" {
+						clr=14
+					}
+					textix="Motor amplifier"
+				}
+			}
+		}
+		composite {
+			object {
+				x=2
+				y=214
+				width=398
+				height=18
+			}
+			"composite name"=""
+			children {
+				"text update" {
+					object {
+						x=319
+						y=217
+						width=81
+						height=13
+					}
+					monitor {
+						chan="$(P)$(M)_AUTOONOFF_STATUS"
+						clr=54
+						bclr=4
+					}
+					limits {
+					}
+				}
+				"choice button" {
+					object {
+						x=174
+						y=214
+						width=135
+						height=18
+					}
+					control {
+						chan="$(P)$(M)_AUTOONOFF_CMD"
+						clr=14
+						bclr=51
+					}
+					stacking="column"
+				}
+				text {
+					object {
+						x=2
+						y=216
+						width=69
+						height=13
+					}
+					"basic attribute" {
+						clr=14
+					}
+					textix="Amp auto on/off"
+				}
+			}
+		}
+		composite {
+			object {
+				x=2
+				y=232
+				width=398
 				height=19
 			}
-			control {
-				chan="$(P)$(M)_ESTALLTIME_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
+			"composite name"=""
+			children {
+				"text update" {
+					object {
+						x=319
+						y=235
+						width=81
+						height=13
+					}
+					monitor {
+						chan="$(P)$(M)_ONDELAY_MON"
+						clr=54
+						bclr=4
+					}
+					limits {
+					}
+				}
+				"text entry" {
+					object {
+						x=174
+						y=232
+						width=135
+						height=19
+					}
+					control {
+						chan="$(P)$(M)_ONDELAY_SP"
+						clr=14
+						bclr=51
+					}
+					limits {
+					}
+				}
+				text {
+					object {
+						x=2
+						y=234
+						width=69
+						height=13
+					}
+					"basic attribute" {
+						clr=14
+					}
+					textix="Amp on/brake off delay"
+				}
 			}
 		}
-		"text update" {
+		composite {
 			object {
-				x=319
-				y=397
-				width=81
-				height=13
+				x=2
+				y=250
+				width=398
+				height=19
 			}
-			monitor {
-				chan="$(P)$(M)_ESTALLTIME_MON"
-				clr=54
-				bclr=4
+			"composite name"=""
+			children {
+				"text update" {
+					object {
+						x=319
+						y=253
+						width=81
+						height=13
+					}
+					monitor {
+						chan="$(P)$(M)_OFFDELAY_MON"
+						clr=54
+						bclr=4
+					}
+					limits {
+					}
+				}
+				"text entry" {
+					object {
+						x=174
+						y=250
+						width=135
+						height=19
+					}
+					control {
+						chan="$(P)$(M)_OFFDELAY_SP"
+						clr=14
+						bclr=51
+					}
+					limits {
+					}
+				}
+				text {
+					object {
+						x=2
+						y=253
+						width=69
+						height=13
+					}
+					"basic attribute" {
+						clr=14
+					}
+					textix="Amp off delay"
+				}
 			}
-			limits {
+		}
+		composite {
+			object {
+				x=2
+				y=268
+				width=398
+				height=19
+			}
+			"composite name"=""
+			children {
+				"text update" {
+					object {
+						x=319
+						y=271
+						width=81
+						height=13
+					}
+					monitor {
+						chan="$(P)$(M)_BRAKEONDELAY_MON"
+						clr=54
+						bclr=4
+					}
+					limits {
+					}
+				}
+				"text entry" {
+					object {
+						x=174
+						y=268
+						width=135
+						height=19
+					}
+					control {
+						chan="$(P)$(M)_BRAKEONDELAY_SP"
+						clr=14
+						bclr=51
+					}
+					limits {
+					}
+				}
+				text {
+					object {
+						x=2
+						y=271
+						width=69
+						height=13
+					}
+					"basic attribute" {
+						clr=14
+					}
+					textix="Brake on delay"
+				}
+			}
+		}
+		composite {
+			object {
+				x=2
+				y=286
+				width=417
+				height=19
+			}
+			"composite name"=""
+			children {
+				text {
+					object {
+						x=2
+						y=289
+						width=69
+						height=13
+					}
+					"basic attribute" {
+						clr=14
+					}
+					textix="Motor brake on/off port"
+				}
+				"text entry" {
+					object {
+						x=174
+						y=286
+						width=135
+						height=19
+					}
+					control {
+						chan="$(P)$(M)_BRAKEPORT_SP"
+						clr=14
+						bclr=51
+					}
+					limits {
+					}
+				}
+				"text update" {
+					object {
+						x=338
+						y=289
+						width=81
+						height=13
+					}
+					monitor {
+						chan="$(P)$(M)_BRAKE_STATUS"
+						clr=54
+						bclr=4
+					}
+					limits {
+					}
+				}
+				"text update" {
+					object {
+						x=319
+						y=289
+						width=10
+						height=13
+					}
+					monitor {
+						chan="$(P)$(M)_BRAKEPORT_MON"
+						clr=54
+						bclr=4
+					}
+					limits {
+					}
+				}
+			}
+		}
+		composite {
+			object {
+				x=2
+				y=304
+				width=398
+				height=18
+			}
+			"composite name"=""
+			children {
+				"text update" {
+					object {
+						x=319
+						y=307
+						width=81
+						height=13
+					}
+					monitor {
+						chan="$(P)$(M)_AUTOBRAKE_STATUS"
+						clr=54
+						bclr=4
+					}
+					limits {
+					}
+				}
+				"choice button" {
+					object {
+						x=174
+						y=304
+						width=135
+						height=18
+					}
+					control {
+						chan="$(P)$(M)_AUTOBRAKE_CMD"
+						clr=14
+						bclr=51
+					}
+					stacking="column"
+				}
+				text {
+					object {
+						x=2
+						y=307
+						width=69
+						height=13
+					}
+					"basic attribute" {
+						clr=14
+					}
+					textix="Motor brake auto on/off"
+				}
+			}
+		}
+		composite {
+			object {
+				x=2
+				y=323
+				width=398
+				height=19
+			}
+			"composite name"=""
+			children {
+				text {
+					object {
+						x=2
+						y=326
+						width=69
+						height=13
+					}
+					"basic attribute" {
+						clr=14
+					}
+					textix="Motor stop delay"
+				}
+				"text entry" {
+					object {
+						x=174
+						y=323
+						width=135
+						height=19
+					}
+					control {
+						chan="$(P)$(M)_STOPDELAY_SP"
+						clr=14
+						bclr=51
+					}
+					limits {
+					}
+				}
+				"text update" {
+					object {
+						x=319
+						y=326
+						width=81
+						height=13
+					}
+					monitor {
+						chan="$(P)$(M)_STOPDELAY_MON"
+						clr=54
+						bclr=4
+					}
+					limits {
+					}
+				}
+			}
+		}
+		composite {
+			object {
+				x=2
+				y=343
+				width=417
+				height=20
+			}
+			"composite name"=""
+			children {
+				"text update" {
+					object {
+						x=319
+						y=347
+						width=100
+						height=13
+					}
+					monitor {
+						chan="$(P)$(M)_OFFONERR_STATUS"
+						clr=54
+						bclr=4
+					}
+					limits {
+					}
+				}
+				menu {
+					object {
+						x=174
+						y=343
+						width=135
+						height=20
+					}
+					control {
+						chan="$(P)$(M)_OFFONERR_CMD"
+						clr=51
+						bclr=51
+					}
+				}
+				text {
+					object {
+						x=2
+						y=346
+						width=97
+						height=13
+					}
+					"basic attribute" {
+						clr=14
+					}
+					textix="Motor off on error"
+				}
+			}
+		}
+		composite {
+			object {
+				x=2
+				y=361
+				width=375
+				height=19
+			}
+			"composite name"=""
+			children {
+				text {
+					object {
+						x=2
+						y=365
+						width=100
+						height=13
+					}
+					"basic attribute" {
+						clr=14
+					}
+					textix="Error limit (cts)"
+				}
+				"text entry" {
+					object {
+						x=174
+						y=361
+						width=135
+						height=19
+					}
+					control {
+						chan="$(P)$(M)_ERRLIMIT_SP"
+						clr=14
+						bclr=51
+					}
+					limits {
+					}
+				}
+				"text update" {
+					object {
+						x=319
+						y=366
+						width=58
+						height=13
+					}
+					monitor {
+						chan="$(P)$(M)_ERRLIMIT_MON"
+						clr=54
+						bclr=4
+					}
+					limits {
+					}
+				}
+			}
+		}
+		composite {
+			object {
+				x=2
+				y=382
+				width=375
+				height=15
+			}
+			"composite name"=""
+			children {
+				"text update" {
+					object {
+						x=319
+						y=384
+						width=58
+						height=13
+					}
+					monitor {
+						chan="$(P)$(M)_ERR_MON"
+						clr=54
+						bclr=4
+					}
+					limits {
+					}
+				}
+				text {
+					object {
+						x=2
+						y=382
+						width=97
+						height=13
+					}
+					"basic attribute" {
+						clr=14
+					}
+					textix="Error (cts)"
+				}
+			}
+		}
+		composite {
+			object {
+				x=2
+				y=400
+				width=398
+				height=14
+			}
+			"composite name"=""
+			children {
+				text {
+					object {
+						x=2
+						y=400
+						width=69
+						height=13
+					}
+					"basic attribute" {
+						clr=14
+					}
+					textix="Encoder stall"
+				}
+				"text update" {
+					object {
+						x=319
+						y=401
+						width=81
+						height=13
+					}
+					monitor {
+						chan="$(P)$(M)_ESTALL_STATUS"
+						clr=54
+						bclr=4
+					}
+					clrmod="alarm"
+					limits {
+					}
+				}
+			}
+		}
+		composite {
+			object {
+				x=2
+				y=417
+				width=398
+				height=19
+			}
+			"composite name"=""
+			children {
+				text {
+					object {
+						x=2
+						y=420
+						width=69
+						height=13
+					}
+					"basic attribute" {
+						clr=14
+					}
+					textix="Encoder stall time (s)"
+				}
+				"text entry" {
+					object {
+						x=175
+						y=417
+						width=135
+						height=19
+					}
+					control {
+						chan="$(P)$(M)_ESTALLTIME_SP"
+						clr=14
+						bclr=51
+					}
+					limits {
+					}
+				}
+				"text update" {
+					object {
+						x=319
+						y=418
+						width=81
+						height=13
+					}
+					monitor {
+						chan="$(P)$(M)_ESTALLTIME_MON"
+						clr=54
+						bclr=4
+					}
+					limits {
+					}
+				}
+			}
+		}
+		composite {
+			object {
+				x=2
+				y=435
+				width=398
+				height=19
+			}
+			"composite name"=""
+			children {
+				text {
+					object {
+						x=2
+						y=438
+						width=69
+						height=13
+					}
+					"basic attribute" {
+						clr=14
+					}
+					textix="Encoder tolerance (cts)"
+				}
+				"text entry" {
+					object {
+						x=175
+						y=435
+						width=135
+						height=19
+					}
+					control {
+						chan="$(P)$(M)_ENC_TOLERANCE_SP"
+						clr=14
+						bclr=51
+					}
+					limits {
+					}
+				}
+				"text update" {
+					object {
+						x=319
+						y=436
+						width=81
+						height=13
+					}
+					monitor {
+						chan="$(P)$(M)_ENC_TOLERANCE_MON"
+						clr=54
+						bclr=4
+					}
+					limits {
+					}
+				}
 			}
 		}
 	}
 }
-composite {
+"text update" {
+	object {
+		x=174
+		y=101
+		width=120
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_LIMITCONSISTENT_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
 	object {
 		x=2
-		y=415
-		width=398
-		height=19
+		y=101
+		width=97
+		height=13
 	}
-	"composite name"=""
-	children {
-		text {
-			object {
-				x=2
-				y=418
-				width=69
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Encoder tolerance (cts)"
-		}
-		"text entry" {
-			object {
-				x=175
-				y=415
-				width=135
-				height=19
-			}
-			control {
-				chan="$(P)$(M)_ENC_TOLERANCE_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=319
-				y=416
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_ENC_TOLERANCE_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
+	"basic attribute" {
+		clr=14
 	}
+	textix="Motor/limits consistent"
 }

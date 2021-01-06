@@ -278,6 +278,20 @@ record(ao,"$(P)$(M)_EGUAFTLIMIT_SP")
 	field(FLNK,"$(P)$(M)_EGUAFTLIMIT_MON")
 }
 
+record(mbbi,"$(P)$(M)_LIMITCONSISTENT_STATUS")
+{
+	field(DESC, "motor limit consistent")
+	field(SCAN, "I/O Intr")
+	field(DTYP, "asynInt32")
+	field(ZRST, "Unknown")
+	field(ONST, "Consistent")
+	field(TWST, "Not consistent")
+	field(ZRVL, "0")
+	field(ONVL, "1")
+	field(TWVL, "2")
+	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_LIMIT_CONSISTENT")
+}
+
 record(mbbi,"$(P)$(M)_SSIINPUT_STATUS")
 {
 	field(DESC, "ssi input")
