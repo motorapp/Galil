@@ -26,6 +26,7 @@
 #include <iostream>  //cout
 #include <sstream>   //ostringstream istringstream
 #include <epicsThread.h>
+#include <shareLib.h>
 
 using namespace std; //cout ostringstream vector string
 

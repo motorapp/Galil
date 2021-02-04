@@ -372,6 +372,8 @@
 //                  Add motor direction / limit consistent indicator to motor extras
 // 06/01/2021 M.Clift
 //                  Fix home process no longer disables wrong limit protection (wlp)
+// 04/02/2021 M.Clift
+//                  Add shareLib.h where required for EPICS 7 compatibility
 
 #include <stdio.h>
 #include <math.h>
@@ -398,6 +400,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExit.h>
 #include <errlog.h>
 #include <initHooks.h>
+#include <shareLib.h>
 #include <drvAsynIPPort.h>
 #include <drvAsynSerialPort.h>
 
@@ -410,7 +413,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "3-6-58";
+static const char *driverVersion = "3-6-59";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);

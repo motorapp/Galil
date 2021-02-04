@@ -24,6 +24,7 @@
 #include <iostream>  //cout
 #include <sstream>   //ostringstream istringstream
 #include <epicsThread.h>
+#include <shareLib.h>
 #include <asynOctetSyncIO.h>
 #include <asynCommonSyncIO.h>
 #include <algorithm> //std::count

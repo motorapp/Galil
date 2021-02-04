@@ -34,6 +34,7 @@ using namespace std; //cout ostringstream vector string
 #include <iocsh.h>
 #include <epicsThread.h>
 #include <errlog.h>
+#include <shareLib.h>
 
 #include <asynOctetSyncIO.h>
 
