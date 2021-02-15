@@ -374,6 +374,8 @@
 //                  Fix home process no longer disables wrong limit protection (wlp)
 // 04/02/2021 M.Clift
 //                  Add shareLib.h where required for EPICS 7 compatibility
+// 15/02/2021 M.Clift
+//                  Fix segmentation fault in GalilAddCode
 
 #include <stdio.h>
 #include <math.h>
@@ -413,7 +415,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "3-6-59";
+static const char *driverVersion = "3-6-60";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);
@@ -5727,7 +5729,7 @@ void GalilController::GalilAddCode(int section, string filename) {
    string line;                     //Read the file line by line
    string mesg = "";                //Error messages
    ifstream file(filename);         //Custom code to add
-   size_t inpos;                    //Position in code to insert custom code line
+   size_t inpos = string::npos;     //Position in code to insert custom code line
 
    if (section == 3 && !digitalinput_init_) {
       mesg = "GalilAddCode: Digital section not defined, review GalilCreateAxis";
@@ -5766,7 +5768,11 @@ void GalilController::GalilAddCode(int section, string filename) {
             //Add line to specified code section
             if (!section)
                card_code_ += line;
-            if (section == 1) {
+            if (section == 2)
+               limit_code_ += line;
+            if (section == 3)
+               digital_code_ += line;
+            if (section == 1 && inpos != string::npos) {
                // Check read line for $(AXIS) macro
                while ((found = line.find("$(AXIS)")) != string::npos) {
                   // Replace any found $(AXIS) macro with found axis
@@ -5778,10 +5784,6 @@ void GalilController::GalilAddCode(int section, string filename) {
                //Increment inpos to next insert position
                inpos = inpos + line.length();
             }
-            if (section == 2)
-               limit_code_ += line;
-            if (section == 3)
-               digital_code_ += line;
          }
       }
       // Done reading, close the file
