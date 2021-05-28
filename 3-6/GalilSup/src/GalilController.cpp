@@ -376,6 +376,8 @@
 //                  Add shareLib.h where required for EPICS 7 compatibility
 // 15/02/2021 M.Clift
 //                  Fix segmentation fault in GalilAddCode
+// 28/05/2021 M.Clift
+//                  Fix homing to home switch when limit at same location
 
 #include <stdio.h>
 #include <math.h>
@@ -415,7 +417,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "3-6-60";
+static const char *driverVersion = "3-6-61";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);

@@ -409,13 +409,9 @@ void GalilAxis::gen_limitcode(string &limit_code)
 
   //Setup the LIMSWI interrupt routine. The Galil Code Below, is called once per limit activate on ANY axis **
   //Determine axis that requires stop based on stop code and moving status
-  //Use user desired deceleration, stop motor, then put deceleration back to that for normal moves
-  if (!limit_as_home_) {//Hitting limit when homing to home switch is a fail, cancel home process
-     lc = "IF(((_SC?=2)|(_SC?=3))&(_BG?=1))\nDC?=limdc?;VDS=limdc?;VDT=limdc?\n";
-     lc += "home?=0;MG \"home?\",home?;ENDIF\n";
-  }
-  else //Hitting limit when homing to limit switch is normal
-     lc = "IF(((_SC?=2)|(_SC?=3))&(_BG?=1))\nDC?=limdc?;VDS=limdc?;VDT=limdc?;ENDIF\n";
+  //Set user desired deceleration, motor stop occurs automatically
+  //Hitting limit when homing is normal
+  lc = "IF(((_SC?=2)|(_SC?=3))&(_BG?=1))\nDC?=limdc?;VDS=limdc?;VDT=limdc?;ENDIF\n";
 
   //Replace ? symbol with axisName_
   replace( lc.begin(), lc.end(), '?', axisName_);
@@ -2046,10 +2042,7 @@ void GalilAxis::pollServices(void)
         {
         //Poll will make upper layers wait for POST, Sync encoded stepper at stop, and HOMED completion by setting moving true
         //Poll will not make upper layers wait for other services to complete
-        case MOTOR_CANCEL_HOME: sprintf(pC_->cmd_, "home%c=0\n", axisName_);
-                                epicsThreadSleep(.2);  //Wait as controller may still issue move upto this time after
-                                                       //Setting home to 0 (cancel home)
-                                //break; Delibrate fall through to MOTOR_STOP
+        case MOTOR_CANCEL_HOME: //break; Delibrate fall through to MOTOR_STOP
         case MOTOR_STOP: stopInternal(limdc_);
                          break;
         case MOTOR_POST: status = pC_->getStringParam(axisNo_, pC_->GalilPost_, (int)sizeof(post), post);
