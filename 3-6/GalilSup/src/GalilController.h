@@ -172,6 +172,8 @@
 #define GalilAmpCurrentLoopGainString	"MOTOR_AMP_CURRENTLOOP_GAIN"
 #define GalilAmpLowCurrentString	"MOTOR_AMP_LOWCURRENT"
 #define GalilHomingString		"MOTOR_HOMING"
+#define GalilHomrString			"MOTOR_HOMR"
+#define GalilHomfString			"MOTOR_HOMF"
 #define GalilUserDataString		"MOTOR_USER_DATA"
 #define GalilUserDataDeadbString	"MOTOR_USER_DATA_DEADB"
 #define GalilLimitDisableString		"MOTOR_LIMIT_DISABLE"
@@ -183,6 +185,7 @@
 
 #define GalilMotorAcclString		"MOTOR_ACCL"
 #define GalilMotorRdbdString		"MOTOR_RDBD"
+#define GalilMotorHvelString		"MOTOR_HVEL"
 #define GalilMotorVeloString		"MOTOR_VELO"
 #define GalilMotorVmaxString		"MOTOR_VMAX"
 #define GalilAnalogInString		"ANALOG_IN"
@@ -488,6 +491,8 @@ protected:
   int GalilAmpCurrentLoopGain_;
   int GalilAmpLowCurrent_;
   int GalilHoming_;
+  int GalilHomr_;
+  int GalilHomf_;
   int GalilUserData_;
   int GalilUserDataDeadb_;
   int GalilLimitDisable_;
@@ -498,6 +503,7 @@ protected:
   int GalilAuxEncoder_;
   int GalilMotorAccl_;
   int GalilMotorRdbd_;
+  int GalilMotorHvel_;
   int GalilMotorVelo_;
   int GalilMotorVmax_;
   int GalilAnalogIn_;

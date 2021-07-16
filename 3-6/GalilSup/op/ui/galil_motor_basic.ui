@@ -1016,7 +1016,7 @@
                <string>Home+</string>
               </property>
               <property name="variable" stdset="0">
-               <string>$(DMC)$(M$(SLOT)).HOMF</string>
+               <string>$(DMC)$(M$(SLOT))_HOMF_CMD</string>
               </property>
               <property name="variableSubstitutions" stdset="0">
                <string/>
@@ -1089,7 +1089,7 @@
              <string>Home-</string>
             </property>
             <property name="variable" stdset="0">
-             <string>$(DMC)$(M$(SLOT)).HOMR</string>
+             <string>$(DMC)$(M$(SLOT))_HOMR_CMD</string>
             </property>
             <property name="variableSubstitutions" stdset="0">
              <string/>

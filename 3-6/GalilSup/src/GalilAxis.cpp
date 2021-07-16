@@ -876,16 +876,14 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
         status = beginMotion(functionName, 0.0, false, false, false);
      //Set home flags if start successful
      if (!status) {
-        if (!useSwitch) {
-           //Because we are calling galil code before motion begins (useSwitch=false)
-           //Reset stopped time, so homing doesn't timeout immediately
-           resetStoppedTime_ = true;  //Request poll thread reset stopped time if done
-           //Wait for poller to reset stopped time on this axis
-           //ensure synchronous poller is not blocked
-           pC_->unlock();
-           epicsEventWaitWithTimeout(stoppedTimeReset_, pC_->updatePeriod_/1000.0);
-           pC_->lock();
-        }
+        //Since we may be calling galil code before motion begins
+        //Reset stopped time, so homing doesn't timeout immediately
+        resetStoppedTime_ = true;  //Request poll thread reset stopped time if done
+        //Wait for poller to reset stopped time on this axis
+        //ensure synchronous poller is not blocked
+        pC_->unlock();
+        epicsEventWaitWithTimeout(stoppedTimeReset_, pC_->updatePeriod_/1000.0);
+        pC_->lock();
         //Start was successful
         //This homing status does not include JAH
         //Flag homing true
@@ -2007,10 +2005,10 @@ void GalilAxis::checkHoming(void)
 void GalilAxis::checkMotorLimitConsistency(void)
 {
    //Check motor/limits consistency
-   if (!done_ && rev_ && !direction_)
+   if (rev_ && !direction_)
       limitsDirState_ = consistent;
 
-   if (!done_ && fwd_ && direction_)
+   if (fwd_ && direction_)
       limitsDirState_ = consistent;
    //Pass motor/limits consistency to paramList
    pC_->setIntegerParam(axisNo_, pC_->GalilLimitConsistent_, limitsDirState_);
@@ -2355,7 +2353,6 @@ asynStatus GalilAxis::beginMotion(const char *caller, double position, bool rela
       sprintf(mesg, "%s begin failure axis %c", caller, axisName_);
       //Set controller error mesg monitor
       pC_->setCtrlError(mesg);
-      return asynError;
    }
 
    //Success

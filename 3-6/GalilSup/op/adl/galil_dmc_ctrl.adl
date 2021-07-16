@@ -1215,385 +1215,341 @@ composite {
 		}
 	}
 }
-composite {
+text {
 	object {
 		x=56
 		y=471
-		width=289
-		height=16
+		width=65
+		height=13
 	}
-	"composite name"=""
-	children {
-		text {
-			object {
-				x=56
-				y=471
-				width=65
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Motor D"
-		}
-		"related display" {
-			object {
-				x=150
-				y=472
-				width=15
-				height=15
-			}
-			display[0] {
-				label="Motor D Extras"
-				name="galil_motor_extras.adl"
-				args="P=$(DMC),M=$(M4)"
-			}
-			display[1] {
-				label="Motor D BISS"
-				name="galil_BISS.adl"
-				args="P=$(DMC),M=$(M4)"
-			}
-			display[2] {
-				label="Motor D SSI"
-				name="galil_SSI.adl"
-				args="P=$(DMC),M=$(M4)"
-			}
-			display[3] {
-				label="Motor D EtherCat"
-				name="galil_ECAT.adl"
-				args="P=$(DMC),M=$(M4)"
-			}
-			display[4] {
-				label="Motor D Amp"
-				name="galil_amp.adl"
-				args="P=$(DMC),M=$(M4)"
-			}
-			display[5] {
-				label="Motor D Motor"
-				name="motorx_all.adl"
-				args="P=$(DMC),M=$(M4)"
-			}
-			clr=14
-			bclr=51
-		}
-		text {
-			object {
-				x=228
-				y=471
-				width=65
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Motor L"
-		}
-		"related display" {
-			object {
-				x=330
-				y=472
-				width=15
-				height=15
-			}
-			display[0] {
-				label="Motor L"
-				name="motorx_all.adl"
-				args="P=$(DMC),M=$(M12)"
-			}
-			display[1] {
-				label="Motor L kinematics"
-				name="galil_csmotor_kinematics.adl"
-				args="P=$(DMC),M=$(M12),M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8),M9=$(M9),M10=$(M10),M11=$(M11),M12=$(M12),M13=$(M13),M14=$(M14),M15=$(M15),M16=$(M16)"
-			}
-			clr=14
-			bclr=51
-		}
+	"basic attribute" {
+		clr=14
 	}
+	textix="Motor D"
 }
-composite {
+"related display" {
+	object {
+		x=150
+		y=472
+		width=15
+		height=15
+	}
+	display[0] {
+		label="Motor D Extras"
+		name="galil_motor_extras.adl"
+		args="P=$(DMC),M=$(M4)"
+	}
+	display[1] {
+		label="Motor D BISS"
+		name="galil_BISS.adl"
+		args="P=$(DMC),M=$(M4)"
+	}
+	display[2] {
+		label="Motor D SSI"
+		name="galil_SSI.adl"
+		args="P=$(DMC),M=$(M4)"
+	}
+	display[3] {
+		label="Motor D EtherCat"
+		name="galil_ECAT.adl"
+		args="P=$(DMC),M=$(M4)"
+	}
+	display[4] {
+		label="Motor D Amp"
+		name="galil_amp.adl"
+		args="P=$(DMC),M=$(M4)"
+	}
+	display[5] {
+		label="Motor D Motor"
+		name="motorx_all.adl"
+		args="P=$(DMC),M=$(M4)"
+	}
+	clr=14
+	bclr=51
+}
+text {
+	object {
+		x=228
+		y=471
+		width=65
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Motor L"
+}
+"related display" {
+	object {
+		x=330
+		y=472
+		width=15
+		height=15
+	}
+	display[0] {
+		label="Motor L"
+		name="motorx_all.adl"
+		args="P=$(DMC),M=$(M12)"
+	}
+	display[1] {
+		label="Motor L kinematics"
+		name="galil_csmotor_kinematics.adl"
+		args="P=$(DMC),M=$(M12),M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8),M9=$(M9),M10=$(M10),M11=$(M11),M12=$(M12),M13=$(M13),M14=$(M14),M15=$(M15),M16=$(M16)"
+	}
+	clr=14
+	bclr=51
+}
+text {
 	object {
 		x=56
 		y=492
-		width=289
-		height=16
+		width=65
+		height=13
 	}
-	"composite name"=""
-	children {
-		text {
-			object {
-				x=56
-				y=492
-				width=65
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Motor E"
-		}
-		"related display" {
-			object {
-				x=150
-				y=493
-				width=15
-				height=15
-			}
-			display[0] {
-				label="Motor E Extras"
-				name="galil_motor_extras.adl"
-				args="P=$(DMC),M=$(M5)"
-			}
-			display[1] {
-				label="Motor E BISS"
-				name="galil_BISS.adl"
-				args="P=$(DMC),M=$(M5)"
-			}
-			display[2] {
-				label="Motor E SSI"
-				name="galil_SSI.adl"
-				args="P=$(DMC),M=$(M5)"
-			}
-			display[3] {
-				label="Motor E EtherCat"
-				name="galil_ECAT.adl"
-				args="P=$(DMC),M=$(M5)"
-			}
-			display[4] {
-				label="Motor E Amp"
-				name="motorx_amp.adl"
-				args="P=$(DMC),M=$(M5)"
-			}
-			display[5] {
-				label="Motor E Motor"
-				name="motorx_all.adl"
-				args="P=$(DMC),M=$(M5)"
-			}
-			clr=14
-			bclr=51
-		}
-		text {
-			object {
-				x=228
-				y=492
-				width=65
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Motor M"
-		}
-		"related display" {
-			object {
-				x=330
-				y=492
-				width=15
-				height=15
-			}
-			display[0] {
-				label="Motor M"
-				name="motorx_all.adl"
-				args="P=$(DMC),M=$(M13)"
-			}
-			display[1] {
-				label="Motor M kinematics"
-				name="galil_csmotor_kinematics.adl"
-				args="P=$(DMC),M=$(M13),M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8),M9=$(M9),M10=$(M10),M11=$(M11),M12=$(M12),M13=$(M13),M14=$(M14),M15=$(M15),M16=$(M16)"
-			}
-			clr=14
-			bclr=51
-		}
+	"basic attribute" {
+		clr=14
 	}
+	textix="Motor E"
 }
-composite {
+"related display" {
+	object {
+		x=150
+		y=493
+		width=15
+		height=15
+	}
+	display[0] {
+		label="Motor E Extras"
+		name="galil_motor_extras.adl"
+		args="P=$(DMC),M=$(M5)"
+	}
+	display[1] {
+		label="Motor E BISS"
+		name="galil_BISS.adl"
+		args="P=$(DMC),M=$(M5)"
+	}
+	display[2] {
+		label="Motor E SSI"
+		name="galil_SSI.adl"
+		args="P=$(DMC),M=$(M5)"
+	}
+	display[3] {
+		label="Motor E EtherCat"
+		name="galil_ECAT.adl"
+		args="P=$(DMC),M=$(M5)"
+	}
+	display[4] {
+		label="Motor E Amp"
+		name="galil_amp.adl"
+		args="P=$(DMC),M=$(M5)"
+	}
+	display[5] {
+		label="Motor E Motor"
+		name="motorx_all.adl"
+		args="P=$(DMC),M=$(M5)"
+	}
+	clr=14
+	bclr=51
+}
+text {
+	object {
+		x=228
+		y=492
+		width=65
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Motor M"
+}
+"related display" {
+	object {
+		x=330
+		y=492
+		width=15
+		height=15
+	}
+	display[0] {
+		label="Motor M"
+		name="motorx_all.adl"
+		args="P=$(DMC),M=$(M13)"
+	}
+	display[1] {
+		label="Motor M kinematics"
+		name="galil_csmotor_kinematics.adl"
+		args="P=$(DMC),M=$(M13),M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8),M9=$(M9),M10=$(M10),M11=$(M11),M12=$(M12),M13=$(M13),M14=$(M14),M15=$(M15),M16=$(M16)"
+	}
+	clr=14
+	bclr=51
+}
+text {
 	object {
 		x=56
 		y=513
-		width=289
-		height=16
+		width=65
+		height=13
 	}
-	"composite name"=""
-	children {
-		text {
-			object {
-				x=56
-				y=513
-				width=65
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Motor F"
-		}
-		"related display" {
-			object {
-				x=150
-				y=514
-				width=15
-				height=15
-			}
-			display[0] {
-				label="Motor F Extras"
-				name="galil_motor_extras.adl"
-				args="P=$(DMC),M=$(M6)"
-			}
-			display[1] {
-				label="Motor F BISS"
-				name="galil_BISS.adl"
-				args="P=$(DMC),M=$(M6)"
-			}
-			display[2] {
-				label="Motor F SSI"
-				name="galil_SSI.adl"
-				args="P=$(DMC),M=$(M6)"
-			}
-			display[3] {
-				label="Motor F EtherCat"
-				name="galil_ECAT.adl"
-				args="P=$(DMC),M=$(M6)"
-			}
-			display[4] {
-				label="Motor F Amp"
-				name="motorx_amp.adl"
-				args="P=$(DMC),M=$(M6)"
-			}
-			display[5] {
-				label="Motor F Motor"
-				name="motorx_all.adl"
-				args="P=$(DMC),M=$(M6)"
-			}
-			clr=14
-			bclr=51
-		}
-		text {
-			object {
-				x=228
-				y=513
-				width=65
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Motor N"
-		}
-		"related display" {
-			object {
-				x=330
-				y=513
-				width=15
-				height=15
-			}
-			display[0] {
-				label="Motor N"
-				name="motorx_all.adl"
-				args="P=$(DMC),M=$(M14)"
-			}
-			display[1] {
-				label="Motor N kinematics"
-				name="galil_csmotor_kinematics.adl"
-				args="P=$(DMC),M=$(M14),M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8),M9=$(M9),M10=$(M10),M11=$(M11),M12=$(M12),M13=$(M13),M14=$(M14),M15=$(M15),M16=$(M16)"
-			}
-			clr=14
-			bclr=51
-		}
+	"basic attribute" {
+		clr=14
 	}
+	textix="Motor F"
 }
-composite {
+"related display" {
+	object {
+		x=150
+		y=514
+		width=15
+		height=15
+	}
+	display[0] {
+		label="Motor F Extras"
+		name="galil_motor_extras.adl"
+		args="P=$(DMC),M=$(M6)"
+	}
+	display[1] {
+		label="Motor F BISS"
+		name="galil_BISS.adl"
+		args="P=$(DMC),M=$(M6)"
+	}
+	display[2] {
+		label="Motor F SSI"
+		name="galil_SSI.adl"
+		args="P=$(DMC),M=$(M6)"
+	}
+	display[3] {
+		label="Motor F EtherCat"
+		name="galil_ECAT.adl"
+		args="P=$(DMC),M=$(M6)"
+	}
+	display[4] {
+		label="Motor F Amp"
+		name="galil_amp.adl"
+		args="P=$(DMC),M=$(M6)"
+	}
+	display[5] {
+		label="Motor F Motor"
+		name="motorx_all.adl"
+		args="P=$(DMC),M=$(M6)"
+	}
+	clr=14
+	bclr=51
+}
+text {
+	object {
+		x=228
+		y=513
+		width=65
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Motor N"
+}
+"related display" {
+	object {
+		x=330
+		y=513
+		width=15
+		height=15
+	}
+	display[0] {
+		label="Motor N"
+		name="motorx_all.adl"
+		args="P=$(DMC),M=$(M14)"
+	}
+	display[1] {
+		label="Motor N kinematics"
+		name="galil_csmotor_kinematics.adl"
+		args="P=$(DMC),M=$(M14),M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8),M9=$(M9),M10=$(M10),M11=$(M11),M12=$(M12),M13=$(M13),M14=$(M14),M15=$(M15),M16=$(M16)"
+	}
+	clr=14
+	bclr=51
+}
+text {
 	object {
 		x=56
 		y=534
-		width=289
-		height=16
+		width=65
+		height=13
 	}
-	"composite name"=""
-	children {
-		text {
-			object {
-				x=56
-				y=534
-				width=65
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Motor G"
-		}
-		"related display" {
-			object {
-				x=150
-				y=535
-				width=15
-				height=15
-			}
-			display[0] {
-				label="Motor G Extras"
-				name="galil_motor_extras.adl"
-				args="P=$(DMC),M=$(M7)"
-			}
-			display[1] {
-				label="Motor G BISS"
-				name="galil_BISS.adl"
-				args="P=$(DMC),M=$(M7)"
-			}
-			display[2] {
-				label="Motor G SSI"
-				name="galil_SSI.adl"
-				args="P=$(DMC),M=$(M7)"
-			}
-			display[3] {
-				label="Motor G EtherCat"
-				name="galil_ECAT.adl"
-				args="P=$(DMC),M=$(M7)"
-			}
-			display[4] {
-				label="Motor G Amp"
-				name="galil_amp.adl"
-				args="P=$(DMC),M=$(M7)"
-			}
-			display[5] {
-				label="Motor G Motor"
-				name="motorx_all.adl"
-				args="P=$(DMC),M=$(M7)"
-			}
-			clr=14
-			bclr=51
-		}
-		text {
-			object {
-				x=228
-				y=534
-				width=65
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Motor O"
-		}
-		"related display" {
-			object {
-				x=330
-				y=535
-				width=15
-				height=15
-			}
-			display[0] {
-				label="Motor O"
-				name="motorx_all.adl"
-				args="P=$(DMC),M=$(M15)"
-			}
-			display[1] {
-				label="Motor O kinematics"
-				name="galil_csmotor_kinematics.adl"
-				args="P=$(DMC),M=$(M15),M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8),M9=$(M9),M10=$(M10),M11=$(M11),M12=$(M12),M13=$(M13),M14=$(M14),M15=$(M15),M16=$(M16)"
-			}
-			clr=14
-			bclr=51
-		}
+	"basic attribute" {
+		clr=14
 	}
+	textix="Motor G"
+}
+"related display" {
+	object {
+		x=150
+		y=535
+		width=15
+		height=15
+	}
+	display[0] {
+		label="Motor G Extras"
+		name="galil_motor_extras.adl"
+		args="P=$(DMC),M=$(M7)"
+	}
+	display[1] {
+		label="Motor G BISS"
+		name="galil_BISS.adl"
+		args="P=$(DMC),M=$(M7)"
+	}
+	display[2] {
+		label="Motor G SSI"
+		name="galil_SSI.adl"
+		args="P=$(DMC),M=$(M7)"
+	}
+	display[3] {
+		label="Motor G EtherCat"
+		name="galil_ECAT.adl"
+		args="P=$(DMC),M=$(M7)"
+	}
+	display[4] {
+		label="Motor G Amp"
+		name="galil_amp.adl"
+		args="P=$(DMC),M=$(M7)"
+	}
+	display[5] {
+		label="Motor G Motor"
+		name="motorx_all.adl"
+		args="P=$(DMC),M=$(M7)"
+	}
+	clr=14
+	bclr=51
+}
+text {
+	object {
+		x=228
+		y=534
+		width=65
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Motor O"
+}
+"related display" {
+	object {
+		x=330
+		y=535
+		width=15
+		height=15
+	}
+	display[0] {
+		label="Motor O"
+		name="motorx_all.adl"
+		args="P=$(DMC),M=$(M15)"
+	}
+	display[1] {
+		label="Motor O kinematics"
+		name="galil_csmotor_kinematics.adl"
+		args="P=$(DMC),M=$(M15),M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8),M9=$(M9),M10=$(M10),M11=$(M11),M12=$(M12),M13=$(M13),M14=$(M14),M15=$(M15),M16=$(M16)"
+	}
+	clr=14
+	bclr=51
 }
 composite {
 	object {
@@ -1660,100 +1616,89 @@ composite {
 		}
 	}
 }
-composite {
+text {
 	object {
 		x=56
 		y=555
-		width=289
-		height=16
+		width=65
+		height=13
 	}
-	"composite name"=""
-	children {
-		text {
-			object {
-				x=56
-				y=555
-				width=65
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Motor H"
-		}
-		"related display" {
-			object {
-				x=150
-				y=556
-				width=15
-				height=15
-			}
-			display[0] {
-				label="Motor H Extras"
-				name="galil_motor_extras.adl"
-				args="P=$(DMC),M=$(M8)"
-			}
-			display[1] {
-				label="Motor H BISS"
-				name="galil_BISS.adl"
-				args="P=$(DMC),M=$(M8)"
-			}
-			display[2] {
-				label="Motor H SSI"
-				name="galil_SSI.adl"
-				args="P=$(DMC),M=$(M8)"
-			}
-			display[3] {
-				label="Motor H EtherCat"
-				name="galil_ECAT.adl"
-				args="P=$(DMC),M=$(M8)"
-			}
-			display[4] {
-				label="Motor H Amp"
-				name="galil_amp.adl"
-				args="P=$(DMC),M=$(M8)"
-			}
-			display[5] {
-				label="Motor H Motor"
-				name="motorx_all.adl"
-				args="P=$(DMC),M=$(M8)"
-			}
-			clr=14
-			bclr=51
-		}
-		text {
-			object {
-				x=228
-				y=555
-				width=65
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Motor P"
-		}
-		"related display" {
-			object {
-				x=330
-				y=556
-				width=15
-				height=15
-			}
-			display[0] {
-				label="Motor P"
-				name="motorx_all.adl"
-				args="P=$(DMC),M=$(M16)"
-			}
-			display[1] {
-				label="Motor P kinematics"
-				name="galil_csmotor_kinematics.adl"
-				args="P=$(DMC),M=$(M16),M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8),M9=$(M9),M10=$(M10),M11=$(M11),M12=$(M12),M13=$(M13),M14=$(M14),M15=$(M15),M16=$(M16)"
-			}
-			clr=14
-			bclr=51
-		}
+	"basic attribute" {
+		clr=14
 	}
+	textix="Motor H"
+}
+"related display" {
+	object {
+		x=150
+		y=556
+		width=15
+		height=15
+	}
+	display[0] {
+		label="Motor H Extras"
+		name="galil_motor_extras.adl"
+		args="P=$(DMC),M=$(M8)"
+	}
+	display[1] {
+		label="Motor H BISS"
+		name="galil_BISS.adl"
+		args="P=$(DMC),M=$(M8)"
+	}
+	display[2] {
+		label="Motor H SSI"
+		name="galil_SSI.adl"
+		args="P=$(DMC),M=$(M8)"
+	}
+	display[3] {
+		label="Motor H EtherCat"
+		name="galil_ECAT.adl"
+		args="P=$(DMC),M=$(M8)"
+	}
+	display[4] {
+		label="Motor H Amp"
+		name="galil_amp.adl"
+		args="P=$(DMC),M=$(M8)"
+	}
+	display[5] {
+		label="Motor H Motor"
+		name="motorx_all.adl"
+		args="P=$(DMC),M=$(M8)"
+	}
+	clr=14
+	bclr=51
+}
+text {
+	object {
+		x=228
+		y=555
+		width=65
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Motor P"
+}
+"related display" {
+	object {
+		x=330
+		y=556
+		width=15
+		height=15
+	}
+	display[0] {
+		label="Motor P"
+		name="motorx_all.adl"
+		args="P=$(DMC),M=$(M16)"
+	}
+	display[1] {
+		label="Motor P kinematics"
+		name="galil_csmotor_kinematics.adl"
+		args="P=$(DMC),M=$(M16),M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8),M9=$(M9),M10=$(M10),M11=$(M11),M12=$(M12),M13=$(M13),M14=$(M14),M15=$(M15),M16=$(M16)"
+	}
+	clr=14
+	bclr=51
 }
 composite {
 	object {

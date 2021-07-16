@@ -378,6 +378,10 @@
 //                  Fix segmentation fault in GalilAddCode
 // 28/05/2021 M.Clift
 //                  Fix homing to home switch when limit at same location
+// 16/07/2021 M.Clift
+//                  Add PV's to call GalilAxis:home in addition to motor record homr/homf fields
+//                  Improved home when use switch true in specified direction when limit already active
+//                  Improved motor limits direction consistency check
 
 #include <stdio.h>
 #include <math.h>
@@ -417,7 +421,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "3-6-61";
+static const char *driverVersion = "3-6-64";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);
@@ -634,6 +638,8 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilAmpCurrentLoopGainString, asynParamInt32, &GalilAmpCurrentLoopGain_);
   createParam(GalilAmpLowCurrentString, asynParamInt32, &GalilAmpLowCurrent_);
   createParam(GalilHomingString, asynParamInt32, &GalilHoming_);
+  createParam(GalilHomrString, asynParamInt32, &GalilHomr_);
+  createParam(GalilHomfString, asynParamInt32, &GalilHomf_);
   createParam(GalilUserDataString, asynParamFloat64, &GalilUserData_);
   createParam(GalilUserDataDeadbString, asynParamFloat64, &GalilUserDataDeadb_);
 
@@ -645,6 +651,7 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilAuxEncoderString, asynParamInt32, &GalilAuxEncoder_);
   createParam(GalilMotorAcclString, asynParamFloat64, &GalilMotorAccl_);
   createParam(GalilMotorRdbdString, asynParamFloat64, &GalilMotorRdbd_);
+  createParam(GalilMotorHvelString, asynParamFloat64, &GalilMotorHvel_);
   createParam(GalilMotorVeloString, asynParamFloat64, &GalilMotorVelo_);
   createParam(GalilMotorVmaxString, asynParamFloat64, &GalilMotorVmax_);
 
@@ -3791,8 +3798,8 @@ asynStatus GalilController::writeUInt32Digital(asynUser *pasynUser, epicsUInt32 
 asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 {
   int function = pasynUser->reason;		//Function requested
-  int addr=0;				        //Address requested
-  asynStatus status;				//Used to work out communication_error_ status.  asynSuccess always returned
+  int addr = 0;				        //Address requested
+  int status;					//Used to work out communication_error_ status.  asynSuccess always returned
   GalilAxis *pAxis = getAxis(pasynUser);	//Retrieve the axis instance
   GalilCSAxis *pCSAxis = getCSAxis(pasynUser);	//Retrieve the axis instance
   int hometype, limittype;			//The home, and limit switch type
@@ -3800,7 +3807,9 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
   char coordinate_system;			//Coordinate system S or T
   char axes[MAX_GALIL_AXES];			//Coordinate system axis list
   string mesg = "";					//Controller mesg
-  double eres, mres;				//mr eres, and mres
+  double eres, mres;				//mr eres and mres
+  double hvel, accl;				//mr hvel and accl
+  int spmg;					//mr stop pause move go (spmg)
   float oldmotor;				//Motor type before changing it.  Use Galil numbering
   unsigned i;					//Looping
   float oldmtr_abs, newmtr_abs;			//Track motor changes
@@ -3814,7 +3823,7 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
      return asynSuccess;
 
   status = getAddress(pasynUser, &addr);
-  if (status != asynSuccess) return(status);
+  if (status != asynSuccess) return((asynStatus)status);
 
   //Check axis instance
   if (addr < MAX_GALIL_AXES && !rio_) {
@@ -4106,13 +4115,28 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
         sync_writeReadController();
      }
   }
+  else if (function == GalilHomr_ || function == GalilHomf_) {
+     //Retrieve required parameters
+     status = getDoubleParam(pAxis->axisNo_, GalilMotorHvel_, &hvel);
+     status |= getDoubleParam(pAxis->axisNo_, GalilMotorAccl_, &accl);
+     status |= getDoubleParam(pAxis->axisNo_, motorResolution_, &mres);
+     status |= getIntegerParam(pAxis->axisNo_, GalilStopPauseMoveGo_, &spmg);
+     if (!status && spmg == 3) {
+        //Convert Hvel from EGU/sec to steps/sec
+        hvel = hvel / mres;
+        //Convert acceleration expressed in time to steps/sec2
+        accl = hvel / accl;
+        //Call axis home
+        pAxis->home(0, hvel, accl, (function == GalilHomr_) ? 0 : 1);
+     }
+  }
   else {
      /* Call base class method */
      status = asynMotorController::writeInt32(pasynUser, value);
   }
 
   //Always return success. Dont need more error mesgs
-  return asynSuccess;
+  return (asynStatus)asynSuccess;
 }
 
 /** Called when asyn clients call pasynFloat64->write().

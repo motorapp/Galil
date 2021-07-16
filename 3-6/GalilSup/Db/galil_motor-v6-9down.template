@@ -140,6 +140,15 @@ record(ao,"$(P)$(M)_RDBD_SP") {
 	field(PREC, "$(PREC)")
 }
 
+record(ao,"$(P)$(M)_HVEL_SP") {
+	field(DESC, "Motor record HVEL")
+	field(DOL,  "$(P)$(M).HVEL CP MS")
+	field(OMSL, "closed_loop")
+	field(DTYP, "asynFloat64")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_HVEL")
+	field(PREC, "$(PREC)")
+}
+
 record(ao,"$(P)$(M)_VMAX_SP") {
 	field(DESC, "Motor record VMAX")
 	field(DOL,  "$(P)$(M).VMAX CP MS")

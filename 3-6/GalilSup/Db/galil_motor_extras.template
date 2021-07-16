@@ -99,6 +99,32 @@ record(calcout,"$(P)$(M)_HOMING_MONITOR")
 	field(CALC, "A || B || C")
 }
 
+#Independent method of calling homr
+record(bo,"$(P)$(M)_HOMR_CMD")
+{
+	field(DESC,"HOMR")
+	field(DTYP,"asynInt32")
+	field(VAL, "1")
+	field(ZNAM,"HOMR")
+	field(ZSV, "NO_ALARM")
+	field(ONAM,"HOMR")
+	field(OSV, "NO_ALARM")
+	field(OUT, "@asyn($(PORT),$(ADDR))MOTOR_HOMR")
+}
+
+#Independent method of calling homf
+record(bo,"$(P)$(M)_HOMF_CMD")
+{
+	field(DESC,"HOMF")
+	field(DTYP,"asynInt32")
+	field(VAL, "1")
+	field(ZNAM,"HOMF")
+	field(ZSV, "NO_ALARM")
+	field(ONAM,"HOMF")
+	field(OSV, "NO_ALARM")
+	field(OUT, "@asyn($(PORT),$(ADDR))MOTOR_HOMF")
+}
+
 record(ai,"$(P)$(M)_STEPSMOOTH_MON")
 {
 	field(DESC,"Step smoothing")
