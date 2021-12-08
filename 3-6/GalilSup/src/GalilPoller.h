@@ -13,9 +13,9 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 // Contact details:
-// cliftm@ansto.gov.au
-// 800 Blackburn Road, Clayton, Victoria 3168, Australia.
-//
+// Mark Clift
+// email: padmoz@tpg.com.au
+
 // Thread to acquire datarecord for a single GalilController
 // We write our own because epicsEventWaitWithTimeout in asynMotorController::asynMotorPoller calls sleep, we dont want that.
 // Needed better performance

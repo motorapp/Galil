@@ -13,9 +13,9 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 // Contact details:
-// cliftm@ansto.gov.au
-// 800 Blackburn Road, Clayton, Victoria 3168, Australia.
-//
+// Mark Clift
+// email: padmoz@tpg.com.au
+
 // Thread to manage disconnect/connect for a GalilController
 
 class GalilConnector: public epicsThreadRunable {
