@@ -30,76 +30,84 @@
 # ADDR - CS motor (8-15)
 
 #Reverse kinematic transforms
-record(stringout,"$(P)$(M)_RTRANSFORMA_SP")
+record(waveform,"$(P)$(M)_RTRANSFORMA_SP")
 {
 	field(DESC, "$(M) Reverse transform A")
 	field(PINI, "YES")
-	field(OMSL, "supervisory")
+	field(NELM, "256")
+	field(FTVL, "CHAR")
 	field(DTYP, "asynOctetWrite")
-	field(OUT,  "@asyn($(PORT),$(ADDR))CSMOTOR_REVERSEA_TRANSFORM")
+	field(INP,  "@asyn($(PORT),$(ADDR))CSMOTOR_REVERSEA_TRANSFORM")
 }
 
-record(stringout,"$(P)$(M)_RTRANSFORMB_SP")
+record(waveform,"$(P)$(M)_RTRANSFORMB_SP")
 {
 	field(DESC, "$(M) Reverse transform B")
 	field(PINI, "YES")
-	field(OMSL, "supervisory")
+	field(NELM, "256")
+	field(FTVL, "CHAR")
 	field(DTYP, "asynOctetWrite")
-	field(OUT,  "@asyn($(PORT),$(ADDR))CSMOTOR_REVERSEB_TRANSFORM")
+	field(INP,  "@asyn($(PORT),$(ADDR))CSMOTOR_REVERSEB_TRANSFORM")
 }
 
-record(stringout,"$(P)$(M)_RTRANSFORMC_SP")
+record(waveform,"$(P)$(M)_RTRANSFORMC_SP")
 {
 	field(DESC, "$(M) Reverse transform C")
 	field(PINI, "YES")
-	field(OMSL, "supervisory")
+	field(NELM, "256")
+	field(FTVL, "CHAR")
 	field(DTYP, "asynOctetWrite")
-	field(OUT,  "@asyn($(PORT),$(ADDR))CSMOTOR_REVERSEC_TRANSFORM")
+	field(INP,  "@asyn($(PORT),$(ADDR))CSMOTOR_REVERSEC_TRANSFORM")
 }
 
-record(stringout,"$(P)$(M)_RTRANSFORMD_SP")
+record(waveform,"$(P)$(M)_RTRANSFORMD_SP")
 {
 	field(DESC, "$(M) Reverse transform D")
 	field(PINI, "YES")
-	field(OMSL, "supervisory")
+	field(NELM, "256")
+	field(FTVL, "CHAR")
 	field(DTYP, "asynOctetWrite")
-	field(OUT,  "@asyn($(PORT),$(ADDR))CSMOTOR_REVERSED_TRANSFORM")
+	field(INP,  "@asyn($(PORT),$(ADDR))CSMOTOR_REVERSED_TRANSFORM")
 }
 
-record(stringout,"$(P)$(M)_RTRANSFORME_SP")
+record(waveform,"$(P)$(M)_RTRANSFORME_SP")
 {
 	field(DESC, "$(M) Reverse transform E")
 	field(PINI, "YES")
-	field(OMSL, "supervisory")
+	field(NELM, "256")
+	field(FTVL, "CHAR")
 	field(DTYP, "asynOctetWrite")
-	field(OUT,  "@asyn($(PORT),$(ADDR))CSMOTOR_REVERSEE_TRANSFORM")
+	field(INP,  "@asyn($(PORT),$(ADDR))CSMOTOR_REVERSEE_TRANSFORM")
 }
 
-record(stringout,"$(P)$(M)_RTRANSFORMF_SP")
+record(waveform,"$(P)$(M)_RTRANSFORMF_SP")
 {
 	field(DESC, "$(M) Reverse transform F")
 	field(PINI, "YES")
-	field(OMSL, "supervisory")
+	field(NELM, "256")
+	field(FTVL, "CHAR")
 	field(DTYP, "asynOctetWrite")
-	field(OUT,  "@asyn($(PORT),$(ADDR))CSMOTOR_REVERSEF_TRANSFORM")
+	field(INP,  "@asyn($(PORT),$(ADDR))CSMOTOR_REVERSEF_TRANSFORM")
 }
 
-record(stringout,"$(P)$(M)_RTRANSFORMG_SP")
+record(waveform,"$(P)$(M)_RTRANSFORMG_SP")
 {
 	field(DESC, "$(M) Reverse transform G")
 	field(PINI, "YES")
-	field(OMSL, "supervisory")
+	field(NELM, "256")
+	field(FTVL, "CHAR")
 	field(DTYP, "asynOctetWrite")
-	field(OUT,  "@asyn($(PORT),$(ADDR))CSMOTOR_REVERSEG_TRANSFORM")
+	field(INP,  "@asyn($(PORT),$(ADDR))CSMOTOR_REVERSEG_TRANSFORM")
 }
 
-record(stringout,"$(P)$(M)_RTRANSFORMH_SP")
+record(waveform,"$(P)$(M)_RTRANSFORMH_SP")
 {
 	field(DESC, "$(M) Reverse transform H")
 	field(PINI, "YES")
-	field(OMSL, "supervisory")
+	field(NELM, "256")
+	field(FTVL, "CHAR")
 	field(DTYP, "asynOctetWrite")
-	field(OUT,  "@asyn($(PORT),$(ADDR))CSMOTOR_REVERSEH_TRANSFORM")
+	field(INP,  "@asyn($(PORT),$(ADDR))CSMOTOR_REVERSEH_TRANSFORM")
 }
 
 # end

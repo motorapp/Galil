@@ -382,6 +382,11 @@
 //                  Add PV's to call GalilAxis:home in addition to motor record homr/homf fields
 //                  Improved home when use switch true in specified direction when limit already active
 //                  Improved motor limits direction consistency check
+// 12/12/2021 M.Clift
+//                  Altered kinematic equation records to waveform char[256]
+//                  Fix remove spaces from kinematic equations
+// 18/12/2021 M.Clift
+//                  Fix issue parsing kinematic equations
 
 #include <stdio.h>
 #include <math.h>
@@ -421,7 +426,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "3-6-64";
+static const char *driverVersion = "3-6-67";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);

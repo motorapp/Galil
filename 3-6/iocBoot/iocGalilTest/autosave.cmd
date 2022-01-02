@@ -39,6 +39,8 @@ save_restoreSet_CAReconnect(1)
 set_pass0_restoreFile("GalilTest_settings.sav")
 # restore positions in pass 0 so motors don't move
 set_pass0_restoreFile("GalilTest_positions.sav")
+# restore kinematic equation character arrays in pass 1
+set_pass1_restoreFile("GalilTest_kinematics.sav")
 
 ## End of autosave set-up
 ####################################################

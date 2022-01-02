@@ -30,13 +30,14 @@
 # ADDR - CS motor (8-15)
 
 #Forward kinematic transform
-record(stringout,"$(P)$(M)_FTRANSFORM_SP")
+record(waveform,"$(P)$(M)_FTRANSFORM_SP")
 {
 	field(DESC, "$(M) Forward transform")
 	field(PINI, "YES")
-	field(OMSL, "supervisory")
+	field(NELM, "256")
+	field(FTVL, "CHAR")
 	field(DTYP, "asynOctetWrite")
-	field(OUT,  "@asyn($(PORT),$(ADDR))CSMOTOR_FORWARD_TRANSFORM")
+	field(INP,  "@asyn($(PORT),$(ADDR))CSMOTOR_FORWARD_TRANSFORM")
 }
 
 # end

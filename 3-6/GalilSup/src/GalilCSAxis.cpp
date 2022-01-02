@@ -1434,18 +1434,18 @@ asynStatus GalilCSAxis::obtainAxisList(char axis, char *equation, char *axes)
    char first = (forward) ? 'I' : 'A';	//Axis range that is not allowed
    char last = (forward) ? 'P' : 'H';	//Axis range that is not allowed
    char mesg[MAX_GALIL_STRING_SIZE];	//Controller error mesg
-   
+  
    //Construct list of axis found in equation
    for (i = 0; equation[i] != '\0'; i++)
       {
       equation[i] = toupper(equation[i]);
       //Create list of axis found in equation
-      if ((equation[i] >= 'A' && equation[i] <= 'P' && !isalpha(equation[i+1]) && !i) ||
-         (i && equation[i] >= 'A' && equation[i] <= 'P' && !isalpha(equation[i+1]) && !isalpha(equation[i-1])))
+      if ((equation[i] >= 'A' && equation[i] <= 'P' && !isalnum(equation[i+1]) && !i) ||
+         (i && equation[i] >= 'A' && equation[i] <= 'P' && !isalnum(equation[i+1]) && !isalnum(equation[i-1])))
          {
          //Ensure no CS motors in forward equations, and no real motors in reverse equations
-         if ((equation[i] >= first && equation[i] <= last && !isalpha(equation[i+1]) && !i) ||
-             (i && equation[i] >= first && equation[i] <= last && !isalpha(equation[i+1]) && !isalpha(equation[i-1])))
+         if ((equation[i] >= first && equation[i] <= last && !isalnum(equation[i+1]) && !i) ||
+             (i && equation[i] >= first && equation[i] <= last && !isalnum(equation[i+1]) && !isalnum(equation[i-1])))
             {
             if (axisReady_)
                {
@@ -1486,7 +1486,7 @@ asynStatus GalilCSAxis::obtainAxisList(char axis, char *equation, char *axes)
   */
 asynStatus GalilCSAxis::substituteTransforms(char axis, char *equation)
 {
-  unsigned i, j;						//Looping
+  unsigned i;							//Looping
   bool forward = (axis >= 'I' && axis <='P') ? true : false;	//Transform direction forward or reverse
   string equation_s = equation;					//For string substitution
   char subst_transform[MAX_GALIL_STRING_SIZE];			//The substitute transform		
@@ -1495,33 +1495,31 @@ asynStatus GalilCSAxis::substituteTransforms(char axis, char *equation)
   char mesg[MAX_GALIL_STRING_SIZE];				//Controller error mesg
 
   //Scan through transform equation
-  for (j = 0; j < MAX_GALIL_CSAXES + 1; j++)
-     for (i = 0; i < strlen(equation); i++)
+  for (i = 0; equation[i] != '\0'; i++)
+     {
+     equation[i] = toupper(equation[i]);
+     if ((equation[i] >= first && equation[i] <= last && !isalnum(equation[i+1]) && !i) ||
+         (i && equation[i] >= first && equation[i] <= last && !isalnum(equation[i+1]) && !isalnum(equation[i-1])))
         {
-        equation[i] = toupper(equation[i]);
-        if ((equation[i] >= first && equation[i] <= last && !isalpha(equation[i+1]) && !i) ||
-            (i && equation[i] >= first && equation[i] <= last && !isalpha(equation[i+1]) && !isalpha(equation[i-1])))
-           {
-           //Found a motor we want to substitute with a complete transform
-           //Retrieve the substitute transform
-           if (forward)
-              pC_->getStringParam(equation[i] - AASCII, pC_->GalilCSMotorForward_ , MAX_GALIL_STRING_SIZE, subst_transform);
-           else
-              pC_->getStringParam(axisNo_, pC_->GalilCSMotorReverseA_ + equation[i] - AASCII, MAX_GALIL_STRING_SIZE, subst_transform);
+        //Found a motor we want to substitute with a complete transform
+        //Retrieve the substitute transform
+        if (forward)
+           pC_->getStringParam(equation[i] - AASCII, pC_->GalilCSMotorForward_ , MAX_GALIL_STRING_SIZE, subst_transform);
+        else
+           pC_->getStringParam(axisNo_, pC_->GalilCSMotorReverseA_ + equation[i] - AASCII, MAX_GALIL_STRING_SIZE, subst_transform);
 
-           //Substitute motor letter with complete transform
-           equation_s.replace(i,i+1, subst_transform);
+        //Substitute motor letter with complete transform
+        equation_s.replace(i, i+1, subst_transform);
+        if (equation_s.length() < MAX_GALIL_STRING_SIZE - 1)
            strcpy(equation, equation_s.c_str());
-           //If we keep finding things to substitute by this time there are either
-           //Too many CS motors in forward equations or too many real motors in reverse equations 
-           if ((j == MAX_GALIL_CSAXES) && axisReady_)
-              {
-              sprintf(mesg, "%c transform has too many substitutes", axis);
-              pC_->setCtrlError(mesg);
-              return asynError;
-              }
+        else
+           {
+           sprintf(mesg, "%c transform, including substitutes, is > 256 bytes", axis);
+           pC_->setCtrlError(mesg);
+           return asynError;
            }
         }
+     }
 
   return asynSuccess;
 }
@@ -1626,6 +1624,10 @@ asynStatus GalilCSAxis::parseTransform(char axis, char *equation, char *axes, ch
 {  
    int status;
 
+   //Remove spaces from provided equation
+   string equation_s = equation;
+   equation_s.erase (std::remove(equation_s.begin(), equation_s.end(), ' '), equation_s.end());
+   strcpy(equation, equation_s.c_str());
    //Only CS motors appear in reverse equations
    //Only Real motors appear in forward equations
    //Apply substitution to ensure this is true or fail
