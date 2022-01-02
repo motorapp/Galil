@@ -33,3 +33,6 @@ create_monitor_set("GalilTest_positions.req", 5,"P=DMC01:")
 create_monitor_set("GalilTest_settings.req", 30,"IOC=IOC01:,P1=DMC01:, P2=RIO01:")
 # Save kinematics every 30 seconds
 create_monitor_set("GalilTest_kinematics.req", 30,"P1=DMC01:")
+
+# end
+
