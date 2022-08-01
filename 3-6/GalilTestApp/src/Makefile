@@ -8,7 +8,8 @@ include $(TOP)/configure/CONFIG
 #=============================
 # build an ioc application
 
-PROD_IOC = GalilTest
+PROD_IOC_DEFAULT = GalilTest
+PROD_IOC_vxWorks = -nil-
 
 # <name>.dbd will be created from <name>Include.dbd
 DBD += GalilTest.dbd
