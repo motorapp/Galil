@@ -18,9 +18,9 @@ AUTO-GENERATED HOME STEPS
 5. AutoGen Galil home code jogs to find encoder index, or skip
 6. AutoGen Galil home code messages controller when home completed successfully
 
-UseSwitch (Limits&home are switches) = Yes (For stages with limits, home switches)
-Begins on step 2
-Home search direction away from limit
+UseSwitch (Limits&home are switches) = Yes (For stages with limits, home switches)   
+Begins on step 2   
+Home search direction away from limit   
 Find index direction away from limit
 UseSwitch = No (For rotary stages without limits)
 Find index direction indicated by HOMR, HOMF
