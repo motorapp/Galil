@@ -21,21 +21,21 @@ AUTO-GENERATED HOME STEPS
 UseSwitch (Limits&home are switches) = Yes (For stages with limits, home switches)   
 Begins on step 2   
 Home search direction away from limit   
-Find index direction away from limit
-UseSwitch = No (For rotary stages without limits)
-Find index direction indicated by HOMR, HOMF
-Begins on step 5
-useIndex = Yes
-Includes step 5
-useIndex = No
-Excludes step 5
+Find index direction away from limit  
+UseSwitch = No (For rotary stages without limits)  
+Find index direction indicated by HOMR, HOMF  
+Begins on step 5  
+useIndex = Yes  
+Includes step 5  
+useIndex = No  
+Excludes step 5  
 
-Use Limits as Home Switch = Yes
-Home switch is not used, limits used as home instead
-Skip steps 3, 4
+Use Limits as Home Switch = Yes  
+Home switch is not used, limits used as home instead  
+Skip steps 3, 4  
 
-Use Limits as Home Switch = No
-Home switch is used
+Use Limits as Home Switch = No  
+Home switch is used  
 
 MOTOR/LIMIT DIRECTION CONSISTENCY & WRONG LIMIT PROTECTION (WLP)
 ================================================================
