@@ -44,11 +44,11 @@ MOTOR/LIMIT DIRECTION CONSISTENCY & WRONG LIMIT PROTECTION (WLP)
    When the motor is moving reverse, the stage must be travelling toward the reverse limit  
 2. Verifying motor/limit direction consistency involves both the hardware (wiring) and software  
    (motor, encoder selection) configuration  
-3. For hardware and software configurations where the motor/limit direction is not confirmed, it  
-   is NOT SAFE to rely on WLP to avoid stage damage when the ioc is started with the stage already  
+3. For hardware and software configurations where the motor/limit direction consistency is not known,  
+   it is NOT SAFE to rely on WLP to avoid stage damage when the ioc is started with the stage already  
    on a limit  
-4. For hardware and software configurations where the motor/limit direction is not confirmed, it   
-   IS SAFE to rely on WLP to avoid stage damage when the ioc is started with the stage clear of  
+4. For hardware and software configurations where the motor/limit direction consistency is not known,  
+   it IS SAFE to rely on WLP to avoid stage damage when the ioc is started with the stage clear of  
    both limits  
 5. The motor/limit consistency has the states unknown, consistent and not consistent  
 6. The motor/limit consistency check PV is $(P)$(M)_LIMITCONSISTENT_STATUS it is in motor extras db  
