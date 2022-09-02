@@ -3,14 +3,12 @@
 
 ASYN based EPICS driver for Galil products
 
-Notes
-=====
+# Notes
 
 If using RS232 communication on Microsoft Windows, need XON/XOFF flow control enabled via switches on Galil controller or else uploading
 a program to the controller times out and fails. However, all other read/write communication works fine without flow control enabled.
 
-AUTO-GENERATED HOME STEPS
-=========================
+## AUTO-GENERATED HOME STEPS
 1. Driver starts jog in direction indicated by HOMR, HOMF
 2. AutoGen Galil home code jogs off limit switch, or skip
 3. AutoGen Galil home code jogs to find home switch active, or skip
