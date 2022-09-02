@@ -8,7 +8,7 @@ ASYN based EPICS driver for Galil products
 If using RS232 communication on Microsoft Windows, need XON/XOFF flow control enabled via switches on Galil controller or else uploading
 a program to the controller times out and fails. However, all other read/write communication works fine without flow control enabled.
 
-## AUTO-GENERATED HOME STEPS
+### AUTO-GENERATED HOME STEPS
 1. Driver starts jog in direction indicated by HOMR, HOMF
 2. AutoGen Galil home code jogs off limit switch, or skip
 3. AutoGen Galil home code jogs to find home switch active, or skip
@@ -35,7 +35,7 @@ Skip steps 3, 4
 Use Limits as Home Switch = No  
 Home switch is used  
 
-## MOTOR/LIMIT DIRECTION CONSISTENCY & WRONG LIMIT PROTECTION (WLP)
+### MOTOR/LIMIT DIRECTION CONSISTENCY & WRONG LIMIT PROTECTION (WLP)
 1. Commisioning partly involves verifying motor direction is consistent with limit orientation  
    When the motor is moving forward, the stage must be travelling toward the forward limit  
    When the motor is moving reverse, the stage must be travelling toward the reverse limit  
