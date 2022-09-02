@@ -387,6 +387,16 @@
 //                  Fix remove spaces from kinematic equations
 // 18/12/2021 M.Clift
 //                  Fix issue parsing kinematic equations
+// 03/09/2022 M.Clift
+//                  Add $(P):HOMEEDGE_CMD, Add $(P):HOMEEDGE_STATUS to set home switch edge found during homing
+//                  Alter home switch type, limit switch type PV's to be more general
+//                  Improved generated home routine for home to home switch
+//                  Fix motor acceleration not set issue introduced by $(P)$M)HOMR_CMD/$(P)$M)HOMF_CMD homing PV's
+//                  Moved limits as home option to motor extras with PV $(P)$M)ULAH_CMD/$(P)$M)ULAH_STATUS
+//                  Improved motor limits direction consistency check
+//                  Improved wrong limit protection
+//                  Add alarms states to $(P)$(M)_LIMITCONSISTENT_STATUS
+//                  Renamed $(P)$(M)_WLPACTIVE_STATUS to $(P)$(M)_WLPSTOP_STATUS
 
 #include <stdio.h>
 #include <math.h>
@@ -426,7 +436,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "3-6-67";
+static const char *driverVersion = "3-6-76";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);
@@ -549,6 +559,7 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilAddressString, asynParamOctet, &GalilAddress_);
   createParam(GalilModelString, asynParamOctet, &GalilModel_);
   createParam(GalilHomeTypeString, asynParamInt32, &GalilHomeType_);
+  createParam(GalilHomeEdgeString, asynParamInt32, &GalilHomeEdge_);
   createParam(GalilLimitTypeString, asynParamInt32, &GalilLimitType_);
   createParam(GalilCtrlErrorString, asynParamOctet, &GalilCtrlError_);
   createParam(GalilDeferredModeString, asynParamInt32, &GalilDeferredMode_);
@@ -613,7 +624,7 @@ GalilController::GalilController(const char *portName, const char *address, doub
 
   createParam(GalilAfterLimitString, asynParamFloat64, &GalilAfterLimit_);
   createParam(GalilWrongLimitProtectionString, asynParamInt32, &GalilWrongLimitProtection_);
-  createParam(GalilWrongLimitProtectionActiveString, asynParamInt32, &GalilWrongLimitProtectionActive_);
+  createParam(GalilWrongLimitProtectionStopString, asynParamInt32, &GalilWrongLimitProtectionStop_);
 
   createParam(GalilUserOffsetString, asynParamFloat64, &GalilUserOffset_);
   createParam(GalilEncoderResolutionString, asynParamFloat64, &GalilEncoderResolution_);
@@ -623,6 +634,7 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilPremString, asynParamOctet, &GalilPrem_);
   createParam(GalilPostString, asynParamOctet, &GalilPost_);
 
+  createParam(GalilUseLimitsAsHomeString, asynParamInt32, &GalilUseLimitsAsHome_);
   createParam(GalilUseSwitchString, asynParamInt32, &GalilUseSwitch_);
   createParam(GalilUseIndexString, asynParamInt32, &GalilUseIndex_);
   createParam(GalilJogAfterHomeString, asynParamInt32, &GalilJogAfterHome_);
@@ -3494,14 +3506,7 @@ asynStatus GalilController::readInt32(asynUser *pasynUser, epicsInt32 *value)
    //For output records autosave, or db defaults are pushed to hardware instead
    if (!dbInitialized) return asynError;
     
-   if (function == GalilHomeType_) {
-      //Read home type from controller
-      strcpy(cmd_, "MG _CN1");
-      status = get_integer(GalilHomeType_, value);
-      if (!status)
-         *value = (*value > 0) ? 1 : 0;
-   }
-   else if (function == GalilLimitType_) {
+   if (function == GalilLimitType_) {
       //Read limit type from controller
       strcpy(cmd_, "MG _CN0");
       status = get_integer(GalilLimitType_, value);
@@ -3616,8 +3621,10 @@ asynStatus GalilController::readInt32(asynUser *pasynUser, epicsInt32 *value)
       status = get_integer(GalilAmpLowCurrent_, value);
    }
    else if (function == GalilLimitDisable_) {
-      sprintf(cmd_, "MG _LD%c", pAxis->axisName_);
-      status = get_integer(GalilLimitDisable_, value);
+      if (model_[3] != '1' && model_[3] != '2') {
+         sprintf(cmd_, "MG _LD%c", pAxis->axisName_);
+         status = get_integer(GalilLimitDisable_, value);
+      }
    }
    else if (function == GalilCtrlEtherCatFault_) {
       //Retrieve required params
@@ -3722,8 +3729,6 @@ asynStatus GalilController::readFloat64(asynUser *pasynUser, epicsFloat64 *value
      }
   else if (function == GalilAnalogIn_ && !status)
      {
-     //Likely a DMC4xxx with low number of axes
-     //User wants analog input value > numaxes and so the data is not in datarecord
      //For when input records are set to periodic scan not I/O Intr
      sprintf(cmd_, "MG @AN%d", addr);
      get_double(GalilAnalogIn_, value, addr);
@@ -3808,12 +3813,15 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
   GalilAxis *pAxis = getAxis(pasynUser);	//Retrieve the axis instance
   GalilCSAxis *pCSAxis = getCSAxis(pasynUser);	//Retrieve the axis instance
   int hometype, limittype;			//The home, and limit switch type
+  int homeedge;					//Home edge to locate
+  int homesetting;				//Controller home switch _CN1 setting
   int mainencoder, auxencoder, encoder_setting; //Main, aux encoder setting
   char coordinate_system;			//Coordinate system S or T
   char axes[MAX_GALIL_AXES];			//Coordinate system axis list
-  string mesg = "";					//Controller mesg
+  string mesg = "";				//Controller mesg
   double eres, mres;				//mr eres and mres
-  double hvel, accl;				//mr hvel and accl
+  double hvel, accl;				//mr hvel, accl
+  double acceleration;				//Axis acceleration Units=steps/sec/sec
   int spmg;					//mr stop pause move go (spmg)
   float oldmotor;				//Motor type before changing it.  Use Galil numbering
   unsigned i;					//Looping
@@ -3847,15 +3855,25 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
    * status at the end, but that's OK */
   status = setIntegerParam(addr, function, value);
   
-  if (function == GalilHomeType_ || function == GalilLimitType_) {
-     //Retrieve the limit type and home type
-     //Must ensure getIntegerParam successful, as some parameters may not be set yet due to record default mechanism
-     if ((getIntegerParam(GalilLimitType_, &limittype) == asynSuccess) && (getIntegerParam(GalilHomeType_, &hometype) == asynSuccess)) {
-        //Convert Param syntax of these params to controller syntax
+  if (function == GalilHomeType_ || function == GalilHomeEdge_ || function == GalilLimitType_) {
+     //Retrieve required parameters
+     status = getIntegerParam(GalilHomeType_, &hometype);
+     status |= getIntegerParam(GalilHomeEdge_, &homeedge);
+     status |= getIntegerParam(GalilLimitType_, &limittype);
+     if (!status) {
+        //Convert limit type to controller syntax
         limittype = (limittype > 0) ? 1 : -1;
-        hometype = (hometype > 0) ? 1 : -1;
-        //Assemble cmd string 
-        sprintf(cmd_, "CN %d,%d,-1,0,1", limittype, hometype);
+        //Determine controller home setting for _CN1
+        homesetting = ((!hometype && !homeedge)||(hometype && homeedge)) ? 1 : -1;
+        //Determine home switch active, inactive value for _HM operand
+        hswact_ = ((!hometype && !homeedge)||(hometype && !homeedge)) ? 1 : 0;
+        hswiact_ = ((!hometype && homeedge)||(hometype && homeedge)) ? 1 : 0;
+        //Set limit and home switch configuration
+        sprintf(cmd_, "CN %d,%d,-1,0,1", limittype, homesetting);
+        //Write setting to controller
+        status = sync_writeReadController();
+        //Update home edge variable on controller
+        sprintf(cmd_, "hswedg=%d", homeedge);
         //Write setting to controller
         status = sync_writeReadController();
      }
@@ -3922,10 +3940,10 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
         getDoubleParam(pAxis->axisNo_, GalilEncoderResolution_, &eres);
         getDoubleParam(pAxis->axisNo_, motorResolution_, &mres);
         if (mres != 0.000000) {
-			//Calculate step count from existing encoder_position, construct mesg to controller_
-			sprintf(cmd_, "DP%c=%.0lf", pAxis->axisName_, pAxis->encoder_position_ * (eres/mres));
-			//Write setting to controller
-			status = sync_writeReadController();
+           //Calculate step count from existing encoder_position, construct mesg to controller_
+           sprintf(cmd_, "DP%c=%.0lf", pAxis->axisName_, pAxis->encoder_position_ * (eres/mres));
+           //Write setting to controller
+           status = sync_writeReadController();
         }
      }
 
@@ -3946,11 +3964,13 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 		((oldmotor == 1.0 && newmtr == -1.5) || (oldmtr_abs == -1.5 && newmtr_abs == 1.0)) ||
 		((oldmotor == -1.0 && newmtr == 1.5) || (oldmtr_abs == 1.5 && newmtr_abs == -1.0)) ||
 		((oldmotor == -11 && newmtr == 11) || (oldmotor == 11 && newmtr == -11))) {
-        if (pAxis->limitsDirState_ != unknown)
+        //New motor is same as old but opposite direction
+        if (pAxis->limitsDirState_ != unknown) {
+           //Toggle motor/limit direction consistency since it was known
            pAxis->limitsDirState_ = (pAxis->limitsDirState_ == not_consistent) ? consistent : not_consistent;
-        //Ensure WLP Active state is unlatch so a move can be initiated
-        if (pAxis->limitsDirState_ == consistent)
-           setIntegerParam(pAxis->axisNo_, GalilWrongLimitProtectionActive_, 0);
+           //Update motor/limit direction consistency in paramList
+           setIntegerParam(pAxis->axisNo_, GalilLimitConsistent_, pAxis->limitsDirState_);
+        }
      }
      else if (oldmotor != newmtr)
         pAxis->limitsDirState_ = unknown;
@@ -4085,13 +4105,15 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
         getIntegerParam(pAxis->axisNo_, GalilWrongLimitProtection_, &wlp);
         //Check if limitDisable conflicts with WLP
         if (wlp && value > 0) {
-           mesg = pAxis->axisName_ + " wrong limit protection disabled whilst limits disabled";
+           mesg = pAxis->axisName_ + " wrong limit protect disabled at end(s) with disabled limits";
            setCtrlError(mesg);
         }
      }
      else if (value != 0) {
+        //Controller doesn't support limit disable
         mesg = address_ + " Axis " + pAxis->axisName_ + " does not support limit disable feature";
         setCtrlError(mesg);
+        setIntegerParam(pAxis->axisNo_, GalilLimitDisable_, 0);
      }
   }
   else if (function == GalilWrongLimitProtection_) {
@@ -4101,7 +4123,7 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
      getIntegerParam(pAxis->axisNo_, GalilLimitDisable_, &limitDisable);
      //Check if WLP conflicts with limitDisable
      if (limitDisable && value) {
-        mesg = pAxis->axisName_ + " wrong limit protection disabled whilst limits disabled";
+        mesg = pAxis->axisName_ + " wrong limit protect disabled at end(s) with disabled limits";
         setCtrlError(mesg);
      }
   }
@@ -4122,17 +4144,28 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
   }
   else if (function == GalilHomr_ || function == GalilHomf_) {
      //Retrieve required parameters
-     status = getDoubleParam(pAxis->axisNo_, GalilMotorHvel_, &hvel);
-     status |= getDoubleParam(pAxis->axisNo_, GalilMotorAccl_, &accl);
+     status = getIntegerParam(pAxis->axisNo_, GalilStopPauseMoveGo_, &spmg);
+     status |= getDoubleParam(pAxis->axisNo_, GalilMotorHvel_, &hvel);
      status |= getDoubleParam(pAxis->axisNo_, motorResolution_, &mres);
-     status |= getIntegerParam(pAxis->axisNo_, GalilStopPauseMoveGo_, &spmg);
-     if (!status && spmg == 3) {
-        //Convert Hvel from EGU/sec to steps/sec
+     if (!status && spmg == SPMG_GO) {
+        //Motor record stop pause move go is set GO
+        //Convert Hvel from EGU/sec to steps/sec to provide maxVelocity to home method
         hvel = hvel / mres;
-        //Convert acceleration expressed in time to steps/sec2
-        accl = hvel / accl;
+        //Check motor record has set acceleration
+        if (getDoubleParam(pAxis->axisNo_, motorAccel_, &acceleration) == asynParamUndefined) {
+           if (getDoubleParam(pAxis->axisNo_, GalilMotorAccl_, &accl) == asynSuccess) {
+              //asynMotorController has not set motor acceleration parameter motorAccel_
+              //Calculate and set acceleration parameter motorAccel_
+              //asynMotorController uses parameter motorAccel_ to set acceleration 
+              //used in GalilAxis method calls
+              acceleration = hvel / accl;
+              setDoubleParam(pAxis->axisNo_, motorAccel_, acceleration);
+           }
+           else //Acceleration when it can't be calculated due to paramList error
+              acceleration = 4096;
+        }
         //Call axis home
-        pAxis->home(0, hvel, accl, (function == GalilHomr_) ? 0 : 1);
+        pAxis->home(0, hvel, acceleration, (function == GalilHomr_) ? 0 : 1);
      }
   }
   else {
@@ -5591,6 +5624,9 @@ int GalilController::GalilInitializeVariables(bool burn_variables)
          //provide sensible default for limdc (limit deceleration) value
          sprintf(cmd_, "limdc%c=%ld", axisList_[i], maxAcceleration_);
          status |= sync_writeReadController();
+         //provide sensible default for normdc (normal deceleration) value
+         sprintf(cmd_, "nrmdc%c=%ld", axisList_[i], maxAcceleration_);
+         status |= sync_writeReadController();
          //Initialize home related parameters on controller
          //initialise home variable for this axis, set to not homming just yet.  Set to homming only when doing a home
          sprintf(cmd_, "home%c=0", axisList_[i]);
@@ -5600,6 +5636,12 @@ int GalilController::GalilInitializeVariables(bool burn_variables)
          status |= sync_writeReadController();
          //Initialize home switch inactive value
          sprintf(cmd_, "hswiact%c=1", axisList_[i]);
+         status |= sync_writeReadController();
+         //Initialize home switch edge
+         sprintf(cmd_, "hswedg=1");
+         status |= sync_writeReadController();
+         //Initialize use limits as home switch
+         sprintf(cmd_, "ulah%c=1", axisList_[i]);
          status |= sync_writeReadController();
          //Initialize home jog speed
          sprintf(cmd_, "hjs%c=2048", axisList_[i]);
@@ -5660,10 +5702,9 @@ void GalilController::GalilReplaceHomeCode(char *axis, string filename) {
    string line;                   //Read the file line by line
    string mesg = "";              //Error messages
    ifstream file(filename);       //Input file stream
-   size_t found;                  //Location of search string in thread code
-   int limit_sw_code_size;        //Generated code size in bytes for homing to limit switch
-   int home_sw_code_size;         //Generated code size in bytes for homing to home switch
-   size_t cut;                    //Number of bytes to cut from thread code
+   size_t codeStart;              //Location of home code start in thread code
+   size_t codeLen;                //Length of home code found
+   size_t endLen;                 //Length of home code end statement
    size_t inpos;                  //Position in code to insert custom code line
 
    // Axis letter A-H
@@ -5695,31 +5736,36 @@ void GalilController::GalilReplaceHomeCode(char *axis, string filename) {
       return;
    }
 
-   //Determine generated home code byte size
-   limit_sw_code_size = (model_[3] == '2') ? 568 : 663;
-   home_sw_code_size = (model_[3] == '2') ? 574 : 669;
-   // Determine number of bytes to cut from thread code
-   cut = (pAxis->limit_as_home_) ? limit_sw_code_size : home_sw_code_size;
-   // Construct search string
+   // Look for home program start in thread code
    str = string("IF(home") + string(axis) + string("=1)");
-   // Search code for our search string
-   found = thread_code_.find(str);
-   if (found != string::npos) {
-      // Found code segment
+   codeStart = thread_code_.find(str);
+
+   // Look for home program end in thread code
+   str = "WT10;hjog?=0;home?=0;homed?=1;MG \"homed?\",homed?;ENDIF;ENDIF\n";
+   endLen = str.length();
+   //Replace ? symbol with axisName_
+   replace( str.begin(), str.end(), '?', axisName);
+   codeLen = thread_code_.find(str);
+
+   if (codeStart != string::npos && codeLen != string::npos) {
+      // Generated home program found
       if (file.is_open()) {
+         // Calculate home code length
+         codeLen += endLen;
+         codeLen -= codeStart;
          // Remove generated home code
-         thread_code_.erase(found, cut);
+         thread_code_.erase(codeStart, codeLen);
          // Initial position within code buffer to insert custom code
-         inpos = found;
+         inpos = codeStart;
          // Read provided file line by line, and add to code buffer
          while (getline(file, line)) {
             if (line.compare("\n") != 0) {
 
                // Check read line for $(AXIS) macro
-               while ((found = line.find("$(AXIS)")) != string::npos) {
+               while ((codeStart = line.find("$(AXIS)")) != string::npos) {
                   // Replace any found $(AXIS) macro with specified axis
-                  if (found != string::npos)
-                     line.replace(found, 7, axis);
+                  if (codeStart != string::npos)
+                     line.replace(codeStart, 7, axis);
                }
                // Put the new line character back
                line = line + '\n';
@@ -5729,10 +5775,10 @@ void GalilController::GalilReplaceHomeCode(char *axis, string filename) {
                inpos = inpos + line.length();
             }
          }
-      // Done reading, close the file
-      file.close();
-      // Flag custom home code loaded for this axis
-      pAxis->customHome_ = true;
+         // Done reading, close the file
+         file.close();
+         // Flag custom home code loaded for this axis
+         pAxis->customHome_ = true;
       }
       else {
         // Can't open provided file
@@ -7255,13 +7301,11 @@ extern "C" int GalilCreateController(const char *portName, const char *address, 
   * Configuration command, called directly or from iocsh
   * \param[in] portName          The name of the asyn port that has already been created for this driver
   * \param[in] axisname      	 The name motor A-H 
-  * \param[in] limits_as_home    Home routine will use limit switches for homing, and limits appear to motor record as home switch
   * \param[in] enables_string	 Comma separated list of digital IO ports used to enable/disable the motor
   * \param[in] switch_type	 Switch type attached to digital bits for enable/disable motor
   */
 extern "C" asynStatus GalilCreateAxis(const char *portName,        	/*specify which controller by port name */
                          	      char *axisname,                  	/*axis name A-H */
-				      int limit_as_home,		/*0=no, 1=yes. Using a limit switch as home*/
 				      char *enables_string,		/*digital input(s) to use to enable/inhibit motor*/
 				      int switch_type)		  	/*digital input switch type for enable/inhbit function*/
 {
@@ -7278,7 +7322,7 @@ extern "C" asynStatus GalilCreateAxis(const char *portName,        	/*specify wh
   
   pC->lock();
 
-  new GalilAxis(pC, axisname, limit_as_home, enables_string, switch_type);
+  new GalilAxis(pC, axisname, enables_string, switch_type);
 
   pC->unlock();
   return asynSuccess;
@@ -7444,21 +7488,19 @@ static void GalilCreateContollerCallFunc(const iocshArgBuf *args)
 //GalilCreateAxis iocsh function
 static const iocshArg GalilCreateAxisArg0 = {"Controller Port name", iocshArgString};
 static const iocshArg GalilCreateAxisArg1 = {"Specified Axis Name", iocshArgString};
-static const iocshArg GalilCreateAxisArg2 = {"Limit switch as home", iocshArgInt};
-static const iocshArg GalilCreateAxisArg3 = {"Motor enable string", iocshArgString};
-static const iocshArg GalilCreateAxisArg4 = {"Motor enable switch type", iocshArgInt};
+static const iocshArg GalilCreateAxisArg2 = {"Motor enable string", iocshArgString};
+static const iocshArg GalilCreateAxisArg3 = {"Motor enable switch type", iocshArgInt};
 
 static const iocshArg * const GalilCreateAxisArgs[] =  {&GalilCreateAxisArg0,
                                                         &GalilCreateAxisArg1,
 							&GalilCreateAxisArg2,
-							&GalilCreateAxisArg3,
-							&GalilCreateAxisArg4};
+							&GalilCreateAxisArg3};
 
-static const iocshFuncDef GalilCreateAxisDef = {"GalilCreateAxis", 5, GalilCreateAxisArgs};
+static const iocshFuncDef GalilCreateAxisDef = {"GalilCreateAxis", 4, GalilCreateAxisArgs};
 
 static void GalilCreateAxisCallFunc(const iocshArgBuf *args)
 {
-  GalilCreateAxis(args[0].sval, args[1].sval, args[2].ival, args[3].sval, args[4].ival);
+  GalilCreateAxis(args[0].sval, args[1].sval, args[2].sval, args[3].ival);
 }
 
 //GalilCreateVAxis iocsh function

@@ -59,33 +59,32 @@ GalilCreateController("RIO", "192.168.0.110", 2)
 #
 # 1. char *portName Asyn port for controller
 # 2. char  axis A-H,
-# 3. int   limits_as_home (0 off 1 on), 
-# 4. char  *Motor interlock digital port number 1 to 8 eg. "1,2,4".  1st 8 bits are supported
-# 5. int   Interlock switch type 0 normally open, all other values is normally closed interlock switch type
+# 3. char  *Motor interlock digital port number 1 to 8 eg. "1,2,4".  1st 8 bits are supported
+# 4. int   Interlock switch type 0 active when opto active, all other values switch type active when opto inactive
 
 # Create the axis
-GalilCreateAxis("Galil","A",1,"",1)
-GalilCreateAxis("Galil","B",1,"",1)
-GalilCreateAxis("Galil","C",1,"",1)
-GalilCreateAxis("Galil","D",1,"",1)
-GalilCreateAxis("Galil","E",1,"",1)
-GalilCreateAxis("Galil","F",1,"",1)
-GalilCreateAxis("Galil","G",1,"",1)
-GalilCreateAxis("Galil","H",1,"",1)
+GalilCreateAxis("Galil","A","",1)
+GalilCreateAxis("Galil","B","",1)
+GalilCreateAxis("Galil","C","",1)
+GalilCreateAxis("Galil","D","",1)
+GalilCreateAxis("Galil","E","",1)
+GalilCreateAxis("Galil","F","",1)
+GalilCreateAxis("Galil","G","",1)
+GalilCreateAxis("Galil","H","",1)
 
 # GalilAddCode command parameters are:
 # Add custom code to generated code
 # 1. char *portName Asyn port for controller
 # 2. int section = code section to add custom code into 0 = card code, 1 = thread code, 2 = limits code, 3 = digital code
 # 3. char *code_file custom code file
-#GalilAddCode("Galil", 1, "customcode.dmc")
+# GalilAddCode("Galil", 1, "customcode.dmc")
 
 # GalilReplaceHomeCode command parameters are:
 # Replace generated axis home code with custom code
 # 1. char *portName Asyn port for controller
 # 2. char *Axis A-H
 # 3. char *code_file custom code file
-#GalilReplaceHomeCode("Galil", "C", "customhoming.dmc")
+# GalilReplaceHomeCode("Galil", "A", "homeA.dmc")
 
 # GalilCreateCSAxes command parameters are:
 #

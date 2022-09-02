@@ -51,14 +51,14 @@ record(stringin,"$(P)ADDRESS_MON")
 
 record(bi,"$(P)LIMITTYPE_STATUS")
 {
-	field(DESC, "Ctrl limit sw type")
+	field(DESC, "limit active when")
 	field(DTYP, "asynInt32")
 	field(PINI, "YES")
 	field(SCAN, "$(SCAN)")
-	field(ZNAM, "NO")
+	field(ZNAM, "Opto active")
    	field(ZSV,  "NO_ALARM")
 
-  	field(ONAM, "NC")
+  	field(ONAM, "Opto inactive")
   	field(OSV,  "NO_ALARM")
 
    	field(INP,  "@asyn($(PORT),0)CONTROLLER_LIMITTYPE")
@@ -66,26 +66,41 @@ record(bi,"$(P)LIMITTYPE_STATUS")
 
 record(bi,"$(P)HOMETYPE_STATUS")
 {
-	field(DESC, "Ctrl home sw type")
+	field(DESC, "home active when")
 	field(DTYP, "asynInt32")
 	field(PINI, "YES")
 	field(SCAN, "$(SCAN)")
-	field(ZNAM, "NO")
+	field(ZNAM, "Opto active")
    	field(ZSV,  "NO_ALARM")
 
-  	field(ONAM, "NC")
+  	field(ONAM, "Opto inactive")
   	field(OSV,  "NO_ALARM")
 
    	field(INP,  "@asyn($(PORT),0)CONTROLLER_HOMETYPE")
 }
 
+record(bi,"$(P)HOMEEDGE_STATUS")
+{
+	field(DESC, "home edge located")
+	field(DTYP, "asynInt32")
+	field(PINI, "YES")
+	field(SCAN, "$(SCAN)")
+	field(ZNAM, "Reverse")
+   	field(ZSV,  "NO_ALARM")
+
+  	field(ONAM, "Forward")
+  	field(OSV,  "NO_ALARM")
+
+   	field(INP,  "@asyn($(PORT),0)CONTROLLER_HOMEEDGE")
+}
+
 record(bo,"$(P)LIMITTYPE_CMD")
 {
-	field(DESC,"Ctrl limit sw type")
+	field(DESC,"limit active when")
 	field(DTYP, "asynInt32")
-	field(ZNAM,"NO")
+	field(ZNAM,"Opto active")
 	field(ZSV, "NO_ALARM")
-	field(ONAM,"NC")
+	field(ONAM,"Opto inactive")
 	field(OSV, "NO_ALARM")
 	field(PINI,"YES")
 	field(VAL, "$(DEFAULT_LIMITTYPE)")
@@ -95,16 +110,30 @@ record(bo,"$(P)LIMITTYPE_CMD")
 
 record(bo,"$(P)HOMETYPE_CMD")
 {
-	field(DESC,"Ctrl home sw type")
+	field(DESC,"home active when")
 	field(DTYP, "asynInt32")
-	field(ZNAM,"NO")
+	field(ZNAM,"Opto active")
 	field(ZSV, "NO_ALARM")
-	field(ONAM,"NC")
+	field(ONAM,"Opto inactive")
 	field(OSV, "NO_ALARM")
 	field(PINI,"YES")
 	field(VAL, "$(DEFAULT_HOMETYPE)")
 	field(OUT, "@asyn($(PORT),0)CONTROLLER_HOMETYPE")
 	field(FLNK,"$(P)HOMETYPE_STATUS")
+}
+
+record(bo,"$(P)HOMEEDGE_CMD")
+{
+	field(DESC,"home edge located")
+	field(DTYP, "asynInt32")
+	field(ZNAM,"Reverse")
+	field(ZSV, "NO_ALARM")
+	field(ONAM,"Forward")
+	field(OSV, "NO_ALARM")
+	field(PINI,"YES")
+	field(VAL, "1")
+	field(OUT, "@asyn($(PORT),0)CONTROLLER_HOMEEDGE")
+	field(FLNK,"$(P)HOMEEDGE_STATUS")
 }
 
 record(stringin,"$(P)ETHADDR_MON")

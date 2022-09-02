@@ -87,7 +87,6 @@ public:
 
   GalilAxis(class GalilController *pC, 
 	    char *axisname,			/*axisname A-H */
-	    int limit_as_home,			/*0=no, 1=yes. Using a limit switch as home*/
 	    char *enables_string,		/*digital input(s) to use to send home, or interlock motor if -ve*/
 	    int switch_type);			/*digital input to use to send away from home*/
 
@@ -96,7 +95,7 @@ public:
   asynStatus poller(void);
 
   //Store settings, and implement defaults
-  asynStatus setDefaults(int limit_as_home, char *enables_string, int switch_type);
+  asynStatus setDefaults(char *enables_string, int switch_type);
 
   //Store motor digital inhibits
   void store_motors_enable(void);
@@ -143,8 +142,8 @@ public:
   void checkEncoder(void);
   //Synchronize aux register with encoder
   void syncEncodedStepper(void);
-  //Stop motor if wrong limit activated and wrongLimitProtection is enabled
-  void wrongLimitProtection(void);
+  //Stop motor for wrong limit protection
+  void wrongLimitStop(void);
   //Sets time motor has been stopped for in GalilAxis::stoppedTime_
   void setStopTime(void);
   //Reset homing if stoppedTime_ greater than HOMING_TIMEOUT
@@ -277,7 +276,9 @@ private:
   bool inmotion_;			//Axis in motion status from controller
   int stop_code_;			//Axis stop code from controller
   bool fwd_;				//Forward limit status
+  bool fwdlast_;			//Forward limit status last poll cycle
   bool rev_;				//Reverse limit status
+  bool revlast_;			//Reverse limit status last poll cycle
 
   bool moveThruRecord_;			//CSAxis has pushed a move to this axis via motor record VAL
                                         //Used to control write access to motor record VAL field
@@ -298,7 +299,6 @@ private:
   bool useCSADynamics_;			//Should this axis use CSAxis requested acceleration and velocity
   
   limitsState limitsDirState_;		//Status of limits consistency with motor direction
-  bool beginOnLimit_;			//Did move begin while on a limit switch
   bool home_;				//Home switch raw status direct from data record
   int done_;				//Motor done status passed to motor record
   int last_done_;			//Backup of done status at end of each poll.  Used to detect stop

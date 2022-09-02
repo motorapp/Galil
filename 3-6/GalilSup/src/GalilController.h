@@ -55,6 +55,11 @@
 #define INP_CODE_LEN 80000
 #define THREAD_CODE_LEN 80000
 
+#define SPMG_STOP 0
+#define SPMG_PAUSE 1
+#define SPMG_MOVE 2
+#define SPMG_GO 3
+
 //Time base
 #define DEFAULT_TIME 1000.0
 
@@ -82,6 +87,7 @@
 #define GalilAddressString		"CONTROLLER_ADDRESS"
 #define GalilModelString		"CONTROLLER_MODEL"
 #define GalilHomeTypeString		"CONTROLLER_HOMETYPE"
+#define GalilHomeEdgeString		"CONTROLLER_HOMEEDGE"
 #define GalilLimitTypeString		"CONTROLLER_LIMITTYPE"
 #define GalilCtrlErrorString		"CONTROLLER_ERROR"
 #define GalilCommunicationErrorString	"CONTROLLER_COMMERR"
@@ -145,7 +151,7 @@
 #define GalilMotorConnectedString	"MOTOR_MCONN"
 #define GalilAfterLimitString		"MOTOR_EGUAFTER_LIMIT"
 #define GalilWrongLimitProtectionString	"MOTOR_WLP"
-#define GalilWrongLimitProtectionActiveString	"MOTOR_WLP_ACTIVE"
+#define GalilWrongLimitProtectionStopString	"MOTOR_WLP_STOP"
 #define GalilUserOffsetString		"MOTOR_OFF"
 #define GalilEncoderResolutionString	"MOTOR_ERES"
 #define GalilDirectionString		"MOTOR_DIR"
@@ -154,6 +160,7 @@
 #define GalilStopPauseMoveGoString	"MOTOR_SPMG"
 #define GalilPremString			"MOTOR_PREM"
 #define GalilPostString			"MOTOR_POST"
+#define GalilUseLimitsAsHomeString	"MOTOR_USELIMITASHOME"
 #define GalilUseSwitchString 		"MOTOR_USESWITCH"
 #define GalilUseIndexString		"MOTOR_USEINDEX"
 #define GalilJogAfterHomeString		"MOTOR_JOG_AHOME"
@@ -407,6 +414,7 @@ protected:
   int GalilAddress_;
   int GalilModel_;
   int GalilHomeType_;
+  int GalilHomeEdge_;
   int GalilLimitType_;
   int GalilCtrlError_;
   int GalilDeferredMode_;
@@ -466,13 +474,14 @@ protected:
   int GalilMotorConnected_;
   int GalilAfterLimit_;
   int GalilWrongLimitProtection_;
-  int GalilWrongLimitProtectionActive_;
+  int GalilWrongLimitProtectionStop_;
   int GalilUserOffset_;
   int GalilEncoderResolution_;
   int GalilUseEncoder_;
   int GalilStopPauseMoveGo_;
   int GalilPrem_;
   int GalilPost_;
+  int GalilUseLimitsAsHome_;
   int GalilUseSwitch_;
   int GalilUseIndex_;
   int GalilJogAfterHome_;
@@ -567,6 +576,9 @@ private:
   bool shuttingDown_;			//IOC exit in progress
 
   double timeMultiplier_;		//Controller time base divided by default time base
+
+  int hswact_;                          //Value of axis _HM when home switch active
+  int hswiact_;                         //Value of axis _HM when home switch inactive
 
   int digports_;			//Digital ports used in motor enable/disable
   int digvalues_;			//Digital port interrupt values

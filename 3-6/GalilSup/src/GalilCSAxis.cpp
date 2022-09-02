@@ -1094,14 +1094,21 @@ asynStatus GalilCSAxis::stop(double acceleration)
      pAxis = pC_->getAxis(revaxes_[i] - AASCII);
      //Process or skip
      if (!pAxis) continue;
-     //cancel any home operations that may be underway
-     sprintf(pC_->cmd_, "home%c=0;hjog%c=0", axisName_, axisName_);
-     pC_->sync_writeReadController();
-     //Set homing flag false
-     //This flag does not include JAH
-     pAxis->homing_ = false;
-     //This flag does include JAH
-     pC_->setIntegerParam(pAxis->axisNo_, pC_->GalilHoming_, 0);
+     //Check if axis homing
+     if (pAxis->homing_) {
+        //Cancel any home operation
+        sprintf(pC_->cmd_, "home%c=0", axisName_);
+        pC_->sync_writeReadController();
+        //Cancel limit/home switch jog off operations that may be underway
+        //Set deceleration back to normal
+        sprintf(pC_->cmd_, "hjog%c=0;DC%c=nrmdc%c", axisName_, axisName_, axisName_);
+        pC_->sync_writeReadController();
+        //Set homing flag false
+        //This flag does not include JAH
+        pAxis->homing_ = false;
+        //This flag does include JAH
+        pC_->setIntegerParam(pAxis->axisNo_, pC_->GalilHoming_, 0);
+     }
      //Set flag so backlash, retries from this axis motor record are prevented
      pAxis->stopInternal_ = true;
      //For internal stop, prevent axis motor record issuing backlash, retries
@@ -1185,7 +1192,7 @@ asynStatus GalilCSAxis::stopInternal(bool emergencyStop)
 /** Stop CSaxis motor record.  Called by driver internally.
   * Prevents backlash, and retry attempts from motorRecord */
 asynStatus GalilCSAxis::stopMotorRecord(void) {
-   int status;		//Return status
+   int status = asynSuccess; //Return status
    //What is the source of the stop request ?
    //Possible sources are the driver, or the motor record
    if (stopInternal_) {

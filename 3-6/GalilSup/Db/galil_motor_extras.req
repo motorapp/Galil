@@ -27,6 +27,7 @@ $(P)$(M)_WLP_CMD
 $(P)$(M)_AUTOONOFF_CMD
 $(P)$(M)_ONDELAY_SP
 $(P)$(M)_OFFDELAY_SP
+$(P)$(M)_ULAH_CMD
 $(P)$(M)_USWITCH_CMD
 $(P)$(M)_UINDEX_CMD
 $(P)$(M)_JAH_CMD

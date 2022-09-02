@@ -158,6 +158,33 @@ record(bi,"$(P)$(M)_MCONN_STATUS")
 	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_MCONN")
 }
 
+record(bi,"$(P)$(M)_ULAH_STATUS")
+{
+	field(DESC, "use limits as home")
+	field(PINI, "YES")
+	field(DTYP, "asynInt32")
+	field(SCAN, "$(SCAN)")
+	field(ZNAM, "No")
+	field(ZSV,  "NO_ALARM")
+	field(ONAM, "Yes")
+	field(OSV,  "NO_ALARM")
+	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_USELIMITASHOME")
+}
+
+record(bo,"$(P)$(M)_ULAH_CMD")
+{
+	field(DESC,"use limits as home")
+	field(DTYP,"asynInt32")
+	field(VAL, "1")
+	field(PINI,"YES")
+	field(ZNAM,"No")
+	field(ZSV, "NO_ALARM")
+	field(ONAM,"Yes")
+	field(OSV, "NO_ALARM")
+	field(OUT, "@asyn($(PORT),$(ADDR))MOTOR_USELIMITASHOME")
+	field(FLNK,"$(P)$(M)_ULAH_STATUS")
+}
+
 record(bi,"$(P)$(M)_UINDEX_STATUS")
 {
 	field(DESC, "use index")
@@ -312,8 +339,11 @@ record(mbbi,"$(P)$(M)_LIMITCONSISTENT_STATUS")
 	field(ONST, "Consistent")
 	field(TWST, "Not consistent")
 	field(ZRVL, "0")
+	field(ZRSV, "MINOR")
 	field(ONVL, "1")
+	field(ONSV, "NO_ALARM")
 	field(TWVL, "2")
+	field(TWSV, "MAJOR")
 	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_LIMIT_CONSISTENT")
 }
 
@@ -1195,16 +1225,16 @@ record(bi,"$(P)$(M)_WLP_STATUS")
    	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_WLP")
 }
 
-record(bi,"$(P)$(M)_WLPACTIVE_STATUS")
+record(bi,"$(P)$(M)_WLPSTOP_STATUS")
 {
-	field(DESC, "wlp activated")
+	field(DESC, "wlp stop")
 	field(DTYP, "asynInt32")
 	field(SCAN, "I/O Intr")
 	field(ZNAM, "OK")
 	field(ZSV,  "NO_ALARM")
   	field(ONAM, "Stopped!")
 	field(OSV,  "MAJOR")
-   	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_WLP_ACTIVE")
+   	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_WLP_STOP")
 }
 
 #Motor power auto on/off between moves

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>396</width>
-    <height>643</height>
+    <width>337</width>
+    <height>518</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,7 +19,7 @@
   <property name="windowTitle">
    <string>EFrame</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout" stretch="2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2">
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2">
    <property name="spacing">
     <number>1</number>
    </property>
@@ -41,7 +41,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>122</width>
+         <width>123</width>
          <height>14</height>
         </size>
        </property>
@@ -114,7 +114,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>122</width>
+         <width>123</width>
          <height>0</height>
         </size>
        </property>
@@ -187,7 +187,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>122</width>
+         <width>123</width>
          <height>0</height>
         </size>
        </property>
@@ -260,7 +260,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>122</width>
+         <width>123</width>
          <height>0</height>
         </size>
        </property>
@@ -336,7 +336,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>124</width>
+         <width>125</width>
          <height>0</height>
         </size>
        </property>
@@ -427,7 +427,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>124</width>
+         <width>125</width>
          <height>0</height>
         </size>
        </property>
@@ -518,7 +518,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>124</width>
+         <width>125</width>
          <height>0</height>
         </size>
        </property>
@@ -609,7 +609,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>124</width>
+         <width>125</width>
          <height>0</height>
         </size>
        </property>
@@ -706,7 +706,7 @@
           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
          </property>
          <property name="variable" stdset="0">
-          <string>$(DMC)$(M)_WLPACTIVE_STATUS</string>
+          <string>$(DMC)$(M)_WLPSTOP_STATUS</string>
          </property>
          <property name="text">
           <string>type</string>
@@ -732,7 +732,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>124</width>
+         <width>125</width>
          <height>0</height>
         </size>
        </property>
@@ -823,7 +823,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>124</width>
+         <width>125</width>
          <height>0</height>
         </size>
        </property>
@@ -914,7 +914,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>124</width>
+         <width>125</width>
          <height>0</height>
         </size>
        </property>
@@ -1008,7 +1008,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>124</width>
+         <width>125</width>
          <height>0</height>
         </size>
        </property>
@@ -1102,7 +1102,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>124</width>
+         <width>125</width>
          <height>0</height>
         </size>
        </property>
@@ -1182,9 +1182,9 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_31">
+    <layout class="QHBoxLayout" name="horizontalLayout_31" stretch="0,0,0,0">
      <property name="spacing">
-      <number>0</number>
+      <number>1</number>
      </property>
      <item>
       <widget class="QLabel" name="label_18">
@@ -1196,7 +1196,13 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>124</width>
+         <width>125</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="baseSize">
+        <size>
+         <width>0</width>
          <height>0</height>
         </size>
        </property>
@@ -1208,6 +1214,9 @@
        </property>
        <property name="text">
         <string>Motor brake port</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
        </property>
       </widget>
      </item>
@@ -1276,8 +1285,8 @@
      <item>
       <widget class="QELabel" name="qelabel_16">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-         <horstretch>0</horstretch>
+        <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+         <horstretch>44</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
@@ -1318,7 +1327,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>124</width>
+         <width>125</width>
          <height>0</height>
         </size>
        </property>
@@ -1409,7 +1418,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>124</width>
+         <width>125</width>
          <height>0</height>
         </size>
        </property>
@@ -1503,7 +1512,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>124</width>
+         <width>125</width>
          <height>0</height>
         </size>
        </property>
@@ -1594,7 +1603,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>124</width>
+         <width>125</width>
          <height>0</height>
         </size>
        </property>
@@ -1808,7 +1817,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>124</width>
+         <width>125</width>
          <height>0</height>
         </size>
        </property>
@@ -1902,7 +1911,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>124</width>
+         <width>125</width>
          <height>0</height>
         </size>
        </property>
@@ -1996,7 +2005,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>124</width>
+         <width>125</width>
          <height>0</height>
         </size>
        </property>
@@ -2090,7 +2099,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>124</width>
+         <width>125</width>
          <height>0</height>
         </size>
        </property>
@@ -2352,6 +2361,97 @@
     </layout>
    </item>
    <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_36">
+     <property name="spacing">
+      <number>1</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="label_38">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>125</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Abyssinica SIL</family>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Use limits as home</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QEComboBox" name="qecombobox_15">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>140</width>
+         <height>1</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>140</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Abyssinica SIL</family>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
+       <property name="variable" stdset="0">
+        <string>$(DMC)$(M)_ULAH_CMD</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QELabel" name="qelabel_39">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <family>Abyssinica SIL</family>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+       </property>
+       <property name="variable" stdset="0">
+        <string>$(DMC)$(M)_ULAH_STATUS</string>
+       </property>
+       <property name="text">
+        <string>type</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_32">
      <property name="spacing">
       <number>1</number>
@@ -2366,7 +2466,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>124</width>
+         <width>125</width>
          <height>0</height>
         </size>
        </property>
@@ -2377,7 +2477,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Use switch when homing</string>
+        <string>Use switch during home</string>
        </property>
       </widget>
      </item>
@@ -2457,7 +2557,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>124</width>
+         <width>125</width>
          <height>0</height>
         </size>
        </property>
@@ -2468,7 +2568,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Use index when homing</string>
+        <string>Use index during home</string>
        </property>
       </widget>
      </item>
@@ -2548,7 +2648,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>124</width>
+         <width>125</width>
          <height>0</height>
         </size>
        </property>
@@ -2733,7 +2833,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>124</width>
+         <width>125</width>
          <height>0</height>
         </size>
        </property>

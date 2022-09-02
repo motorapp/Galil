@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>470</width>
-    <height>592</height>
+    <width>488</width>
+    <height>613</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -595,14 +595,14 @@
               </font>
              </property>
              <property name="text">
-              <string>Limit switch type</string>
+              <string>Limit active when</string>
              </property>
             </widget>
            </item>
            <item>
             <widget class="QEComboBox" name="qecombobox">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -632,7 +632,7 @@
              <item>
               <widget class="QELabel" name="qelabel_6">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -640,7 +640,7 @@
                <property name="minimumSize">
                 <size>
                  <width>0</width>
-                 <height>1</height>
+                 <height>0</height>
                 </size>
                </property>
                <property name="font">
@@ -653,7 +653,7 @@
                 <string>$(DMC)LIMITTYPE_STATUS</string>
                </property>
                <property name="text">
-                <string>Limit switch type         </string>
+                <string>Limit active when</string>
                </property>
               </widget>
              </item>
@@ -693,14 +693,14 @@
               </font>
              </property>
              <property name="text">
-              <string>Home switch type</string>
+              <string>Home active when</string>
              </property>
             </widget>
            </item>
            <item>
             <widget class="QEComboBox" name="qecombobox_2">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -730,7 +730,7 @@
              <item>
               <widget class="QELabel" name="qelabel_7">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -738,7 +738,7 @@
                <property name="minimumSize">
                 <size>
                  <width>0</width>
-                 <height>1</height>
+                 <height>0</height>
                 </size>
                </property>
                <property name="font">
@@ -751,7 +751,105 @@
                 <string>$(DMC)HOMETYPE_STATUS</string>
                </property>
                <property name="text">
-                <string>Home switch type        </string>
+                <string>Home active when</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_26" stretch="2,2,3">
+           <property name="spacing">
+            <number>1</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="label_21">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>1</height>
+              </size>
+             </property>
+             <property name="sizeIncrement">
+              <size>
+               <width>1</width>
+               <height>1</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Abyssinica SIL</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>Home edge found</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QEComboBox" name="qecombobox_7">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>1</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Abyssinica SIL</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="variable" stdset="0">
+              <string>$(DMC)HOMEEDGE_CMD</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_13" stretch="1">
+             <property name="spacing">
+              <number>1</number>
+             </property>
+             <item>
+              <widget class="QELabel" name="qelabel_19">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Abyssinica SIL</family>
+                 <pointsize>9</pointsize>
+                </font>
+               </property>
+               <property name="variable" stdset="0">
+                <string>$(DMC)HOMEEDGE_STATUS</string>
+               </property>
+               <property name="text">
+                <string>Home edge found</string>
                </property>
               </widget>
              </item>
