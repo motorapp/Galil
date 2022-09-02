@@ -35,8 +35,7 @@ Skip steps 3, 4
 Use Limits as Home Switch = No  
 Home switch is used  
 
-MOTOR/LIMIT DIRECTION CONSISTENCY & WRONG LIMIT PROTECTION (WLP)
-================================================================
+## MOTOR/LIMIT DIRECTION CONSISTENCY & WRONG LIMIT PROTECTION (WLP)
 1. Commisioning partly involves verifying motor direction is consistent with limit orientation  
    When the motor is moving forward, the stage must be travelling toward the forward limit  
    When the motor is moving reverse, the stage must be travelling toward the reverse limit  
