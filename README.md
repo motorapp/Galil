@@ -56,7 +56,7 @@ MOTOR/LIMIT DIRECTION CONSISTENCY & WRONG LIMIT PROTECTION (WLP)
 8. At stage interaction with limits, the motor/limit consistency will be set to  
    consistent or not consistent.  The motor/limit consistency check works with switch transitions,  
    not switch states (refer point 3).  Reversing direction off a limit is a common operation that  
-   must be allowed at ioc start, before motor/limit consistency is confirmed  
+   must be allowed at ioc start, before motor/limit consistency is confirmed by this driver software   
 9. If enabled, wrong limit protection will stop a motor when the motor/limit consistency is set  
    to not consistent, and a limit is active and enabled  
 10. WLP can be enabled at all times with no interactions with normal or home operations   
