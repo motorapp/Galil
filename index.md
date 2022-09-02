@@ -1,7 +1,9 @@
 ### Welcome
 
 For assistance with this software post on EPICS tech-talk or email:  
-cliftm@ansto.gov.au   
+Mark Clift  
+padmoz@tpg.com.au  
+or  
 support@galil.com   
 
 This driver has the following features:  
