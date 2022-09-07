@@ -31,10 +31,12 @@ Excludes step 5
 
 Use Limits as Home Switch = Yes  
 Home switch is not used, limits used as home instead  
+Home switch edge parameter is not used   
 Skip steps 3, 4  
 
 Use Limits as Home Switch = No  
 Home switch is used  
+Home switch edge parameter is used
 
 ### MOTOR/LIMIT DIRECTION CONSISTENCY & WRONG LIMIT PROTECTION (WLP)
 1. Commisioning partly involves verifying motor direction is consistent with limit orientation  
