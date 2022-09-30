@@ -1,0 +1,84 @@
+# scan and SaveData settings
+file standardScans_settings.req P=$(IOC)
+file saveData_settings.req P=$(IOC)
+
+# Controller settings that motorRecord does not support
+file "galil_dmc_ctrl.req" P=$(P1)
+
+# User array names
+file "galil_user_array.req" P=$(P)
+
+# RIO example
+# First 24 Digital input bits
+file "galil_digital_in_bit.req" P=$(P), R=Galil0Bi0
+file "galil_digital_in_bit.req" P=$(P), R=Galil0Bi1
+file "galil_digital_in_bit.req" P=$(P), R=Galil0Bi2
+file "galil_digital_in_bit.req" P=$(P), R=Galil0Bi3
+file "galil_digital_in_bit.req" P=$(P), R=Galil0Bi4
+file "galil_digital_in_bit.req" P=$(P), R=Galil0Bi5
+file "galil_digital_in_bit.req" P=$(P), R=Galil0Bi6
+file "galil_digital_in_bit.req" P=$(P), R=Galil0Bi7
+file "galil_digital_in_bit.req" P=$(P), R=Galil1Bi0
+file "galil_digital_in_bit.req" P=$(P), R=Galil1Bi1
+file "galil_digital_in_bit.req" P=$(P), R=Galil1Bi2
+file "galil_digital_in_bit.req" P=$(P), R=Galil1Bi3
+file "galil_digital_in_bit.req" P=$(P), R=Galil1Bi4
+file "galil_digital_in_bit.req" P=$(P), R=Galil1Bi5
+file "galil_digital_in_bit.req" P=$(P), R=Galil1Bi6
+file "galil_digital_in_bit.req" P=$(P), R=Galil1Bi7
+file "galil_digital_in_bit.req" P=$(P), R=Galil2Bi0
+file "galil_digital_in_bit.req" P=$(P), R=Galil2Bi1
+file "galil_digital_in_bit.req" P=$(P), R=Galil2Bi2
+file "galil_digital_in_bit.req" P=$(P), R=Galil2Bi3
+file "galil_digital_in_bit.req" P=$(P), R=Galil2Bi4
+file "galil_digital_in_bit.req" P=$(P), R=Galil2Bi5
+file "galil_digital_in_bit.req" P=$(P), R=Galil2Bi6
+file "galil_digital_in_bit.req" P=$(P), R=Galil2Bi7
+
+# First 24 Digital output bits
+file "galil_digital_out_bit.req" P=$(P), R=Galil0Bo0
+file "galil_digital_out_bit.req" P=$(P), R=Galil0Bo1
+file "galil_digital_out_bit.req" P=$(P), R=Galil0Bo2
+file "galil_digital_out_bit.req" P=$(P), R=Galil0Bo3
+file "galil_digital_out_bit.req" P=$(P), R=Galil0Bo4
+file "galil_digital_out_bit.req" P=$(P), R=Galil0Bo5
+file "galil_digital_out_bit.req" P=$(P), R=Galil0Bo6
+file "galil_digital_out_bit.req" P=$(P), R=Galil0Bo7
+file "galil_digital_out_bit.req" P=$(P), R=Galil0Bo8
+file "galil_digital_out_bit.req" P=$(P), R=Galil0Bo9
+file "galil_digital_out_bit.req" P=$(P), R=Galil0Bo10
+file "galil_digital_out_bit.req" P=$(P), R=Galil0Bo11
+file "galil_digital_out_bit.req" P=$(P), R=Galil0Bo12
+file "galil_digital_out_bit.req" P=$(P), R=Galil0Bo13
+file "galil_digital_out_bit.req" P=$(P), R=Galil0Bo14
+file "galil_digital_out_bit.req" P=$(P), R=Galil0Bo15
+file "galil_digital_out_bit.req" P=$(P), R=Galil1Bo0
+file "galil_digital_out_bit.req" P=$(P), R=Galil1Bo1
+file "galil_digital_out_bit.req" P=$(P), R=Galil1Bo2
+file "galil_digital_out_bit.req" P=$(P), R=Galil1Bo3
+file "galil_digital_out_bit.req" P=$(P), R=Galil1Bo4
+file "galil_digital_out_bit.req" P=$(P), R=Galil1Bo5
+file "galil_digital_out_bit.req" P=$(P), R=Galil1Bo6
+file "galil_digital_out_bit.req" P=$(P), R=Galil1Bo7
+
+# RIO example
+# First 8 Analog inputs
+file "galil_analog_in.req" P=$(P), R=GalilAi0
+file "galil_analog_in.req" P=$(P), R=GalilAi1
+file "galil_analog_in.req" P=$(P), R=GalilAi2
+file "galil_analog_in.req" P=$(P), R=GalilAi3
+file "galil_analog_in.req" P=$(P), R=GalilAi4
+file "galil_analog_in.req" P=$(P), R=GalilAi5
+file "galil_analog_in.req" P=$(P), R=GalilAi6
+file "galil_analog_in.req" P=$(P), R=GalilAi7
+
+# First 8 Analog outputs
+file "galil_analog_out.req" P=$(P), R=GalilAo0
+file "galil_analog_out.req" P=$(P), R=GalilAo1
+file "galil_analog_out.req" P=$(P), R=GalilAo2
+file "galil_analog_out.req" P=$(P), R=GalilAo3
+file "galil_analog_out.req" P=$(P), R=GalilAo4
+file "galil_analog_out.req" P=$(P), R=GalilAo5
+file "galil_analog_out.req" P=$(P), R=GalilAo6
+file "galil_analog_out.req" P=$(P), R=GalilAo7
+
