@@ -167,6 +167,7 @@
 #define GalilBrakeString		"MOTOR_BRAKE"
 #define GalilHomeAllowedString		"MOTOR_HOME_ALLOWED"
 #define GalilStopDelayString		"MOTOR_STOP_DELAY"
+#define GalilMicrostepString		"MOTOR_MICROSTEP"
 #define GalilAmpGainString		"MOTOR_AMP_GAIN"
 #define GalilAmpCurrentLoopGainString	"MOTOR_AMP_CURRENTLOOP_GAIN"
 #define GalilAmpLowCurrentString	"MOTOR_AMP_LOWCURRENT"
@@ -292,6 +293,7 @@ public:
   asynStatus writeOctet(asynUser *pasynUser, const char*  value,  size_t  nChars,  size_t *  nActual);
   asynStatus readInt32(asynUser *pasynUser, epicsInt32 *value);
   asynStatus readFloat64(asynUser *pasynUser, epicsFloat64 *value);
+  asynStatus readEnum(asynUser *pasynUser, char *strings[], int values[], int severities[], size_t nElements, size_t *nIn);
   asynStatus drvUserCreate(asynUser *pasynUser, const char* drvInfo, const char** pptypeName, size_t* psize); 
   asynStatus drvUserDestroy(asynUser *pasynUser);
   void report(FILE *fp, int level);
@@ -486,6 +488,7 @@ protected:
   int GalilBrake_;
   int GalilHomeAllowed_;
   int GalilStopDelay_;
+  int GalilMicrostep_;
   int GalilAmpGain_;
   int GalilAmpCurrentLoopGain_;
   int GalilAmpLowCurrent_;
@@ -571,6 +574,8 @@ private:
   int digports_;			//Digital ports used in motor enable/disable
   int digvalues_;			//Digital port interrupt values
   bool digInitialUpdate_;		//Digital port initial update
+  
+  int ampModel_[2];  // Model number of amplifier on channels A-D [0] and A-H [1]
 
   bool rio_;				//Is controller a RIO
   char code_file_[MAX_FILENAME_LEN];	//Code file(s) that user gave to GalilStartController
