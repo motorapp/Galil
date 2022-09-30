@@ -24,5 +24,7 @@
 # define INSTALL_LOCATION here
 #INSTALL_LOCATION=<fullpathname>
 
+HAVE_C++11=YES
+
 include $(TOP)/configure/CONFIG_GMC
 
