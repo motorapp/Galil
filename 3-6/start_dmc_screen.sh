@@ -10,7 +10,7 @@ export motorpath=$motorpath/motorApp/op/adl
 export sscanpath=$sscanpath/sscanApp/op/adl
 export galilpath=$galilpath/GalilSup/op/adl
 
-export EPICS_DISPLAY_PATH=$motorpath:$galilpath:$sscanpath
+#export EPICS_DISPLAY_PATH=$motorpath:$galilpath:$sscanpath
 # R = Record name for digital IO not including byte/word, and bit number
 # Digital IO naming
 # $(DMC)$(R)<Byte or word num><Type Bo or Bi><Bit>
