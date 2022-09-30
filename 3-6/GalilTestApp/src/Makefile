@@ -8,8 +8,10 @@ include $(TOP)/configure/CONFIG
 #=============================
 # build an ioc application
 
-PROD_IOC_DEFAULT = GalilTest
-PROD_IOC_vxWorks = -nil-
+
+ifeq ($(HAVE_C++11), YES)
+  PROD_IOC_DEFAULT = GalilTest
+endif
 
 # <name>.dbd will be created from <name>Include.dbd
 DBD += GalilTest.dbd
