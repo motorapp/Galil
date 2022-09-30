@@ -451,6 +451,37 @@ static bool signalHandlerSetup = false;
 #define MIN(a,b) ((a)<(b)? (a): (b))
 #endif
 
+// Amplifier enum information
+typedef struct {
+  const char *enumString;
+  int  enumValue;
+} enumStruct_t;
+
+static const enumStruct_t ampGain_44040[] = {
+  {"0.50 A",   0},
+  {"0.75 A",   1},
+  {"1.00 A",   2},
+  {"1.40 A",   3},
+};
+
+static const enumStruct_t microstep_44040[] = {
+  {"1",   1},
+  {"2",   2},
+  {"4",   4},
+  {"16", 16},
+};
+
+static const enumStruct_t ampGain_44140[] = {
+  {"0.50 A",   0},
+  {"1.00 A",   1},
+  {"2.00 A",   2},
+  {"3.00 A",   3},
+};
+
+static const enumStruct_t microstep_44140[] = {
+  {"64",   64},
+};
+
 //C++ "To String with Precision" static function template
 template <typename T>
 string tsp(const T a_value, const int n)
@@ -533,8 +564,8 @@ void connectCallback(asynUser *pasynUser, asynException exception)
   */
 GalilController::GalilController(const char *portName, const char *address, double updatePeriod)
   :  asynMotorController(portName, (int)(MAX_ADDRESS), (int)NUM_GALIL_PARAMS,
-                         (int)(asynInt32Mask | asynFloat64Mask | asynUInt32DigitalMask | asynOctetMask | asynDrvUserMask), 
-                         (int)(asynInt32Mask | asynFloat64Mask | asynUInt32DigitalMask | asynOctetMask),
+                         (int)(asynInt32Mask | asynFloat64Mask | asynUInt32DigitalMask | asynOctetMask | asynEnumMask | asynDrvUserMask), 
+                         (int)(asynInt32Mask | asynFloat64Mask | asynUInt32DigitalMask | asynOctetMask | asynEnumMask),
                          (int)(ASYN_CANBLOCK | ASYN_MULTIDEVICE),
                          (int)1, // autoconnect
                          (int)0, (int)0),  // Default priority and stack size
@@ -639,6 +670,7 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilHomeAllowedString, asynParamInt32, &GalilHomeAllowed_);
   createParam(GalilStopDelayString, asynParamFloat64, &GalilStopDelay_);
 
+  createParam(GalilMicrostepString, asynParamInt32, &GalilMicrostep_);
   createParam(GalilAmpGainString, asynParamInt32, &GalilAmpGain_);
   createParam(GalilAmpCurrentLoopGainString, asynParamInt32, &GalilAmpCurrentLoopGain_);
   createParam(GalilAmpLowCurrentString, asynParamInt32, &GalilAmpLowCurrent_);
@@ -1223,6 +1255,22 @@ void GalilController::connected(void)
   //DMC2xxx
   maxAcceleration_ = (model_[3] == '2') ? 67107840 : maxAcceleration_;
 	
+	//Determine what amplifier boards are installed
+  strcpy(cmd_, "ID");
+  ampModel_[0] = 0;
+  ampModel_[1] = 0;
+  //Get the ID string
+  sync_writeReadController();
+  char *pos;
+  pos = strstr(resp_, "AMP1,");
+  if (pos) {
+    ampModel_[0] = atoi(pos + strlen("AMP1,"));
+  }
+  pos = strstr(resp_, "AMP2,");
+  if (pos) {
+    ampModel_[1] = atoi(pos + strlen("AMP2,"));
+  }
+
   //Determine number of threads supported
   //Safe default
   numThreads_ = 8;
@@ -1320,26 +1368,24 @@ void GalilController::connected(void)
   */
 void GalilController::report(FILE *fp, int level)
 {
-  //int axis;
-  //GalilAxis *pAxis;
+  unsigned axis;
+  GalilAxis *pAxis;
 
-  fprintf(fp, "Galil motor driver %s, numAxes=%d, moving poll period=%f, idle poll period=%f\n", 
-    this->portName, numAxes_, movingPollPeriod_, idlePollPeriod_);
-  /*
+  fprintf(fp, "Galil motor driver %s, numAxes=%d, update period=%f\n", 
+    this->portName, numAxes_, updatePeriod_);
   if (level > 0) {
+    fprintf(fp, "  Amp1 model=%d, Amp2 model=%d\n", ampModel_[0], ampModel_[1]);
     for (axis=0; axis<numAxes_; axis++) {
       pAxis = getAxis(axis);
-      fprintf(fp, "  axis %d\n"
-              "    pulsesPerUnit_ = %f\n"
+      fprintf(fp, "  axis %c\n"
+              "    ready=%s\n"
               "    encoder position=%f\n"
-              "    theory position=%f\n"
-              "    limits=0x%x\n"
-              "    flags=0x%x\n", 
-              pAxis->axisNo_, pAxis->pulsesPerUnit_, 
-              pAxis->encoderPosition_, pAxis->theoryPosition_,
-              pAxis->currentLimits_, pAxis->currentFlags_);
+              "    motor position=%f\n", 
+              pAxis->axisName_,
+              pAxis->axisReady_ ? "true" : "false",
+              pAxis->encoder_position_, pAxis->motor_position_);
     }
-  }*/
+  }
 
   // Call the base class method
   asynMotorController::report(fp, level);
@@ -3603,6 +3649,10 @@ asynStatus GalilController::readInt32(asynUser *pasynUser, epicsInt32 *value)
       sprintf(cmd_, "MG _OE%c", pAxis->axisName_);
       status = get_integer(GalilOffOnError_, value);
    }
+   else if (function == GalilMicrostep_) {
+      sprintf(cmd_, "MG _YA%c", pAxis->axisName_);
+      status = get_integer(GalilMicrostep_, value);
+   }
    else if (function == GalilAmpGain_) {
       sprintf(cmd_, "MG _AG%c", pAxis->axisName_);
       status = get_integer(GalilAmpGain_, value);
@@ -3733,6 +3783,66 @@ asynStatus GalilController::readFloat64(asynUser *pasynUser, epicsFloat64 *value
 
   //Always return success. Dont need more error mesgs
   return asynSuccess;	
+}
+
+
+asynStatus GalilController::readEnum(asynUser *pasynUser, char *strings[], int values[], int severities[], size_t nElements, size_t *nIn)
+{
+  int function = pasynUser->reason;
+  GalilAxis *pAxis = getAxis(pasynUser);	//Retrieve the axis instance
+  int i;
+  int boardNum;
+  const enumStruct_t *pEnum;
+  int numEnums;
+  //static const char *functionName = "readEnum";
+
+  if ((pAxis->axisName_ >= 'A') and (pAxis->axisName_ <= 'D')) {
+    boardNum = 0;
+  }
+  else if ((pAxis->axisName_ >= 'E') and (pAxis->axisName_ <= 'H')) {
+    boardNum = 1;
+  }
+  else {
+    goto unsupported;
+  }
+
+  if (function == GalilAmpGain_) {
+    if (ampModel_[boardNum] == 44040) {
+      pEnum    = ampGain_44040;
+      numEnums = sizeof(ampGain_44040)/sizeof(enumStruct_t);
+    } else if (ampModel_[boardNum] == 44140) {
+      pEnum    = ampGain_44140;
+      numEnums = sizeof(ampGain_44140)/sizeof(enumStruct_t);
+    } else {
+      goto unsupported;
+    }
+  }
+  else if (function == GalilMicrostep_) {
+    if (ampModel_[boardNum] == 44040) {
+      pEnum    = microstep_44040;
+      numEnums = sizeof(microstep_44040)/sizeof(enumStruct_t);
+    } else if (ampModel_[boardNum] == 44140) {
+      pEnum    = microstep_44140;
+      numEnums = sizeof(microstep_44140)/sizeof(enumStruct_t);
+    } else {
+      goto unsupported;
+    }
+  }
+  else {
+    goto unsupported;
+  }
+  for (i=0; ((i<numEnums) && (i<(int)nElements)); i++) {
+    if (strings[i]) free(strings[i]);
+    strings[i] = epicsStrDup(pEnum[i].enumString);
+    values[i] = pEnum[i].enumValue;
+    severities[i] = 0;
+  }
+  *nIn = i;
+  return asynSuccess;
+
+unsupported:
+  *nIn = 0;
+  return asynError;
 }
 
 /** Called when asyn clients call pasynUInt32Digital->write().
@@ -4027,6 +4137,11 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
   else if (function == GalilUserArrayUpload_) {
      epicsEventSignal(arrayUploadEvent_);
   }
+  else if (function == GalilMicrostep_) {
+     //Set microsteps/step
+     sprintf(cmd_, "YA%c=%d", pAxis->axisName_, value);
+     sync_writeReadController();
+  }
   else if (function == GalilAmpGain_) {
      int motorOff = 0;
      //Retrieve motor off status
@@ -4051,6 +4166,7 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
   else if (function == GalilAmpCurrentLoopGain_) {
      float gainSetting = 0;
      //Find the correct gain setting
+     //Note: these values seem to be specific to the D3040, except it does not support 2, 3, or 4?
      if (value == 1)
         gainSetting = 0.5;
      else if (value == 2)
@@ -4275,10 +4391,7 @@ asynStatus GalilController::writeFloat64Array(asynUser *pasynUser, epicsFloat64 
   
   if (nElements > maxProfilePoints_) nElements = maxProfilePoints_;
    
-  if (function == profileTimeArray_) {
-    memcpy(profileTimes_, value, nElements*sizeof(double));
-  } 
-  else if (function == profilePositions_) {
+  if (function == profilePositions_) {
     if (addr < MAX_GALIL_AXES)
        pAxis->defineProfile(value, nElements);
     else
