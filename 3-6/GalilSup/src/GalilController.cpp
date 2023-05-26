@@ -4275,10 +4275,7 @@ asynStatus GalilController::writeFloat64Array(asynUser *pasynUser, epicsFloat64 
   
   if (nElements > maxProfilePoints_) nElements = maxProfilePoints_;
    
-  if (function == profileTimeArray_) {
-    memcpy(profileTimes_, value, nElements*sizeof(double));
-  } 
-  else if (function == profilePositions_) {
+  if (function == profilePositions_) {
     if (addr < MAX_GALIL_AXES)
        pAxis->defineProfile(value, nElements);
     else
