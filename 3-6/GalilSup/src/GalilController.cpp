@@ -396,6 +396,7 @@
 #include <signal.h>
 #if defined _WIN32 || _WIN64
 #include <process.h>
+#include <ciso646>  // Allows use of "and" rather than &&
 #else
 #include <unistd.h>
 #endif /* _WIN32 */
