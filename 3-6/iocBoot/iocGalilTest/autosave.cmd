@@ -17,7 +17,7 @@ save_restoreSet_SeqPeriodInSeconds(300)
 
 # specify where save files should be
 #set_savefile_path(${TOP}, "autosaveSaves")
-set_savefile_path("/autosave", "")
+set_savefile_path("autosave", "")
 
 # specify what save files should be restored.  Note these files must be
 # in the directory specified in set_savefile_path(), or, if that function
@@ -36,7 +36,8 @@ dbLoadRecords("$(AUTOSAVE)/asApp/Db/save_restoreStatus.db","P=IOC01:")
 save_restoreSet_CAReconnect(1)
 
 # restore settings in pass 0 so encoder ratio is set correctly for position restore in device support init
-set_pass0_restoreFile("GalilTest_settings.sav")
+set_pass0_restoreFile("GalilTest_dmc_settings.sav")
+#set_pass0_restoreFile("GalilTest_rio_settings.sav")
 # restore positions in pass 0 so motors don't move
 set_pass0_restoreFile("GalilTest_positions.sav")
 # restore kinematic equation character arrays in pass 1
