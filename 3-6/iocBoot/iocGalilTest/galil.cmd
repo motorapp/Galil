@@ -11,7 +11,7 @@ dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_motors-v6-10up.substitutions")
 dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_dmc_ctrl.substitutions")
 
 #Load RIO controller features (eg.  Model, IP address, message consoles)
-dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_rio_ctrl.substitutions")
+#dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_rio_ctrl.substitutions")
 
 #Load extra features for real axis/motors (eg. Motor type, encoder type)
 dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_motor_extras.substitutions")
@@ -26,16 +26,19 @@ dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_csmotor_kinematics.substitutions")
 dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_coordinate_systems.substitutions")
 
 #Load digital IO databases
-dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_digital_ports.substitutions")
+dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_dmc_digital_ports.substitutions", "P=DMC01:, PORT=Galil")
+#dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_rio_digital_ports.substitutions", "P=RIO01:, PORT=RIO")
 
 #Load analog IO databases
-dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_analog_ports.substitutions")
+dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_dmc_analog_ports.substitutions", "P=DMC01:, PORT=Galil, PREC=3")
+#dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_rio_analog_ports.substitutions", "P=RIO01:, PORT=RIO, PREC=3")
 
 #Load user defined functions
 dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_userdef_records.substitutions")
 
 #Load user defined array support
-dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_user_array.substitutions")
+dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_user_array.substitutions", "P=DMC01:, PORT=Galil, NELM=1000")
+#dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_user_array.substitutions", "P=RIO01:, PORT=RIO, NELM=1000")
 
 #Load profiles
 dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_profileMoveController.substitutions")
@@ -50,10 +53,12 @@ dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_profileMoveAxis.substitutions")
 #                       	- Specify negative updatePeriod < 0 to force synchronous tcp poll period.  Otherwise will try async udp mode first
 
 # Create a Galil controller
-GalilCreateController("Galil", "192.168.0.67", 8)
+#GalilCreateController("Galil", "10.54.160.66", 8)
+#GalilCreateController("Galil", "10.54.160.43", 8)
+GalilCreateController("Galil", "10.54.160.65", 8)
 
 # Create a Galil controller
-GalilCreateController("RIO", "192.168.0.110", 2)
+#GalilCreateController("RIO", "192.168.0.110", 2)
 
 # GalilCreateAxis command parameters are:
 #
@@ -112,10 +117,10 @@ GalilStartController("Galil", "", 1, 0)
 
 # Start the controller
 # Example using homing routine template assembly
-#GalilStartController("Galil", "$(GALIL)/GalilSup/Db/galil_Default_Header.dmc;$(GALIL)/GalilSup/Db/galil_Home_RevLimit.dmc!$(GALIL)/GalilSup/Db/galil_Home_ForwLimit.dmc!$(GALIL)/GalilSup/Db/galil_Home_Home.dmc!$(GALIL)/GalilSup/Db/galil_Home_ForwLimit.dmc!$(GALIL)/GalilSup/Db/galil_Piezo_Home.dmc!$(GALIL)/GalilSup/Db/galil_Piezo_Home.dmc!$(GALIL)/GalilSup/Db/galil_Piezo_Home.dmc!$(GALIL)/GalilSup/Db/galil_Piezo_Home.dmc;$(GALIL)/GalilSup/Db/galil_Default_Footer.dmc", 0, 0, 3)
+GalilStartController("Galil", "$(GALIL)/GalilSup/Db/galil_Default_Header.dmc;$(GALIL)/GalilSup/Db/galil_Home_RevLimit.dmc!$(GALIL)/GalilSup/Db/galil_Home_ForwLimit.dmc!$(GALIL)/GalilSup/Db/galil_Home_Home.dmc!$(GALIL)/GalilSup/Db/galil_Home_ForwLimit.dmc!$(GALIL)/GalilSup/Db/galil_Piezo_Home.dmc!$(GALIL)/GalilSup/Db/galil_Piezo_Home.dmc!$(GALIL)/GalilSup/Db/galil_Piezo_Home.dmc!$(GALIL)/GalilSup/Db/galil_Piezo_Home.dmc;$(GALIL)/GalilSup/Db/galil_Default_Footer.dmc", 0, 0, 3)
 
 # Start the controller
-GalilStartController("RIO", "", 1, 0)
+#GalilStartController("RIO", "", 1, 0)
 
 # GalilCreateProfile command parameters are:
 #
