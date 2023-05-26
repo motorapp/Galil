@@ -1,0 +1,111 @@
+# Description:
+# digital/binary port substitution file. 
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# Licence as published by the Free Software Foundation; either
+# version 2.1 of the Licence, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public Licence for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# Licence along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Contact details:
+# Mark Clift
+# email: padmoz@tpg.com.au
+
+# This file loads the digital ports for the DMC controller.
+# dbLoadTemplate must be called with the following macro arguments:
+# P    - Record Prefix
+# PORT - Asyn port name
+
+
+# Digital IO naming
+# $(P)$(R)<Byte or word num><Type Bo or Bi><Bit>
+
+file "$(GALIL)/GalilSup/Db/galil_digital_in_bit.template"
+{
+pattern {R,   BYTE,    MASK,     ZNAM,  ONAM,  ZSV,        OSV         }
+
+# DMC = Digital motor controller
+# DMC binary inputs are organized in bytes
+	{Galil0Bi0,  0,     0x000001, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{Galil0Bi1,  0,     0x000002, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{Galil0Bi2,  0,     0x000004, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{Galil0Bi3,  0,     0x000008, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{Galil0Bi4,  0,     0x000010, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{Galil0Bi5,  0,     0x000020, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{Galil0Bi6,  0,     0x000040, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{Galil0Bi7,  0,     0x000080, "Off", "On",  "NO_ALARM", "MAJOR"  }
+
+	{Galil1Bi0,  1,     0x000001, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{Galil1Bi1,  1,     0x000002, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{Galil1Bi2,  1,     0x000004, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{Galil1Bi3,  1,     0x000008, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{Galil1Bi4,  1,     0x000010, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{Galil1Bi5,  1,     0x000020, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{Galil1Bi6,  1,     0x000040, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{Galil1Bi7,  1,     0x000080, "Off", "On",  "NO_ALARM", "MAJOR"  }
+
+	{Galil2Bi0,  2,     0x000001, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{Galil2Bi1,  2,     0x000002, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{Galil2Bi2,  2,     0x000004, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{Galil2Bi3,  2,     0x000008, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{Galil2Bi4,  2,     0x000010, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{Galil2Bi5,  2,     0x000020, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{Galil2Bi6,  2,     0x000040, "Off", "On",  "NO_ALARM", "MAJOR"  }
+	{Galil2Bi7,  2,     0x000080, "Off", "On",  "NO_ALARM", "MAJOR"  }
+
+}
+
+# R    - Record Name
+# WORD - Hardware word to read
+# MASK - Mask for this bit
+
+file "$(GALIL)/GalilSup/Db/galil_digital_out_bit.template"
+{
+pattern {R,    WORD,    MASK,     ZNAM,  ONAM,  ZSV,        OSV         }
+
+# DMC binary outputs are organized in 16bit words
+	{Galil0Bo0,   0,     0x000001, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{Galil0Bo1,   0,     0x000002, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{Galil0Bo2,   0,     0x000004, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{Galil0Bo3,   0,     0x000008, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{Galil0Bo4,   0,     0x000010, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{Galil0Bo5,   0,     0x000020, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{Galil0Bo6,   0,     0x000040, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{Galil0Bo7,   0,     0x000080, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{Galil0Bo8,   0,     0x000100, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{Galil0Bo9,   0,     0x000200, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{Galil0Bo10,  0,     0x000400, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{Galil0Bo11,  0,     0x000800, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{Galil0Bo12,  0,     0x001000, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{Galil0Bo13,  0,     0x002000, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{Galil0Bo14,  0,     0x004000, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{Galil0Bo15,  0,     0x008000, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+
+	{Galil1Bo0,   1,     0x000001, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{Galil1Bo1,   1,     0x000002, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{Galil1Bo2,   1,     0x000004, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{Galil1Bo3,   1,     0x000008, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{Galil1Bo4,   1,     0x000010, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{Galil1Bo5,   1,     0x000020, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{Galil1Bo6,   1,     0x000040, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{Galil1Bo7,   1,     0x000080, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{Galil1Bo8,   1,     0x000100, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{Galil1Bo9,   1,     0x000200, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{Galil1Bo10,  1,     0x000400, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{Galil1Bo11,  1,     0x000800, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{Galil1Bo12,  1,     0x001000, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{Galil1Bo13,  1,     0x002000, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{Galil1Bo14,  1,     0x004000, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+	{Galil1Bo15,  1,     0x008000, "Off", "On",  "NO_ALARM", "NO_ALARM"  }
+
+}
+
+# end

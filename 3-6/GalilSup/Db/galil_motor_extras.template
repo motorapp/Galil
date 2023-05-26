@@ -819,6 +819,30 @@ record(ao,"$(P)$(M)_STOPDELAY_SP")
 	field(FLNK,"$(P)$(M)_STOPDELAY_MON")
 }
 
+# Microsteps/step
+record(mbbo,"$(P)$(M)_MICROSTEP_CMD")
+{
+	field(DESC, "Microsteps/step")
+	field(PINI, "YES")
+	field(DTYP, "asynInt32")
+	field(ZRST, "1")
+	field(ZRVL, "1")
+	field(VAL,  "0")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_MICROSTEP")
+	field(FLNK, "$(P)$(M)_MICROSTEP_STATUS")
+}
+
+record(mbbi,"$(P)$(M)_MICROSTEP_STATUS")
+{
+	field(DESC, "Microsteps/step")
+	field(SCAN, "$(SCAN)")
+	field(DTYP, "asynInt32")
+	field(ZRST, "1")
+	field(ZRVL, "1")
+	field(VAL,  "0")
+	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_MICROSTEP")
+}
+
 record(mbbo,"$(P)$(M)_AMPGAIN_CMD")
 {
 	field(DESC, "Amp gain")
@@ -905,8 +929,8 @@ record(ao,"$(P)$(M)_AMPLC_SP")
 {
 	field(DESC, "Amp low current")
 	field(DTYP, "asynInt32")
-	field(DRVL, "0")
-	field(DRVH, "4")
+	field(DRVL, "-32767")
+	field(DRVH, "32767")
 	field(PREC, "$(PREC)")
 	field(PINI, "YES")
 	field(VAL,  "0")
