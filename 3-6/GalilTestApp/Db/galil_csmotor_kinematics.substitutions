@@ -26,23 +26,21 @@
 #
 # Eg. I=(A+B)/2 - Forward equations for CS motor I (8)
 #
-# P    - PV prefix
 # M    - CSMotor name
-# PORT - Asyn port name
 # ADDR - CS Motor I-P (8-15)
 
 file "$(GALIL)/GalilSup/Db/galil_forward_transform.template"
 {
-   pattern { P,            M,    PORT,    ADDR }
+   pattern { M,    ADDR }
 # CS motors (forward transforms)
-           { "DMC01:",     "I",  "Galil", "8"   }
-           { "DMC01:",     "J",  "Galil", "9"   }
-           { "DMC01:",     "K",  "Galil", "10"  }
-           { "DMC01:",     "L",  "Galil", "11"  }
-           { "DMC01:",     "M",  "Galil", "12"  }
-           { "DMC01:",     "N",  "Galil", "13"  }
-           { "DMC01:",     "O",  "Galil", "14"  }
-           { "DMC01:",     "P",  "Galil", "15"  }
+           { "I",  "8"   }
+           { "J",  "9"   }
+           { "K",  "10"  }
+           { "L",  "11"  }
+           { "M",  "12"  }
+           { "N",  "13"  }
+           { "O",  "14"  }
+           { "P",  "15"  }
 
 }
 
@@ -53,23 +51,21 @@ file "$(GALIL)/GalilSup/Db/galil_forward_transform.template"
 #
 # Eg. A=I-J/2 - Reverse equation A for CS motor I (8)
 #
-# P    - PV prefix
 # M    - CSMotor name
-# PORT - Asyn port name
 # ADDR - CS Motor I-P (8-15)
 
 file "$(GALIL)/GalilSup/Db/galil_reverse_transforms.template"
 {
-   pattern { P,            M,    PORT,    ADDR }
+   pattern { M,    ADDR }
 # CS motors (reverse transforms)
-           { "DMC01:",     "I",  "Galil", "8"   }
-           { "DMC01:",     "J",  "Galil", "9"   }
-           { "DMC01:",     "K",  "Galil", "10"  }
-           { "DMC01:",     "L",  "Galil", "11"  }
-           { "DMC01:",     "M",  "Galil", "12"  }
-           { "DMC01:",     "N",  "Galil", "13"  }
-           { "DMC01:",     "O",  "Galil", "14"  }
-           { "DMC01:",     "P",  "Galil", "15"  }
+           { "I",  "8"   }
+           { "J",  "9"   }
+           { "K",  "10"  }
+           { "L",  "11"  }
+           { "M",  "12"  }
+           { "N",  "13"  }
+           { "O",  "14"  }
+           { "P",  "15"  }
 
 }
 

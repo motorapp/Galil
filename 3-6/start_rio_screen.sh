@@ -10,8 +10,18 @@ export motorpath=$motorpath/motorApp/op/adl
 export sscanpath=$sscanpath/sscanApp/op/adl
 export galilpath=$galilpath/GalilSup/op/adl
 
+#Check provided arguments for record prefix
+if [ -z "$1" ]
+then
+      # No args provided, default
+      export RECPREFIX=RIO01:
+else
+      # Record prefix provided as argument 1
+      export RECPREFIX=$1
+fi
+
 export EPICS_DISPLAY_PATH=$motorpath:$galilpath:$sscanpath
 # R = Record name for digital IO not including byte/word, and bit number
 # Digital IO naming
 # $(DMC)$(R)<Byte or word num><Type Bo or Bi><Bit>
-medm -x -macro "R=Galil,RIO=RIO01:" galil_rio_ctrl.adl &
+medm -x -macro "R=Galil,RIO=$RECPREFIX" galil_rio_ctrl.adl &

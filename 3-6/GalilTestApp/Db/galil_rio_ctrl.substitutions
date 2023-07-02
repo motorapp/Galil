@@ -24,14 +24,11 @@
 # Mark Clift
 # email: padmoz@tpg.com.au
 
-# P    - PV prefix
-# PORT - Asyn port name
-
 file "$(GALIL)/GalilSup/Db/galil_rio_ctrl.template"
 {
 pattern
-{   P,	      PORT,   PREC   }
- {  "RIO01:", "RIO",  "5"    }
+{   PREC   }
+ {  "5"    }
 }
 
 # end

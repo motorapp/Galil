@@ -21,29 +21,25 @@
 
 # Profile controller
 #
-# P    - PV prefix
 # R    - Record Name
-# PORT - Asyn port name
 # NAXES – Number of axes in the profile
 # NPOINTS – Number of profile points
 #
 file "$(MOTOR)/db/profileMoveController.template"
 {
 pattern
-{P,       R,      PORT,   NAXES, NPOINTS, NPULSES,  TIMEOUT}
-{DMC01:,  Prof1:, Galil,  8,     1441,    1441,     1}
+{  R,      NAXES, NPOINTS, NPULSES,  TIMEOUT}
+ { Prof1:, 8,     1441,    1441,     1}
 }
 
 # Profile Galilcontroller
 #
-# P    - PV prefix
 # R    - Record Name
-# PORT - Asyn port name
 
 file "$(GALIL)/GalilSup/Db/galil_profileMoveController.template"
 {
 pattern
-{P,       R,      PORT,   TIMEOUT}
-{DMC01:,  Prof1:, Galil,  1}
+{  R,      TIMEOUT}
+ { Prof1:, 1}
 }
 

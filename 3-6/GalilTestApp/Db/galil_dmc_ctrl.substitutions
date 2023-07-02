@@ -24,7 +24,6 @@
 # Mark Clift
 # email: padmoz@tpg.com.au
 
-# P    - PV prefix
 # PORT - Asyn port name
 # SCAN - Scan period for monitor records.  Use passive when only epics will change value (default)
 #      - Periodic scan will slow controller update performance (poller)
@@ -35,8 +34,8 @@
 file "$(GALIL)/GalilSup/Db/galil_dmc_ctrl.template"
 {
 pattern
-{   P,	      PORT,    SCAN, 	   DEFAULT_HOMETYPE, DEFAULT_LIMITTYPE, PREC}
- {  "DMC01:", "Galil", "Passive",  1,                1,                 5 }
+{   SCAN, 	DEFAULT_HOMETYPE, DEFAULT_LIMITTYPE, PREC}
+ {  "Passive",  1,                1,                 5 }
 }
 
 # end

@@ -64,7 +64,7 @@ public:
   //Peform forward kinematic transform using real axis readback data, and store results in GalilCSAxis
   asynStatus forwardTransform(void);
   //Perform reverse coordinate and velocity transform
-  asynStatus reverseTransform(double pos, double vel, double accel, CSTargets *targets, double npos[], double nvel[], double naccel[], bool useCSSetpoints = true, bool profileMsg = false);
+  asynStatus reverseTransform(double pos, double vel, double accel, double npos[], double nvel[], double naccel[], bool useCSSetpoints = true, bool profileMsg = false);
   //Transform CSAxis profile into Axis profiles
   asynStatus transformCSAxisProfile(void);
   //Selects a free coordinate system S or T and returns coordsys number, or -1 if none free

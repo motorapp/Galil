@@ -397,6 +397,17 @@
 //                  Improved wrong limit protection
 //                  Add alarms states to $(P)$(M)_LIMITCONSISTENT_STATUS
 //                  Renamed $(P)$(M)_WLPACTIVE_STATUS to $(P)$(M)_WLPSTOP_STATUS
+// 28/10/2022 M.Rivers
+//                  Add support for asynEnum
+//                  Add microstep record to motor extras
+//                  Add microstep record to MEDM screen
+// 28/10/2022 M.Clift
+//                  Split databases, start scripts, autosave setup for DMC and RIO
+//                  Add microstep record to QEGUI screen
+// 02/07/2023 M.Clift
+//                  Fix $(P)OC2AXIS_STATUS record process error when only 1 axis created
+//                  Fix CSAxis calculation of reverse axis velocity, acceleration
+//                  Fix CSAxis beginGroupMotion error during home when motors aren't allowed to home
 
 #include <stdio.h>
 #include <math.h>
@@ -436,7 +447,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "3-6-76";
+static const char *driverVersion = "3-6-84";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);
@@ -523,6 +534,7 @@ void connectCallback(asynUser *pasynUser, asynException exception)
              pC_->setIntegerParam(pC_->GalilCommunicationError_, 1);
              //If asyn connected = 0 device wont respond so go ahead and set GalilController connected_ false
              pC_->connected_ = false;
+             printf("connected set false\n");
              //Force update to digital IO records when connection is established
              pC_->digInitialUpdate_ = false;
              //Give disconnect message
@@ -543,8 +555,8 @@ void connectCallback(asynUser *pasynUser, asynException exception)
   */
 GalilController::GalilController(const char *portName, const char *address, double updatePeriod)
   :  asynMotorController(portName, (int)(MAX_ADDRESS), (int)NUM_GALIL_PARAMS,
-                         (int)(asynInt32Mask | asynFloat64Mask | asynUInt32DigitalMask | asynOctetMask | asynDrvUserMask), 
-                         (int)(asynInt32Mask | asynFloat64Mask | asynUInt32DigitalMask | asynOctetMask),
+                         (int)(asynInt32Mask | asynFloat64Mask | asynUInt32DigitalMask | asynOctetMask | asynEnumMask | asynDrvUserMask), 
+                         (int)(asynInt32Mask | asynFloat64Mask | asynUInt32DigitalMask | asynOctetMask | asynEnumMask),
                          (int)(ASYN_CANBLOCK | ASYN_MULTIDEVICE),
                          (int)1, // autoconnect
                          (int)0, (int)0),  // Default priority and stack size
@@ -650,6 +662,7 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilBrakeString, asynParamInt32, &GalilBrake_);
   createParam(GalilHomeAllowedString, asynParamInt32, &GalilHomeAllowed_);
   createParam(GalilStopDelayString, asynParamFloat64, &GalilStopDelay_);
+  createParam(GalilMicrostepString, asynParamInt32, &GalilMicrostep_);
 
   createParam(GalilAmpGainString, asynParamInt32, &GalilAmpGain_);
   createParam(GalilAmpCurrentLoopGainString, asynParamInt32, &GalilAmpCurrentLoopGain_);
@@ -1121,6 +1134,7 @@ void GalilController::connected(void)
 
   //Flag connected as true
   connected_ = true;
+  printf("connected_=%d\n", connected_);
   setIntegerParam(GalilCommunicationError_, 0);
   //Load model, and firmware query into cmd structure
   strcpy(cmd_, RV);
@@ -1234,7 +1248,10 @@ void GalilController::connected(void)
   maxAcceleration_ = (model_[3] == '5') ? 2147483648 : maxAcceleration_;
   //DMC2xxx
   maxAcceleration_ = (model_[3] == '2') ? 67107840 : maxAcceleration_;
-	
+
+  //Update installed amplifier information
+  updateAmpInfo();
+
   //Determine number of threads supported
   //Safe default
   numThreads_ = 8;
@@ -3146,25 +3163,29 @@ asynStatus GalilController::beginGroupMotion(const char *maxes, const char *paxe
   //Concatenate list of move axes, and prepare to move axes
   sprintf(allaxes,"%s%s", maxes, paxes);
 
-  //Execute motor auto on and brake off function
-  executeAutoOnBrakeOff(allaxes);
+  if (strcmp(allaxes, "") != 0) {
+     //Execute motor auto on and brake off function
+     executeAutoOnBrakeOff(allaxes);
 
-  //Execute motor record prem
-  executePrem(allaxes);
+     //Execute motor record prem
+     executePrem(allaxes);
 
-  //For move axes only, begin the move
-  sprintf(cmd_, "BG %s", maxes);
-  if (sync_writeReadController() == asynSuccess) {
-     //Wait till moving true on all axes delivered to mr
-     //or timeout occurs
-     axesEventMonitor(maxes);
-  }
-  else {
-     //Controller gave error at begin
-     mesg = string(functionName) + ": Begin failure " + string(maxes);
-     //Set controller error mesg monitor
-     setCtrlError(mesg);
-     return asynError;
+     if (strcmp(maxes, "") != 0) {
+        //For move axes only, begin the move
+        sprintf(cmd_, "BG %s", maxes);
+        if (sync_writeReadController() == asynSuccess) {
+           //Wait till moving true on all axes delivered to mr
+           //or timeout occurs
+           axesEventMonitor(maxes);
+        }
+        else {
+           //Controller gave error at begin
+           mesg = string(functionName) + ": Begin failure " + string(maxes);
+           //Set controller error mesg monitor
+           setCtrlError(mesg);
+           return asynError;
+        }
+     }
   }
 
   //Success
@@ -3494,13 +3515,13 @@ asynStatus GalilController::readInt32(asynUser *pasynUser, epicsInt32 *value)
    GalilAxis *pAxis = getAxis(pasynUser);	//Retrieve the axis instance
    int ecatcapable;				//EtherCat capable status
    unsigned i;					//Looping
+   double currentLoopGain;                      //Current loop gain
+   int addr;
+   status = getAddress(pasynUser, &addr);
 
    //Just return if shutting down
    if (shuttingDown_)
       return asynSuccess;
-
-   //If provided addr does not return an GalilAxis instance, then return asynError
-   if (!pAxis) return asynError;
 
    //We dont retrieve values for records at iocInit.  
    //For output records autosave, or db defaults are pushed to hardware instead
@@ -3514,6 +3535,8 @@ asynStatus GalilController::readInt32(asynUser *pasynUser, epicsInt32 *value)
          *value = (*value > 0) ? 1 : 0;
    }
    else if (function == GalilMainEncoder_ || function == GalilAuxEncoder_) {
+      //If provided addr does not return an GalilAxis instance, then return asynError
+      if (!pAxis) return asynError;
       unsigned setting;
       int main, aux;
 	
@@ -3538,13 +3561,15 @@ asynStatus GalilController::readInt32(asynUser *pasynUser, epicsInt32 *value)
       }
    }
    else if (function == GalilMotorType_) {
+      //If provided addr does not return an GalilAxis instance, then return asynError
+      if (!pAxis) return asynError;
       float motorType;
       sprintf(cmd_, "MG _MT%c", pAxis->axisName_);
       if ((status = sync_writeReadController()) == asynSuccess) {
          motorType = (float)atof(resp_);
          //Upscale by factor 10 to create integer representing motor type 
          *value = (int)(motorType * 10.0);
-         //Translate motor type into 0-7 value for mbbi record
+         //Translate motor type into 0-12 value for mbbi record
          switch (*value) {
             case 10:   *value = 0;
                        break;
@@ -3568,6 +3593,10 @@ asynStatus GalilController::readInt32(asynUser *pasynUser, epicsInt32 *value)
                        break;
             case -110: *value = 10;
                        break;
+            case 40:   *value = 11;
+                       break;
+            case -40:  *value = 12;
+                       break;
             default:   break;
          }//Switch
       }
@@ -3575,6 +3604,8 @@ asynStatus GalilController::readInt32(asynUser *pasynUser, epicsInt32 *value)
          getIntegerParam(pAxis->axisNo_, function, value);
    } //GalilMotorType_
    else if (function >= GalilSSIInput_ && function <= GalilSSIData_) {
+      //If provided addr does not return an GalilAxis instance, then return asynError
+      if (!pAxis) return asynError;
       int ssicapable;	//Local copy of GalilSSICapable_
       //Retrieve GalilSSICapable_ param
       getIntegerParam(GalilSSICapable_, &ssicapable);
@@ -3584,6 +3615,8 @@ asynStatus GalilController::readInt32(asynUser *pasynUser, epicsInt32 *value)
          status = asynSuccess;
    }
    else if (function >= GalilBISSInput_ && function <= GalilBISSLevel_) {
+      //If provided addr does not return an GalilAxis instance, then return asynError
+      if (!pAxis) return asynError;
       int bisscapable = 0;
       getIntegerParam(GalilBISSCapable_, &bisscapable);
       if (bisscapable)
@@ -3605,22 +3638,63 @@ asynStatus GalilController::readInt32(asynUser *pasynUser, epicsInt32 *value)
          *value = (*value > 0) ? 1 : 0;
    }
    else if (function == GalilOffOnError_) {
+      //If provided addr does not return an GalilAxis instance, then return asynError
+      if (!pAxis) return asynError;
       sprintf(cmd_, "MG _OE%c", pAxis->axisName_);
       status = get_integer(GalilOffOnError_, value);
    }
+   else if (function == GalilMicrostep_) {
+      //If provided addr does not return an GalilAxis instance, then return asynError
+      if (!pAxis) return asynError;
+      sprintf(cmd_, "MG _YA%c", pAxis->axisName_);
+      status = get_integer(GalilMicrostep_, value);
+   }
    else if (function == GalilAmpGain_) {
+      //If provided addr does not return an GalilAxis instance, then return asynError
+      if (!pAxis) return asynError;
       sprintf(cmd_, "MG _AG%c", pAxis->axisName_);
       status = get_integer(GalilAmpGain_, value);
    }
    else if (function == GalilAmpCurrentLoopGain_) {
+      //If provided addr does not return an GalilAxis instance, then return asynError
+      if (!pAxis) return asynError;
       sprintf(cmd_, "MG _AU%c", pAxis->axisName_);
-      status = get_integer(GalilAmpCurrentLoopGain_, value);
+      if ((status = sync_writeReadController()) == asynSuccess) {
+         currentLoopGain = (double)atof(resp_);
+         // Translate currentLoopGain to mbbi enum values
+         if (currentLoopGain == 0)
+            *value = 0;
+         else if (currentLoopGain == 0.5)
+            *value = 1;
+         else if (currentLoopGain == 1)
+            *value = 2;
+         else if (currentLoopGain == 1.5)
+            *value = 3;
+         else if (currentLoopGain == 2)
+            *value = 4;
+         else if (currentLoopGain == 3)
+            *value = 5;
+         else if (currentLoopGain == 4)
+            *value = 6;
+         else if (currentLoopGain == 9)
+            *value = 7;
+         else if (currentLoopGain == 10)
+            *value = 8;
+         else if (currentLoopGain == 11)
+            *value = 9;
+         else if (currentLoopGain == 12)
+            *value = 10;
+      }
    }
    else if (function == GalilAmpLowCurrent_) {
+      //If provided addr does not return an GalilAxis instance, then return asynError
+      if (!pAxis) return asynError;
       sprintf(cmd_, "MG _LC%c", pAxis->axisName_);
       status = get_integer(GalilAmpLowCurrent_, value);
    }
    else if (function == GalilLimitDisable_) {
+      //If provided addr does not return an GalilAxis instance, then return asynError
+      if (!pAxis) return asynError;
       if (model_[3] != '1' && model_[3] != '2') {
          sprintf(cmd_, "MG _LD%c", pAxis->axisName_);
          status = get_integer(GalilLimitDisable_, value);
@@ -3738,6 +3812,78 @@ asynStatus GalilController::readFloat64(asynUser *pasynUser, epicsFloat64 *value
 
   //Always return success. Dont need more error mesgs
   return asynSuccess;	
+}
+
+/** Called when asyn clients call pasynEnum->read().
+  * \param[in] pasynUser pasynUser structure that encodes the reason and address.
+  * \param[in] strings Array of string pointers.
+  * \param[in] values Array of values
+  * \param[in] severities Array of severities
+  * \param[in] nElements Size of value array
+  * \param[out] nIn Number of elements actually returned */
+asynStatus GalilController::readEnum(asynUser *pasynUser, char *strings[], int values[], int severities[], size_t nElements, size_t *nIn)
+{
+  int function = pasynUser->reason;
+  GalilAxis *pAxis = getAxis(pasynUser);	//Retrieve the axis instance
+  int i;
+  int boardNum;
+  const enumStruct_t *pEnum;
+  int numEnums;
+  //static const char *functionName = "readEnum";
+
+  //If provided pasynUser does not return an GalilAxis instance, then return asynError
+  if (!pAxis) goto unsupported;
+
+  if ((pAxis->axisName_ >= 'A') and (pAxis->axisName_ <= 'D')) {
+    boardNum = 0;
+  }
+  else if ((pAxis->axisName_ >= 'E') and (pAxis->axisName_ <= 'H')) {
+    boardNum = 1;
+  }
+  else {
+    goto unsupported;
+  }
+
+  if (function == GalilAmpGain_) {
+    if (ampModel_[boardNum] == 44040) {
+      pEnum    = ampGain_44040;
+      numEnums = sizeof(ampGain_44040)/sizeof(enumStruct_t);
+    } else if (ampModel_[boardNum] == 44140) {
+      pEnum    = ampGain_44140;
+      numEnums = sizeof(ampGain_44140)/sizeof(enumStruct_t);
+    } else {
+      goto unsupported;
+    }
+  }
+  else if (function == GalilMicrostep_) {
+    if (ampModel_[boardNum] == 44040) {
+      pEnum    = microstep_44040;
+      numEnums = sizeof(microstep_44040)/sizeof(enumStruct_t);
+    } else if (ampModel_[boardNum] == 44140) {
+      pEnum    = microstep_44140;
+      numEnums = sizeof(microstep_44140)/sizeof(enumStruct_t);
+    } else if (ampModel_[boardNum] == 43547) {
+      pEnum    = microstep_43547;
+      numEnums = sizeof(microstep_43547)/sizeof(enumStruct_t);
+    } else {
+      goto unsupported;
+    }
+  }
+  else {
+    goto unsupported;
+  }
+  for (i=0; ((i<numEnums) && (i<(int)nElements)); i++) {
+    if (strings[i]) free(strings[i]);
+    strings[i] = epicsStrDup(pEnum[i].enumString);
+    values[i] = pEnum[i].enumValue;
+    severities[i] = 0;
+  }
+  *nIn = i;
+  return asynSuccess;
+
+unsupported:
+  *nIn = 0;
+  return asynError;
 }
 
 /** Called when asyn clients call pasynUInt32Digital->write().
@@ -3921,6 +4067,10 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
                 break;
         case 10: newmtr = -11;
                 break;
+        case 11: newmtr = 4;
+                break;
+        case 12: newmtr = -4;
+                break;
         default: newmtr = 1.0;
                 break;
      } //Switch
@@ -3931,12 +4081,12 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
      status = sync_writeReadController();
 
      //Determine if controller will use main or auxillary register with selected motor type
-     pAxis->ctrlUseMain_ = (value < 2 || value > 5) ? true : false;
+     pAxis->ctrlUseMain_ = (value < 2 || (value >= 6 && value <= 12)) ? true : false;
 
      //IF motor was servo, and now stepper
      //Galil hardware MAY push main encoder to aux encoder (stepper count reg)
      //We re-do this, but apply encoder/motor scaling
-     if (fabs(oldmotor) <= 1.5 && value > 1 && value < 6) {
+     if ((fabs(oldmotor) <= 1.5 || fabs(oldmotor) == 4.0) && value >= 2 && value <= 5) {
         getDoubleParam(pAxis->axisNo_, GalilEncoderResolution_, &eres);
         getDoubleParam(pAxis->axisNo_, motorResolution_, &mres);
         if (mres != 0.000000) {
@@ -3949,7 +4099,8 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 
      //IF motor was stepper, and now servo
      //Set reference position equal to main encoder, which sets initial error to 0
-     if (fabs(oldmotor) > 1.5 && (value < 2 || (value > 5 && value < 8))) {
+     if ((fabs(oldmotor) >= 2.0 && fabs(oldmotor) <= 2.5) &&
+        ((value < 2) || (value >= 6 && value <= 7) || (value >= 11 && value <= 12))) {
         //Calculate step count from existing encoder_position, construct mesg to controller_
         sprintf(cmd_, "DP%c=%.0lf", pAxis->axisName_, pAxis->encoder_position_);
         //Write setting to controller
@@ -3963,6 +4114,7 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 		((oldmtr_abs == 2.0 && newmtr_abs == 2.5) || (oldmtr_abs == 2.5 && newmtr_abs == 2.0)) ||
 		((oldmotor == 1.0 && newmtr == -1.5) || (oldmtr_abs == -1.5 && newmtr_abs == 1.0)) ||
 		((oldmotor == -1.0 && newmtr == 1.5) || (oldmtr_abs == 1.5 && newmtr_abs == -1.0)) ||
+		((oldmotor == -4.0 && newmtr == 4.0) || (oldmtr_abs == 4.0 && newmtr_abs == -4.0)) ||
 		((oldmotor == -11 && newmtr == 11) || (oldmotor == 11 && newmtr == -11))) {
         //New motor is same as old but opposite direction
         if (pAxis->limitsDirState_ != unknown) {
@@ -4047,6 +4199,11 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
   else if (function == GalilUserArrayUpload_) {
      epicsEventSignal(arrayUploadEvent_);
   }
+  else if (function == GalilMicrostep_) {
+     //Set microsteps/step
+     sprintf(cmd_, "YA%c=%d", pAxis->axisName_, value);
+     sync_writeReadController();
+  }
   else if (function == GalilAmpGain_) {
      int motorOff = 0;
      //Retrieve motor off status
@@ -4071,7 +4228,9 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
   else if (function == GalilAmpCurrentLoopGain_) {
      float gainSetting = 0;
      //Find the correct gain setting
-     if (value == 1)
+     if (value == 0)
+        gainSetting = 0;
+     else if (value == 1)
         gainSetting = 0.5;
      else if (value == 2)
         gainSetting = 1;
@@ -4083,6 +4242,14 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
         gainSetting = 3;
      else if (value == 6)
         gainSetting = 4;
+     else if (value == 7)
+        gainSetting = 9;
+     else if (value == 8)
+        gainSetting = 10;
+     else if (value == 9)
+        gainSetting = 11;
+     else if (value == 10)
+        gainSetting = 12;
      //Set current loop gain
      sprintf(cmd_, "AU%c=%.1f", pAxis->axisName_, gainSetting);
      sync_writeReadController();
@@ -4644,6 +4811,90 @@ asynStatus GalilController::checkAllSettings(const char *caller, const char *axe
 
    //Return status
    return asynStatus(status);
+}
+
+/** Update installed amplifier information at controller connect
+  * Called by GalilController::connected
+  */
+asynStatus GalilController::updateAmpInfo(void) {
+  unsigned i; // Looping
+  int status; // Return status
+  char *pos; // Used to discover amplifier board
+  const enumStruct_t *pEnum;
+  int numEnums;
+
+  //Determine what amplifier boards are installed
+  strcpy(cmd_, "ID");
+  ampModel_[0] = 0;
+  ampModel_[1] = 0;
+  //Get the ID string
+  if ((status = sync_writeReadController()) == asynSuccess) {
+    // Command successful
+    // Determine amplifier boards installed
+    pos = strstr(resp_, "AMP1,");
+    if (pos) {
+      ampModel_[0] = atoi(pos + strlen("AMP1,"));
+    }
+    pos = strstr(resp_, "AMP2,");
+    if (pos) {
+      ampModel_[1] = atoi(pos + strlen("AMP2,"));
+    }
+    // Is database initialized?
+    if (dbInitialized) {
+      // Database already initialized
+      // Will have to update relevant mbbi, mbbo record enum states by callback instead
+      // Cycle thru amplifier boards
+      for (i = 0; i < 2; i++) {
+        if (ampModel_[i] == 44040) {
+          pEnum    = ampGain_44040;
+          numEnums = sizeof(ampGain_44040)/sizeof(enumStruct_t);
+          enumRowCallback(i, GalilAmpGain_, pEnum, numEnums);
+          pEnum    = microstep_44040;
+          numEnums = sizeof(microstep_44040)/sizeof(enumStruct_t);
+          enumRowCallback(i, GalilMicrostep_, pEnum, numEnums);
+        } else if (ampModel_[i] == 44140) {
+          pEnum    = ampGain_44140;
+          numEnums = sizeof(ampGain_44140)/sizeof(enumStruct_t);
+          enumRowCallback(i, GalilAmpGain_, pEnum, numEnums);
+          pEnum    = microstep_44140;
+          numEnums = sizeof(microstep_44140)/sizeof(enumStruct_t);
+          enumRowCallback(i, GalilMicrostep_, pEnum, numEnums);
+        } else if (ampModel_[i] == 43547) {
+          pEnum    = microstep_43547;
+          numEnums = sizeof(microstep_43547)/sizeof(enumStruct_t);
+          enumRowCallback(i, GalilMicrostep_, pEnum, numEnums);
+        }
+      }
+    }
+  }
+  // Return status
+  return (asynStatus)status;
+}
+
+/** Update installed amplifier information at controller connect
+  * Called by GalilController::updateAmpInfo
+  */
+void GalilController::enumRowCallback(unsigned ampNum, int reason, const enumStruct_t *pEnum, size_t nElements) {
+  unsigned i;
+  unsigned addressStart;
+  unsigned addressEnd;
+  char *strings[MAX_ENUM_ROWS];
+  int values[MAX_ENUM_ROWS];
+  int severities[MAX_ENUM_ROWS];
+  // Tranlate pEnum enumStruct_t into strings, values, severities for callback
+  for (i = 0; ((i < nElements) && (i < MAX_ENUM_ROWS)); i++) {
+    if (strings[i]) free(strings[i]);
+    strings[i] = epicsStrDup(pEnum[i].enumString);
+    values[i] = pEnum[i].enumValue;
+    severities[i] = 0;
+  }
+  // From ampNum, determine relevant record addresses
+  addressStart = (ampNum == 0) ? 0 : 4;
+  addressEnd = (ampNum == 0) ? 4 : 8;
+  // Send enum rows to records
+  for (i = addressStart; i < addressEnd; i++) {
+    doCallbacksEnum(strings, values, severities, nElements, reason, i);
+  }
 }
 
 //Process unsolicited message from the controller

@@ -690,11 +690,15 @@ asynStatus GalilAxis::move(double position, int relative, double minVelocity, do
   //Are moves to be deferred ?
   if (pC_->movesDeferred_ != 0) {
      //Moves are deferred
+     //Return if specified maxVelocity is <= 0.000000
+     if (trunc(maxVelocity * 1000000.0)  <= 0.000000) {
+        return asynSuccess;
+     }
      //Retrieve deferred moves mode
      pC_->getIntegerParam(pC_->GalilDeferredMode_, &deferredMode);
+     //Store required parameters for deferred move in GalilAxis
      //Sync start and stop motor moves require relative move
      deferredPosition_ = (deferredMode && !relative) ? position - readback : position;
-     //Store required parameters for deferred move in GalilAxis
      pC_->getIntegerParam(0, pC_->GalilCoordSys_, &deferredCoordsys_);
      deferredVelocity_ = maxVelocity;
      deferredAcceleration_ = acceleration;
@@ -2842,7 +2846,7 @@ void GalilAxis::set_ssi_connectflag(void)
     int ssitotalbits, ssierrbits;	//SSI parameters
     int ssidataform;
     int i;
-    bool even;						//Total number of bits odd or even
+    bool even;				//Total number of bits odd or even
 
     //Retrieve SSI parameters required
     pC_->getIntegerParam(pC_->GalilSSICapable_, &ssicapable);

@@ -39,6 +39,7 @@
 #define MAX_GALIL_AXES 8
 #define MAX_GALIL_LINEAR_INCREMENT 8388607
 #define MAX_GALIL_ABSOLUTE_MOVE 2147483647
+#define MAX_ENUM_ROWS 16
 //Number of parameter tables created
 //Meaning records can have address values 0-63
 #define MAX_ADDRESS 64
@@ -174,6 +175,7 @@
 #define GalilBrakeString		"MOTOR_BRAKE"
 #define GalilHomeAllowedString		"MOTOR_HOME_ALLOWED"
 #define GalilStopDelayString		"MOTOR_STOP_DELAY"
+#define GalilMicrostepString		"MOTOR_MICROSTEP"
 #define GalilAmpGainString		"MOTOR_AMP_GAIN"
 #define GalilAmpCurrentLoopGainString	"MOTOR_AMP_CURRENTLOOP_GAIN"
 #define GalilAmpLowCurrentString	"MOTOR_AMP_LOWCURRENT"
@@ -267,6 +269,41 @@ struct Source //each data record source key (e.g. "_RPA") maps to one of these, 
 	{ /*ctor just initializes values*/ }
 };
 
+// Amplifier enum information
+typedef struct {
+  const char *enumString;
+  int  enumValue;
+} enumStruct_t;
+
+static const enumStruct_t microstep_43547[] = {
+  {"256",   256},
+};
+
+static const enumStruct_t ampGain_44040[] = {
+  {"0.50 A",   0},
+  {"0.75 A",   1},
+  {"1.00 A",   2},
+  {"1.40 A",   3},
+};
+
+static const enumStruct_t microstep_44040[] = {
+  {"1",   1},
+  {"2",   2},
+  {"4",   4},
+  {"16", 16},
+};
+
+static const enumStruct_t ampGain_44140[] = {
+  {"0.50 A",   0},
+  {"1.00 A",   1},
+  {"2.00 A",   2},
+  {"3.00 A",   3},
+};
+
+static const enumStruct_t microstep_44140[] = {
+  {"64",   64},
+};
+
 class GalilController : public asynMotorController {
 public:
   //These variables need to be accessible from static callbacks
@@ -299,6 +336,7 @@ public:
   asynStatus writeOctet(asynUser *pasynUser, const char*  value,  size_t  nChars,  size_t *  nActual);
   asynStatus readInt32(asynUser *pasynUser, epicsInt32 *value);
   asynStatus readFloat64(asynUser *pasynUser, epicsFloat64 *value);
+  asynStatus readEnum(asynUser *pasynUser, char *strings[], int values[], int severities[], size_t nElements, size_t *nIn);
   asynStatus drvUserCreate(asynUser *pasynUser, const char* drvInfo, const char** pptypeName, size_t* psize); 
   asynStatus drvUserDestroy(asynUser *pasynUser);
   void report(FILE *fp, int level);
@@ -384,6 +422,10 @@ public:
   asynStatus checkMRSettings(const char *caller, const char *axes, char *axis);
   //Check axes settings given move request
   asynStatus checkAllSettings(const char *caller, const char *axes, double npos[], char *axis);
+  //Update amplifer information upon connect
+  asynStatus updateAmpInfo();
+  //Enum row callback
+  void enumRowCallback(unsigned ampNum, int reason, const enumStruct_t *pEnum, size_t nElements);
 
   void InitializeDataRecord(void);
   double sourceValue(const std::vector<char>& record, const std::string& source);
@@ -495,6 +537,7 @@ protected:
   int GalilBrake_;
   int GalilHomeAllowed_;
   int GalilStopDelay_;
+  int GalilMicrostep_;
   int GalilAmpGain_;
   int GalilAmpCurrentLoopGain_;
   int GalilAmpLowCurrent_;
@@ -583,6 +626,8 @@ private:
   int digports_;			//Digital ports used in motor enable/disable
   int digvalues_;			//Digital port interrupt values
   bool digInitialUpdate_;		//Digital port initial update
+
+  int ampModel_[2];                     // Model number of amplifier on channels A-D [0] and A-H [1]
 
   bool rio_;				//Is controller a RIO
   char code_file_[MAX_FILENAME_LEN];	//Code file(s) that user gave to GalilStartController

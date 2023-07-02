@@ -25,7 +25,6 @@
 # email: padmoz@tpg.com.au
 
 # P - PV prefix
-# PORT - asyn port
 # ADDR 0 - 63
 # EPICSNAME - PV suffix
 # P:EPICSNAME_MONITOR
@@ -48,11 +47,10 @@ file "$(GALIL)/GalilSup/Db/galil_userdef_records.template"
 {
 
 pattern
-{ P,               PORT,    ADDR,  EPICSNAME,        GALILSTR, DRVCMD, SCAN,       DRVL, DRVH, LOW,  HIGH, LSV,     HSV,     ZNAM,      ONAM,  ZSV,      OSV,        DEFAULT, EGU,  PINI }
+{ P,                ADDR,  EPICSNAME,       GALILSTR, DRVCMD, SCAN,       DRVL, DRVH, LOW,  HIGH, LSV,     HSV,     ZNAM,      ONAM,  ZSV,      OSV,        DEFAULT, EGU,  PINI }
 
- {"SR08ID01WFS01:", "Galil",    0,  "BEGIN",          "begin",  "VAR",  "I/O Intr", 0,    1,    0,    1,    "MINOR", "MINOR", "Invalid", "Ok",  "MAJOR",  "NO_ALARM", "10",    "", "YES"}
-
-#{"SR08ID01WFS01:", "Galil",    0,  "DIGITAL_PORT0",  "TI",     "CMD",  "1 second", 1,    1000, 1,    1000, "MINOR", "MINOR", "Invalid", "Ok",  "MAJOR",  "NO_ALARM", "10",    "",   "YES"}
+ {"SR08ID01WFS01:", 0,     "BEGIN",         "begin",  "VAR",  "I/O Intr", 0,    1,    0,    1,    "MINOR", "MINOR", "Invalid", "Ok",  "MAJOR",  "NO_ALARM", "10",    "",   "YES"}
+#{"SR08ID01WFS01:", 0,     "DIGITAL_PORT0", "TI",     "CMD",  "1 second", 1,    1000, 1,    1000, "MINOR", "MINOR", "Invalid", "Ok",  "MAJOR",  "NO_ALARM", "10",    "",   "YES"}
 
 }
 
