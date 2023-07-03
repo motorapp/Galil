@@ -690,8 +690,8 @@ asynStatus GalilAxis::move(double position, int relative, double minVelocity, do
   //Are moves to be deferred ?
   if (pC_->movesDeferred_ != 0) {
      //Moves are deferred
-     //Return if specified maxVelocity is <= 0.000000
-     if (trunc(maxVelocity * 1000000.0)  <= 0.000000) {
+     //Return if specified maxVelocity is <= 2.000000
+     if (trunc(maxVelocity * 1000000.0)  < trunc(2.000000 * 1000000.0)) {
         return asynSuccess;
      }
      //Retrieve deferred moves mode

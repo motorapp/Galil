@@ -1909,7 +1909,7 @@ asynStatus GalilCSAxis::reverseTransform(double pos, double vel, double accel, d
        //Convert acceleration from egu to steps for move
        naccel[i] = fabs(naccel[i] / mres);
        // Find lowest acceleration in the group
-       if ((trunc(naccel[i] * 1000000.0) != 0.000000) && (naccel[i] < lowest_accel)) {
+       if ((trunc(naccel[i] * 1000000.0) >= trunc(1024.000000 * 1000000.0)) && (naccel[i] < lowest_accel)) {
           lowest_accel = naccel[i];
        }
     }//Status
@@ -2241,14 +2241,6 @@ asynStatus GalilCSAxis::poller(void)
    //Clear CSAxis dynamics at move completion
    clearCSAxisDynamics();
 
-   //Update CSAxis setpoint after jog completed
-   if (moveVelocity_ && done_)
-      {
-      setPoint_ = motor_position_;
-      //Reset moveVelocity flag
-      moveVelocity_ = false;
-      }
-
    //Save motor position and done status for next poll cycle
    last_motor_position_ = motor_position_;
    last_done_ = done_;
@@ -2262,6 +2254,17 @@ asynStatus GalilCSAxis::poller(void)
       csrev = false;
       csfwd = false;
       }
+
+   // Set CSAxis setpoint after move
+   // Reset moveVelocity flag (jog flag) after move
+   if (done_) {
+     //Update CSAxis setpoint after move
+      setPoint_ = motor_position_;
+      if (moveVelocity_) {
+         //Reset moveVelocity flag
+         moveVelocity_ = false;
+      }
+   }
 
    //Set CSAXis initial setpoint
    if (!lastaxisReady_ && axisReady_)
