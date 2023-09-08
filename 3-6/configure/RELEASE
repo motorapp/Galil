@@ -1,6 +1,6 @@
 ## configure/RELEASE: Location of external products
 
-include $(TOP)/config/GALILRELEASE
+#include $(TOP)/config/GALILRELEASE
 
 TEMPLATE_TOP=$(EPICS_BASE)/templates/makeBaseApp/top
 
