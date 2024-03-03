@@ -408,6 +408,8 @@
 //                  Fix $(P)OC2AXIS_STATUS record process error when only 1 axis created
 //                  Fix CSAxis calculation of reverse axis velocity, acceleration
 //                  Fix CSAxis beginGroupMotion error during home when motors aren't allowed to home
+// 03/03/2024 M.Clift
+//                  Fix compilation error caused by use of "and" keyword. Revert to && for greater compiler compatibility
 
 #include <stdio.h>
 #include <math.h>
@@ -447,7 +449,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "3-6-84";
+static const char *driverVersion = "3-6-85";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);
@@ -3834,10 +3836,10 @@ asynStatus GalilController::readEnum(asynUser *pasynUser, char *strings[], int v
   //If provided pasynUser does not return an GalilAxis instance, then return asynError
   if (!pAxis) goto unsupported;
 
-  if ((pAxis->axisName_ >= 'A') and (pAxis->axisName_ <= 'D')) {
+  if ((pAxis->axisName_ >= 'A') && (pAxis->axisName_ <= 'D')) {
     boardNum = 0;
   }
-  else if ((pAxis->axisName_ >= 'E') and (pAxis->axisName_ <= 'H')) {
+  else if ((pAxis->axisName_ >= 'E') && (pAxis->axisName_ <= 'H')) {
     boardNum = 1;
   }
   else {

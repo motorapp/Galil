@@ -25,32 +25,35 @@ RELEASE_FILES += $(AUTOSAVE)/configure/RELEASE
 DIRS += $(SNCSEQ)
 RELEASE_FILES += $(SNCSEQ)/configure/RELEASE
 
-DIRS += $(SSCAN)
-RELEASE_FILES += $(SSCAN)/configure/RELEASE
-
 DIRS += $(IPAC)
 RELEASE_FILES += $(IPAC)/configure/RELEASE
 
 ###### 2nd Tier Modules - Only Depend on 1st Tier ########
 
-DIRS += $(ASYN)
-RELEASE_FILES += $(ASYN)/configure/RELEASE
+DIRS += $(SSCAN)
+RELEASE_FILES += $(SSCAN)/configure/RELEASE
+
+################### 3rd Tier Modules #####################
 
 DIRS += $(CALC)
 RELEASE_FILES += $(CALC)/configure/RELEASE
 
-################### 3rd Tier Modules #####################
+################### 4th Tier Modules #####################
 
-DIRS += $(MOTOR)
-RELEASE_FILES += $(MOTOR)/configure/RELEASE
+DIRS += $(ASYN)
+RELEASE_FILES += $(ASYN)/configure/RELEASE
+
+################### 5th Tier Modules #####################
 
 DIRS += $(BUSY)
 RELEASE_FILES += $(BUSY)/configure/RELEASE
 
-################### 4th Tier Modules #####################
+################### 6th Tier Modules #####################
 
+DIRS += $(MOTOR)
+RELEASE_FILES += $(MOTOR)/configure/RELEASE
 
-################### 5th Tier Modules #####################
+##########################################################
 
 all install clean rebuild inc depends build uninstall release:
 	echo SUPPORT=$(SUPPORT)
