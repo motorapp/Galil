@@ -15,7 +15,7 @@ a program to the controller times out and fails. However, all other read/write c
 3. AutoGen Galil home code jogs to find home switch active, or skip
 4. AutoGen Galil home code jogs to find requested home switch edge, or skip
 5. AutoGen Galil home code jogs to find encoder index, or skip
-6. AutoGen Galil home code messages controller when home completed successfully
+6. AutoGen Galil home code notifies the driver when the home completes successfully
 
 UseSwitch (Limits&home are switches) = Yes (For stages with limits, home switches)   
 Begins on step 2   
