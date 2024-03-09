@@ -1,0 +1,43 @@
+# $File: //ASP/Dev/SBS/4_Controls/4_3_Network_Infrastructure/4_3_1_Comms_Common_Services/sw/device_drivers/Galil/1-5/galilSup/Db/galil_motor_withwrappers.template $
+# $Revision: #1 $
+# $DateTime: 2012/03/19 12:39:43 $
+# $Author: cliftm $
+#
+# Description
+# Template file for forward kinematic transform
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# Licence as published by the Free Software Foundation; either
+# version 2.1 of the Licence, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public Licence for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# Licence along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Contact details:
+# Mark Clift
+# email: padmoz@tpg.com.au
+
+# P    - PV prefix
+# M    - CSMotor Name
+# PORT - Asyn port name
+# ADDR - CS motor (8-15)
+
+#Forward kinematic transform
+record(waveform,"$(P)$(M)_FTRANSFORM_SP")
+{
+	field(DESC, "$(M) Forward transform")
+	field(PINI, "YES")
+	field(NELM, "256")
+	field(FTVL, "CHAR")
+	field(DTYP, "asynOctetWrite")
+	field(INP,  "@asyn($(PORT),$(ADDR))CSMOTOR_FORWARD_TRANSFORM")
+}
+
+# end

@@ -1,0 +1,242 @@
+#AUTO
+XQ #THREADB,1
+XQ #THREADC,2
+XQ #THREADD,3
+XQ #THREADE,4
+XQ #THREADF,5
+XQ #THREADG,6
+XQ #THREADH,7
+#THREADA
+IF(homeA=1)
+IF((((_LRA=0)&(hjsA>0))|((_LFA=0)&(hjsA<0)))&(hjogA=0))
+IF((((ulahA=0)&(_HMA=hswiactA))|(ulahA=1))&(_MOA=0)&(_BGA=0))
+IF(((_LRA=1)&(hjsA<0))|((_LFA=1)&(hjsA>0)))
+JGA=hjsA;DCA=limdcA;WT10;BGA;hjogA=1;ENDIF
+ELSE;IF((ulahA=0)&(_HMA=hswactA)&(_MOA=0)&(_BGA=0));hjogA=2;ENDIF;ENDIF;ENDIF
+IF((((_LRA=1)&(hjsA>0))|((_LFA=1)&(hjsA<0)))&(hjogA=1)&(_BGA=1));STA;ENDIF
+IF((((_LRA=1)&(hjsA>0))|((_LFA=1)&(hjsA<0)))&(hjogA=1)&(_BGA=0))
+IF((ulahA=0)&(_HMA=hswiactA)&(_MOA=0)&(_BGA=0))
+IF(((_LRA=1)&(hjsA<0))|((_LFA=1)&(hjsA>0)))
+JGA=hjsA;DCA=limdcA;WT10;BGA;hjogA=2;ENDIF;ELSE;hjogA=2;ENDIF;ENDIF
+IF((ulahA=0)&(_HMA=hswactA)&(_MOA=0)&(_BGA=1)&(hjogA>-1)&(hjogA<3))
+STA;DCA=limdcA;hjogA=2;ENDIF
+IF((ulahA=0)&(_HMA=hswactA)&(hjogA=2)&(_MOA=0)&(_BGA=0))
+IF(((_LRA=1)&(hswedg=0))|((_LFA=1)&(hswedg=1)))
+SPA=hjsA;DCA=limdcA;WT10;FEA;BGA;hjogA=3;ENDIF
+ELSE;IF((ulahA=1)&(hjogA=2));hjogA=3;ENDIF;ENDIF
+IF((hjogA=3)&(_BGA=0))
+IF(((_LRA=1)&(hjsA<0))|((_LFA=1)&(hjsA>0)))
+IF((_MOA=0)&(ueipA=1)&(uiA=1));JGA=hjsA;DCA=limdcA;FIA;WT10;BGA;hjogA=4
+ELSE;hjogA=5;ENDIF;ENDIF;ENDIF
+IF((hjogA=4)&(_BGA=0));hjogA=5;ENDIF
+IF((_LRA=1)&(_LFA=1)&(hjogA=5)&(_BGA=0))
+WT10;hjogA=0;homeA=0;homedA=1;MG "homedA",homedA;ENDIF;ENDIF
+IF(mlock=1);II ,,dpon,dvalues;ENDIF
+JP #THREADA
+#THREADB
+IF(homeB=1)
+IF((((_LRB=0)&(hjsB>0))|((_LFB=0)&(hjsB<0)))&(hjogB=0))
+IF((((ulahB=0)&(_HMB=hswiactB))|(ulahB=1))&(_MOB=0)&(_BGB=0))
+IF(((_LRB=1)&(hjsB<0))|((_LFB=1)&(hjsB>0)))
+JGB=hjsB;DCB=limdcB;WT10;BGB;hjogB=1;ENDIF
+ELSE;IF((ulahB=0)&(_HMB=hswactB)&(_MOB=0)&(_BGB=0));hjogB=2;ENDIF;ENDIF;ENDIF
+IF((((_LRB=1)&(hjsB>0))|((_LFB=1)&(hjsB<0)))&(hjogB=1)&(_BGB=1));STB;ENDIF
+IF((((_LRB=1)&(hjsB>0))|((_LFB=1)&(hjsB<0)))&(hjogB=1)&(_BGB=0))
+IF((ulahB=0)&(_HMB=hswiactB)&(_MOB=0)&(_BGB=0))
+IF(((_LRB=1)&(hjsB<0))|((_LFB=1)&(hjsB>0)))
+JGB=hjsB;DCB=limdcB;WT10;BGB;hjogB=2;ENDIF;ELSE;hjogB=2;ENDIF;ENDIF
+IF((ulahB=0)&(_HMB=hswactB)&(_MOB=0)&(_BGB=1)&(hjogB>-1)&(hjogB<3))
+STB;DCB=limdcB;hjogB=2;ENDIF
+IF((ulahB=0)&(_HMB=hswactB)&(hjogB=2)&(_MOB=0)&(_BGB=0))
+IF(((_LRB=1)&(hswedg=0))|((_LFB=1)&(hswedg=1)))
+SPB=hjsB;DCB=limdcB;WT10;FEB;BGB;hjogB=3;ENDIF
+ELSE;IF((ulahB=1)&(hjogB=2));hjogB=3;ENDIF;ENDIF
+IF((hjogB=3)&(_BGB=0))
+IF(((_LRB=1)&(hjsB<0))|((_LFB=1)&(hjsB>0)))
+IF((_MOB=0)&(ueipB=1)&(uiB=1));JGB=hjsB;DCB=limdcB;FIB;WT10;BGB;hjogB=4
+ELSE;hjogB=5;ENDIF;ENDIF;ENDIF
+IF((hjogB=4)&(_BGB=0));hjogB=5;ENDIF
+IF((_LRB=1)&(_LFB=1)&(hjogB=5)&(_BGB=0))
+WT10;hjogB=0;homeB=0;homedB=1;MG "homedB",homedB;ENDIF;ENDIF
+JP #THREADB
+#THREADC
+IF(homeC=1)
+IF((((_LRC=0)&(hjsC>0))|((_LFC=0)&(hjsC<0)))&(hjogC=0))
+IF((((ulahC=0)&(_HMC=hswiactC))|(ulahC=1))&(_MOC=0)&(_BGC=0))
+IF(((_LRC=1)&(hjsC<0))|((_LFC=1)&(hjsC>0)))
+JGC=hjsC;DCC=limdcC;WT10;BGC;hjogC=1;ENDIF
+ELSE;IF((ulahC=0)&(_HMC=hswactC)&(_MOC=0)&(_BGC=0));hjogC=2;ENDIF;ENDIF;ENDIF
+IF((((_LRC=1)&(hjsC>0))|((_LFC=1)&(hjsC<0)))&(hjogC=1)&(_BGC=1));STC;ENDIF
+IF((((_LRC=1)&(hjsC>0))|((_LFC=1)&(hjsC<0)))&(hjogC=1)&(_BGC=0))
+IF((ulahC=0)&(_HMC=hswiactC)&(_MOC=0)&(_BGC=0))
+IF(((_LRC=1)&(hjsC<0))|((_LFC=1)&(hjsC>0)))
+JGC=hjsC;DCC=limdcC;WT10;BGC;hjogC=2;ENDIF;ELSE;hjogC=2;ENDIF;ENDIF
+IF((ulahC=0)&(_HMC=hswactC)&(_MOC=0)&(_BGC=1)&(hjogC>-1)&(hjogC<3))
+STC;DCC=limdcC;hjogC=2;ENDIF
+IF((ulahC=0)&(_HMC=hswactC)&(hjogC=2)&(_MOC=0)&(_BGC=0))
+IF(((_LRC=1)&(hswedg=0))|((_LFC=1)&(hswedg=1)))
+SPC=hjsC;DCC=limdcC;WT10;FEC;BGC;hjogC=3;ENDIF
+ELSE;IF((ulahC=1)&(hjogC=2));hjogC=3;ENDIF;ENDIF
+IF((hjogC=3)&(_BGC=0))
+IF(((_LRC=1)&(hjsC<0))|((_LFC=1)&(hjsC>0)))
+IF((_MOC=0)&(ueipC=1)&(uiC=1));JGC=hjsC;DCC=limdcC;FIC;WT10;BGC;hjogC=4
+ELSE;hjogC=5;ENDIF;ENDIF;ENDIF
+IF((hjogC=4)&(_BGC=0));hjogC=5;ENDIF
+IF((_LRC=1)&(_LFC=1)&(hjogC=5)&(_BGC=0))
+WT10;hjogC=0;homeC=0;homedC=1;MG "homedC",homedC;ENDIF;ENDIF
+JP #THREADC
+#THREADD
+IF(homeD=1)
+IF((((_LRD=0)&(hjsD>0))|((_LFD=0)&(hjsD<0)))&(hjogD=0))
+IF((((ulahD=0)&(_HMD=hswiactD))|(ulahD=1))&(_MOD=0)&(_BGD=0))
+IF(((_LRD=1)&(hjsD<0))|((_LFD=1)&(hjsD>0)))
+JGD=hjsD;DCD=limdcD;WT10;BGD;hjogD=1;ENDIF
+ELSE;IF((ulahD=0)&(_HMD=hswactD)&(_MOD=0)&(_BGD=0));hjogD=2;ENDIF;ENDIF;ENDIF
+IF((((_LRD=1)&(hjsD>0))|((_LFD=1)&(hjsD<0)))&(hjogD=1)&(_BGD=1));STD;ENDIF
+IF((((_LRD=1)&(hjsD>0))|((_LFD=1)&(hjsD<0)))&(hjogD=1)&(_BGD=0))
+IF((ulahD=0)&(_HMD=hswiactD)&(_MOD=0)&(_BGD=0))
+IF(((_LRD=1)&(hjsD<0))|((_LFD=1)&(hjsD>0)))
+JGD=hjsD;DCD=limdcD;WT10;BGD;hjogD=2;ENDIF;ELSE;hjogD=2;ENDIF;ENDIF
+IF((ulahD=0)&(_HMD=hswactD)&(_MOD=0)&(_BGD=1)&(hjogD>-1)&(hjogD<3))
+STD;DCD=limdcD;hjogD=2;ENDIF
+IF((ulahD=0)&(_HMD=hswactD)&(hjogD=2)&(_MOD=0)&(_BGD=0))
+IF(((_LRD=1)&(hswedg=0))|((_LFD=1)&(hswedg=1)))
+SPD=hjsD;DCD=limdcD;WT10;FED;BGD;hjogD=3;ENDIF
+ELSE;IF((ulahD=1)&(hjogD=2));hjogD=3;ENDIF;ENDIF
+IF((hjogD=3)&(_BGD=0))
+IF(((_LRD=1)&(hjsD<0))|((_LFD=1)&(hjsD>0)))
+IF((_MOD=0)&(ueipD=1)&(uiD=1));JGD=hjsD;DCD=limdcD;FID;WT10;BGD;hjogD=4
+ELSE;hjogD=5;ENDIF;ENDIF;ENDIF
+IF((hjogD=4)&(_BGD=0));hjogD=5;ENDIF
+IF((_LRD=1)&(_LFD=1)&(hjogD=5)&(_BGD=0))
+WT10;hjogD=0;homeD=0;homedD=1;MG "homedD",homedD;ENDIF;ENDIF
+JP #THREADD
+#THREADE
+IF(homeE=1)
+IF((((_LRE=0)&(hjsE>0))|((_LFE=0)&(hjsE<0)))&(hjogE=0))
+IF((((ulahE=0)&(_HME=hswiactE))|(ulahE=1))&(_MOE=0)&(_BGE=0))
+IF(((_LRE=1)&(hjsE<0))|((_LFE=1)&(hjsE>0)))
+JGE=hjsE;DCE=limdcE;WT10;BGE;hjogE=1;ENDIF
+ELSE;IF((ulahE=0)&(_HME=hswactE)&(_MOE=0)&(_BGE=0));hjogE=2;ENDIF;ENDIF;ENDIF
+IF((((_LRE=1)&(hjsE>0))|((_LFE=1)&(hjsE<0)))&(hjogE=1)&(_BGE=1));STE;ENDIF
+IF((((_LRE=1)&(hjsE>0))|((_LFE=1)&(hjsE<0)))&(hjogE=1)&(_BGE=0))
+IF((ulahE=0)&(_HME=hswiactE)&(_MOE=0)&(_BGE=0))
+IF(((_LRE=1)&(hjsE<0))|((_LFE=1)&(hjsE>0)))
+JGE=hjsE;DCE=limdcE;WT10;BGE;hjogE=2;ENDIF;ELSE;hjogE=2;ENDIF;ENDIF
+IF((ulahE=0)&(_HME=hswactE)&(_MOE=0)&(_BGE=1)&(hjogE>-1)&(hjogE<3))
+STE;DCE=limdcE;hjogE=2;ENDIF
+IF((ulahE=0)&(_HME=hswactE)&(hjogE=2)&(_MOE=0)&(_BGE=0))
+IF(((_LRE=1)&(hswedg=0))|((_LFE=1)&(hswedg=1)))
+SPE=hjsE;DCE=limdcE;WT10;FEE;BGE;hjogE=3;ENDIF
+ELSE;IF((ulahE=1)&(hjogE=2));hjogE=3;ENDIF;ENDIF
+IF((hjogE=3)&(_BGE=0))
+IF(((_LRE=1)&(hjsE<0))|((_LFE=1)&(hjsE>0)))
+IF((_MOE=0)&(ueipE=1)&(uiE=1));JGE=hjsE;DCE=limdcE;FIE;WT10;BGE;hjogE=4
+ELSE;hjogE=5;ENDIF;ENDIF;ENDIF
+IF((hjogE=4)&(_BGE=0));hjogE=5;ENDIF
+IF((_LRE=1)&(_LFE=1)&(hjogE=5)&(_BGE=0))
+WT10;hjogE=0;homeE=0;homedE=1;MG "homedE",homedE;ENDIF;ENDIF
+JP #THREADE
+#THREADF
+IF(homeF=1)
+IF((((_LRF=0)&(hjsF>0))|((_LFF=0)&(hjsF<0)))&(hjogF=0))
+IF((((ulahF=0)&(_HMF=hswiactF))|(ulahF=1))&(_MOF=0)&(_BGF=0))
+IF(((_LRF=1)&(hjsF<0))|((_LFF=1)&(hjsF>0)))
+JGF=hjsF;DCF=limdcF;WT10;BGF;hjogF=1;ENDIF
+ELSE;IF((ulahF=0)&(_HMF=hswactF)&(_MOF=0)&(_BGF=0));hjogF=2;ENDIF;ENDIF;ENDIF
+IF((((_LRF=1)&(hjsF>0))|((_LFF=1)&(hjsF<0)))&(hjogF=1)&(_BGF=1));STF;ENDIF
+IF((((_LRF=1)&(hjsF>0))|((_LFF=1)&(hjsF<0)))&(hjogF=1)&(_BGF=0))
+IF((ulahF=0)&(_HMF=hswiactF)&(_MOF=0)&(_BGF=0))
+IF(((_LRF=1)&(hjsF<0))|((_LFF=1)&(hjsF>0)))
+JGF=hjsF;DCF=limdcF;WT10;BGF;hjogF=2;ENDIF;ELSE;hjogF=2;ENDIF;ENDIF
+IF((ulahF=0)&(_HMF=hswactF)&(_MOF=0)&(_BGF=1)&(hjogF>-1)&(hjogF<3))
+STF;DCF=limdcF;hjogF=2;ENDIF
+IF((ulahF=0)&(_HMF=hswactF)&(hjogF=2)&(_MOF=0)&(_BGF=0))
+IF(((_LRF=1)&(hswedg=0))|((_LFF=1)&(hswedg=1)))
+SPF=hjsF;DCF=limdcF;WT10;FEF;BGF;hjogF=3;ENDIF
+ELSE;IF((ulahF=1)&(hjogF=2));hjogF=3;ENDIF;ENDIF
+IF((hjogF=3)&(_BGF=0))
+IF(((_LRF=1)&(hjsF<0))|((_LFF=1)&(hjsF>0)))
+IF((_MOF=0)&(ueipF=1)&(uiF=1));JGF=hjsF;DCF=limdcF;FIF;WT10;BGF;hjogF=4
+ELSE;hjogF=5;ENDIF;ENDIF;ENDIF
+IF((hjogF=4)&(_BGF=0));hjogF=5;ENDIF
+IF((_LRF=1)&(_LFF=1)&(hjogF=5)&(_BGF=0))
+WT10;hjogF=0;homeF=0;homedF=1;MG "homedF",homedF;ENDIF;ENDIF
+JP #THREADF
+#THREADG
+IF(homeG=1)
+IF((((_LRG=0)&(hjsG>0))|((_LFG=0)&(hjsG<0)))&(hjogG=0))
+IF((((ulahG=0)&(_HMG=hswiactG))|(ulahG=1))&(_MOG=0)&(_BGG=0))
+IF(((_LRG=1)&(hjsG<0))|((_LFG=1)&(hjsG>0)))
+JGG=hjsG;DCG=limdcG;WT10;BGG;hjogG=1;ENDIF
+ELSE;IF((ulahG=0)&(_HMG=hswactG)&(_MOG=0)&(_BGG=0));hjogG=2;ENDIF;ENDIF;ENDIF
+IF((((_LRG=1)&(hjsG>0))|((_LFG=1)&(hjsG<0)))&(hjogG=1)&(_BGG=1));STG;ENDIF
+IF((((_LRG=1)&(hjsG>0))|((_LFG=1)&(hjsG<0)))&(hjogG=1)&(_BGG=0))
+IF((ulahG=0)&(_HMG=hswiactG)&(_MOG=0)&(_BGG=0))
+IF(((_LRG=1)&(hjsG<0))|((_LFG=1)&(hjsG>0)))
+JGG=hjsG;DCG=limdcG;WT10;BGG;hjogG=2;ENDIF;ELSE;hjogG=2;ENDIF;ENDIF
+IF((ulahG=0)&(_HMG=hswactG)&(_MOG=0)&(_BGG=1)&(hjogG>-1)&(hjogG<3))
+STG;DCG=limdcG;hjogG=2;ENDIF
+IF((ulahG=0)&(_HMG=hswactG)&(hjogG=2)&(_MOG=0)&(_BGG=0))
+IF(((_LRG=1)&(hswedg=0))|((_LFG=1)&(hswedg=1)))
+SPG=hjsG;DCG=limdcG;WT10;FEG;BGG;hjogG=3;ENDIF
+ELSE;IF((ulahG=1)&(hjogG=2));hjogG=3;ENDIF;ENDIF
+IF((hjogG=3)&(_BGG=0))
+IF(((_LRG=1)&(hjsG<0))|((_LFG=1)&(hjsG>0)))
+IF((_MOG=0)&(ueipG=1)&(uiG=1));JGG=hjsG;DCG=limdcG;FIG;WT10;BGG;hjogG=4
+ELSE;hjogG=5;ENDIF;ENDIF;ENDIF
+IF((hjogG=4)&(_BGG=0));hjogG=5;ENDIF
+IF((_LRG=1)&(_LFG=1)&(hjogG=5)&(_BGG=0))
+WT10;hjogG=0;homeG=0;homedG=1;MG "homedG",homedG;ENDIF;ENDIF
+JP #THREADG
+#THREADH
+IF(homeH=1)
+IF((((_LRH=0)&(hjsH>0))|((_LFH=0)&(hjsH<0)))&(hjogH=0))
+IF((((ulahH=0)&(_HMH=hswiactH))|(ulahH=1))&(_MOH=0)&(_BGH=0))
+IF(((_LRH=1)&(hjsH<0))|((_LFH=1)&(hjsH>0)))
+JGH=hjsH;DCH=limdcH;WT10;BGH;hjogH=1;ENDIF
+ELSE;IF((ulahH=0)&(_HMH=hswactH)&(_MOH=0)&(_BGH=0));hjogH=2;ENDIF;ENDIF;ENDIF
+IF((((_LRH=1)&(hjsH>0))|((_LFH=1)&(hjsH<0)))&(hjogH=1)&(_BGH=1));STH;ENDIF
+IF((((_LRH=1)&(hjsH>0))|((_LFH=1)&(hjsH<0)))&(hjogH=1)&(_BGH=0))
+IF((ulahH=0)&(_HMH=hswiactH)&(_MOH=0)&(_BGH=0))
+IF(((_LRH=1)&(hjsH<0))|((_LFH=1)&(hjsH>0)))
+JGH=hjsH;DCH=limdcH;WT10;BGH;hjogH=2;ENDIF;ELSE;hjogH=2;ENDIF;ENDIF
+IF((ulahH=0)&(_HMH=hswactH)&(_MOH=0)&(_BGH=1)&(hjogH>-1)&(hjogH<3))
+STH;DCH=limdcH;hjogH=2;ENDIF
+IF((ulahH=0)&(_HMH=hswactH)&(hjogH=2)&(_MOH=0)&(_BGH=0))
+IF(((_LRH=1)&(hswedg=0))|((_LFH=1)&(hswedg=1)))
+SPH=hjsH;DCH=limdcH;WT10;FEH;BGH;hjogH=3;ENDIF
+ELSE;IF((ulahH=1)&(hjogH=2));hjogH=3;ENDIF;ENDIF
+IF((hjogH=3)&(_BGH=0))
+IF(((_LRH=1)&(hjsH<0))|((_LFH=1)&(hjsH>0)))
+IF((_MOH=0)&(ueipH=1)&(uiH=1));JGH=hjsH;DCH=limdcH;FIH;WT10;BGH;hjogH=4
+ELSE;hjogH=5;ENDIF;ENDIF;ENDIF
+IF((hjogH=4)&(_BGH=0));hjogH=5;ENDIF
+IF((_LRH=1)&(_LFH=1)&(hjogH=5)&(_BGH=0))
+WT10;hjogH=0;homeH=0;homedH=1;MG "homedH",homedH;ENDIF;ENDIF
+JP #THREADH
+#CMDERR
+errstr=_ED;errcde=_TC;cmderr=cmderr+1
+EN1
+#TCPERR
+tcpcde=_TC;tcperr=tcperr+1
+RE1
+#LIMSWI
+IF(((_SCA=2)|(_SCA=3))&(_BGA=1))
+DCA=limdcA;VDS=limdcA;VDT=limdcA;ENDIF
+IF(((_SCB=2)|(_SCB=3))&(_BGB=1))
+DCB=limdcB;VDS=limdcB;VDT=limdcB;ENDIF
+IF(((_SCC=2)|(_SCC=3))&(_BGC=1))
+DCC=limdcC;VDS=limdcC;VDT=limdcC;ENDIF
+IF(((_SCD=2)|(_SCD=3))&(_BGD=1))
+DCD=limdcD;VDS=limdcD;VDT=limdcD;ENDIF
+IF(((_SCE=2)|(_SCE=3))&(_BGE=1))
+DCE=limdcE;VDS=limdcE;VDT=limdcE;ENDIF
+IF(((_SCF=2)|(_SCF=3))&(_BGF=1))
+DCF=limdcF;VDS=limdcF;VDT=limdcF;ENDIF
+IF(((_SCG=2)|(_SCG=3))&(_BGG=1))
+DCG=limdcG;VDS=limdcG;VDT=limdcG;ENDIF
+IF(((_SCH=2)|(_SCH=3))&(_BGH=1))
+DCH=limdcH;VDS=limdcH;VDT=limdcH;ENDIF
+RE 1
+EN

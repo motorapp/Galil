@@ -1,0 +1,68 @@
+# $File: //ASP/Dev/SBS/4_Controls/4_3_Network_Infrastructure/4_3_1_Comms_Common_Services/sw/device_drivers/Galil/1-5/galilSup/Db/galil_ctrl_extras.template $
+# $Revision: #2 $
+# $DateTime: 2012/03/22 11:20:44 $
+# $Author: cliftm $
+#
+# Description
+# Template file for controller extra commands/readbacks, that are additional to motor Record functionality
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# Licence as published by the Free Software Foundation; either
+# version 2.1 of the Licence, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public Licence for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# Licence along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Contact details:
+# Mark Clift
+# email: padmoz@tpg.com.au
+
+#  Macro paramters:
+#   $(P)        - PV name prefix
+#   $(R)        - PV base record name
+#   $(PORT)     - asyn port for this controller
+#   $(TIMEOUT)  - asyn timeout
+
+# Name of the trajectory file that is built
+record(stringout, "$(P)$(R)TrajectoryFile")
+{
+	field(DESC, "Trajectory file")
+	field(PINI, "YES")
+	field(DTYP, "asynOctetWrite")
+	field(OUT,  "@asyn($(PORT),0,$(TIMEOUT))GALIL_PROFILE_FILE")
+	field(VAL,  "TrajectoryScan.trj")
+}
+
+# Profile type.  Linear, or PVT
+record(bi,"$(P)$(R)PROFILETYPE_STATUS")
+{
+	field(DESC, "profile type")
+	field(DTYP, "asynInt32")
+	field(SCAN, "I/O Intr")
+	field(ONAM, "PVT")
+   	field(OSV,  "NO_ALARM")
+  	field(ZNAM, "Linear")
+  	field(ZSV,  "NO_ALARM")
+   	field(INP,  "@asyn($(PORT),0)GALIL_PROFILE_TYPE")
+}
+
+record(bo,"$(P)$(R)PROFILETYPE_CMD")
+{
+	field(DESC, "profile type")
+	field(DTYP, "asynInt32")
+	field(PINI, "YES")
+	field(ONAM, "PVT")
+   	field(OSV,  "NO_ALARM")
+  	field(ZNAM, "Linear")
+  	field(ZSV,  "NO_ALARM")
+   	field(OUT,  "@asyn($(PORT),0)GALIL_PROFILE_TYPE")
+        field(FLNK, "$(P)$(R)PROFILETYPE_STATUS")
+}
+

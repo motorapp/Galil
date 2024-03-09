@@ -1,0 +1,328 @@
+==============================================================================
+        SITE CONFIGURATION
+==============================================================================
+Edit the following for your site:
+
+GALILRELEASE - Specify module paths.
+        After modifying this file,
+                gnumake release
+        to propagate changes to all module RELEASE files.
+        
+Makefile - Select modules to build.
+        Add/delete support modules by adding/deleting
+        '#' to the two entries for each support module;  
+                DIRS += $(module)
+                RELEASE_FILES += $(module)/configure/RELEASE
+
+To rebuild synApps:
+        gnumake clean uninstall
+        gnumake
+
+        This will also do a "gnumake release", to make sure all the modules
+        have consistent paths in their RELEASE files.
+
+==============================================================================
+        STANDARD SUPPORT MODULES
+==============================================================================
+
+MODULE:  EPICS base
+VERSION: 3-14-8-2
+BUILD DEPENDENCIES: Tornado 2.0.2
+
+==============================================================================
+	1st Tier Modules
+==============================================================================
+
+MODULE:  VXSTATS
+VERSION: 1-7-2e
+SOURCE:  From the BCDA CVS repository.
+BUILD DEPENDENCIES: EPICS_BASE
+PROCEDURE:
+- mkdir vxStats; cd vxStats
+  cvs export -d 1-7-2e -r R1-7-2e vxStats
+
+MODULE:  SNCSEQ
+VERSION: 2-0-11
+SOURCE: http://www.slac.stanford.edu/comp/unix/package/epics/sequencer/
+BUILD DEPENDENCIES: EPICS_BASE
+PROCEDURE:
+- gunzip seq-2.0.11.tar.gz; tar xvf seq-2.0.11.tar
+  mkdir seq; mv seq-2.0.11 seq/2-0-11
+
+MODULE:  ALLEN_BRADLEY
+VERSION: 2-1
+SOURCE:  http://www.aps.anl.gov/epics/modules/bus/allenBradley/
+BUILD DEPENDENCIES: EPICS_BASE
+PROCEDURE:
+- gunzip allenBradley2-1.tar.gz; tar xvf allenBradley2-1.tar
+  mkdir allenBradley; mv 2-1 allenBradley/2-1
+
+MODULE:  IPAC
+VERSION: 2-8
+SOURCE:  http://www.aps.anl.gov/asd/people/anj/ipac/
+BUILD DEPENDENCIES: EPICS_BASE
+PROCEDURE:
+- gunzip ipac-2.8.tar.gz; tar xvf ipac-2.8.tar
+  mkdir ipac; mv ipac-2.8 ipac/2-8
+- uncomment all registrar lines from drvIpac/drvIpac.dbd, except the last for
+  ATC40.
+- delete IOCAPPPS= from ipac/2-8/configure/RELEASE
+
+MODULE:  SSCAN
+VERSION: 2-5-3
+SOURCE:  From the BCDA CVS repository
+BUILD DEPENDENCIES: EPICS_BASE
+PROCEDURE:
+- mkdir sscan; cd sscan
+  cvs export -d 2-5-3 -r R2-5-3 sscan
+
+MODULE:  AUTOSAVE
+VERSION: 4-2-1
+SOURCE:  http://www.aps.anl.gov/aod/bcda/synApps/autosave/autosave.html
+BUILD DEPENDENCIES: EPICS_BASE
+PROCEDURE:
+- gunzip autosave_R4-2-1.tar.gz; tar xvf autosave_R4-2-1.tar
+  mkdir autosave; mv autosave_R4-2-1 autosave/4-2-1
+
+MODULE:  GENSUB
+VERSION: 1-6a
+SOURCE:  http://www.observatorysciences.co.uk/images/genSubV1-6.tar.gz
+BUILD DEPENDENCIES: EPICS_BASE
+PROCEDURE:
+- gunzip genSubV1-6.tar.gz; tar xvf genSubV1-6.tar
+  mkdir genSub; mv genSubV1-6 genSub/1-6a
+
+- edit genSub/1-6a/genSubV1-6Install;
+diff -r1.1 genSubV1-6Install
+1,2c1,2
+< $EPICS/base/bin/solaris-sparc-gnu/makeBaseApp.pl -t example genSub
+< $EPICS/base/bin/solaris-sparc-gnu/makeBaseApp.pl -i -a  vxWorks-ppc604_long -t example genSub
+---
+> $EPICS_BASE/bin/$EPICS_HOST_ARCH/makeBaseApp.pl -t example genSub
+> $EPICS_BASE/bin/$EPICS_HOST_ARCH/makeBaseApp.pl -i -a  vxWorks-ppc604_long -t example genSub
+
+- set EPICS_BASE and EPICS_HOST_ARCH environment variables.
+  cd genSub/1-6a; genSubV1-6Install
+  at "Application name?" prompt; enter <CR>
+- edit configure/RELEASE; delete everything except EPICS_BASE=
+- modify src/Makefile, replacing "geminiRecords_LIBS" with "genSub_LIBS"
+
+==============================================================================
+	2nd Tier Modules
+==============================================================================
+
+MODULE:  ASYN
+VERSION: 4-6
+SOURCE:  http://www.aps.anl.gov/epics/modules/soft/asyn/
+BUILD DEPENDENCIES: EPICS_BASE, SNCSEQ, IPAC
+PROCEDURE:
+- gunzip asyn4-6.tar.gz; tar xvf asyn4-6.tar
+  mkdir asyn; mv 4-6 asyn/4-6
+
+MODULE:  CALC
+VERSION: 2-6-3
+SOURCE:  http://www.aps.anl.gov/aod/bcda/synApps/calc/calc.html
+BUILD DEPENDENCIES: EPICS_BASE, SSCAN, GENSUB
+PROCEDURE:
+- gunzip calc_R2-6-3.tar.gz; tar xvf calc_R2-6-3.tar
+
+==============================================================================
+	3rd Tier Modules
+==============================================================================
+
+MODULE:  MOTOR
+VERSION: 5-9-1
+SOURCE:  http://www.aps.anl.gov/upd/people/sluiter/epics/motor/index.html
+BUILD DEPENDENCIES: EPICS_BASE, SNCSEQ, ASYN
+PROCEDURE:
+- gunzip motorR5-9-1.tar.gz; tar xvf motorR5-9-1.tar
+  mkdir motor; mv motorR5-9-1 motor/5-9-1
+- edit configure/RELEASE; uncomment SNCSEQ=
+
+MODULE:  STD
+VERSION: 2-5-4
+SOURCE:  From the BCDA CVS repository
+BUILD DEPENDENCIES: EPICS_BASE, ASYN
+PROCEDURE:
+- mkdir std; cd std
+  cvs export -d 2-5-4 -r R2-5-4 std
+
+MODULE:  DAC128V
+VERSION: 2-3
+SOURCE:  http://cars9.uchicago.edu/software/epics/dac128V.html
+BUILD DEPENDENCIES: EPICS_BASE, IPAC, ASYN
+PROCEDURE:
+- gunzip dac128VR2-3.tar.gz; tar xvf dac128VR2-3.tar
+  mkdir dac128V; mv dac128VR2-3 dac128V/2-3
+
+MODULE:  IP330
+VERSION: 2-4
+SOURCE:  http://cars9.uchicago.edu/software/epics/ip330.html
+BUILD DEPENDENCIES: EPICS_BASE, IPAC, ASYN
+PROCEDURE:
+- gunzip ip330R2-4.tar.gz; tar xvf ip330R2-4.tar
+  mkdir ip330; mv ip330R2-4 ip330/2-4
+			    
+MODULE:  IPUNIDIG
+VERSION: 2-4
+SOURCE:  http://cars9.uchicago.edu/software/epics/ipUnidig.html
+BUILD DEPENDENCIES: EPICS_BASE, IPAC, ASYN
+PROCEDURE:
+- gunzip ipUnidigR2-4.tar.gz; tar xvf ipUnidigR2-4.tar
+  mkdir ipUnidig; mv ipUnidigR2-4 ipUnidig/2-4
+
+MODULE:  LOVE
+VERSION: 3-2-3
+SOURCE:  http://www.aps.anl.gov/aod/bcda/synApps/love/love.html
+BUILD DEPENDENCIES: EPICS_BASE, IPAC, ASYN
+PROCEDURE:
+- gunzip love_R3-2-3.tar.gz; tar xvf love_R3-2-3.tar
+  mkdir love; mv 3-2-3 love/3-2-3
+
+MODULE:  IP
+VERSION: 2-7
+SOURCE:  From the BCDA CVS repository
+BUILD DEPENDENCIES: EPICS_BASE, SNCSEQ, IPAC, ASYN
+PROCEDURE:
+- mkdir ip; cd ip
+  cvs export -d 2-7 -r R2-7 ip
+
+MODULE:  CCD
+VERSION: 1-6
+SOURCE:  http://cars9.uchicago.edu/software/epics/ccd.html
+BUILD DEPENDENCIES: EPICS_BASE, SNCSEQ, SSCAN, AUTOSAVE, ASYN
+PROCEDURE:
+- gunzip ccdR1-6.tar.gz; tar xvf ccdR1-6.tar
+  mkdir ccd; mv ccdR1-6 ccd/1-6
+
+MODULE:  OPTICS
+VERSION: 2-5-2
+SOURCE:  http://www.aps.anl.gov/aod/bcda/synApps/optics/optics.html
+BUILD DEPENDENCIES: EPICS_BASE, SNCSEQ, ASYN, CALC
+PROCEDURE:
+- gunzip optics_R2-5-2.tar.gz; tar xvf optics_R2-5-2.tar
+
+MODULE:  STREAM
+VERSION: 2-snapshot20061002
+SOURCE:  http://epics.web.psi.ch/software/streamdevice/
+BUILD DEPENDENCIES: EPICS_BASE, ASYN, CALC, SSCAN
+PROCEDURE:
+- complicated, because it involves wrapping streamDevice in a module.
+  Instead of a recipe, a copy of the resulting directory is included.
+
+==============================================================================
+	4th Tier Modules
+==============================================================================
+
+MODULE:  CAMAC
+VERSION: 2-5
+SOURCE:  http://cars9.uchicago.edu/software/epics/camac.html
+BUILD DEPENDENCIES: EPICS_BASE, SSCAN, CALC, MOTOR, STD
+PROCEDURE:
+- gunzip camacR2-5.tar.gz; tar xvf camacR2-5.tar
+  mkdir camac; mv camacR2-5 camac/2-5
+
+MODULE:  MCA
+VERSION: 6-9
+SOURCE:  http://cars9.uchicago.edu/software/epics/mca.html
+BUILD DEPENDENCIES: EPICS_BASE, SSCAN, AUTOSAVE, ASYN, CALC, STD
+PROCEDURE:
+- gunzip mcaR6-9.tar.gz; tar xvf mcaR6-9.tar
+  mkdir mca; mv mcaR6-9 mca/6-9
+
+MODULE:  VME
+VERSION: 2-4-4
+SOURCE:  http://www.aps.anl.gov/aod/bcda/synApps/vme/vme.html
+BUILD DEPENDENCIES: EPICS_BASE, SNCSEQ, ASYN, STD, CALC
+PROCEDURE:
+- gunzip vme_R2-4-4.tar.gz; tar xvf vme_R2-4-4.tar
+  mkdir vme; mv 2-4-4 vme/2-4-4
+
+==============================================================================
+	5th Tier Modules
+==============================================================================
+
+MODULE:  DXP
+VERSION: 2-5
+SOURCE:  From the BCDA CVS repository
+BUILD DEPENDENCIES: EPICS_BASE, SNCSEQ, SSCAN, AUTOSAVE, ASYN, CALC, MCA, CAMAC
+PROCEDURE:
+- mkdir dxp; cd dxp
+  cvs export -d 2-5 -r R2-5 dxp
+
+MODULE:  QUADEM
+VERSION: 2-3
+SOURCE:  http://cars9.uchicago.edu/software/epics/quadEM.html
+BUILD DEPENDENCIES: EPICS_BASE, SSCAN, ASYN, MCA
+PROCEDURE:
+- gunzip quadEMR2-3.tar.gz; tar xvf quadEMR2-3.tar
+  mkdir quadEM; mv quadEMR2-3 quadEM/2-3
+
+MODULE:  xxx
+VERSION: 5-2
+SOURCE:  From the BCDA CVS repository
+BUILD DEPENDENCIES: everything
+PROCEDURE:
+- cvs co -d xxx xxx
+
+==============================================================================
+After adding a module
+1) edit support/config/MASTER_RELEASE
+2) run "gnumake release" in support/config
+==============================================================================
+
+           COMPILERS
+           ---------
+
+This version of synApps was successfully built with the following compilers.
+
+
+linux-x86
+=========
+bcdapc1% /usr/bin/gcc  -v
+Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/3.2.3/specs
+Configured with: ../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --enable-shared --enable-threads=posix --disable-checking --with-system-zlib --enable-__cxa_atexit --host=i386-redhat-linux
+Thread model: posix
+gcc version 3.2.3 20030502 (Red Hat Linux 3.2.3-42)
+
+
+solaris-sparc-gnu
+=================
+dumond% /opt/gnu/bin/gcc -v
+Reading specs from /opt/local/gnu/bin/../lib/gcc/sparc-sun-solaris2.9/3.4.2/specs
+Configured with: ../../gcc-3.4.2/configure --prefix=/opt/gnu
+Thread model: posix
+gcc version 3.4.2
+
+
+vxWorks-68040-debug
+vxWorks-68040
+==================
+dumond% /APSshare/vw/tornado202/host/sun4-solaris2/bin/cc68k -v
+Reading specs from /home/oxygen/SLUITER/local/TII_ANJ/host/sun4-solaris2/lib/gcc-lib/m68k-wrs-vxworks/cygnus-2.7.2-960126/specs
+gcc driver version cygnus-2.7.2-960126 egcs-971225 tornado 2.0 executing gcc version cygnus-2.7.2-960126
+
+
+vxWorks-ppc604
+vxWorks-ppc604_long
+vxWorks-ppc604_long-debug
+==================
+dumond% /APSshare/vw/tornado202/host/sun4-solaris2/bin/ccppc -v
+Reading specs from /home/oxygen/SLUITER/local/TII_ANJ/host/sun4-solaris2/lib/gcc-lib/powerpc-wrs-vxworks/cygnus-2.7.2-960126/specs
+gcc driver version cygnus-2.7.2-960126 egcs-971225 tornado 2.0 executing gcc version cygnus-2.7.2-960126
+
+cygwin-x86
+==========
+$ gcc -v
+Reading specs from /usr/lib/gcc/i686-pc-cygwin/3.4.4/specs
+Configured with: /gcc/gcc-3.4.4/gcc-3.4.4-1/configure --verbose --prefix=/usr --exec-prefix=/usr --sysconfdir=/etc --libdir=/usr/lib --libexecdir=/usr/lib --mandir=/usr/share/man --infodir=/usr/share/info --enable-languages=c,ada,c++,d,f77,java,objc --enable-nls --without-included-gettext --enable-version-specific-runtime-libs --without-x --enable-libgcj --disable-java-awt --with-system-zlib --enable-interpreter --disable-libgcj-debug --enable-threads=posix --enable-java-gc=boehm --disable-win32-registry --enable-sjlj-exceptions --enable-hash-synchronization --enable-libstdcxx-debug : (reconfigured) 
+Thread model: posix
+gcc version 3.4.4 (cygming special) (gdc 0.12, using dmd 0.125)
+
+
+==============================================================================
+
+	   KNOWN PROBLEMS
+	   --------------
+
+ 

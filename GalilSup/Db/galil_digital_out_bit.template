@@ -1,0 +1,56 @@
+# $File: //ASP/Dev/SBS/4_Controls/4_3_Network_Infrastructure/4_3_1_Comms_Common_Services/sw/device_drivers/Galil/3-0/GalilSup/Db/galil_digital_out_bit.template $
+# $Revision: #2 $
+# $DateTime: 2015/03/30 12:39:35 $
+# $Author: cliftm $
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# Licence as published by the Free Software Foundation; either
+# version 2.1 of the Licence, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public Licence for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# Licence along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Contact details:
+# Mark Clift
+# email: padmoz@tpg.com.au
+
+# P    - PV prefix
+# R    - Record Name
+# PORT - Asyn port name
+# WORD - Hardware WORD to read
+# MASK - Mask for this bit
+# ZNAM - Zero state name
+# ONAM - One stage name
+# ZSV -  Zero severity
+# OSV -  One severity
+
+record(bi,"$(P)$(R)_STATUS")
+{
+	field(DTYP, "asynUInt32Digital")
+	field(INP,  "@asynMask($(PORT) $(WORD) $(MASK))BINARY_OUTRBV")
+	field(SCAN, "I/O Intr")
+	field(ZNAM, "$(ZNAM)")
+	field(ONAM, "$(ONAM)")
+	field(ZSV,  "$(ZSV)")
+	field(OSV,  "$(OSV)")
+}
+
+record(bo,"$(P)$(R)_CMD")
+{
+	field(PINI, "YES")
+	field(ZNAM, "$(ZNAM)")
+	field(ONAM, "$(ONAM)")
+	field(ZSV,  "$(ZSV)")
+	field(OSV,  "$(OSV)")
+	field(DTYP, "asynUInt32Digital")
+	field(OUT,  "@asynMask($(PORT) $(WORD) $(MASK))BINARY_OUT")
+}
+
+# end

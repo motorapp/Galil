@@ -1,0 +1,98 @@
+# $File: //ASP/Dev/SBS/4_Controls/4_3_Network_Infrastructure/4_3_1_Comms_Common_Services/sw/device_drivers/Galil/1-5/galilSup/Db/galil_userdef_records.template $
+# $Revision: #1 $
+# $DateTime: 2012/03/19 12:39:43 $
+# $Author: cliftm $
+#
+# Description
+# Template file for user defined commands and monitors (DRVCMD = CMD), and
+#
+# Template file for user defined variable read/write access (DRVCMD = VAR)
+# Demonstrates how to read/write user defined variables from/to the controller
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# Licence as published by the Free Software Foundation; either
+# version 2.1 of the Licence, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public Licence for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# Licence along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Contact details:
+# Mark Clift
+# email: padmoz@tpg.com.au
+
+record(ai,"$(P)$(EPICSNAME)_MONITOR")
+{
+	field(DESC,"$(EPICSNAME) monitor")
+	field(SCAN,"$(SCAN)")
+	field(DTYP,"asynFloat64")
+	field(PINI,"$(PINI)")
+	field(EGU, "$(EGU)")
+	field(FLNK,"$(P)$(EPICSNAME)_STATUS")
+	field(INP, "@asyn($(PORT),$(ADDR))USER_$(DRVCMD) $(GALILSTR)")
+
+# Alarm thresholds
+	field(LOW,  "$(LOW)")
+ 	field(LSV,  "$(LSV)")
+ 	field(HIGH, "$(HIGH)")
+ 	field(HSV,  "$(HSV)")
+}
+
+# BI below provides status readback for the above monitor.
+# Bit 0 from the MONITOR (above) is the only one used for the STATUS PV (below).
+
+record(bi,"$(P)$(EPICSNAME)_STATUS")
+{
+	field(DESC,"$(EPICSNAME) status")
+	field(INP, "$(P)$(EPICSNAME)_MONITOR")
+
+# Alarm thresholds
+	field(ZNAM,"$(ZNAM)")
+	field(ONAM,"$(ONAM)")
+	field(ZSV, "$(ZSV)")
+	field(OSV, "$(OSV)")
+}
+
+record(ao,"$(P)$(EPICSNAME)_SP")
+{
+	field(DESC,"$(EPICSNAME) setpoint")
+	field(DTYP,"asynFloat64")
+	
+	field(EGU, "$(EGU)")
+	field(DOL, "$(P)$(EPICSNAME)_SP")
+	field(FLNK,"$(P)$(EPICSNAME)_MONITOR")
+	field(PINI,"$(PINI)")
+	field(OUT, "@asyn($(PORT),$(ADDR))USER_$(DRVCMD) $(GALILSTR)")
+	
+# Set default value here.
+	field(VAL, "$(DEFAULT)")
+
+# Drive thresholds
+	field(DRVH, "$(DRVH)")
+ 	field(DRVL, "$(DRVL)")
+ 
+# Alarm thresholds
+ 	field(LOW,  "$(LOW)")
+ 	field(LSV,  "$(LSV)")
+ 	field(HIGH, "$(HIGH)")
+ 	field(HSV,  "$(HSV)")
+}
+
+record(bo,"$(P)$(EPICSNAME)_CMD")
+{
+	field(DESC,"$(EPICSNAME) cmd")
+	field(OUT, "$(P)$(EPICSNAME)_SP")
+	field(FLNK,"$(P)$(EPICSNAME)_SP")
+
+# Alarm thresholds
+	field(ZNAM,"$(ZNAM)")
+	field(ONAM,"$(ONAM)")
+	field(ZSV, "$(ZSV)")
+	field(OSV, "$(OSV)")
+}

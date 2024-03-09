@@ -1,0 +1,501 @@
+
+file {
+	name="/home/ics/git/Galil-3-0/3-6/GalilSup/op/adl/galil_rio_ctrl.adl"
+	version=030114
+}
+display {
+	object {
+		x=258
+		y=80
+		width=410
+		height=268
+	}
+	clr=14
+	bclr=4
+	cmap=""
+	gridSpacing=5
+	gridOn=1
+	snapToGrid=0
+}
+"color map" {
+	ncolors=65
+	colors {
+		ffffff,
+		ececec,
+		dadada,
+		c8c8c8,
+		bbbbbb,
+		aeaeae,
+		9e9e9e,
+		919191,
+		858585,
+		787878,
+		696969,
+		5a5a5a,
+		464646,
+		2d2d2d,
+		000000,
+		00d800,
+		1ebb00,
+		339900,
+		2d7f00,
+		216c00,
+		fd0000,
+		de1309,
+		be190b,
+		a01207,
+		820400,
+		5893ff,
+		597ee1,
+		4b6ec7,
+		3a5eab,
+		27548d,
+		fbf34a,
+		f9da3c,
+		eeb62b,
+		e19015,
+		cd6100,
+		ffb0ff,
+		d67fe2,
+		ae4ebc,
+		8b1a96,
+		610a75,
+		a4aaff,
+		8793e2,
+		6a73c1,
+		4d52a4,
+		343386,
+		c7bb6d,
+		b79d5c,
+		a47e3c,
+		7d5627,
+		58340f,
+		99ffff,
+		73dfff,
+		4ea5f9,
+		2a63e4,
+		0a00b8,
+		ebf1b5,
+		d4db9d,
+		bbc187,
+		a6a462,
+		8b8239,
+		73ff6b,
+		52da3b,
+		3cb420,
+		289315,
+		1a7309,
+	}
+}
+rectangle {
+	object {
+		x=124
+		y=8
+		width=150
+		height=28
+	}
+	"basic attribute" {
+		clr=14
+		fill="outline"
+	}
+}
+text {
+	object {
+		x=105
+		y=15
+		width=193
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="RIO controller"
+	align="horiz. centered"
+}
+composite {
+	object {
+		x=5
+		y=142
+		width=399
+		height=119
+	}
+	"composite name"=""
+	children {
+		text {
+			object {
+				x=9
+				y=142
+				width=65
+				height=13
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="Analog/Digital IO"
+		}
+		"related display" {
+			object {
+				x=150
+				y=143
+				width=15
+				height=15
+			}
+			display[0] {
+				label="Controller IO"
+				name="galil_ctrl_io.adl"
+				args="P=$(RIO), R=$(R)"
+			}
+			clr=14
+			bclr=51
+		}
+		composite {
+			object {
+				x=5
+				y=180
+				width=399
+				height=81
+			}
+			"composite name"=""
+			children {
+				"text update" {
+					object {
+						x=32
+						y=196
+						width=372
+						height=13
+					}
+					monitor {
+						chan="$(RIO)ERROR_MON"
+						clr=14
+						bclr=56
+					}
+					format="string"
+					limits {
+					}
+				}
+				text {
+					object {
+						x=5
+						y=211
+						width=65
+						height=13
+					}
+					"basic attribute" {
+						clr=14
+					}
+					textix="Command console"
+				}
+				"text entry" {
+					object {
+						x=32
+						y=228
+						width=372
+						height=20
+					}
+					control {
+						chan="$(RIO)SEND_STR_CMD"
+						clr=14
+						bclr=51
+					}
+					limits {
+					}
+				}
+				"text update" {
+					object {
+						x=32
+						y=248
+						width=372
+						height=13
+					}
+					monitor {
+						chan="$(RIO)SEND_STR_MON"
+						clr=14
+						bclr=56
+					}
+					format="string"
+					limits {
+					}
+				}
+				text {
+					object {
+						x=5
+						y=230
+						width=65
+						height=13
+					}
+					"basic attribute" {
+						clr=14
+					}
+					textix="Cmd"
+				}
+				text {
+					object {
+						x=5
+						y=247
+						width=65
+						height=13
+					}
+					"basic attribute" {
+						clr=14
+					}
+					textix="Resp"
+				}
+				text {
+					object {
+						x=5
+						y=180
+						width=65
+						height=13
+					}
+					"basic attribute" {
+						clr=14
+					}
+					textix="Controller mesg"
+				}
+			}
+		}
+		text {
+			object {
+				x=9
+				y=162
+				width=65
+				height=13
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="User array"
+		}
+		"related display" {
+			object {
+				x=150
+				y=163
+				width=15
+				height=15
+			}
+			display[0] {
+				label="User array0"
+				name="galil_user_array.adl"
+				args="P=$(RIO), R=0, Y=$(RIO)UARRAY0_MON"
+			}
+			display[1] {
+				label="User array1"
+				name="galil_user_array.adl"
+				args="P=$(RIO), R=1, Y=$(RIO)UARRAY1_MON"
+			}
+			display[2] {
+				label="User array2"
+				name="galil_user_array.adl"
+				args="P=$(RIO), R=2, Y=$(RIO)UARRAY2_MON"
+			}
+			display[3] {
+				label="User array3"
+				name="galil_user_array.adl"
+				args="P=$(RIO), R=3, Y=$(RIO)UARRAY3_MON"
+			}
+			display[4] {
+				label="User array4"
+				name="galil_user_array.adl"
+				args="P=$(RIO), R=4, Y=$(RIO)UARRAY4_MON"
+			}
+			display[5] {
+				label="User array5"
+				name="galil_user_array.adl"
+				args="P=$(RIO), R=5, Y=$(RIO)UARRAY5_MON"
+			}
+			display[6] {
+				label="User array6"
+				name="galil_user_array.adl"
+				args="P=$(RIO), R=6, Y=$(RIO)UARRAY6_MON"
+			}
+			display[7] {
+				label="User array7"
+				name="galil_user_array.adl"
+				args="P=$(RIO), R=7, Y=$(RIO)UARRAY7_MON"
+			}
+			clr=14
+			bclr=51
+		}
+	}
+}
+"text update" {
+	object {
+		x=286
+		y=52
+		width=120
+		height=13
+	}
+	monitor {
+		chan="$(RIO)DRIVER_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=9
+		y=52
+		width=97
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Driver version"
+}
+composite {
+	object {
+		x=9
+		y=106
+		width=372
+		height=13
+	}
+	"composite name"=""
+	children {
+		text {
+			object {
+				x=9
+				y=106
+				width=97
+				height=13
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="Communication Status"
+		}
+		"text update" {
+			object {
+				x=286
+				y=106
+				width=95
+				height=13
+			}
+			monitor {
+				chan="$(RIO)COMMERR_STATUS"
+				clr=54
+				bclr=4
+			}
+			clrmod="alarm"
+			limits {
+			}
+		}
+	}
+}
+composite {
+	object {
+		x=9
+		y=88
+		width=372
+		height=13
+	}
+	"composite name"=""
+	children {
+		text {
+			object {
+				x=9
+				y=88
+				width=97
+				height=13
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="Controller address"
+		}
+		"text update" {
+			object {
+				x=286
+				y=88
+				width=95
+				height=13
+			}
+			monitor {
+				chan="$(RIO)ADDRESS_MON"
+				clr=54
+				bclr=4
+			}
+			limits {
+			}
+		}
+	}
+}
+composite {
+	object {
+		x=9
+		y=124
+		width=372
+		height=13
+	}
+	"composite name"=""
+	children {
+		text {
+			object {
+				x=9
+				y=124
+				width=97
+				height=13
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="Controller start status"
+		}
+		"text update" {
+			object {
+				x=286
+				y=124
+				width=95
+				height=13
+			}
+			monitor {
+				chan="$(RIO)START_STATUS"
+				clr=54
+				bclr=4
+			}
+			clrmod="alarm"
+			limits {
+			}
+		}
+	}
+}
+composite {
+	object {
+		x=9
+		y=70
+		width=397
+		height=13
+	}
+	"composite name"=""
+	children {
+		"text update" {
+			object {
+				x=286
+				y=70
+				width=120
+				height=13
+			}
+			monitor {
+				chan="$(RIO)MODEL_MON"
+				clr=54
+				bclr=4
+			}
+			limits {
+			}
+		}
+		text {
+			object {
+				x=9
+				y=70
+				width=97
+				height=13
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="Controller model"
+		}
+	}
+}

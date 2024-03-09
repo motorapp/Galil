@@ -1,0 +1,805 @@
+
+file {
+	name="/home/ics/git/Galil-3-0/3-5/GalilSup/op/adl/galil_BISS.adl"
+	version=030114
+}
+display {
+	object {
+		x=689
+		y=188
+		width=400
+		height=360
+	}
+	clr=14
+	bclr=4
+	cmap=""
+	gridSpacing=5
+	gridOn=0
+	snapToGrid=0
+}
+"color map" {
+	ncolors=65
+	colors {
+		ffffff,
+		ececec,
+		dadada,
+		c8c8c8,
+		bbbbbb,
+		aeaeae,
+		9e9e9e,
+		919191,
+		858585,
+		787878,
+		696969,
+		5a5a5a,
+		464646,
+		2d2d2d,
+		000000,
+		00d800,
+		1ebb00,
+		339900,
+		2d7f00,
+		216c00,
+		fd0000,
+		de1309,
+		be190b,
+		a01207,
+		820400,
+		5893ff,
+		597ee1,
+		4b6ec7,
+		3a5eab,
+		27548d,
+		fbf34a,
+		f9da3c,
+		eeb62b,
+		e19015,
+		cd6100,
+		ffb0ff,
+		d67fe2,
+		ae4ebc,
+		8b1a96,
+		610a75,
+		a4aaff,
+		8793e2,
+		6a73c1,
+		4d52a4,
+		343386,
+		c7bb6d,
+		b79d5c,
+		a47e3c,
+		7d5627,
+		58340f,
+		99ffff,
+		73dfff,
+		4ea5f9,
+		2a63e4,
+		0a00b8,
+		ebf1b5,
+		d4db9d,
+		bbc187,
+		a6a462,
+		8b8239,
+		73ff6b,
+		52da3b,
+		3cb420,
+		289315,
+		1a7309,
+	}
+}
+rectangle {
+	object {
+		x=127
+		y=6
+		width=129
+		height=25
+	}
+	"basic attribute" {
+		clr=14
+		fill="outline"
+	}
+}
+text {
+	object {
+		x=99
+		y=12
+		width=193
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="BISS Settings"
+	align="horiz. centered"
+}
+text {
+	object {
+		x=8
+		y=46
+		width=97
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Motor axis"
+}
+"text update" {
+	object {
+		x=150
+		y=48
+		width=58
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_AXIS_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=150
+		y=65
+		width=200
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M).NAME"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=8
+		y=64
+		width=97
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Motorname"
+}
+text {
+	object {
+		x=-54
+		y=93
+		width=193
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="BISS status"
+	align="horiz. centered"
+}
+text {
+	object {
+		x=-49
+		y=233
+		width=193
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="BISS control"
+	align="horiz. centered"
+}
+rectangle {
+	object {
+		x=4
+		y=86
+		width=392
+		height=25
+	}
+	"basic attribute" {
+		clr=14
+		fill="outline"
+	}
+}
+rectangle {
+	object {
+		x=4
+		y=226
+		width=392
+		height=25
+	}
+	"basic attribute" {
+		clr=14
+		fill="outline"
+	}
+}
+composite {
+	object {
+		x=23
+		y=114
+		width=366
+		height=13
+	}
+	"composite name"=""
+	children {
+		text {
+			object {
+				x=23
+				y=114
+				width=69
+				height=13
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="Timeout"
+		}
+		text {
+			object {
+				x=97
+				y=114
+				width=69
+				height=13
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="CRC"
+		}
+		text {
+			object {
+				x=246
+				y=114
+				width=69
+				height=13
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="Warn"
+		}
+		text {
+			object {
+				x=320
+				y=114
+				width=69
+				height=13
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="Error"
+		}
+	}
+}
+composite {
+	object {
+		x=36
+		y=131
+		width=15
+		height=15
+	}
+	"composite name"=""
+	children {
+		rectangle {
+			object {
+				x=36
+				y=131
+				width=15
+				height=15
+			}
+			"basic attribute" {
+				clr=20
+			}
+			"dynamic attribute" {
+				vis="if zero"
+				chan="$(P)$(M)_BISSSTAT_TIMEOUT"
+			}
+		}
+		rectangle {
+			object {
+				x=36
+				y=131
+				width=15
+				height=15
+			}
+			"basic attribute" {
+				clr=15
+			}
+			"dynamic attribute" {
+				vis="if not zero"
+				chan="$(P)$(M)_BISSSTAT_TIMEOUT"
+			}
+		}
+	}
+}
+composite {
+	object {
+		x=100
+		y=131
+		width=15
+		height=15
+	}
+	"composite name"=""
+	children {
+		rectangle {
+			object {
+				x=100
+				y=131
+				width=15
+				height=15
+			}
+			"basic attribute" {
+				clr=20
+			}
+			"dynamic attribute" {
+				vis="if zero"
+				chan="$(P)$(M)_BISSSTAT_CRC"
+			}
+		}
+		rectangle {
+			object {
+				x=100
+				y=131
+				width=15
+				height=15
+			}
+			"basic attribute" {
+				clr=15
+			}
+			"dynamic attribute" {
+				vis="if not zero"
+				chan="$(P)$(M)_BISSSTAT_CRC"
+			}
+		}
+	}
+}
+composite {
+	object {
+		x=251
+		y=131
+		width=15
+		height=15
+	}
+	"composite name"=""
+	children {
+		rectangle {
+			object {
+				x=251
+				y=131
+				width=15
+				height=15
+			}
+			"basic attribute" {
+				clr=20
+			}
+			"dynamic attribute" {
+				vis="if zero"
+				chan="$(P)$(M)_BISSSTAT_WARN"
+			}
+		}
+		rectangle {
+			object {
+				x=251
+				y=131
+				width=15
+				height=15
+			}
+			"basic attribute" {
+				clr=15
+			}
+			"dynamic attribute" {
+				vis="if not zero"
+				chan="$(P)$(M)_BISSSTAT_WARN"
+			}
+		}
+	}
+}
+composite {
+	object {
+		x=327
+		y=131
+		width=15
+		height=15
+	}
+	"composite name"=""
+	children {
+		rectangle {
+			object {
+				x=327
+				y=131
+				width=15
+				height=15
+			}
+			"basic attribute" {
+				clr=20
+			}
+			"dynamic attribute" {
+				vis="if zero"
+				chan="$(P)$(M)_BISSSTAT_ERROR"
+			}
+		}
+		rectangle {
+			object {
+				x=327
+				y=131
+				width=15
+				height=15
+			}
+			"basic attribute" {
+				clr=15
+			}
+			"dynamic attribute" {
+				vis="if not zero"
+				chan="$(P)$(M)_BISSSTAT_ERROR"
+			}
+		}
+	}
+}
+composite {
+	object {
+		x=12
+		y=160
+		width=347
+		height=18
+	}
+	"composite name"=""
+	children {
+		text {
+			object {
+				x=12
+				y=160
+				width=69
+				height=13
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="BISS poll period"
+		}
+		"text entry" {
+			object {
+				x=154
+				y=160
+				width=100
+				height=18
+			}
+			control {
+				chan="$(P)$(M)_STATUS_POLL_DELAY_CMD"
+				clr=14
+				bclr=51
+			}
+			limits {
+			}
+		}
+		"text update" {
+			object {
+				x=278
+				y=164
+				width=81
+				height=13
+			}
+			monitor {
+				chan="$(P)$(M)_STATUS_POLL_DELAY_MON"
+				clr=54
+				bclr=4
+			}
+			limits {
+			}
+		}
+	}
+}
+composite {
+	object {
+		x=12
+		y=178
+		width=347
+		height=18
+	}
+	"composite name"=""
+	children {
+		text {
+			object {
+				x=12
+				y=178
+				width=69
+				height=13
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="BISS status poll"
+		}
+		menu {
+			object {
+				x=154
+				y=178
+				width=100
+				height=18
+			}
+			control {
+				chan="$(P)$(M)_BISSSTAT_POLL_CMD"
+				clr=14
+				bclr=4
+			}
+		}
+		"text update" {
+			object {
+				x=278
+				y=183
+				width=81
+				height=13
+			}
+			monitor {
+				chan="$(P)$(M)_BISSSTAT_POLL"
+				clr=54
+				bclr=4
+			}
+			limits {
+			}
+		}
+	}
+}
+"text update" {
+	object {
+		x=278
+		y=265
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_BISSINPUT_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+menu {
+	object {
+		x=154
+		y=260
+		width=100
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_BISSINPUT_CMD"
+		clr=14
+		bclr=4
+	}
+}
+text {
+	object {
+		x=12
+		y=260
+		width=69
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="BISS Input"
+}
+text {
+	object {
+		x=12
+		y=196
+		width=69
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="BISS level"
+}
+menu {
+	object {
+		x=154
+		y=196
+		width=100
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_BISSLEVEL_CMD"
+		clr=14
+		bclr=4
+	}
+}
+"text update" {
+	object {
+		x=278
+		y=201
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_BISSLEVEL_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=278
+		y=281
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_BISSDATA1_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text entry" {
+	object {
+		x=154
+		y=277
+		width=100
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_BISSDATA1_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=12
+		y=277
+		width=69
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="BISS Data 1"
+}
+"text entry" {
+	object {
+		x=154
+		y=295
+		width=100
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_BISSDATA2_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=278
+		y=299
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_BISSDATA2_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=12
+		y=295
+		width=69
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="BISS Data 2"
+}
+text {
+	object {
+		x=12
+		y=313
+		width=69
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="BISS Zero padding"
+}
+"text entry" {
+	object {
+		x=154
+		y=313
+		width=100
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_BISSZP_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=278
+		y=317
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_BISSZP_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=12
+		y=331
+		width=69
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="BISS Clk divider"
+}
+"text entry" {
+	object {
+		x=154
+		y=331
+		width=100
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_BISSCD_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=278
+		y=335
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_BISSCD_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+rectangle {
+	object {
+		x=4
+		y=3
+		width=392
+		height=350
+	}
+	"basic attribute" {
+		clr=14
+		fill="outline"
+	}
+}

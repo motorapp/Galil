@@ -1,0 +1,20 @@
+# Kinematics
+# Forward transforms (Readbacks)
+file "galil_forward_transform.req" P=$(P), M=I
+file "galil_forward_transform.req" P=$(P), M=J
+file "galil_forward_transform.req" P=$(P), M=K
+file "galil_forward_transform.req" P=$(P), M=L
+file "galil_forward_transform.req" P=$(P), M=M
+file "galil_forward_transform.req" P=$(P), M=N
+file "galil_forward_transform.req" P=$(P), M=O
+file "galil_forward_transform.req" P=$(P), M=P
+# Reverse transforms (Setpoints)
+file "galil_reverse_transforms.req" P=$(P), M=I
+file "galil_reverse_transforms.req" P=$(P), M=J
+file "galil_reverse_transforms.req" P=$(P), M=K
+file "galil_reverse_transforms.req" P=$(P), M=L
+file "galil_reverse_transforms.req" P=$(P), M=M
+file "galil_reverse_transforms.req" P=$(P), M=N
+file "galil_reverse_transforms.req" P=$(P), M=O
+file "galil_reverse_transforms.req" P=$(P), M=P
+

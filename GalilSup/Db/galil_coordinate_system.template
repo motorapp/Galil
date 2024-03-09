@@ -1,0 +1,89 @@
+# $File: //ASP/Dev/SBS/4_Controls/4_3_Network_Infrastructure/4_3_1_Comms_Common_Services/sw/device_drivers/Galil/1-5/galilSup/Db/galil_ctrl_extras.template $
+# $Revision: #2 $
+# $DateTime: 2012/03/22 11:20:44 $
+# $Author: cliftm $
+#
+# Description
+# Template file for coordinate systems
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# Licence as published by the Free Software Foundation; either
+# version 2.1 of the Licence, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public Licence for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# Licence along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Contact details:
+# Mark Clift
+# email: padmoz@tpg.com.au
+
+record(bi,"$(P)$(R)_NAME_MON")
+{
+	field(DESC, "coordsys name")
+	field(PINI, "YES")
+        field(VAL,  "$(ADDR)")
+        field(ZNAM, "S")
+   	field(ZSV,  "NO_ALARM")
+  	field(ONAM, "T")
+  	field(OSV,  "NO_ALARM")
+}
+
+record(stringin,"$(P)$(R)_MOTORS_MON")
+{
+	field(DESC, "mtrs in coordsys")
+	field(DTYP, "asynOctetRead")
+	field(SCAN, "I/O Intr")
+   	field(INP,  "@asyn($(PORT),$(ADDR))COORDINATE_SYSTEM_MOTORS")
+}
+
+record(bi,"$(P)$(R)_MOVN_STATUS")
+{
+	field(DESC, "coordsys move")
+	field(DTYP, "asynInt32")
+	field(SCAN, "I/O Intr")
+	field(ZNAM, "Stopped")
+   	field(ZSV,  "NO_ALARM")
+  	field(ONAM, "Moving")
+  	field(OSV,  "NO_ALARM")
+   	field(INP,  "@asyn($(PORT),$(ADDR))COORDINATE_SYSTEM_MOVING")
+}
+
+record(ai, "$(P)$(R)_SEGMENTS_MON") 
+{
+	field(DESC, "segments processed")
+	field(SCAN, "I/O Intr")
+	field(DTYP, "asynInt32")
+	field(INP,  "@asyn($(PORT),$(ADDR))COORDINATE_SYSTEM_SEGMENTS")
+}
+
+record(bo, "$(P)$(R)_STOP_CMD")
+{
+	field(DESC, "stop all mtrs")
+	field(DTYP, "asynInt32")
+	field(ZNAM, "Stop")
+	field(ZSV,  "NO_ALARM")
+	field(ONAM, "Go")
+	field(OSV,  "NO_ALARM")
+	field(OUT,  "@asyn($(PORT),$(ADDR))COORDINATE_SYSTEM_MOTORS_STOP")
+}
+
+record(bo, "$(P)$(R)_GO_CMD") 
+{
+	field(DESC, "go all mtrs")
+	field(DTYP, "asynInt32")
+	field(ZNAM, "Stop")
+	field(ZSV,  "NO_ALARM")
+	field(ONAM, "Go")
+	field(OSV,  "NO_ALARM")
+	field(OUT,  "@asyn($(PORT),$(ADDR))COORDINATE_SYSTEM_MOTORS_GO")
+}
+
+#end
+
