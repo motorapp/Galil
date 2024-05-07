@@ -1,4 +1,3 @@
-//
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // Licence as published by the Free Software Foundation; either
@@ -457,6 +456,16 @@ typedef struct {
   const char *enumString;
   int  enumValue;
 } enumStruct_t;
+
+static const enumStruct_t ampGain_43040[] = {
+  {"0.40 A/V",   0},
+  {"0.70 A/V",   1},
+  {"1.00 A/V",   2},
+};
+
+static const enumStruct_t ampGain_43140[] = {
+  {"0.10 A",   0},
+};
 
 static const enumStruct_t ampGain_44040[] = {
   {"0.50 A",   0},
@@ -3808,13 +3817,22 @@ asynStatus GalilController::readEnum(asynUser *pasynUser, char *strings[], int v
   }
 
   if (function == GalilAmpGain_) {
-    if (ampModel_[boardNum] == 44040) {
+    if (ampModel_[boardNum] == 43040) {
+      pEnum    = ampGain_43040;
+      numEnums = sizeof(ampGain_43040)/sizeof(enumStruct_t);
+    } else if (ampModel_[boardNum] == 43140) {
+      pEnum    = ampGain_43140;
+      numEnums = sizeof(ampGain_43140)/sizeof(enumStruct_t);
+    } else if (ampModel_[boardNum] == 44040) {
       pEnum    = ampGain_44040;
       numEnums = sizeof(ampGain_44040)/sizeof(enumStruct_t);
     } else if (ampModel_[boardNum] == 44140) {
       pEnum    = ampGain_44140;
       numEnums = sizeof(ampGain_44140)/sizeof(enumStruct_t);
     } else {
+      asynPrint(pasynUserSelf, ASYN_TRACE_ERROR,
+                "GalilController::readEnum unsupported amplifier model=%d\n", 
+                ampModel_[boardNum]);
       goto unsupported;
     }
   }
