@@ -89,9 +89,9 @@ display {
 }
 rectangle {
 	object {
-		x=124
+		x=5
 		y=8
-		width=150
+		width=400
 		height=28
 	}
 	"basic attribute" {
@@ -101,15 +101,15 @@ rectangle {
 }
 text {
 	object {
-		x=105
+		x=10
 		y=15
-		width=193
+		width=390
 		height=18
 	}
 	"basic attribute" {
 		clr=14
 	}
-	textix="DMC controller"
+	textix="DMC controller  $(DMC)"
 	align="horiz. centered"
 }
 text {
