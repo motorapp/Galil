@@ -5,7 +5,7 @@ ASYN based EPICS driver for Galil products
 
 # Notes
 
-### Firmware
+### Firmware requirements
 DMC-4103 Series controller minimum firmware = 1.2F   
 DMC-4000 Series controller minimum firmware = 1.2i   
 
