@@ -6461,7 +6461,12 @@ void GalilController::gen_motor_enables_code(void)
         for (j = 0; j<(int)strlen(motor_enables->motors); j++) {
            c = motor_enables->motors[j];
            //Add code to stop the motors when digital input state matches that specified
-           digital_code_ += "ST" + tsp(c) + ";DC" + tsp(c) + "=limdc" + tsp(c) +";";
+		   // If 6 or more motors were configured to stop on the same IN, this will result
+		   // in a long program line in the generated DMC, the DMC will generate an error
+		   // when programmed with this generated file. This was checked with GalilTools
+		   // which showed much clear error message. The fix is simply a new line after 
+		   // each axis.
+           digital_code_ += "ST" + tsp(c) + ";DC" + tsp(c) + "=limdc" + tsp(c) +";\n";
         } //For
         //Manipulate interrupt flag to turn off the interrupt on this port for one threadA cycle
         digital_code_ += "\ndpoff=dpoff-" + tsp((1 << i),0) + ";ENDIF\n";
