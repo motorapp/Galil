@@ -1,1 +1,4 @@
 /.project
+
+# Ignore Qt generated xml
+QEGuiConfig.xml

@@ -410,6 +410,11 @@
 //                  Fix CSAxis beginGroupMotion error during home when motors aren't allowed to home
 // 03/03/2024 M.Clift
 //                  Fix compilation error caused by use of "and" keyword. Revert to && for greater compiler compatibility
+// 29/08/2024 A.Dalleh
+//                  Fix switch interlock code generation creating lines greater than 80 characters
+// 01/09/2024 M.Clift
+//                  Fix setLowLimit, setHighLimit clearing DMC01:ERROR_MON controller message
+//                  
 
 #include <stdio.h>
 #include <math.h>
@@ -536,7 +541,6 @@ void connectCallback(asynUser *pasynUser, asynException exception)
              pC_->setIntegerParam(pC_->GalilCommunicationError_, 1);
              //If asyn connected = 0 device wont respond so go ahead and set GalilController connected_ false
              pC_->connected_ = false;
-             printf("connected set false\n");
              //Force update to digital IO records when connection is established
              pC_->digInitialUpdate_ = false;
              //Give disconnect message
@@ -1136,7 +1140,6 @@ void GalilController::connected(void)
 
   //Flag connected as true
   connected_ = true;
-  printf("connected_=%d\n", connected_);
   setIntegerParam(GalilCommunicationError_, 0);
   //Load model, and firmware query into cmd structure
   strcpy(cmd_, RV);
@@ -5604,32 +5607,63 @@ asynStatus GalilController::async_writeReadController(const char *output, char *
 
 /** Downloads program to controller
 */
-asynStatus GalilController::programDownload(string prog)
+asynStatus GalilController::programDownload(const string prog)
 {
+  string msg = "";
+  string progLocal(prog); // Local copy of DMC prog
   size_t nwrite;	//Asyn number of bytes written
   size_t nread;		//Asyn number of bytes read
   asynStatus status = asynError;	//Asyn status
   char buf[MAX_GALIL_STRING_SIZE];	//Read back response controller gives at end
   int eomReason;	//end of message reason when reading
-
+  // Only if connected
   if (connected_)
      {
      //Request download
      status = pSyncOctet_->write(pSyncOctetPvt_, pasynUserSyncGalil_, "DL\r", 3, &nwrite);
      //Insert download terminate character at program end
-     prog.push_back('\\');
+     progLocal.push_back('\\');
      //Download the program
      if (!status)
         {
-        status = pSyncOctet_->write(pSyncOctetPvt_, pasynUserSyncGalil_, prog.c_str(), prog.length(), &nwrite);
+        status = pSyncOctet_->write(pSyncOctetPvt_, pasynUserSyncGalil_, progLocal.c_str(), progLocal.length(), &nwrite);
         if (!status)  //Read "::" response that controller gives
            status = pSyncOctet_->read(pSyncOctetPvt_, pasynUserSyncGalil_, (char *)buf, 2, &nread, &eomReason);
         if (buf[0] == '?' || buf[1] == '?')
            status = asynError;  //Controller didn't like the program
         }
      }
-
+  // Report any error
+  if (asynSuccess != status) {
+    //Download fail
+    msg = "Error downloading code model " + model_ + ", address " + address_;
+    setCtrlError(msg);
+  }
+  // Return result
   return status;
+}
+
+/** Validate DMC program
+  * \param[in] output Pointer to the output string.
+  * \return asynStatus
+  */
+asynStatus GalilController::programValidate(const string prog) {
+  string msg = "";
+  string progLine;
+  unsigned lineNo = 0;
+  stringstream progStream(prog);
+  while (getline(progStream, progLine, '\r')) {
+    if (progLine.size() > 80) {
+      msg = "Error DMC program line " + tsp(lineNo) + " length = ";
+      msg += tsp(progLine.size()) + " > maximum @ 80 characters";
+      setCtrlError(msg);
+      // Return error
+      return asynError;
+    }
+    lineNo++;
+  }
+  // Return success
+  return asynSuccess;
 }
 
 /** Reads array data from controller, and pushes it to database waveform records
@@ -6136,7 +6170,7 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
    GalilAxis *pAxis;		//GalilAxis
    unsigned i;			//General purpose looping
    bool start_ok = true;	//Have the controller threads started ok
-   int download_status = 0;	//Code download status default = not required
+   downloadState downloadStatus = notRequired;	//Code download status default
    bool variables_ok = false;	//Were the galil code variables set successfully
    bool burn_variables;		//Burn variables to controller
    string uc;			//Uploaded code from controller
@@ -6226,19 +6260,25 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
 
       //If code we wish to download differs from controller current code then download the new code
       if (dc.compare(uc) != 0 && dc.compare("") != 0) {
-         errlogPrintf("\nTransferring code to model %s, address %s\n",model_.c_str(), address_.c_str());		
-         //Do the download
-         status = programDownload(dc);
-         if (status) {
-            //Download fail
-            mesg = "Error downloading code model " + model_ + ", address " + address_;
-            setCtrlError(mesg);
-            download_status = -1;
+         if (asynSuccess == programValidate(dc)) {
+           // Program validated successfully
+           errlogPrintf("\nTransferring code to model %s, address %s\n",model_.c_str(), address_.c_str());		
+           //Do the download
+           if (asynSuccess == programDownload(dc)) {
+             //Download success
+             downloadStatus = downloadSuccess;
+           }
+           else {
+             //Download fail
+             downloadStatus = downloadFailed;
+           }
          }
-         else
-            download_status = 1; //Download success
+         else {
+           // Program validation failed
+           downloadStatus = downloadFailed;
+         }
 	
-         if (download_status == 1) {
+         if (downloadSuccess == downloadStatus) {
             errlogPrintf("Code transfer successful to model %s, address %s\n",model_.c_str(), address_.c_str());	
             //Burn program code to eeprom if burn_program is 1
             if (burn_program == 1) {
@@ -6259,69 +6299,77 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
          } //download ok
       } //Code on controller different
 
-      //Initialize galil code variables
-      burn_variables = (burn_program && (download_status == 1)) ? true : false;
-      variables_ok = GalilInitializeVariables(burn_variables) == asynSuccess ? true : false;
+      if (downloadFailed != downloadStatus) {
+         //Initialize galil code variables
+         burn_variables = (burn_program && (downloadSuccess == downloadStatus)) ? true : false;
+         variables_ok = GalilInitializeVariables(burn_variables) == asynSuccess ? true : false;
 
-      /*Upload code currently in controller to see whats there now*/              
-      status = programUpload(&uc);
-      if (!status)   //Remove the \r characters - \r\n is returned by galil controller
-         uc.erase (std::remove(uc.begin(), uc.end(), '\r'), uc.end());
-      else
-         errlogPrintf("\nError uploading code model %s, address %s\n",model_.c_str(), address_.c_str());
+         /*Upload code currently in controller to see whats there now*/              
+         if (asynSuccess == programUpload(&uc)) {
+            //Remove the \r characters - \r\n is returned by galil controller
+            uc.erase (std::remove(uc.begin(), uc.end(), '\r'), uc.end());
+         }
+         else {
+            errlogPrintf("\nError uploading code model %s, address %s\n",model_.c_str(), address_.c_str());
+         }
 
-      //Start thread 0 if upload reveals code exists on controller
-      //Its assumed that thread 0 starts any other required threads on controller
-      if ((int)uc.length()>2 && thread_mask_ >= 0) {
-         //Start thread 0
-         sprintf(cmd_, "XQ 0,0");
-         if (sync_writeReadController() != asynSuccess)
-            errlogPrintf("Thread 0 failed to start on model %s address %s\n\n",model_.c_str(), address_.c_str());
+         //Start thread 0 if code on controller matches what was downloaded
+         //Its assumed that thread 0 starts any other required threads on controller
+         if ((0 == (int)dc.compare(uc)) && 0 != (int)uc.compare("") && thread_mask_ >= 0) {
+            //Start thread 0
+            sprintf(cmd_, "XQ 0,0");
+            if (sync_writeReadController() != asynSuccess)
+               errlogPrintf("Thread 0 failed to start on model %s address %s\n\n",model_.c_str(), address_.c_str());
 
-         //Wait a second before checking thread status
-         epicsThreadSleep(1);
+            //Wait a second before checking thread status
+            epicsThreadSleep(1);
 			
-         //Check threads on controller
-         if (thread_mask_ > 0) {//user specified a thread mask, only check for these threads
-            for (i = 0; i < 32; ++i) {
-               if ( (thread_mask_ & (1 << i)) != 0 ) {
+            //Check threads on controller
+            if (thread_mask_ > 0) {
+               //user specified a thread mask, only check for these threads
+               for (i = 0; i < 32; ++i) {
+                  if ( (thread_mask_ & (1 << i)) != 0 ) {
+                     //Check that code is running
+                     sprintf(cmd_, "MG _XQ%d", i);
+                     if (sync_writeReadController() == asynSuccess) {
+                        if (atoi(resp_) == -1) {
+                           start_ok = false;
+                           mesg = "Thread " + tsp(i, 0) + " failed to start on model " + model_ + ", address " + address_;
+                           setCtrlError(mesg);
+                        }
+                     }
+                  }
+               }
+            }
+            else if ((numAxes_ > 0 || rio_) && thread_mask_ == 0) {
+               //Check code is running for all created GalilAxis
+               if (rio_) //Check thread 0 on rio
+                  numAxes_ = 1;
+               for (i = 0;i < numAxes_;i++) {		
                   //Check that code is running
-                  sprintf(cmd_, "MG _XQ%d", i);
+                  if (rio_)
+                     sprintf(cmd_, "MG _XQ%d", i);
+                  else
+                     sprintf(cmd_, "MG _XQ%d", axisList_[i] - AASCII);
                   if (sync_writeReadController() == asynSuccess) {
                      if (atoi(resp_) == -1) {
                         start_ok = false;
-                        mesg = "Thread " + tsp(i, 0) + " failed to start on model " + model_ + ", address " + address_;
+                        if (rio_)
+                           mesg = "Thread " + tsp(i, 0) + " failed to start on model " + model_ + ", address " + address_;
+                        else
+                           mesg = "Thread " + tsp(axisList_[i] - AASCII, 0) + " failed to start on model " + model_ + ", address " + address_;
                         setCtrlError(mesg);
                      }
                   }
                }
             }
-         }
-         else if ((numAxes_ > 0 || rio_) && thread_mask_ == 0) {//Check code is running for all created GalilAxis
-            if (rio_) //Check thread 0 on rio
-               numAxes_ = 1;
-            for (i = 0;i < numAxes_;i++) {		
-               //Check that code is running
-               if (rio_)
-                  sprintf(cmd_, "MG _XQ%d", i);
-               else
-                  sprintf(cmd_, "MG _XQ%d", axisList_[i] - AASCII);
-               if (sync_writeReadController() == asynSuccess) {
-                  if (atoi(resp_) == -1) {
-                     start_ok = false;
-                     if (rio_)
-                        mesg = "Thread " + tsp(i, 0) + " failed to start on model " + model_ + ", address " + address_;
-                     else
-                        mesg = "Thread " + tsp(axisList_[i] - AASCII, 0) + " failed to start on model " + model_ + ", address " + address_;
-                     setCtrlError(mesg);
-                  }
-               }
-            }
-         }
 
-	 if (start_ok)
-            errlogPrintf("Code started successfully on model %s, address %s\n",model_.c_str(), address_.c_str());
+	    if (start_ok)
+               errlogPrintf("Code started successfully on model %s, address %s\n",model_.c_str(), address_.c_str());
+         } // Start thread 0
       }
+      else // Download failed
+         start_ok = false;
 
       //Limits motor direction consistency unknown at connect/reconnect
       for (i = 0; i < numAxes_; i++) {
@@ -6346,7 +6394,7 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
       start_ok = false;
 
    //Set controller start status
-   if (start_ok && variables_ok && (download_status == 1 || download_status == 0))
+   if (start_ok && variables_ok && (downloadStatus == downloadSuccess || downloadStatus == notRequired))
       start_ok = true;
    else
       start_ok = false;
@@ -6461,15 +6509,15 @@ void GalilController::gen_motor_enables_code(void)
         for (j = 0; j<(int)strlen(motor_enables->motors); j++) {
            c = motor_enables->motors[j];
            //Add code to stop the motors when digital input state matches that specified
-		   // If 6 or more motors were configured to stop on the same IN, this will result
-		   // in a long program line in the generated DMC, the DMC will generate an error
-		   // when programmed with this generated file. This was checked with GalilTools
-		   // which showed much clear error message. The fix is simply a new line after 
-		   // each axis.
-           digital_code_ += "ST" + tsp(c) + ";DC" + tsp(c) + "=limdc" + tsp(c) +";\n";
+           if (((j != 0) && ((j % 4) == 0)) || (j == ((int)strlen(motor_enables->motors) - 1))) {
+              digital_code_ += "ST" + tsp(c) + ";DC" + tsp(c) + "=limdc" + tsp(c) + "\n";
+           }
+           else {
+              digital_code_ += "ST" + tsp(c) + ";DC" + tsp(c) + "=limdc" + tsp(c) + ";";
+           }
         } //For
         //Manipulate interrupt flag to turn off the interrupt on this port for one threadA cycle
-        digital_code_ += "\ndpoff=dpoff-" + tsp((1 << i),0) + ";ENDIF\n";
+        digital_code_ += "dpoff=dpoff-" + tsp((1 << i),0) + ";ENDIF\n";
      }
   } //For
 

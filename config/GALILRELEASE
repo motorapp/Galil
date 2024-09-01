@@ -7,5 +7,5 @@ CALC=/epics/calc-R3-7-5
 ASYN=/epics/asyn-R4-44-2
 BUSY=/epics/busy-R1-7-4
 MOTOR=/epics/motor-R7-3-1
-GALIL=/home/ics/git/Galil-R3-6-85
+GALIL=/home/ics/git/Galil
 IPAC=/epics/ipac-2-16

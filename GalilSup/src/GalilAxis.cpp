@@ -1404,15 +1404,12 @@ asynStatus GalilAxis::setHighLimit(double highLimit)
      //Construct command, and mesg
      sprintf(pC_->cmd_, "FL%c=%lf;BL%c=%lf", axisName_, 2147483647.0, axisName_, -2147483648.0);
      sprintf(mesg, "%c soft limits disabled", axisName_);
+     pC_->setCtrlError(mesg);
   }
   else {
      //Construct command, and mesg
      sprintf(pC_->cmd_, "FL%c=%lf;BL%c=%lf", axisName_, highLimit_, axisName_, lowLimit_);
-     strcpy(mesg, "");
   }
-
-  //Write mesg
-  pC_->setCtrlError(mesg);
 
   //Write command to controller
   pC_->sync_writeReadController();
@@ -1448,15 +1445,12 @@ asynStatus GalilAxis::setLowLimit(double lowLimit)
      //Construct command, and mesg
      sprintf(pC_->cmd_, "FL%c=%lf;BL%c=%lf", axisName_, 2147483647.0, axisName_, -2147483648.0);
      sprintf(mesg, "%c soft limits disabled", axisName_);
+     pC_->setCtrlError(mesg);
   }
   else {
      //Construct command, and mesg
      sprintf(pC_->cmd_, "FL%c=%lf;BL%c=%lf", axisName_, highLimit_, axisName_, lowLimit_);
-     strcpy(mesg, "");
   }
-
-  //Write mesg
-  pC_->setCtrlError(mesg);
 
   //Write command to controller
   pC_->sync_writeReadController();

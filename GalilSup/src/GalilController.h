@@ -269,6 +269,13 @@ struct Source //each data record source key (e.g. "_RPA") maps to one of these, 
 	{ /*ctor just initializes values*/ }
 };
 
+// DMC code download status
+typedef enum downloadState {
+  notRequired = 0,
+  downloadSuccess,
+  downloadFailed,
+} downloadState;
+
 // Amplifier enum information
 typedef struct {
   const char *enumString;
@@ -326,7 +333,8 @@ public:
   bool my_isascii(int c);
   asynStatus arrayUpload(void);
   asynStatus programUpload(string *prog);
-  asynStatus programDownload(string prog);
+  asynStatus programDownload(const string prog);
+  asynStatus programValidate(const string prog);
   
   /* These are the methods that we override from asynMotorController */
   asynStatus setDeferredMoves(bool deferMoves);
