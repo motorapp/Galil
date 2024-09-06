@@ -2,3 +2,32 @@
 
 # Ignore Qt generated xml
 QEGuiConfig.xml
+
+# MEDM backup files
+*_BAK.adl
+
+# Built file ignores
+cdCommands
+dllPath.bat
+O.*
+archive
+autosave
+bin
+build
+db
+dbd
+envPaths
+html
+include
+lib
+*.log
+
+# Terminal editor ignores
+*.swp
+*~
+
+# IDE ignores
+*.vscode
+
+# Core dumps
+core.*

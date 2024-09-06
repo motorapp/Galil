@@ -282,6 +282,16 @@ typedef struct {
   int  enumValue;
 } enumStruct_t;
 
+static const enumStruct_t ampGain_43040[] = {
+  {"0.40 A/V",   0},
+  {"0.70 A/V",   1},
+  {"1.00 A/V",   2},
+};
+
+static const enumStruct_t ampGain_43140[] = {
+  {"0.10 A",   0},
+};
+
 static const enumStruct_t microstep_43547[] = {
   {"256",   256},
 };

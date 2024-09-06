@@ -415,6 +415,8 @@
 // 01/09/2024 M.Clift
 //                  Fix setLowLimit, setHighLimit clearing DMC01:ERROR_MON controller message
 //                  Updated QtEPICS, MEDM screens
+// 07/09/2024 M.Rivers
+//                  Merge in support for 3040 and 3140 amplifiers
 
 #include <stdio.h>
 #include <math.h>
@@ -3850,7 +3852,13 @@ asynStatus GalilController::readEnum(asynUser *pasynUser, char *strings[], int v
   }
 
   if (function == GalilAmpGain_) {
-    if (ampModel_[boardNum] == 44040) {
+    if (ampModel_[boardNum] == 43040) {
+      pEnum    = ampGain_43040;
+      numEnums = sizeof(ampGain_43040)/sizeof(enumStruct_t);
+    } else if (ampModel_[boardNum] == 43140) {
+      pEnum    = ampGain_43140;
+      numEnums = sizeof(ampGain_43140)/sizeof(enumStruct_t);
+    } else if (ampModel_[boardNum] == 44040) {
       pEnum    = ampGain_44040;
       numEnums = sizeof(ampGain_44040)/sizeof(enumStruct_t);
     } else if (ampModel_[boardNum] == 44140) {
