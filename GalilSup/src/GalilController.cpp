@@ -414,7 +414,7 @@
 //                  Fix switch interlock code generation creating lines greater than 80 characters
 // 01/09/2024 M.Clift
 //                  Fix setLowLimit, setHighLimit clearing DMC01:ERROR_MON controller message
-//                  
+//                  Updated QtEPICS, MEDM screens
 
 #include <stdio.h>
 #include <math.h>
@@ -454,7 +454,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "3-6-85";
+static const char *driverVersion = "4-0-00";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);

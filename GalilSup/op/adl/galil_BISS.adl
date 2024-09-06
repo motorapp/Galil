@@ -1,7 +1,7 @@
 
 file {
-	name="/home/ics/git/Galil-3-0/3-5/GalilSup/op/adl/galil_BISS.adl"
-	version=030114
+	name="/home/ics/git/Galil/GalilSup/op/adl/galil_BISS.adl"
+	version=030120
 }
 display {
 	object {
@@ -439,108 +439,86 @@ composite {
 		}
 	}
 }
-composite {
+text {
 	object {
 		x=12
 		y=160
-		width=347
+		width=69
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="BISS poll period"
+}
+"text entry" {
+	object {
+		x=154
+		y=160
+		width=103
 		height=18
 	}
-	"composite name"=""
-	children {
-		text {
-			object {
-				x=12
-				y=160
-				width=69
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="BISS poll period"
-		}
-		"text entry" {
-			object {
-				x=154
-				y=160
-				width=100
-				height=18
-			}
-			control {
-				chan="$(P)$(M)_STATUS_POLL_DELAY_CMD"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=278
-				y=164
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_STATUS_POLL_DELAY_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
+	control {
+		chan="$(P)$(M)_STATUS_POLL_DELAY_CMD"
+		clr=14
+		bclr=51
+	}
+	limits {
 	}
 }
-composite {
+"text update" {
+	object {
+		x=278
+		y=164
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_STATUS_POLL_DELAY_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
 	object {
 		x=12
 		y=178
-		width=347
+		width=69
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="BISS status poll"
+}
+menu {
+	object {
+		x=154
+		y=178
+		width=100
 		height=18
 	}
-	"composite name"=""
-	children {
-		text {
-			object {
-				x=12
-				y=178
-				width=69
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="BISS status poll"
-		}
-		menu {
-			object {
-				x=154
-				y=178
-				width=100
-				height=18
-			}
-			control {
-				chan="$(P)$(M)_BISSSTAT_POLL_CMD"
-				clr=14
-				bclr=4
-			}
-		}
-		"text update" {
-			object {
-				x=278
-				y=183
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_BISSSTAT_POLL"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
+	control {
+		chan="$(P)$(M)_BISSSTAT_POLL_CMD"
+		clr=14
+		bclr=4
+	}
+}
+"text update" {
+	object {
+		x=278
+		y=183
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_BISSSTAT_POLL"
+		clr=54
+		bclr=4
+	}
+	limits {
 	}
 }
 "text update" {
@@ -642,7 +620,7 @@ menu {
 	object {
 		x=154
 		y=277
-		width=100
+		width=103
 		height=18
 	}
 	control {
@@ -669,7 +647,7 @@ text {
 	object {
 		x=154
 		y=295
-		width=100
+		width=103
 		height=18
 	}
 	control {
@@ -723,7 +701,7 @@ text {
 	object {
 		x=154
 		y=313
-		width=100
+		width=103
 		height=18
 	}
 	control {
@@ -765,7 +743,7 @@ text {
 	object {
 		x=154
 		y=331
-		width=100
+		width=103
 		height=18
 	}
 	control {

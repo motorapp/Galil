@@ -1,7 +1,7 @@
 
 file {
-	name="/home/ics/git/Galil-3-0/3-6/GalilSup/op/adl/galil_ECAT.adl"
-	version=030114
+	name="/home/ics/git/Galil/GalilSup/op/adl/galil_ECAT.adl"
+	version=030120
 }
 display {
 	object {
@@ -324,9 +324,9 @@ text {
 }
 "message button" {
 	object {
-		x=132
+		x=130
 		y=251
-		width=100
+		width=101
 		height=17
 	}
 	control {

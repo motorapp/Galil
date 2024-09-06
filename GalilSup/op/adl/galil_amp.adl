@@ -1,12 +1,12 @@
 
 file {
-	name="/home/epics/support/Galil/3-6/GalilSup/op/adl/galil_amp.adl"
-	version=030117
+	name="/home/ics/git/Galil/GalilSup/op/adl/galil_amp.adl"
+	version=030120
 }
 display {
 	object {
-		x=279
-		y=388
+		x=694
+		y=276
 		width=425
 		height=270
 	}
@@ -166,183 +166,56 @@ text {
 	limits {
 	}
 }
-composite {
+text {
 	object {
-		x=17
+		x=18
+		y=148
+		width=112
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Low current mode"
+}
+"text entry" {
+	object {
+		x=131
 		y=145
-		width=403
+		width=102
 		height=18
 	}
-	"composite name"=""
-	children {
-		"text update" {
-			object {
-				x=236
-				y=148
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_AMPLC_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		text {
-			object {
-				x=17
-				y=148
-				width=112
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Low current mode"
-		}
-		"text entry" {
-			object {
-				x=134
-				y=145
-				width=100
-				height=18
-			}
-			control {
-				chan="$(P)$(M)_AMPLC_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		text {
-			object {
-				x=322
-				y=148
-				width=98
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="(stepper only)"
-		}
+	control {
+		chan="$(P)$(M)_AMPLC_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
 	}
 }
-composite {
+text {
 	object {
 		x=10
-		y=99
-		width=396
-		height=18
+		y=102
+		width=119
+		height=13
 	}
-	"composite name"=""
-	children {
-		"text update" {
-			object {
-				x=236
-				y=102
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_AMPCLGAIN_STATUS"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		text {
-			object {
-				x=322
-				y=102
-				width=84
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="(servo only)"
-		}
-		text {
-			object {
-				x=10
-				y=102
-				width=119
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Current loop gain"
-		}
-		menu {
-			object {
-				x=134
-				y=99
-				width=100
-				height=18
-			}
-			control {
-				chan="$(P)$(M)_AMPCLGAIN_CMD"
-				clr=14
-				bclr=4
-			}
-		}
+	"basic attribute" {
+		clr=14
 	}
+	textix="Current loop gain"
 }
-composite {
+menu {
 	object {
-		x=32
-		y=76
-		width=286
+		x=131
+		y=99
+		width=100
 		height=18
 	}
-	"composite name"=""
-	children {
-		"text update" {
-			object {
-				x=237
-				y=79
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_AMPGAIN_STATUS"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		text {
-			object {
-				x=32
-				y=79
-				width=98
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Amplifier gain"
-		}
-		menu {
-			object {
-				x=135
-				y=76
-				width=100
-				height=18
-			}
-			control {
-				chan="$(P)$(M)_AMPGAIN_CMD"
-				clr=14
-				bclr=4
-			}
-		}
+	control {
+		chan="$(P)$(M)_AMPCLGAIN_CMD"
+		clr=14
+		bclr=4
 	}
 }
 text {
@@ -357,67 +230,29 @@ text {
 	}
 	textix="Low current mode value N:"
 }
-composite {
+text {
 	object {
 		x=24
+		y=125
+		width=105
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Microsteps/step"
+}
+menu {
+	object {
+		x=131
 		y=122
-		width=396
+		width=100
 		height=18
 	}
-	"composite name"=""
-	children {
-		"text update" {
-			object {
-				x=236
-				y=125
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_MICROSTEP_STATUS"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		text {
-			object {
-				x=24
-				y=125
-				width=105
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Microsteps/step"
-		}
-		menu {
-			object {
-				x=134
-				y=122
-				width=100
-				height=18
-			}
-			control {
-				chan="$(P)$(M)_MICROSTEP_CMD"
-				clr=14
-				bclr=4
-			}
-		}
-		text {
-			object {
-				x=322
-				y=125
-				width=98
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="(stepper only)"
-		}
+	control {
+		chan="$(P)$(M)_MICROSTEP_CMD"
+		clr=14
+		bclr=4
 	}
 }
 text {
@@ -467,4 +302,125 @@ text {
 		clr=14
 	}
 	textix="N <= -1: 25% current after N samples after move complete"
+}
+text {
+	object {
+		x=32
+		y=79
+		width=98
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Amplifier gain"
+}
+menu {
+	object {
+		x=132
+		y=76
+		width=100
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_AMPGAIN_CMD"
+		clr=14
+		bclr=4
+	}
+}
+"text update" {
+	object {
+		x=246
+		y=79
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_AMPGAIN_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=245
+		y=102
+		width=50
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_AMPCLGAIN_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=245
+		y=125
+		width=50
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_MICROSTEP_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=246
+		y=148
+		width=50
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_AMPLC_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=305
+		y=148
+		width=98
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="(stepper only)"
+}
+text {
+	object {
+		x=304
+		y=125
+		width=98
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="(stepper only)"
+}
+text {
+	object {
+		x=304
+		y=102
+		width=84
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="(servo only)"
 }

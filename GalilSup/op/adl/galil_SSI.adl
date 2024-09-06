@@ -1,12 +1,12 @@
 
 file {
-	name="/home/ics/git/Galil-3-0/3-4/GalilSup/op/adl/galil_SSI.adl"
-	version=030105
+	name="/home/ics/git/Galil/GalilSup/op/adl/galil_SSI.adl"
+	version=030120
 }
 display {
 	object {
-		x=896
-		y=195
+		x=257
+		y=227
 		width=400
 		height=232
 	}
@@ -206,7 +206,7 @@ text {
 	object {
 		x=150
 		y=173
-		width=100
+		width=103
 		height=18
 	}
 	control {
@@ -221,7 +221,7 @@ text {
 	object {
 		x=150
 		y=156
-		width=100
+		width=103
 		height=18
 	}
 	control {
@@ -236,7 +236,7 @@ text {
 	object {
 		x=150
 		y=139
-		width=100
+		width=103
 		height=18
 	}
 	control {
@@ -263,7 +263,7 @@ text {
 	object {
 		x=150
 		y=122
-		width=100
+		width=103
 		height=18
 	}
 	control {
@@ -350,7 +350,7 @@ text {
 	object {
 		x=150
 		y=191
-		width=100
+		width=105
 		height=18
 	}
 	control {
@@ -458,7 +458,7 @@ text {
 	object {
 		x=150
 		y=208
-		width=100
+		width=105
 		height=18
 	}
 	control {

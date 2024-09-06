@@ -10,18 +10,19 @@ export galilpath=$galilpath/GalilSup/op/ui
 export QE_UI_PATH=$galilpath
 
 #Determine Qt version
-export QTVERSION=`echo $QTDIR | cut -b 14`
+export QMAKEVERSION=`qmake -v`
+export QTVERSION=`echo $QMAKEVERSION | cut -d " " -f7 | cut -c1`
 
 #Determine Qt style to use from version
-if [ ${QTVERSION} = "4" ]; then
+if [[ $QTVERSION = "4" ]]; then
 #Qt4 detected
    export QTSTYLE="plastique"
-elif [ ${QTVERSION} = "5" ]; then
+elif [[ $QTVERSION = "5" ]]; then
 #Qt5 detected
    export QTSTYLE="fusion"
 else
-#Unknown assume Qt4
-   export QTSTYLE="plastique"
+#Unknown assume Qt5
+   export QTSTYLE="fusion"
 fi
 
 #Check provided arguments for record prefix

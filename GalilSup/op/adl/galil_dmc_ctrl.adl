@@ -1,12 +1,12 @@
 
 file {
-	name="/home/ics/git/Galil-3-0/3-6/GalilSup/op/adl/galil_dmc_ctrl.adl"
-	version=030117
+	name="/home/ics/git/Galil/GalilSup/op/adl/galil_dmc_ctrl.adl"
+	version=030120
 }
 display {
 	object {
-		x=152
-		y=77
+		x=142
+		y=69
 		width=410
 		height=683
 	}
@@ -582,7 +582,7 @@ text {
 	"basic attribute" {
 		clr=14
 	}
-	textix="Home active when"
+	textix="Home switch type"
 }
 "text update" {
 	object {
@@ -1646,222 +1646,178 @@ menu {
 	limits {
 	}
 }
+"text update" {
+	object {
+		x=286
+		y=256
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(DMC)DEFER_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"choice button" {
+	object {
+		x=149
+		y=253
+		width=125
+		height=18
+	}
+	control {
+		chan="$(DMC)DEFER_CMD"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+text {
+	object {
+		x=9
+		y=257
+		width=97
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Defer moves"
+}
 composite {
 	object {
 		x=9
-		y=253
+		y=271
 		width=397
-		height=72
+		height=20
 	}
 	"composite name"=""
 	children {
-		composite {
+		text {
 			object {
 				x=9
-				y=253
-				width=358
-				height=18
+				y=275
+				width=97
+				height=13
 			}
-			"composite name"=""
-			children {
-				"text update" {
-					object {
-						x=286
-						y=256
-						width=81
-						height=13
-					}
-					monitor {
-						chan="$(DMC)DEFER_STATUS"
-						clr=54
-						bclr=4
-					}
-					limits {
-					}
-				}
-				"choice button" {
-					object {
-						x=149
-						y=253
-						width=120
-						height=18
-					}
-					control {
-						chan="$(DMC)DEFER_CMD"
-						clr=14
-						bclr=51
-					}
-					stacking="column"
-				}
-				text {
-					object {
-						x=9
-						y=257
-						width=97
-						height=13
-					}
-					"basic attribute" {
-						clr=14
-					}
-					textix="Defer moves"
-				}
+			"basic attribute" {
+				clr=14
 			}
+			textix="Deferred mode"
 		}
-		composite {
+		menu {
 			object {
-				x=9
+				x=149
 				y=271
-				width=397
+				width=120
 				height=20
 			}
-			"composite name"=""
-			children {
-				text {
-					object {
-						x=9
-						y=275
-						width=97
-						height=13
-					}
-					"basic attribute" {
-						clr=14
-					}
-					textix="Deferred mode"
-				}
-				menu {
-					object {
-						x=149
-						y=271
-						width=120
-						height=20
-					}
-					control {
-						chan="$(DMC)DEFER_MODE_CMD"
-						clr=14
-						bclr=51
-					}
-				}
-				"text update" {
-					object {
-						x=286
-						y=275
-						width=120
-						height=13
-					}
-					monitor {
-						chan="$(DMC)DEFER_MODE_STATUS"
-						clr=54
-						bclr=4
-					}
-					limits {
-					}
-				}
+			control {
+				chan="$(DMC)DEFER_MODE_CMD"
+				clr=14
+				bclr=51
 			}
 		}
-		composite {
+		"text update" {
 			object {
-				x=9
-				y=290
-				width=358
-				height=18
+				x=286
+				y=275
+				width=120
+				height=13
 			}
-			"composite name"=""
-			children {
-				text {
-					object {
-						x=9
-						y=293
-						width=97
-						height=13
-					}
-					"basic attribute" {
-						clr=14
-					}
-					textix="Coordinate system"
-				}
-				"choice button" {
-					object {
-						x=149
-						y=290
-						width=120
-						height=18
-					}
-					control {
-						chan="$(DMC)COORDSYS_CMD"
-						clr=14
-						bclr=51
-					}
-					stacking="column"
-				}
-				"text update" {
-					object {
-						x=286
-						y=294
-						width=81
-						height=13
-					}
-					monitor {
-						chan="$(DMC)COORDSYS_STATUS"
-						clr=54
-						bclr=4
-					}
-					limits {
-					}
-				}
+			monitor {
+				chan="$(DMC)DEFER_MODE_STATUS"
+				clr=54
+				bclr=4
+			}
+			limits {
 			}
 		}
-		composite {
-			object {
-				x=9
-				y=307
-				width=358
-				height=18
-			}
-			"composite name"=""
-			children {
-				"choice button" {
-					object {
-						x=149
-						y=307
-						width=120
-						height=18
-					}
-					control {
-						chan="$(DMC)ECATNETWORK_CMD"
-						clr=14
-						bclr=51
-					}
-					stacking="column"
-				}
-				text {
-					object {
-						x=9
-						y=310
-						width=97
-						height=13
-					}
-					"basic attribute" {
-						clr=14
-					}
-					textix="EtherCat Network"
-				}
-				"text update" {
-					object {
-						x=286
-						y=311
-						width=81
-						height=13
-					}
-					monitor {
-						chan="$(DMC)ECATNETWORK_STATUS"
-						clr=54
-						bclr=4
-					}
-					limits {
-					}
-				}
-			}
-		}
+	}
+}
+text {
+	object {
+		x=9
+		y=293
+		width=97
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Coordinate system"
+}
+"choice button" {
+	object {
+		x=149
+		y=290
+		width=125
+		height=18
+	}
+	control {
+		chan="$(DMC)COORDSYS_CMD"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+"text update" {
+	object {
+		x=286
+		y=294
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(DMC)COORDSYS_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"choice button" {
+	object {
+		x=149
+		y=307
+		width=125
+		height=18
+	}
+	control {
+		chan="$(DMC)ECATNETWORK_CMD"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+text {
+	object {
+		x=9
+		y=310
+		width=97
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="EtherCat Network"
+}
+"text update" {
+	object {
+		x=286
+		y=311
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(DMC)ECATNETWORK_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
 	}
 }
 "text update" {
@@ -1889,7 +1845,7 @@ text {
 	"basic attribute" {
 		clr=14
 	}
-	textix="Limit active when"
+	textix="Limit switch type"
 }
 menu {
 	object {
