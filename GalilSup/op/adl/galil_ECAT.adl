@@ -1,0 +1,393 @@
+
+file {
+	name="/home/ics/git/Galil/GalilSup/op/adl/galil_ECAT.adl"
+	version=030120
+}
+display {
+	object {
+		x=179
+		y=457
+		width=380
+		height=285
+	}
+	clr=14
+	bclr=4
+	cmap=""
+	gridSpacing=5
+	gridOn=0
+	snapToGrid=0
+}
+"color map" {
+	ncolors=65
+	colors {
+		ffffff,
+		ececec,
+		dadada,
+		c8c8c8,
+		bbbbbb,
+		aeaeae,
+		9e9e9e,
+		919191,
+		858585,
+		787878,
+		696969,
+		5a5a5a,
+		464646,
+		2d2d2d,
+		000000,
+		00d800,
+		1ebb00,
+		339900,
+		2d7f00,
+		216c00,
+		fd0000,
+		de1309,
+		be190b,
+		a01207,
+		820400,
+		5893ff,
+		597ee1,
+		4b6ec7,
+		3a5eab,
+		27548d,
+		fbf34a,
+		f9da3c,
+		eeb62b,
+		e19015,
+		cd6100,
+		ffb0ff,
+		d67fe2,
+		ae4ebc,
+		8b1a96,
+		610a75,
+		a4aaff,
+		8793e2,
+		6a73c1,
+		4d52a4,
+		343386,
+		c7bb6d,
+		b79d5c,
+		a47e3c,
+		7d5627,
+		58340f,
+		99ffff,
+		73dfff,
+		4ea5f9,
+		2a63e4,
+		0a00b8,
+		ebf1b5,
+		d4db9d,
+		bbc187,
+		a6a462,
+		8b8239,
+		73ff6b,
+		52da3b,
+		3cb420,
+		289315,
+		1a7309,
+	}
+}
+rectangle {
+	object {
+		x=130
+		y=8
+		width=129
+		height=25
+	}
+	"basic attribute" {
+		clr=14
+		fill="outline"
+	}
+}
+text {
+	object {
+		x=99
+		y=12
+		width=193
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="EtherCat Settings"
+	align="horiz. centered"
+}
+text {
+	object {
+		x=8
+		y=46
+		width=97
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Motor axis"
+}
+"text update" {
+	object {
+		x=150
+		y=48
+		width=58
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_AXIS_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=150
+		y=65
+		width=200
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M).NAME"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=8
+		y=64
+		width=97
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Motorname"
+}
+text {
+	object {
+		x=7
+		y=91
+		width=70
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="EtherCat status"
+}
+text {
+	object {
+		x=7
+		y=202
+		width=120
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="EtherCat control"
+}
+rectangle {
+	object {
+		x=4
+		y=86
+		width=372
+		height=25
+	}
+	"basic attribute" {
+		clr=14
+		fill="outline"
+	}
+}
+rectangle {
+	object {
+		x=4
+		y=195
+		width=372
+		height=25
+	}
+	"basic attribute" {
+		clr=14
+		fill="outline"
+	}
+}
+text {
+	object {
+		x=164
+		y=114
+		width=69
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Fault"
+}
+text {
+	object {
+		x=12
+		y=160
+		width=69
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Status poll"
+}
+"text entry" {
+	object {
+		x=130
+		y=160
+		width=100
+		height=18
+	}
+	control {
+		chan="$(P)ECATFLT_STATUS.SCAN"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=278
+		y=164
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)ECATFLT_STATUS.SCAN"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=278
+		y=237
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_ECATADDR_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text entry" {
+	object {
+		x=130
+		y=233
+		width=100
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_ECATADDR_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=12
+		y=233
+		width=69
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Address"
+}
+text {
+	object {
+		x=12
+		y=251
+		width=69
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Fault reset"
+}
+"message button" {
+	object {
+		x=130
+		y=251
+		width=101
+		height=17
+	}
+	control {
+		chan="$(P)$(M)_ECATFLTRST_CMD"
+		clr=14
+		bclr=51
+	}
+	label="Fault reset"
+	press_msg="1"
+	release_msg="1"
+}
+composite {
+	object {
+		x=171
+		y=131
+		width=15
+		height=15
+	}
+	"composite name"=""
+	children {
+		rectangle {
+			object {
+				x=171
+				y=131
+				width=15
+				height=15
+			}
+			"basic attribute" {
+				clr=15
+			}
+			"dynamic attribute" {
+				vis="if not zero"
+				chan="$(P)$(M)_ECATFLT_STATUS"
+			}
+		}
+		rectangle {
+			object {
+				x=171
+				y=131
+				width=15
+				height=15
+			}
+			"basic attribute" {
+				clr=20
+			}
+			"dynamic attribute" {
+				vis="if zero"
+				chan="$(P)$(M)_ECATFLT_STATUS"
+			}
+		}
+	}
+}
+rectangle {
+	object {
+		x=4
+		y=4
+		width=372
+		height=275
+	}
+	"basic attribute" {
+		clr=14
+		fill="outline"
+	}
+}

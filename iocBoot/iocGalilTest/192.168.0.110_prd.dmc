@@ -1,0 +1,11 @@
+#AUTO
+#THREADA
+WT 500
+JP #THREADA
+#CMDERR
+errstr=_ED;errcde=_TC;cmderr=cmderr+1
+EN1
+#TCPERR
+tcpcde=_TC;tcperr=tcperr+1
+RE1
+EN

@@ -1,0 +1,355 @@
+# $File: //ASP/Dev/SBS/4_Controls/4_3_Network_Infrastructure/4_3_1_Comms_Common_Services/sw/device_drivers/Galil/1-5/galilSup/Db/galil_motor_withwrappers.template $
+# $Revision: #1 $
+# $DateTime: 2012/03/19 12:39:43 $
+# $Author: cliftm $
+#
+# Description
+# Template file for motor records
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# Licence as published by the Free Software Foundation; either
+# version 2.1 of the Licence, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public Licence for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# Licence along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Contact details:
+# Mark Clift
+# email: padmoz@tpg.com.au
+
+grecord(motor,"$(P)$(M)")
+{
+	field(DTYP,"asynMotor")
+	field(VMAX,"$(VMAX)")
+	field(VBAS,"0")
+	field(VELO,"$(VELO)")
+	field(ACCL,"$(ACCL)")
+	field(BDST,"$(BDST)")
+	field(BVEL,"$(BVEL)")
+	field(BACC,"$(BACC)")
+	field(HVEL,"$(VELO)")
+	field(OUT, "@asyn($(PORT),$(ADDR))")
+	field(MRES,"$(MRES)")
+	field(ERES,"$(ERES)")
+	field(PREC,"$(PREC)")
+	field(EGU,"$(EGU)")
+	field(DHLM,"$(DHLM)")
+	field(DLLM,"$(DLLM)")
+	field(UEIP,"$(UEIP=0)")
+	field(SREV,"$(SREV)")
+	field(OFF,"$(OFF=0)")
+	field(RTRY,"$(RTRY=0)")
+	field(TWV,"1")
+	field(DESC,"$(DESC='')")
+	field(SCAN,"Passive")
+	field(FOFF,"1")
+	field(NTM, "$(NTM=0)")
+# PID gains
+	field(PCOF,"$(PCOF=0)")
+	field(ICOF,"$(ICOF=0)")
+	field(DCOF,"$(DCOF=0)")
+}
+
+record(transform,"$(P)$(M)_ableput") {
+	field(CLCB,"a")
+	field(CLCC,"a")
+	field(OUTA,"$(P)$(M).DISA NPP NMS")
+	field(OUTB,"$(P)$(M).DISP NPP NMS")
+	field(OUTC,"$(P)$(M).DISA NPP NMS")
+}
+
+record(bo,"$(P)$(M)_able") {
+	field(DESC,"motor enable")
+	field(PINI,"YES")
+	field(OUT,"$(P)$(M)_ableput.A PP MS")
+	field(ZNAM,"Enable")
+	field(ONAM,"Disable")
+}
+
+record(calcout, "$(P)$(M)_vCh") {
+  field(DESC, "change velocity")
+  field(CALC, "min(max(a*b,c),d)")
+  field(INPB, "$(P)$(M).S")
+  field(INPC, "$(P)$(M).SBAS")
+  field(INPD, "$(P)$(M).SMAX")
+  field(OUT, "$(P)$(M).S")
+}
+
+record(calcout, "$(P)$(M)_twCh") {
+  field(DESC, "change TWV")
+  field(CALC, "min(max(a*b,c),d-e)")
+  field(INPB, "$(P)$(M).TWV")
+  field(INPC, "$(P)$(M).MRES")
+  field(INPD, "$(P)$(M).HLM")
+  field(INPE, "$(P)$(M).LLM")
+  field(OUT, "$(P)$(M).TWV")
+}
+
+#Required for motor record 6-10 and up
+#Below records are used to extract data from MR
+#and pass to driver
+# Motor direction for this axis
+record(longout,"$(P)$(M)Direction") {
+    field(DESC, "$(M) direction")
+    field(DOL,  "$(P)$(M).DIR CP MS")
+    field(OMSL, "closed_loop")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_REC_DIRECTION")
+}
+
+
+# Motor offset for this axis
+record(ao,"$(P)$(M)Offset") {
+    field(DESC, "$(M) offset")
+    field(DOL,  "$(P)$(M).OFF CP MS")
+    field(OMSL, "closed_loop")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_REC_OFFSET")
+    field(PREC, "$(PREC)")
+}
+
+# Motor resolution for this axis
+record(ao,"$(P)$(M)Resolution") {
+    field(DESC, "$(M) resolution")
+    field(DOL,  "$(P)$(M).MRES CP MS")
+    field(OMSL, "closed_loop")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_REC_RESOLUTION")
+    field(PREC, "$(PREC)")
+}
+
+#Below records are used to extract data from MR
+#and pass to driver
+record(ao,"$(P)$(M)_PCOF_SP") {
+	field(DESC, "Motor PCOF")
+	field(DOL,  "$(P)$(M).PCOF CP MS")
+	field(OMSL, "closed_loop")
+	field(DTYP, "asynFloat64")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_PGAIN")
+	field(PREC, "$(PREC)")
+}
+
+record(ao,"$(P)$(M)_ICOF_SP") {
+	field(DESC, "Motor ICOF")
+	field(DOL,  "$(P)$(M).ICOF CP MS")
+	field(OMSL, "closed_loop")
+	field(DTYP, "asynFloat64")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_IGAIN")
+	field(PREC, "$(PREC)")
+}
+
+record(ao,"$(P)$(M)_DCOF_SP") {
+	field(DESC, "Motor DCOF")
+	field(DOL,  "$(P)$(M).DCOF CP MS")
+	field(OMSL, "closed_loop")
+	field(DTYP, "asynFloat64")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_DGAIN")
+	field(PREC, "$(PREC)")
+}
+
+record(ao,"$(P)$(M)_ACCL_SP") {
+	field(DESC, "Motor record ACCL")
+	field(DOL,  "$(P)$(M).ACCL CP MS")
+	field(OMSL, "closed_loop")
+	field(DTYP, "asynFloat64")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_ACCL")
+	field(PREC, "$(PREC)")
+}
+
+record(ao,"$(P)$(M)_RDBD_SP") {
+	field(DESC, "Motor record RDBD")
+	field(DOL,  "$(P)$(M).RDBD CP MS")
+	field(OMSL, "closed_loop")
+	field(DTYP, "asynFloat64")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_RDBD")
+	field(PREC, "$(PREC)")
+}
+
+record(ao,"$(P)$(M)_HVEL_SP") {
+	field(DESC, "Motor record HVEL")
+	field(DOL,  "$(P)$(M).HVEL CP MS")
+	field(OMSL, "closed_loop")
+	field(DTYP, "asynFloat64")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_HVEL")
+	field(PREC, "$(PREC)")
+}
+
+record(ao,"$(P)$(M)_VMAX_SP") {
+	field(DESC, "Motor record VMAX")
+	field(DOL,  "$(P)$(M).VMAX CP MS")
+	field(OMSL, "closed_loop")
+	field(DTYP, "asynFloat64")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_VMAX")
+	field(PREC, "$(PREC)")
+}
+
+record(ao,"$(P)$(M)_VELO_SP") {
+	field(DESC, "Motor record VELO")
+	field(DOL,  "$(P)$(M).VELO CP MS")
+	field(OMSL, "closed_loop")
+	field(DTYP, "asynFloat64")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_VELO")
+	field(PREC, "$(PREC)")
+}
+
+record(ao,"$(P)$(M)_OFF_SP") {
+	field(DESC, "Motor record OFF")
+	field(DOL,  "$(P)$(M).OFF CP MS")
+	field(OMSL, "closed_loop")
+	field(DTYP, "asynFloat64")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_OFF")
+	field(PREC, "$(PREC)")
+}
+
+record(ao,"$(P)$(M)_MRES_SP") {
+	field(DESC, "Motor record MRES")
+	field(DOL,  "$(P)$(M).MRES CP MS")
+	field(OMSL, "closed_loop")
+	field(DTYP, "asynFloat64")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_RESOLUTION")
+	field(PREC, "$(PREC)")
+}
+
+record(ao,"$(P)$(M)_ERES_SP") {
+	field(DESC, "Motor record ERES")
+	field(DOL,  "$(P)$(M).ERES CP MS")
+	field(OMSL, "closed_loop")
+	field(DTYP, "asynFloat64")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_ERES")
+	field(PREC, "$(PREC)")
+}
+
+record(bo,"$(P)$(M)_DIR_SP") {
+	field(DESC, "Motor record DIR")
+	field(DOL,  "$(P)$(M).DIR CP MS")
+	field(OMSL, "closed_loop")
+	field(DTYP, "asynInt32")
+	field(ZNAM, "Pos")
+	field(ZSV,  "NO_ALARM")
+	field(ONAM, "Neg")
+	field(OSV,  "NO_ALARM")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_DIR")
+}
+
+# Require asynchronous record to monitor dmov
+# Due to threading issues in set/use calibration and dmov toggling
+record(calcout, "$(P)$(M)_DMOV_CALC") {
+	field(DESC, "Motor record DMOV")
+	field(INPA, "$(P)$(M).DMOV CP MS")
+	field(CALC, "A")
+	field(OOPT, "Every Time")
+	field(ODLY, ".001")
+	field(OUT,  "$(P)$(M)_DMOV_SP PP")
+}
+
+record(ao,"$(P)$(M)_DMOV_SP") {
+	field(DESC, "Motor record DMOV")
+	field(DOL,  "$(P)$(M).DMOV CP MS")
+	field(OMSL, "closed_loop")
+	field(SCAN, ".1 second")
+	field(DTYP, "asynInt32")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_DMOV")
+}
+
+record(ao,"$(P)$(M)_SET_SP") {
+	field(DESC, "Motor record SET")
+	field(DOL,  "$(P)$(M).SET CP MS")
+	field(OMSL, "closed_loop")
+	field(DTYP, "asynInt32")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_SET")
+}
+
+record(bo,"$(P)$(M)_UEIP_SP") {
+	field(DESC, "Motor record UEIP")
+	field(DOL,  "$(P)$(M).UEIP CP MS")
+	field(OMSL, "closed_loop")
+	field(DTYP, "asynInt32")
+	field(ZNAM, "No")
+	field(ZSV,  "NO_ALARM")
+	field(ONAM, "Yes")
+	field(OSV,  "NO_ALARM")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_UEIP")
+}
+
+record(ao,"$(P)$(M)_SPMG_SP") {
+	field(DESC, "Motor record SPMG")
+	field(DTYP, "asynInt32")
+	field(OMSL, "closed_loop")
+	field(DOL,  "$(P)$(M).SPMG CP MS")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_SPMG")
+}
+
+record(stringout,"$(P)$(M)_PREM_CMD")
+{
+	field(DESC, "Motor record PREM")
+	field(OMSL, "closed_loop")
+	field(DTYP, "asynOctetWrite")
+	field(DOL,  "$(P)$(M).PREM CP MS")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_PREM")
+}
+
+record(stringout,"$(P)$(M)_POST_CMD")
+{
+	field(DESC, "Motor record POST")
+	field(OMSL, "closed_loop")
+	field(DTYP, "asynOctetWrite")
+	field(DOL,  "$(P)$(M).POST CP MS")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_POST")
+}
+
+#Driver to mr STOP field
+#Prevents backlash, and retries
+record(ai,"$(P)$(M)_STOP_MON")
+{
+	field(DESC, "stop")
+	field(DTYP, "asynInt32")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_RECORD_STOP")
+}
+
+record(ao, "$(P)$(M)_STOP_CMD")
+{
+	field(OMSL, "closed_loop")
+	field(DOL,  "$(P)$(M)_STOP_MON CP MS")
+	field(OUT,  "$(P)$(M).STOP PP")
+}
+
+#Below records are for writing values from driver to motor record
+#Enable record
+record(ai,"$(P)$(M)_MRSETVAL_ENABLE")
+{
+	field(DESC, "mr set val enable")
+	field(DTYP, "asynInt32")
+	field(SCAN, "I/O Intr")
+	field(VAL,  "0")
+	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_SETVAL_ENABLE")
+}
+
+#Write a new VAL to motor record
+record(ai,"$(P)$(M)_VALOUT_MON")
+{
+	field(DESC, "set mr VAL")
+	field(DTYP, "asynFloat64")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_SET_VAL")
+}
+
+record(ao, "$(P)$(M)_VALOUT_SP")
+{
+	field(DESC, "set mr VAL")
+	field(OMSL, "closed_loop")
+	field(DOL,  "$(P)$(M)_VALOUT_MON CP MS")
+	field(DISV, "0")
+	field(SDIS, "$(P)$(M)_MRSETVAL_ENABLE CP MS")
+	field(OUT,  "$(P)$(M).VAL PP")
+	field(FLNK, "$(P)$(M)")
+}
+
+# end
