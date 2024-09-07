@@ -3,6 +3,9 @@
 # Ignore Qt generated xml
 QEGuiConfig.xml
 
+# galil_motor.ui is created at runtime
+galil_motors.ui
+
 # MEDM backup files
 *_BAK.adl
 
