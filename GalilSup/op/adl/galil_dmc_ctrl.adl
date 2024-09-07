@@ -5,8 +5,8 @@ file {
 }
 display {
 	object {
-		x=142
-		y=69
+		x=132
+		y=61
 		width=410
 		height=683
 	}
@@ -149,79 +149,6 @@ composite {
 				label="Coordinate system T"
 				name="galil_coordinate_system.adl"
 				args="P=$(DMC), R=T"
-			}
-			clr=14
-			bclr=51
-		}
-	}
-}
-composite {
-	object {
-		x=9
-		y=353
-		width=156
-		height=16
-	}
-	"composite name"=""
-	children {
-		text {
-			object {
-				x=9
-				y=353
-				width=65
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="User array"
-		}
-		"related display" {
-			object {
-				x=150
-				y=354
-				width=15
-				height=15
-			}
-			display[0] {
-				label="User array0"
-				name="galil_user_array.adl"
-				args="P=$(DMC), R=0, Y=$(DMC)UARRAY0_MON"
-			}
-			display[1] {
-				label="User array1"
-				name="galil_user_array.adl"
-				args="P=$(DMC), R=1, Y=$(DMC)UARRAY1_MON"
-			}
-			display[2] {
-				label="User array2"
-				name="galil_user_array.adl"
-				args="P=$(DMC), R=2, Y=$(DMC)UARRAY2_MON"
-			}
-			display[3] {
-				label="User array3"
-				name="galil_user_array.adl"
-				args="P=$(DMC), R=3, Y=$(DMC)UARRAY3_MON"
-			}
-			display[4] {
-				label="User array4"
-				name="galil_user_array.adl"
-				args="P=$(DMC), R=4, Y=$(DMC)UARRAY4_MON"
-			}
-			display[5] {
-				label="User array5"
-				name="galil_user_array.adl"
-				args="P=$(DMC), R=5, Y=$(DMC)UARRAY5_MON"
-			}
-			display[6] {
-				label="User array6"
-				name="galil_user_array.adl"
-				args="P=$(DMC), R=6, Y=$(DMC)UARRAY6_MON"
-			}
-			display[7] {
-				label="User array7"
-				name="galil_user_array.adl"
-				args="P=$(DMC), R=7, Y=$(DMC)UARRAY7_MON"
 			}
 			clr=14
 			bclr=51
@@ -634,64 +561,6 @@ composite {
 			}
 			clr=14
 			bclr=51
-		}
-	}
-}
-composite {
-	object {
-		x=9
-		y=374
-		width=156
-		height=16
-	}
-	"composite name"=""
-	children {
-		"related display" {
-			object {
-				x=150
-				y=375
-				width=15
-				height=15
-			}
-			display[0] {
-				label="Scan1 (for all scans)"
-				name="scan.adl"
-				args="P=$(IOC),N=1,S=scan1"
-			}
-			display[1] {
-				label="Scan2 (for 2D & higher scans)"
-				name="scan.adl"
-				args="P=$(IOC),N=2,S=scan2"
-			}
-			display[2] {
-				label="Scan3 (for 3D & higher scans)"
-				name="scan.adl"
-				args="P=$(IOC),N=3,S=scan3"
-			}
-			display[3] {
-				label="Scan4 (for 4D scans)"
-				name="scan.adl"
-				args="P=$(IOC),N=4,S=scan4"
-			}
-			display[4] {
-				label="ScanH (for Hardware-assisted scans)"
-				name="scan.adl"
-				args="P=$(IOC),N=H,S=scanH"
-			}
-			clr=14
-			bclr=51
-		}
-		text {
-			object {
-				x=9
-				y=374
-				width=65
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Scan records"
 		}
 	}
 }
@@ -1872,4 +1741,178 @@ menu {
 		clr=14
 		bclr=51
 	}
+}
+text {
+	object {
+		x=9
+		y=353
+		width=65
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="All amplifiers"
+}
+"related display" {
+	object {
+		x=150
+		y=354
+		width=15
+		height=15
+	}
+	display[0] {
+		label="All amplifiers"
+		name="galil_amp_8.adl"
+		args="P=$(DMC), M1=$(M1), M2=$(M2), M3=$(M3), M4=$(M4), M5=$(M5), M6=$(M6), M7=$(M7), M8=$(M8)"
+	}
+	clr=14
+	bclr=51
+}
+"related display" {
+	object {
+		x=330
+		y=375
+		width=15
+		height=15
+	}
+	display[0] {
+		label="Scan1 (for all scans)"
+		name="scan.adl"
+		args="P=$(IOC),N=1,S=scan1"
+	}
+	display[1] {
+		label="Scan2 (for 2D & higher scans)"
+		name="scan.adl"
+		args="P=$(IOC),N=2,S=scan2"
+	}
+	display[2] {
+		label="Scan3 (for 3D & higher scans)"
+		name="scan.adl"
+		args="P=$(IOC),N=3,S=scan3"
+	}
+	display[3] {
+		label="Scan4 (for 4D scans)"
+		name="scan.adl"
+		args="P=$(IOC),N=4,S=scan4"
+	}
+	display[4] {
+		label="ScanH (for Hardware-assisted scans)"
+		name="scan.adl"
+		args="P=$(IOC),N=H,S=scanH"
+	}
+	clr=14
+	bclr=51
+}
+text {
+	object {
+		x=189
+		y=374
+		width=65
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Scan records"
+}
+composite {
+	object {
+		x=189
+		y=353
+		width=156
+		height=16
+	}
+	"composite name"=""
+	children {
+		text {
+			object {
+				x=189
+				y=353
+				width=65
+				height=13
+			}
+			"basic attribute" {
+				clr=14
+			}
+			textix="User array"
+		}
+		"related display" {
+			object {
+				x=330
+				y=354
+				width=15
+				height=15
+			}
+			display[0] {
+				label="User array0"
+				name="galil_user_array.adl"
+				args="P=$(DMC), R=0, Y=$(DMC)UARRAY0_MON"
+			}
+			display[1] {
+				label="User array1"
+				name="galil_user_array.adl"
+				args="P=$(DMC), R=1, Y=$(DMC)UARRAY1_MON"
+			}
+			display[2] {
+				label="User array2"
+				name="galil_user_array.adl"
+				args="P=$(DMC), R=2, Y=$(DMC)UARRAY2_MON"
+			}
+			display[3] {
+				label="User array3"
+				name="galil_user_array.adl"
+				args="P=$(DMC), R=3, Y=$(DMC)UARRAY3_MON"
+			}
+			display[4] {
+				label="User array4"
+				name="galil_user_array.adl"
+				args="P=$(DMC), R=4, Y=$(DMC)UARRAY4_MON"
+			}
+			display[5] {
+				label="User array5"
+				name="galil_user_array.adl"
+				args="P=$(DMC), R=5, Y=$(DMC)UARRAY5_MON"
+			}
+			display[6] {
+				label="User array6"
+				name="galil_user_array.adl"
+				args="P=$(DMC), R=6, Y=$(DMC)UARRAY6_MON"
+			}
+			display[7] {
+				label="User array7"
+				name="galil_user_array.adl"
+				args="P=$(DMC), R=7, Y=$(DMC)UARRAY7_MON"
+			}
+			clr=14
+			bclr=51
+		}
+	}
+}
+text {
+	object {
+		x=9
+		y=374
+		width=65
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="All motors"
+}
+"related display" {
+	object {
+		x=150
+		y=375
+		width=15
+		height=15
+	}
+	display[0] {
+		label="All motors"
+		name="motor8x.adl"
+		args="P=$(DMC), M1=$(M1), M2=$(M2), M3=$(M3), M4=$(M4), M5=$(M5), M6=$(M6), M7=$(M7), M8=$(M8)"
+	}
+	clr=14
+	bclr=51
 }
