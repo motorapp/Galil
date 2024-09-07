@@ -6,6 +6,12 @@ QEGuiConfig.xml
 # MEDM backup files
 *_BAK.adl
 
+# Backup files
+*.bak
+
+# Galil code files
+*.dmc
+
 # Built file ignores
 cdCommands
 dllPath.bat

@@ -696,9 +696,9 @@ asynStatus GalilAxis::move(double position, int relative, double minVelocity, do
      }
      //Retrieve deferred moves mode
      pC_->getIntegerParam(pC_->GalilDeferredMode_, &deferredMode);
-     //Store required parameters for deferred move in GalilAxis
      //Sync start and stop motor moves require relative move
      deferredPosition_ = (deferredMode && !relative) ? position - readback : position;
+     //Store required parameters for deferred move in GalilAxis
      pC_->getIntegerParam(0, pC_->GalilCoordSys_, &deferredCoordsys_);
      deferredVelocity_ = maxVelocity;
      deferredAcceleration_ = acceleration;
@@ -833,7 +833,7 @@ asynStatus GalilAxis::setupHome(double maxVelocity, int forwards)
   *                      Some controllers need to be told the direction, others know which way to go to home. */
 asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double acceleration, int forwards)
 {
-  static const char *functionName = "home";
+  static const char *functionName = "GalilAxis::home";
   bool ctrlType;		//Controller type convenience variable
   int homeAllowed;		//Home types allowed
   int ssiinput;			//SSI encoder register

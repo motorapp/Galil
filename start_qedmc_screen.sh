@@ -10,8 +10,19 @@ export galilpath=$galilpath/GalilSup/op/ui
 export QE_UI_PATH=$galilpath
 
 #Determine Qt version
-export QMAKEVERSION=`qmake -v`
-export QTVERSION=`echo $QMAKEVERSION | cut -d " " -f7 | cut -c1`
+export QTVERSION=`qmake -v | tail --lines 1 | cut -d " " -f4 | cut -c1`
+
+#Determine QEGUI version
+export QEGUIVERSION=`qegui --version | head --lines 1 | cut -d " " -f7 | cut -c1`
+
+#Create galil_motors.ui given QEGUI version
+if [[ $QEGUIVERSION = "3" ]]; then
+#QEGUI 3.x detected
+   cp GalilSup/op/ui/galil_motors_v3.ui GalilSup/op/ui/galil_motors.ui
+elif [[ $QEGUIVERSION = "4" ]]; then
+#QEGUI 4.x detected
+   cp GalilSup/op/ui/galil_motors_v4.ui GalilSup/op/ui/galil_motors.ui
+fi
 
 #Determine Qt style to use from version
 if [[ $QTVERSION = "4" ]]; then

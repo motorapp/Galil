@@ -854,7 +854,6 @@ asynStatus GalilCSAxis::move(double position, int relative, double minVelocity, 
 
      //Perform reverse transform and get new axis (real) motor positions, velocities
      status = reverseTransform(abspos, maxVelocity, acceleration, npos, nvel, naccel);
-
      //Check all motor settings
      status |= checkAllSettings(functionName.c_str(), npos, nvel, naccel, false);
 
@@ -1812,7 +1811,6 @@ asynStatus GalilCSAxis::reverseTransform(double pos, double vel, double accel, d
   int ueip;
   int status = asynSuccess;
   double readback; // Used for both CSAxis readback and revaxis readback
-
   double csPosition; // Requested CSAxis position in user cooordinates Unit=EGU
   double csVelocity; // Requested CSAxis velocity in Unit=EGU/Second
   double csAcceleration; // Requested CSAxis acceleration in Unit=EGU/Second2
@@ -1839,7 +1837,7 @@ asynStatus GalilCSAxis::reverseTransform(double pos, double vel, double accel, d
   // Calculate CSAxis readback in user coordinates
   // OFF, and DIR always 0 for csaxis
   readback = (ueip) ? encoder_position_ * eres : motor_position_ * mres;
- 
+
   // Convert new CSAxis position, velocity, acceleration into user coordinates
   // OFF, and DIR always 0 for csaxis
   csPosition = pos * mres;
@@ -1914,7 +1912,7 @@ asynStatus GalilCSAxis::reverseTransform(double pos, double vel, double accel, d
        }
     }//Status
   }//For
- 
+
   //Refactor acceleration given limited acceleration resolution on controller
   if (!status) {
      //Find closest hardware setting for lowest acceleration found
@@ -1926,7 +1924,6 @@ asynStatus GalilCSAxis::reverseTransform(double pos, double vel, double accel, d
         if (accel_ratio != 1.000000) {
           naccel[i] = lowest_accelhw * accel_ratio;
         }
-
      }//For
   }//Status
 

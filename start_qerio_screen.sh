@@ -10,8 +10,7 @@ export galilpath=$galilpath/GalilSup/op/ui
 export QE_UI_PATH=$galilpath
 
 #Determine Qt version
-export QMAKEVERSION=`qmake -v`
-export QTVERSION=`echo $QMAKEVERSION | cut -d " " -f7 | cut -c1`
+export QTVERSION=`qmake -v | tail --lines 1 | cut -d " " -f4 | cut -c1`
 
 #Determine Qt style to use from version
 if [[ $QTVERSION = "4" ]]; then
