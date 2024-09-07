@@ -415,6 +415,7 @@
 // 01/09/2024 M.Clift
 //                  Fix setLowLimit, setHighLimit clearing DMC01:ERROR_MON controller message
 //                  Updated QtEPICS, MEDM screens
+//                  Revert Limit, Home switch type to NC (normally closed), NO (normally open)
 // 07/09/2024 M.Rivers
 //                  Merge in support for 3040 and 3140 amplifiers
 
