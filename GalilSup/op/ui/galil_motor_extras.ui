@@ -23,7 +23,16 @@
    <property name="spacing">
     <number>1</number>
    </property>
-   <property name="margin">
+   <property name="leftMargin">
+    <number>1</number>
+   </property>
+   <property name="topMargin">
+    <number>1</number>
+   </property>
+   <property name="rightMargin">
+    <number>1</number>
+   </property>
+   <property name="bottomMargin">
     <number>1</number>
    </property>
    <item>
@@ -706,7 +715,7 @@
           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
          </property>
          <property name="variable" stdset="0">
-          <string>$(DMC)$(M)_WLPACTIVE_STATUS</string>
+          <string>$(DMC)$(M)_WLPSTOP_STATUS</string>
          </property>
          <property name="text">
           <string>type</string>
