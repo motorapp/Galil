@@ -418,6 +418,7 @@
 //                  Revert Limit, Home switch type to NC (normally closed), NO (normally open)
 // 07/09/2024 M.Rivers
 //                  Merge in support for 3040 and 3140 amplifiers
+//
 
 #include <stdio.h>
 #include <math.h>
@@ -4328,7 +4329,7 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
      status = getIntegerParam(pAxis->axisNo_, GalilStopPauseMoveGo_, &spmg);
      status |= getDoubleParam(pAxis->axisNo_, GalilMotorHvel_, &hvel);
      status |= getDoubleParam(pAxis->axisNo_, motorResolution_, &mres);
-     if (!status && spmg == SPMG_GO) {
+     if (!status && spmg == spmgGo) {
         //Motor record stop pause move go is set GO
         //Convert Hvel from EGU/sec to steps/sec to provide maxVelocity to home method
         hvel = hvel / mres;

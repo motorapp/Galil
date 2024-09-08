@@ -1081,7 +1081,7 @@ asynStatus GalilAxis::checkMRSettings(const char *caller, char callaxis, bool mo
    if (status) return asynError;
 
    //Check motor record status
-   if (spmg != SPMG_GO && spmg != SPMG_MOVE) {
+   if (spmg != spmgGo && spmg != spmgMove) {
       mesg = string(caller) + " " + string(1, callaxis) + " failed, " + string(1, axisName_);
       mesg += " spmg is not set to \"go\" or \"move\"";
    }
