@@ -6315,6 +6315,11 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
          if (asynSuccess == programUpload(&uc)) {
             //Remove the \r characters - \r\n is returned by galil controller
             uc.erase (std::remove(uc.begin(), uc.end(), '\r'), uc.end());
+            //Change \n to \r (Galil Communications Library expects \r separated lines)
+            std::replace(uc.begin(), uc.end(), '\n', '\r');
+            //Some controllers dont finish upload with \r\n, ensure buffer ends in carriage return
+            if (uc.back() != 13)
+               uc.push_back('\r');
          }
          else {
             errlogPrintf("\nError uploading code model %s, address %s\n",model_.c_str(), address_.c_str());
