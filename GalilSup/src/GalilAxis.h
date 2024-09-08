@@ -76,10 +76,11 @@ const epicsUInt32 BISS_STAT_ERROR =   2;
 const epicsUInt32 BISS_STAT_WARN =    3;
 
 //limitState enum used in wrong limit protection
-typedef enum limitsState
-   {
-   unknown, consistent, not_consistent
-   } limitsState;
+typedef enum limitsState {
+   unknown = 0,
+   consistent,
+   not_consistent
+} limitsState;
 
 class GalilAxis : public asynMotorAxis
 {

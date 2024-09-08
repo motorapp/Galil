@@ -56,11 +56,6 @@
 #define INP_CODE_LEN 80000
 #define THREAD_CODE_LEN 80000
 
-#define SPMG_STOP 0
-#define SPMG_PAUSE 1
-#define SPMG_MOVE 2
-#define SPMG_GO 3
-
 //Time base
 #define DEFAULT_TIME 1000.0
 
@@ -274,6 +269,14 @@ typedef enum downloadState {
   downloadSuccess,
   downloadFailed,
 } downloadState;
+
+// Motor record spmg state
+typedef enum motorRecordState {
+  spmgStop = 0,
+  spmgPause,
+  spmgMove,
+  spmgGo
+} motorRecordState;
 
 // Amplifier enum information
 typedef struct {

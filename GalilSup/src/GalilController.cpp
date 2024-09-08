@@ -389,6 +389,7 @@
 //                  Fix issue parsing kinematic equations
 // 03/09/2022 M.Clift
 //                  Add $(P):HOMEEDGE_CMD, Add $(P):HOMEEDGE_STATUS to set home switch edge found during homing
+//                  Alter home switch type, limit switch type PV's to be more general
 //                  Improved generated home routine for home to home switch
 //                  Fix motor acceleration not set issue introduced by $(P)$M)HOMR_CMD/$(P)$M)HOMF_CMD homing PV's
 //                  Improved motor limits direction consistency check
@@ -4325,7 +4326,7 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
      status = getIntegerParam(pAxis->axisNo_, GalilStopPauseMoveGo_, &spmg);
      status |= getDoubleParam(pAxis->axisNo_, GalilMotorHvel_, &hvel);
      status |= getDoubleParam(pAxis->axisNo_, motorResolution_, &mres);
-     if (!status && spmg == SPMG_GO) {
+     if (!status && spmg == spmgGo) {
         //Motor record stop pause move go is set GO
         //Convert Hvel from EGU/sec to steps/sec to provide maxVelocity to home method
         hvel = hvel / mres;
