@@ -417,6 +417,8 @@
 //                  Alter GalilStartController to check for program lines greater than 80 characters
 // 07/09/2024 M.Rivers
 //                  Merge in support for 3040 and 3140 amplifiers
+// 16/10/2024 M.Clift
+//                  Fix change text entry widgets to string type in galil_csmotor_kinematics.adl
 //
 
 #include <stdio.h>
@@ -457,7 +459,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "3-6-89";
+static const char *driverVersion = "3-6-90";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);
