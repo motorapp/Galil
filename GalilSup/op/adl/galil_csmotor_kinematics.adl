@@ -1,7 +1,7 @@
 
 file {
-	name="/home/ics/git/Galil-3-0/3-5/GalilSup/op/adl/galil_csmotor_kinematics.adl"
-	version=030105
+	name="/home/ics/git/Galil/GalilSup/op/adl/galil_csmotor_kinematics.adl"
+	version=030120
 }
 display {
 	object {
@@ -391,6 +391,7 @@ text {
 		clr=14
 		bclr=51
 	}
+	format="string"
 	limits {
 	}
 }
@@ -406,6 +407,7 @@ text {
 		clr=14
 		bclr=51
 	}
+	format="string"
 	limits {
 	}
 }
@@ -421,6 +423,7 @@ text {
 		clr=14
 		bclr=51
 	}
+	format="string"
 	limits {
 	}
 }
@@ -436,6 +439,7 @@ text {
 		clr=14
 		bclr=51
 	}
+	format="string"
 	limits {
 	}
 }
@@ -451,6 +455,7 @@ text {
 		clr=14
 		bclr=51
 	}
+	format="string"
 	limits {
 	}
 }
@@ -466,6 +471,7 @@ text {
 		clr=14
 		bclr=51
 	}
+	format="string"
 	limits {
 	}
 }
@@ -481,6 +487,7 @@ text {
 		clr=14
 		bclr=51
 	}
+	format="string"
 	limits {
 	}
 }
@@ -496,6 +503,7 @@ text {
 		clr=14
 		bclr=51
 	}
+	format="string"
 	limits {
 	}
 }
@@ -904,6 +912,7 @@ text {
 		clr=14
 		bclr=51
 	}
+	format="string"
 	limits {
 	}
 }
@@ -919,6 +928,7 @@ text {
 		clr=14
 		bclr=51
 	}
+	format="string"
 	limits {
 	}
 }
@@ -934,6 +944,7 @@ text {
 		clr=14
 		bclr=51
 	}
+	format="string"
 	limits {
 	}
 }
@@ -949,6 +960,7 @@ text {
 		clr=14
 		bclr=51
 	}
+	format="string"
 	limits {
 	}
 }
@@ -964,6 +976,7 @@ text {
 		clr=14
 		bclr=51
 	}
+	format="string"
 	limits {
 	}
 }
@@ -979,6 +992,7 @@ text {
 		clr=14
 		bclr=51
 	}
+	format="string"
 	limits {
 	}
 }
@@ -994,6 +1008,7 @@ text {
 		clr=14
 		bclr=51
 	}
+	format="string"
 	limits {
 	}
 }
@@ -1009,6 +1024,7 @@ text {
 		clr=14
 		bclr=51
 	}
+	format="string"
 	limits {
 	}
 }
