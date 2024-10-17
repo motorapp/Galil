@@ -72,7 +72,7 @@
       <number>2</number>
      </property>
      <property name="gridOrder">
-      <enum>QE::rowMajor</enum>
+      <enum>QE::colMajor</enum>
      </property>
      <property name="slotNumberOffset" stdset="0">
       <number>9</number>

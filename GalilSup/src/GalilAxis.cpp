@@ -309,6 +309,10 @@ asynStatus GalilAxis::setDefaults(int limit_as_home, char *enables_string, int s
    //Default softLimits
    lowLimit_ = 0.0;
    highLimit_ = 0.0;
+   
+   //Operator has not used MR SET field yet
+   setPositionIn_ = false;
+   setPositionOut_ = false;
 
    return asynSuccess;
 }
@@ -1330,6 +1334,9 @@ asynStatus GalilAxis::setPosition(double position)
   
   //Set encoder position
   setEncoderPosition(enc_pos);
+  
+  //GalilAxis position changed via MR SET field, inform any GalilCSAxis
+  setPositionOut_ = true;
 
   //Always return success. Dont need more error mesgs
   return asynSuccess;
@@ -2736,16 +2743,22 @@ skip:
    setIntegerParam(pC_->motorStatusHome_, home);
    //Pass direction to motorRecord
    setIntegerParam(pC_->motorStatusDirection_, direction_);
-   //Tell upper layers motor is moving whilst sync encoded stepper, and homing requests are being executed
-   //Also when stopDelay has yet to expire
+   //Tell upper layers motor is moving whilst
+   //sync encoded stepper at stop or
+   //homing requests are being executed or
+   //GalilAxis has a new position from CSAxis (setPositionIn_ true) or
+   //stopDelay has yet to expire
    //This prevents new moves being initiated whilst above functions are being executed
    //Also keeps HOMR and HOMF 1 until homing finished
    //Done late in poll to allow parallel execution with pollServices
-   if ((homedSent_ && !homedExecuted_) || homing_ ||
+   if ((homedSent_ && !homedExecuted_) || homing_ || setPositionIn_ ||
        (syncEncodedStepperAtStopSent_ && !syncEncodedStepperAtStopExecuted_) ||
        (stoppedTime_ < stopDelay && !status)) {
       moving = true;
       done_ = 0;
+      //Set setPositionIn_ false, we've acted by setting moving true for 1 cycle
+      //Moving true for 1 cycle will cause GalilAxis MR to synchronize drive field to new readback value
+      setPositionIn_ = (setPositionIn_) ? false : setPositionIn_;
    }
 
    //Dont show limits whilst homing otherwise mr may interrupt custom routines

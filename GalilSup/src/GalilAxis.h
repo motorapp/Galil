@@ -269,6 +269,10 @@ private:
   int ueip_;				//motorRecord ueip.  User wants to read main encoder if true, aux if false
   int enc_tol_;                         //encoder tolerance. Used for determining encoder direction in setStatus()
   bool ctrlUseMain_;			//Based on selected motor type controller will use main or aux encoder register for positioning
+  bool setPositionIn_;                  //Flag to indicate associated CSAxis position change via motor record set/use field
+                                        //Set by GalilCSAxis, consumed by GalilAxis
+  bool setPositionOut_;                 //Flag to indicate this axis position change via motor record set/use field
+                                        //Set by GalilAxis, consumed by GalilCSAxis
   double motor_position_;		//aux encoder or step count register
   double encoder_position_;		//main encoder register
   double last_encoder_position_;	//main encoder register stored from previous poll.  Used to detect movement.

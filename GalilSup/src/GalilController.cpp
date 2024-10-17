@@ -420,6 +420,9 @@
 // 16/10/2024 M.Clift
 //                  Fix change text entry widgets to string type in galil_csmotor_kinematics.adl
 //
+// 17/10/2024 M.Clift
+//                  Add support for motor record SET field to GalilCSAxis
+//
 
 #include <stdio.h>
 #include <math.h>
@@ -459,7 +462,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "3-6-90";
+static const char *driverVersion = "3-6-91";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);
