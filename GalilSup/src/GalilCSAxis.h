@@ -22,15 +22,6 @@
 #include "asynMotorController.h"
 #include "asynMotorAxis.h"
 
-//Related CSAxis may have new setpoints too
-struct CSTargets 
-	{
-        double ncspos[MAX_GALIL_AXES];		//The new position setpoints for the related CSAxis Units=Steps
-        double ncsvel[MAX_GALIL_AXES];		//The velocity required for the related CSAxis Units=Steps/s
-        double ncsaccel[MAX_GALIL_AXES];	//The acceleration required for the related CSAxis Units=Steps/s/s
-        char csaxes[MAX_GALIL_CSAXES];		//List of related csaxis that also have new position setpoints
-	};
-
 class GalilCSAxis : public asynMotorAxis
 {
 public:
@@ -111,6 +102,7 @@ public:
   asynStatus moveVelocity(double min_velocity, double max_velocity, double acceleration);
   asynStatus home(double minVelocity, double maxVelocity, double acceleration, int forwards);
   asynStatus stop(double acceleration);
+  asynStatus setPosition(double position);
   asynStatus initializeProfile(size_t maxProfilePoints);
   asynStatus setHighLimit(double highLimit);
   asynStatus setLowLimit(double lowLimit);

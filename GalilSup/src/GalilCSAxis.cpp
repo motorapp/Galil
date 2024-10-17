@@ -1363,6 +1363,36 @@ asynStatus GalilCSAxis::home(double minVelocity, double maxVelocity, double acce
    return (asynStatus)status;
 }
 
+/** Set the current position of the motor.
+  * \param[in] position The new absolute motor position that should be set. Units=steps.*/
+asynStatus GalilCSAxis::setPosition(double position)
+{
+   double npos[MAX_GALIL_AXES];	   //Real axis position targets
+   double nvel[MAX_GALIL_AXES];	   //Real axis velocity targets, not used
+   double naccel[MAX_GALIL_AXES];  //Real axis acceleration targets, not used
+   double acceleration = 100.0;    //Arbitary acceleration, not used
+   double velocity = 100.0;        //Arbitary velocity, not used
+   GalilAxis *pAxis;               //Reverse/real axis
+   unsigned i;                     //Looping
+   
+   // Perform reverse transform
+   reverseTransform(position, velocity, acceleration, npos, nvel, naccel);
+   // Loop thru real motor list and set new position
+   for (i = 0; revaxes_[i] != '\0'; i++) {
+      // Retrieve the axis
+      pAxis = pC_->getAxis(revaxes_[i] - AASCII);
+      // Process or skip
+      if (!pAxis) continue;
+      // Set reverse/real axis position
+      pAxis->setPosition(npos[i]);
+      // GalilCSAxis position changed via MR SET field, inform any GalilAxis
+      pAxis->setPositionIn_ = true;
+   }
+
+   // Always return success. Dont need more error mesgs
+   return asynSuccess;
+}
+
 /** Select a free coordinate system, or return -1
   */
 int GalilCSAxis::selectFreeCoordinateSystem(void)
@@ -2191,6 +2221,14 @@ asynStatus GalilCSAxis::poller(void)
       //Or moving status from all real axis to derive cs moving status
       csmoving |= (deferredMove_ || (!rdmov && !pAxis->deferredMove_) || \
                   (rmoving && !pAxis->deferredMove_) || (pAxis->deferredMove_));
+      //Has operator used GalilAxis MR SET field to update real axis position?
+      if (pAxis->setPositionOut_) {
+         //Operator has used MR SET field to update real axis position
+         pAxis->setPositionOut_ = false;
+         //Hold CSAxis moving true for 1 cycle so
+         //CSAxis motor record drive field is updated to new readback position
+         csmoving = true;
+      }
       //Or inmotion status from all real axis to derive cs inmotion status.  Ignore CSAxis deferredMove
       csinmotion |= pAxis->inmotion_;
       //Retrieve stall/following error status
