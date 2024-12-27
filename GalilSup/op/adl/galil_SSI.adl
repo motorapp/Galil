@@ -1,0 +1,485 @@
+
+file {
+	name="/home/ics/git/Galil/GalilSup/op/adl/galil_SSI.adl"
+	version=030120
+}
+display {
+	object {
+		x=257
+		y=227
+		width=400
+		height=232
+	}
+	clr=14
+	bclr=4
+	cmap=""
+	gridSpacing=5
+	gridOn=0
+	snapToGrid=0
+}
+"color map" {
+	ncolors=65
+	colors {
+		ffffff,
+		ececec,
+		dadada,
+		c8c8c8,
+		bbbbbb,
+		aeaeae,
+		9e9e9e,
+		919191,
+		858585,
+		787878,
+		696969,
+		5a5a5a,
+		464646,
+		2d2d2d,
+		000000,
+		00d800,
+		1ebb00,
+		339900,
+		2d7f00,
+		216c00,
+		fd0000,
+		de1309,
+		be190b,
+		a01207,
+		820400,
+		5893ff,
+		597ee1,
+		4b6ec7,
+		3a5eab,
+		27548d,
+		fbf34a,
+		f9da3c,
+		eeb62b,
+		e19015,
+		cd6100,
+		ffb0ff,
+		d67fe2,
+		ae4ebc,
+		8b1a96,
+		610a75,
+		a4aaff,
+		8793e2,
+		6a73c1,
+		4d52a4,
+		343386,
+		c7bb6d,
+		b79d5c,
+		a47e3c,
+		7d5627,
+		58340f,
+		99ffff,
+		73dfff,
+		4ea5f9,
+		2a63e4,
+		0a00b8,
+		ebf1b5,
+		d4db9d,
+		bbc187,
+		a6a462,
+		8b8239,
+		73ff6b,
+		52da3b,
+		3cb420,
+		289315,
+		1a7309,
+	}
+}
+rectangle {
+	object {
+		x=129
+		y=7
+		width=129
+		height=25
+	}
+	"basic attribute" {
+		clr=14
+		fill="outline"
+	}
+}
+text {
+	object {
+		x=99
+		y=12
+		width=193
+		height=18
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="SSI Settings"
+	align="horiz. centered"
+}
+text {
+	object {
+		x=8
+		y=46
+		width=97
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Motor axis"
+}
+"text update" {
+	object {
+		x=150
+		y=48
+		width=58
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_AXIS_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=150
+		y=65
+		width=200
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M).NAME"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=8
+		y=64
+		width=97
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Motorname"
+}
+text {
+	object {
+		x=8
+		y=139
+		width=69
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="SSI single turn bits"
+}
+text {
+	object {
+		x=8
+		y=156
+		width=69
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="SSI error bits"
+}
+text {
+	object {
+		x=8
+		y=176
+		width=69
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="SSI Time code"
+}
+"text entry" {
+	object {
+		x=150
+		y=173
+		width=103
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_SSITIME_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text entry" {
+	object {
+		x=150
+		y=156
+		width=103
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_SSIERRBITS_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text entry" {
+	object {
+		x=150
+		y=139
+		width=103
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_SSISINGLETBITS_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=8
+		y=122
+		width=69
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="SSI total bits"
+}
+"text entry" {
+	object {
+		x=150
+		y=122
+		width=103
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_SSITOTBITS_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=274
+		y=180
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_SSITIME_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=274
+		y=162
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_SSIERRBITS_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=274
+		y=144
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_SSISINGLETBITS_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=274
+		y=126
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_SSITOTBITS_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=8
+		y=194
+		width=69
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="SSI dataform"
+}
+"choice button" {
+	object {
+		x=150
+		y=191
+		width=105
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_SSIDATA_CMD"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+"text update" {
+	object {
+		x=274
+		y=197
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_SSIDATA_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=8
+		y=85
+		width=69
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="SSI connected"
+}
+"text update" {
+	object {
+		x=150
+		y=85
+		width=100
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_SCONN_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=8
+		y=103
+		width=69
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="SSI input"
+}
+menu {
+	object {
+		x=150
+		y=103
+		width=100
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_SSIINPUT_CMD"
+		clr=14
+		bclr=4
+	}
+}
+"text update" {
+	object {
+		x=274
+		y=108
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_SSIINPUT_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=8
+		y=211
+		width=69
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="SSI invert direction"
+}
+"choice button" {
+	object {
+		x=150
+		y=208
+		width=105
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_SSIINVERT_CMD"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+"text update" {
+	object {
+		x=274
+		y=214
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_SSIINVERT_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
