@@ -1373,16 +1373,12 @@ void GalilController::report(FILE *fp, int level)
     for (axis=0; axis<numAxes_; axis++) {
       pAxis = getAxis(axis);
       fprintf(fp, "  axis %c\n"
-              "    pulsesPerUnit_ = %f\n"
               "    ready=%s\n"
               "    encoder position=%f\n"
-              "    theory position=%f\n"
-              "    limits=0x%x\n"
-              "    flags=0x%x\n",
-              pAxis->axisName_, pAxis->pulsesPerUnit_,
+              "    motor position=%f\n",
+              pAxis->axisName_,
               pAxis->axisReady_ ? "true" : "false",
-              pAxis->encoderPosition_, pAxis->theoryPosition_,
-              pAxis->currentLimits_, pAxis->currentFlags_);
+              pAxis->encoder_position_, pAxis->motor_position_);
     }
   }
 
