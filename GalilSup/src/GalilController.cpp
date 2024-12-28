@@ -1365,9 +1365,11 @@ void GalilController::report(FILE *fp, int level)
 {
   unsigned axis;
   GalilAxis *pAxis;
+  double pollDelay;
 
-  fprintf(fp, "Galil motor driver %s, numAxes=%d, moving poll period=%f, idle poll period=%f\n", 
-    this->portName, numAxes_, movingPollPeriod_, idlePollPeriod_);
+  getDoubleParam(GalilStatusPollDelay_, &pollDelay);
+  fprintf(fp, "Galil motor driver %s, numAxes=%d, poll delay=%f\n", 
+    this->portName, numAxes_, pollDelay);
   if (level > 0) {
     fprintf(fp, "  Amp1 model=%d, Amp2 model=%d\n", ampModel_[0], ampModel_[1]);
     for (axis=0; axis<numAxes_; axis++) {
