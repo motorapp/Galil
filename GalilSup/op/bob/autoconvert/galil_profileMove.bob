@@ -1,0 +1,1808 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Saved on 2024-12-28 15:07:24 by epics-->
+<display version="2.0.0">
+  <name>galil_profileMove</name>
+  <x>496</x>
+  <y>87</y>
+  <width>530</width>
+  <height>701</height>
+  <background_color>
+    <color red="187" green="187" blue="187">
+    </color>
+  </background_color>
+  <grid_visible>false</grid_visible>
+  <widget type="rectangle" version="2.0.0">
+    <name>rectangle #6</name>
+    <x>73</x>
+    <y>10</y>
+    <width>384</width>
+    <height>30</height>
+    <line_color>
+      <color red="212" green="219" blue="157">
+      </color>
+    </line_color>
+    <background_color>
+      <color red="212" green="219" blue="157">
+      </color>
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #9</name>
+    <text>$(TITLE)</text>
+    <x>103</x>
+    <y>16</y>
+    <width>324</width>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <horizontal_alignment>1</horizontal_alignment>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>rectangle #12</name>
+    <x>5</x>
+    <y>45</y>
+    <width>524</width>
+    <height>210</height>
+    <line_width>2</line_width>
+    <line_color>
+      <color red="0" green="0" blue="0">
+      </color>
+    </line_color>
+    <background_color>
+      <color red="0" green="0" blue="0">
+      </color>
+    </background_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #15</name>
+    <text>Trajectory file:</text>
+    <x>12</x>
+    <y>211</y>
+    <width>200</width>
+    <height>13</height>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #18</name>
+    <text>Start position:</text>
+    <x>12</x>
+    <y>192</y>
+    <width>90</width>
+    <height>13</height>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #21</name>
+    <text>Output compare 2 Axis:</text>
+    <x>12</x>
+    <y>174</y>
+    <width>180</width>
+    <height>13</height>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #24</name>
+    <text>Start position:</text>
+    <x>12</x>
+    <y>154</y>
+    <width>90</width>
+    <height>13</height>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #27</name>
+    <text>Output compare 1 Axis:</text>
+    <x>12</x>
+    <y>136</y>
+    <width>180</width>
+    <height>13</height>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #30</name>
+    <text>Fixed time per point</text>
+    <x>12</x>
+    <y>114</y>
+    <width>200</width>
+    <height>13</height>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #33</name>
+    <text>Time mode</text>
+    <x>12</x>
+    <y>93</y>
+    <width>90</width>
+    <height>13</height>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>text entry #36</name>
+    <pv_name>$(P)$(R)TrajectoryFile</pv_name>
+    <x>158</x>
+    <y>209</y>
+    <width>331</width>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>related display #40</name>
+    <actions>
+      <action type="open_display">
+        <file>galil_profileMove_more.opi</file>
+        <macros>
+          <TITLE>Details</TITLE>
+        </macros>
+        <target>tab</target>
+        <description>Galil more</description>
+      </action>
+    </actions>
+    <text>More</text>
+    <x>414</x>
+    <y>89</y>
+    <width>75</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>related display #43</name>
+    <actions>
+      <action type="open_display">
+        <file>trajectoryPlot.opi</file>
+        <macros>
+          <TITLE>Time_per_element</TITLE>
+          <Y>$(P)$(R)Times</Y>
+        </macros>
+        <target>tab</target>
+        <description>Time per element</description>
+      </action>
+    </actions>
+    <text></text>
+    <x>414</x>
+    <y>70</y>
+    <width>75</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #46</name>
+    <text>Plot time</text>
+    <x>346</x>
+    <y>74</y>
+    <width>90</width>
+    <height>13</height>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #49</name>
+    <text>Current</text>
+    <x>346</x>
+    <y>50</y>
+    <width>70</width>
+    <height>13</height>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #52</name>
+    <text>Then every:</text>
+    <x>342</x>
+    <y>193</y>
+    <width>30</width>
+    <height>13</height>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>text entry #55</name>
+    <pv_name>$(P)OC2INCR_CMD</pv_name>
+    <x>414</x>
+    <y>190</y>
+    <width>75</width>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #59</name>
+    <text>Then every:</text>
+    <x>342</x>
+    <y>154</y>
+    <width>30</width>
+    <height>13</height>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>text entry #62</name>
+    <pv_name>$(P)OC1INCR_CMD</pv_name>
+    <x>414</x>
+    <y>150</y>
+    <width>75</width>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #66</name>
+    <pv_name>$(P)$(R)CurrentPoint</pv_name>
+    <x>414</x>
+    <y>50</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #70</name>
+    <text>(User)</text>
+    <x>490</x>
+    <y>193</y>
+    <width>30</width>
+    <height>13</height>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #73</name>
+    <text>(User)</text>
+    <x>490</x>
+    <y>154</y>
+    <width>30</width>
+    <height>13</height>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #76</name>
+    <pv_name>$(P)OCMESSAGE_MON</pv_name>
+    <x>97</x>
+    <y>232</y>
+    <width>425</width>
+    <height>13</height>
+    <background_color>
+      <color red="212" green="219" blue="157">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #80</name>
+    <text>Message</text>
+    <x>12</x>
+    <y>233</y>
+    <width>70</width>
+    <height>13</height>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>text entry #83</name>
+    <pv_name>$(P)OC2START_CMD</pv_name>
+    <x>158</x>
+    <y>190</y>
+    <width>80</width>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #87</name>
+    <pv_name>$(P)OC2AXIS_CMD</pv_name>
+    <x>158</x>
+    <y>170</y>
+    <width>80</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #90</name>
+    <text>(User)</text>
+    <x>244</x>
+    <y>193</y>
+    <width>30</width>
+    <height>13</height>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #93</name>
+    <pv_name>$(P)OC2AXIS_STATUS</pv_name>
+    <x>244</x>
+    <y>175</y>
+    <width>25</width>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #97</name>
+    <text>(User)</text>
+    <x>244</x>
+    <y>154</y>
+    <width>30</width>
+    <height>13</height>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>text entry #100</name>
+    <pv_name>$(P)OC1START_CMD</pv_name>
+    <x>158</x>
+    <y>150</y>
+    <width>80</width>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #104</name>
+    <pv_name>$(P)OC1AXIS_CMD</pv_name>
+    <x>158</x>
+    <y>132</y>
+    <width>80</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #107</name>
+    <pv_name>$(P)OC1AXIS_STATUS</pv_name>
+    <x>244</x>
+    <y>136</y>
+    <width>25</width>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>text entry #111</name>
+    <pv_name>$(P)$(R)FixedTime</pv_name>
+    <x>158</x>
+    <y>111</y>
+    <width>80</width>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #115</name>
+    <pv_name>$(P)$(R)TimeMode</pv_name>
+    <x>158</x>
+    <y>91</y>
+    <width>80</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #118</name>
+    <text>Servo only</text>
+    <x>277</x>
+    <y>136</y>
+    <width>30</width>
+    <height>13</height>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #121</name>
+    <text>Servo only</text>
+    <x>278</x>
+    <y>175</y>
+    <width>30</width>
+    <height>13</height>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>rectangle #124</name>
+    <x>4</x>
+    <y>493</y>
+    <width>524</width>
+    <height>200</height>
+    <line_width>2</line_width>
+    <line_color>
+      <color red="0" green="0" blue="0">
+      </color>
+    </line_color>
+    <background_color>
+      <color red="0" green="0" blue="0">
+      </color>
+    </background_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #127</name>
+    <text>Build</text>
+    <x>40</x>
+    <y>527</y>
+    <width>50</width>
+    <height>13</height>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>message button #130</name>
+    <actions>
+      <action type="write_pv">
+        <pv_name>$(P)$(R)Build</pv_name>
+        <value>1</value>
+        <description>Write</description>
+      </action>
+    </actions>
+    <pv_name>$(P)$(R)Build</pv_name>
+    <text>Build</text>
+    <x>96</x>
+    <y>527</y>
+    <width>96</width>
+    <height>16</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #133</name>
+    <pv_name>$(P)$(R)BuildState</pv_name>
+    <x>201</x>
+    <y>527</y>
+    <width>103</width>
+    <height>16</height>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <foreground_color>
+      <color red="153" green="255" blue="255">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="45" green="45" blue="45">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #137</name>
+    <pv_name>$(P)$(R)ExecuteState</pv_name>
+    <x>201</x>
+    <y>602</y>
+    <width>103</width>
+    <height>16</height>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <foreground_color>
+      <color red="153" green="255" blue="255">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="0" green="0" blue="0">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #141</name>
+    <pv_name>$(P)$(R)BuildStatus</pv_name>
+    <x>315</x>
+    <y>527</y>
+    <width>103</width>
+    <height>16</height>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <foreground_color>
+      <color red="153" green="255" blue="255">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="0" green="0" blue="0">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #145</name>
+    <pv_name>$(P)$(R)ExecuteStatus</pv_name>
+    <x>315</x>
+    <y>602</y>
+    <width>103</width>
+    <height>16</height>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <foreground_color>
+      <color red="153" green="255" blue="255">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="0" green="0" blue="0">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #149</name>
+    <text>Command</text>
+    <x>109</x>
+    <y>502</y>
+    <width>70</width>
+    <height>16</height>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #152</name>
+    <text>State</text>
+    <x>227</x>
+    <y>502</y>
+    <width>50</width>
+    <height>16</height>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #155</name>
+    <text>Status</text>
+    <x>336</x>
+    <y>502</y>
+    <width>60</width>
+    <height>16</height>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="bool_button" version="2.0.0">
+    <name>message button #158</name>
+    <pv_name>$(P)$(R)Abort</pv_name>
+    <x>422</x>
+    <y>592</y>
+    <off_label>Abort!</off_label>
+    <off_color>
+      <color red="253" green="0" blue="0">
+      </color>
+    </off_color>
+    <on_label>Abort!</on_label>
+    <on_color>
+      <color red="202" green="0" blue="0">
+      </color>
+    </on_color>
+    <show_led>false</show_led>
+    <background_color>
+      <color red="253" green="0" blue="0">
+      </color>
+    </background_color>
+    <mode>1</mode>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #161</name>
+    <text>Message</text>
+    <x>20</x>
+    <y>627</y>
+    <width>70</width>
+    <height>13</height>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #164</name>
+    <pv_name>$(P)$(R)ExecuteMessage</pv_name>
+    <x>11</x>
+    <y>643</y>
+    <width>512</width>
+    <height>13</height>
+    <background_color>
+      <color red="212" green="219" blue="157">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #168</name>
+    <text>Execute</text>
+    <x>20</x>
+    <y>602</y>
+    <width>70</width>
+    <height>13</height>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>message button #171</name>
+    <actions>
+      <action type="write_pv">
+        <pv_name>$(P)$(R)Execute</pv_name>
+        <value>1</value>
+        <description>Write</description>
+      </action>
+    </actions>
+    <pv_name>$(P)$(R)Execute</pv_name>
+    <text>Execute</text>
+    <x>96</x>
+    <y>602</y>
+    <width>96</width>
+    <height>16</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #174</name>
+    <pv_name>$(P)$(R)BuildMessage</pv_name>
+    <x>11</x>
+    <y>569</y>
+    <width>512</width>
+    <height>13</height>
+    <background_color>
+      <color red="212" green="219" blue="157">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #178</name>
+    <text>Message</text>
+    <x>20</x>
+    <y>552</y>
+    <width>70</width>
+    <height>13</height>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>rectangle #181</name>
+    <x>4</x>
+    <y>258</y>
+    <width>524</width>
+    <height>230</height>
+    <line_width>2</line_width>
+    <line_color>
+      <color red="0" green="0" blue="0">
+      </color>
+    </line_color>
+    <background_color>
+      <color red="0" green="0" blue="0">
+      </color>
+    </background_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #184</name>
+    <text>Move axis?</text>
+    <x>130</x>
+    <y>262</y>
+    <height>16</height>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #187</name>
+    <pv_name>$(P)$(R)M2UseAxis</pv_name>
+    <x>129</x>
+    <y>311</y>
+    <width>90</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #190</name>
+    <pv_name>$(P)$(R)M3UseAxis</pv_name>
+    <x>129</x>
+    <y>336</y>
+    <width>90</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #193</name>
+    <pv_name>$(P)$(R)M1UseAxis</pv_name>
+    <x>129</x>
+    <y>286</y>
+    <width>90</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #196</name>
+    <pv_name>$(P)$(R)M4UseAxis</pv_name>
+    <x>129</x>
+    <y>361</y>
+    <width>90</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #199</name>
+    <pv_name>$(P)$(R)M5UseAxis</pv_name>
+    <x>129</x>
+    <y>386</y>
+    <width>90</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #202</name>
+    <pv_name>$(P)$(R)M6UseAxis</pv_name>
+    <x>129</x>
+    <y>411</y>
+    <width>90</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #205</name>
+    <pv_name>$(P)$(R)M7UseAxis</pv_name>
+    <x>129</x>
+    <y>436</y>
+    <width>90</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #208</name>
+    <pv_name>$(P)$(R)M8UseAxis</pv_name>
+    <x>129</x>
+    <y>461</y>
+    <width>90</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #211</name>
+    <pv_name>$(P)$(R)M1MoveMode</pv_name>
+    <x>221</x>
+    <y>286</y>
+    <width>90</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #214</name>
+    <pv_name>$(P)$(R)M2MoveMode</pv_name>
+    <x>221</x>
+    <y>311</y>
+    <width>90</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #217</name>
+    <pv_name>$(P)$(R)M3MoveMode</pv_name>
+    <x>221</x>
+    <y>336</y>
+    <width>90</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #220</name>
+    <pv_name>$(P)$(R)M4MoveMode</pv_name>
+    <x>221</x>
+    <y>361</y>
+    <width>90</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #223</name>
+    <pv_name>$(P)$(R)M5MoveMode</pv_name>
+    <x>221</x>
+    <y>386</y>
+    <width>90</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #226</name>
+    <pv_name>$(P)$(R)M6MoveMode</pv_name>
+    <x>221</x>
+    <y>411</y>
+    <width>90</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #229</name>
+    <pv_name>$(P)$(R)M7MoveMode</pv_name>
+    <x>221</x>
+    <y>436</y>
+    <width>90</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #232</name>
+    <pv_name>$(P)$(R)M8MoveMode</pv_name>
+    <x>221</x>
+    <y>461</y>
+    <width>90</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #235</name>
+    <text>Move mode</text>
+    <x>230</x>
+    <y>263</y>
+    <height>16</height>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #238</name>
+    <pv_name>$(P)$(M1).RBV</pv_name>
+    <x>296</x>
+    <y>286</y>
+    <width>103</width>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>2</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #242</name>
+    <pv_name>$(P)$(M2).RBV</pv_name>
+    <x>296</x>
+    <y>311</y>
+    <width>103</width>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>2</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #246</name>
+    <pv_name>$(P)$(M3).RBV</pv_name>
+    <x>296</x>
+    <y>336</y>
+    <width>103</width>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>2</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #250</name>
+    <pv_name>$(P)$(M4).RBV</pv_name>
+    <x>296</x>
+    <y>361</y>
+    <width>103</width>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>2</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #254</name>
+    <pv_name>$(P)$(M5).RBV</pv_name>
+    <x>296</x>
+    <y>386</y>
+    <width>103</width>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>2</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #258</name>
+    <pv_name>$(P)$(M6).RBV</pv_name>
+    <x>296</x>
+    <y>411</y>
+    <width>103</width>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>2</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #262</name>
+    <pv_name>$(P)$(M7).RBV</pv_name>
+    <x>296</x>
+    <y>436</y>
+    <width>103</width>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>2</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #266</name>
+    <pv_name>$(P)$(M8).RBV</pv_name>
+    <x>296</x>
+    <y>461</y>
+    <width>103</width>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>2</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #270</name>
+    <text>Current Pos.</text>
+    <x>321</x>
+    <y>262</y>
+    <height>16</height>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #273</name>
+    <text>Plots</text>
+    <x>415</x>
+    <y>262</y>
+    <width>50</width>
+    <height>16</height>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #276</name>
+    <pv_name>$(P)$(M8).DESC</pv_name>
+    <x>15</x>
+    <y>461</y>
+    <height>13</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>2</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #280</name>
+    <pv_name>$(P)$(M7).DESC</pv_name>
+    <x>15</x>
+    <y>436</y>
+    <height>13</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>2</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #284</name>
+    <pv_name>$(P)$(M6).DESC</pv_name>
+    <x>15</x>
+    <y>411</y>
+    <height>13</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>2</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #288</name>
+    <pv_name>$(P)$(M5).DESC</pv_name>
+    <x>15</x>
+    <y>386</y>
+    <height>13</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>2</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #292</name>
+    <pv_name>$(P)$(M4).DESC</pv_name>
+    <x>15</x>
+    <y>361</y>
+    <height>13</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>2</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #296</name>
+    <pv_name>$(P)$(M3).DESC</pv_name>
+    <x>15</x>
+    <y>336</y>
+    <height>13</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>2</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #300</name>
+    <pv_name>$(P)$(M2).DESC</pv_name>
+    <x>16</x>
+    <y>311</y>
+    <height>13</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>2</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #304</name>
+    <pv_name>$(P)$(M1).DESC</pv_name>
+    <x>16</x>
+    <y>286</y>
+    <height>13</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>2</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>text entry #308</name>
+    <pv_name>$(P)$(R)NumPoints</pv_name>
+    <x>158</x>
+    <y>49</y>
+    <width>80</width>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #312</name>
+    <text># Profile points</text>
+    <x>12</x>
+    <y>52</y>
+    <width>160</width>
+    <height>13</height>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #315</name>
+    <text>Profile type</text>
+    <x>12</x>
+    <y>73</y>
+    <width>160</width>
+    <height>13</height>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #318</name>
+    <pv_name>$(P)$(R)PROFILETYPE_CMD</pv_name>
+    <x>158</x>
+    <y>70</y>
+    <width>80</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #321</name>
+    <pv_name>$(P)$(R)PROFILETYPE_STATUS</pv_name>
+    <x>244</x>
+    <y>74</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>related display #325</name>
+    <actions>
+      <action type="open_display">
+        <file>trajectoryPlot.opi</file>
+        <macros>
+          <M>$(P)$(M2)</M>
+          <TITLE>Output_Trajectory</TITLE>
+          <Y>$(P)$(R)M2Positions</Y>
+        </macros>
+        <target>tab</target>
+        <description>Output</description>
+      </action>
+      <action type="open_display">
+        <file>trajectoryPlot.opi</file>
+        <macros>
+          <M>$(P)$(M2)</M>
+          <TITLE>Output_Trajectory</TITLE>
+          <Y>$(P)$(R)M2CalculatedPositions</Y>
+        </macros>
+        <target>tab</target>
+        <description>Calculated output</description>
+      </action>
+      <action type="open_display">
+        <file>trajectoryPlot.opi</file>
+        <macros>
+          <M>$(P)$(M2)</M>
+          <TITLE>Actual_Trajectory</TITLE>
+          <Y>$(P)$(R)M2Readbacks</Y>
+        </macros>
+        <target>tab</target>
+        <description>Readback</description>
+      </action>
+      <action type="open_display">
+        <file>trajectoryPlot.opi</file>
+        <macros>
+          <M>$(P)$(M2)</M>
+          <TITLE>Following_Error</TITLE>
+          <Y>$(P)$(R)M2FollowingErrors</Y>
+        </macros>
+        <target>tab</target>
+        <description>Following error</description>
+      </action>
+    </actions>
+    <text></text>
+    <x>414</x>
+    <y>311</y>
+    <width>75</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>related display #331</name>
+    <actions>
+      <action type="open_display">
+        <file>trajectoryPlot.opi</file>
+        <macros>
+          <M>$(P)$(M1)</M>
+          <TITLE>Output_Trajectory</TITLE>
+          <Y>$(P)$(R)M1Positions</Y>
+        </macros>
+        <target>tab</target>
+        <description>Output</description>
+      </action>
+      <action type="open_display">
+        <file>trajectoryPlot.opi</file>
+        <macros>
+          <M>$(P)$(M1)</M>
+          <TITLE>Output_Trajectory</TITLE>
+          <Y>$(P)$(R)M1CalculatedPositions</Y>
+        </macros>
+        <target>tab</target>
+        <description>Calculated output</description>
+      </action>
+      <action type="open_display">
+        <file>trajectoryPlot.opi</file>
+        <macros>
+          <M>$(P)$(M1)</M>
+          <TITLE>Actual_Trajectory</TITLE>
+          <Y>$(P)$(R)M1Readbacks</Y>
+        </macros>
+        <target>tab</target>
+        <description>Readback</description>
+      </action>
+      <action type="open_display">
+        <file>trajectoryPlot.opi</file>
+        <macros>
+          <M>$(P)$(M1)</M>
+          <TITLE>Following_Error</TITLE>
+          <Y>$(P)$(R)M1FollowingErrors</Y>
+        </macros>
+        <target>tab</target>
+        <description>Following error</description>
+      </action>
+    </actions>
+    <text></text>
+    <x>414</x>
+    <y>286</y>
+    <width>75</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>related display #337</name>
+    <actions>
+      <action type="open_display">
+        <file>trajectoryPlot.opi</file>
+        <macros>
+          <M>$(P)$(M4)</M>
+          <TITLE>Output_Trajectory</TITLE>
+          <Y>$(P)$(R)M4Positions</Y>
+        </macros>
+        <target>tab</target>
+        <description>Output</description>
+      </action>
+      <action type="open_display">
+        <file>trajectoryPlot.opi</file>
+        <macros>
+          <M>$(P)$(M4)</M>
+          <TITLE>Output_Trajectory</TITLE>
+          <Y>$(P)$(R)M4CalculatedPositions</Y>
+        </macros>
+        <target>tab</target>
+        <description>Calculated output</description>
+      </action>
+      <action type="open_display">
+        <file>trajectoryPlot.opi</file>
+        <macros>
+          <M>$(P)$(M4)</M>
+          <TITLE>Actual_Trajectory</TITLE>
+          <Y>$(P)$(R)M4Readbacks</Y>
+        </macros>
+        <target>tab</target>
+        <description>Readback</description>
+      </action>
+      <action type="open_display">
+        <file>trajectoryPlot.opi</file>
+        <macros>
+          <M>$(P)$(M4)</M>
+          <TITLE>Following_Error</TITLE>
+          <Y>$(P)$(R)M4FollowingErrors</Y>
+        </macros>
+        <target>tab</target>
+        <description>Following error</description>
+      </action>
+    </actions>
+    <text></text>
+    <x>414</x>
+    <y>361</y>
+    <width>75</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>related display #343</name>
+    <actions>
+      <action type="open_display">
+        <file>trajectoryPlot.opi</file>
+        <macros>
+          <M>$(P)$(M3)</M>
+          <TITLE>Output_Trajectory</TITLE>
+          <Y>$(P)$(R)M3Positions</Y>
+        </macros>
+        <target>tab</target>
+        <description>Output</description>
+      </action>
+      <action type="open_display">
+        <file>trajectoryPlot.opi</file>
+        <macros>
+          <M>$(P)$(M3)</M>
+          <TITLE>Output_Trajectory</TITLE>
+          <Y>$(P)$(R)M3CalculatedPositions</Y>
+        </macros>
+        <target>tab</target>
+        <description>Calculated output</description>
+      </action>
+      <action type="open_display">
+        <file>trajectoryPlot.opi</file>
+        <macros>
+          <M>$(P)$(M3)</M>
+          <TITLE>Actual_Trajectory</TITLE>
+          <Y>$(P)$(R)M3Readbacks</Y>
+        </macros>
+        <target>tab</target>
+        <description>Readback</description>
+      </action>
+      <action type="open_display">
+        <file>trajectoryPlot.opi</file>
+        <macros>
+          <M>$(P)$(M3)</M>
+          <TITLE>Following_Error</TITLE>
+          <Y>$(P)$(R)M3FollowingErrors</Y>
+        </macros>
+        <target>tab</target>
+        <description>Following error</description>
+      </action>
+    </actions>
+    <text></text>
+    <x>414</x>
+    <y>336</y>
+    <width>75</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>related display #349</name>
+    <actions>
+      <action type="open_display">
+        <file>trajectoryPlot.opi</file>
+        <macros>
+          <M>$(P)$(M6)</M>
+          <TITLE>Output_Trajectory</TITLE>
+          <Y>$(P)$(R)M6Positions</Y>
+        </macros>
+        <target>tab</target>
+        <description>Output</description>
+      </action>
+      <action type="open_display">
+        <file>trajectoryPlot.opi</file>
+        <macros>
+          <M>$(P)$(M6)</M>
+          <TITLE>Output_Trajectory</TITLE>
+          <Y>$(P)$(R)M6CalculatedPositions</Y>
+        </macros>
+        <target>tab</target>
+        <description>Calculated output</description>
+      </action>
+      <action type="open_display">
+        <file>trajectoryPlot.opi</file>
+        <macros>
+          <M>$(P)$(M6)</M>
+          <TITLE>Actual_Trajectory</TITLE>
+          <Y>$(P)$(R)M6Readbacks</Y>
+        </macros>
+        <target>tab</target>
+        <description>Readback</description>
+      </action>
+      <action type="open_display">
+        <file>trajectoryPlot.opi</file>
+        <macros>
+          <M>$(P)$(M6)</M>
+          <TITLE>Following_Error</TITLE>
+          <Y>$(P)$(R)M6FollowingErrors</Y>
+        </macros>
+        <target>tab</target>
+        <description>Following error</description>
+      </action>
+    </actions>
+    <text></text>
+    <x>414</x>
+    <y>410</y>
+    <width>75</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>related display #355</name>
+    <actions>
+      <action type="open_display">
+        <file>trajectoryPlot.opi</file>
+        <macros>
+          <M>$(P)$(M5)</M>
+          <TITLE>Output_Trajectory</TITLE>
+          <Y>$(P)$(R)M5Positions</Y>
+        </macros>
+        <target>tab</target>
+        <description>Output</description>
+      </action>
+      <action type="open_display">
+        <file>trajectoryPlot.opi</file>
+        <macros>
+          <M>$(P)$(M5)</M>
+          <TITLE>Output_Trajectory</TITLE>
+          <Y>$(P)$(R)M5CalculatedPositions</Y>
+        </macros>
+        <target>tab</target>
+        <description>Calculated output</description>
+      </action>
+      <action type="open_display">
+        <file>trajectoryPlot.opi</file>
+        <macros>
+          <M>$(P)$(M5)</M>
+          <TITLE>Actual_Trajectory</TITLE>
+          <Y>$(P)$(R)M5Readbacks</Y>
+        </macros>
+        <target>tab</target>
+        <description>Readback</description>
+      </action>
+      <action type="open_display">
+        <file>trajectoryPlot.opi</file>
+        <macros>
+          <M>$(P)$(M5)</M>
+          <TITLE>Following_Error</TITLE>
+          <Y>$(P)$(R)M5FollowingErrors</Y>
+        </macros>
+        <target>tab</target>
+        <description>Following error</description>
+      </action>
+    </actions>
+    <text></text>
+    <x>414</x>
+    <y>385</y>
+    <width>75</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>related display #361</name>
+    <actions>
+      <action type="open_display">
+        <file>trajectoryPlot.opi</file>
+        <macros>
+          <M>$(P)$(M8)</M>
+          <TITLE>Output_Trajectory</TITLE>
+          <Y>$(P)$(R)M8Positions</Y>
+        </macros>
+        <target>tab</target>
+        <description>Output</description>
+      </action>
+      <action type="open_display">
+        <file>trajectoryPlot.opi</file>
+        <macros>
+          <M>$(P)$(M8)</M>
+          <TITLE>Output_Trajectory</TITLE>
+          <Y>$(P)$(R)M8CalculatedPositions</Y>
+        </macros>
+        <target>tab</target>
+        <description>Calculated output</description>
+      </action>
+      <action type="open_display">
+        <file>trajectoryPlot.opi</file>
+        <macros>
+          <M>$(P)$(M8)</M>
+          <TITLE>Actual_Trajectory</TITLE>
+          <Y>$(P)$(R)M8Readbacks</Y>
+        </macros>
+        <target>tab</target>
+        <description>Readback</description>
+      </action>
+      <action type="open_display">
+        <file>trajectoryPlot.opi</file>
+        <macros>
+          <M>$(P)$(M8)</M>
+          <TITLE>Following_Error</TITLE>
+          <Y>$(P)$(R)M8FollowingErrors</Y>
+        </macros>
+        <target>tab</target>
+        <description>Following error</description>
+      </action>
+    </actions>
+    <text></text>
+    <x>414</x>
+    <y>460</y>
+    <width>75</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>related display #367</name>
+    <actions>
+      <action type="open_display">
+        <file>trajectoryPlot.opi</file>
+        <macros>
+          <M>$(P)$(M7)</M>
+          <TITLE>Output_Trajectory</TITLE>
+          <Y>$(P)$(R)M7Positions</Y>
+        </macros>
+        <target>tab</target>
+        <description>Output</description>
+      </action>
+      <action type="open_display">
+        <file>trajectoryPlot.opi</file>
+        <macros>
+          <M>$(P)$(M7)</M>
+          <TITLE>Output_Trajectory</TITLE>
+          <Y>$(P)$(R)M7CalculatedPositions</Y>
+        </macros>
+        <target>tab</target>
+        <description>Calculated output</description>
+      </action>
+      <action type="open_display">
+        <file>trajectoryPlot.opi</file>
+        <macros>
+          <M>$(P)$(M7)</M>
+          <TITLE>Actual_Trajectory</TITLE>
+          <Y>$(P)$(R)M7Readbacks</Y>
+        </macros>
+        <target>tab</target>
+        <description>Readback</description>
+      </action>
+      <action type="open_display">
+        <file>trajectoryPlot.opi</file>
+        <macros>
+          <M>$(P)$(M7)</M>
+          <TITLE>Following_Error</TITLE>
+          <Y>$(P)$(R)M7FollowingErrors</Y>
+        </macros>
+        <target>tab</target>
+        <description>Following error</description>
+      </action>
+    </actions>
+    <text></text>
+    <x>414</x>
+    <y>435</y>
+    <width>75</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+  </widget>
+</display>

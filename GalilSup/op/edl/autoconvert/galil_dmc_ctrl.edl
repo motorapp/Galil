@@ -1,0 +1,3211 @@
+4 0 1
+beginScreenProperties
+major 4
+minor 0
+release 1
+x 132
+y 61
+w 410
+h 683
+font "helvetica-medium-r-18.0"
+ctlFont "helvetica-bold-r-10.0"
+btnFont "helvetica-medium-r-18.0"
+fgColor rgb 0 0 0
+bgColor rgb 47872 47872 47872
+textColor rgb 0 0 0
+ctlFgColor1 rgb 64256 62208 18944
+ctlFgColor2 rgb 60928 46592 11008
+ctlBgColor1 rgb 52480 24832 0
+ctlBgColor2 rgb 65280 45056 65280
+topShadowColor rgb 44544 19968 48128
+botShadowColor rgb 13312 13056 34304
+showGrid
+snapToGrid
+gridSize 4
+endScreenProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 124
+y 8
+w 150
+h 28
+lineColor rgb 0 0 0
+fillColor rgb 0 0 0
+lineWidth 0
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 105
+y 15
+w 193
+h 18
+font "helvetica-medium-r-14.0"
+fontAlign "center"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "DMC controller"
+}
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 189
+y 334
+w 156
+h 16
+
+beginGroup
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 189
+y 334
+w 103
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Coordinate systems"
+}
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 9
+y 183
+w 358
+h 13
+
+beginGroup
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 286
+y 183
+w 81
+h 13
+controlPv "$(DMC)ECATCAPABLE_STATUS"
+format "decimal"
+font "helvetica-medium-r-10.0"
+fontAlign "left"
+fgColor rgb 2560 0 47104
+bgColor rgb 47872 47872 47872
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 9
+y 183
+w 97
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "EtherCat Capable"
+}
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 9
+y 165
+w 358
+h 13
+
+beginGroup
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 9
+y 165
+w 97
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "PVT Capable"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 286
+y 165
+w 81
+h 13
+controlPv "$(DMC)PVTCAPABLE_STATUS"
+format "decimal"
+font "helvetica-medium-r-10.0"
+fontAlign "left"
+fgColor rgb 2560 0 47104
+bgColor rgb 47872 47872 47872
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 9
+y 147
+w 358
+h 13
+
+beginGroup
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 286
+y 147
+w 81
+h 13
+controlPv "$(DMC)BISSCAPABLE_STATUS"
+format "decimal"
+font "helvetica-medium-r-10.0"
+fontAlign "left"
+fgColor rgb 2560 0 47104
+bgColor rgb 47872 47872 47872
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 9
+y 147
+w 97
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "BISS Capable"
+}
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 9
+y 129
+w 358
+h 13
+
+beginGroup
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 9
+y 129
+w 97
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "SSI Capable"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 286
+y 129
+w 81
+h 13
+controlPv "$(DMC)SSICAPABLE_STATUS"
+format "decimal"
+font "helvetica-medium-r-10.0"
+fontAlign "left"
+fgColor rgb 2560 0 47104
+bgColor rgb 47872 47872 47872
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 9
+y 110
+w 372
+h 14
+
+beginGroup
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 286
+y 110
+w 95
+h 13
+controlPv "$(DMC)START_STATUS"
+format "decimal"
+font "helvetica-medium-r-10.0"
+fontAlign "left"
+fgColor rgb 0 65535 0
+fgAlarm
+bgColor rgb 47872 47872 47872
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 9
+y 111
+w 114
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Controller start status"
+}
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 9
+y 92
+w 372
+h 13
+
+beginGroup
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 9
+y 92
+w 115
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Communication Status"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 286
+y 92
+w 95
+h 13
+controlPv "$(DMC)COMMERR_STATUS"
+format "decimal"
+font "helvetica-medium-r-10.0"
+fontAlign "left"
+fgColor rgb 0 65535 0
+fgAlarm
+bgColor rgb 47872 47872 47872
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 9
+y 74
+w 372
+h 13
+
+beginGroup
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 286
+y 74
+w 95
+h 13
+controlPv "$(DMC)ADDRESS_MON"
+format "decimal"
+font "helvetica-medium-r-10.0"
+fontAlign "left"
+fgColor rgb 2560 0 47104
+bgColor rgb 47872 47872 47872
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 9
+y 74
+w 97
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Controller address"
+}
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 9
+y 56
+w 397
+h 13
+
+beginGroup
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 9
+y 56
+w 97
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Controller model"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 286
+y 56
+w 120
+h 13
+controlPv "$(DMC)MODEL_MON"
+format "decimal"
+font "helvetica-medium-r-10.0"
+fontAlign "left"
+fgColor rgb 2560 0 47104
+bgColor rgb 47872 47872 47872
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 9
+y 38
+w 397
+h 13
+
+beginGroup
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 286
+y 38
+w 120
+h 13
+controlPv "$(DMC)DRIVER_MON"
+format "decimal"
+font "helvetica-medium-r-10.0"
+fontAlign "left"
+fgColor rgb 2560 0 47104
+bgColor rgb 47872 47872 47872
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 9
+y 38
+w 97
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Driver version"
+}
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 9
+y 219
+w 94
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Home switch type"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 286
+y 220
+w 81
+h 13
+controlPv "$(DMC)HOMETYPE_STATUS"
+format "decimal"
+font "helvetica-medium-r-10.0"
+fontAlign "left"
+fgColor rgb 2560 0 47104
+bgColor rgb 47872 47872 47872
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 9
+y 332
+w 156
+h 16
+
+beginGroup
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 9
+y 332
+w 89
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Analog/Digital IO"
+}
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 56
+y 392
+w 237
+h 13
+
+beginGroup
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 56
+y 392
+w 66
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Real motors"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 228
+y 392
+w 65
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "CS motors"
+}
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 56
+y 408
+w 289
+h 16
+
+beginGroup
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 56
+y 408
+w 65
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Motor A"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 228
+y 408
+w 65
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Motor I"
+}
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 56
+y 429
+w 289
+h 16
+
+beginGroup
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 56
+y 429
+w 65
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Motor B"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 228
+y 429
+w 65
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Motor J"
+}
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 56
+y 471
+w 65
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Motor D"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 228
+y 471
+w 65
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Motor L"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 56
+y 492
+w 65
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Motor E"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 228
+y 492
+w 65
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Motor M"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 56
+y 513
+w 65
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Motor F"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 228
+y 513
+w 65
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Motor N"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 56
+y 534
+w 65
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Motor G"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 228
+y 534
+w 65
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Motor O"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 56
+y 555
+w 65
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Motor H"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 228
+y 555
+w 65
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Motor P"
+}
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 56
+y 450
+w 289
+h 16
+
+beginGroup
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 56
+y 450
+w 65
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Motor C"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 228
+y 450
+w 65
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Motor K"
+}
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 5
+y 593
+w 402
+h 85
+
+beginGroup
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 12
+y 612
+w 395
+h 13
+controlPv "$(DMC)ERROR_MON"
+format "string"
+font "helvetica-medium-r-10.0"
+fontAlign "left"
+fgColor rgb 0 0 0
+bgColor rgb 54272 56064 40192
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 5
+y 628
+w 96
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Command console"
+}
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 32
+y 645
+w 372
+h 20
+controlPv "$(DMC)SEND_STR_CMD"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fontAlign "left"
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+editable
+motifWidget
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 32
+y 665
+w 372
+h 13
+controlPv "$(DMC)SEND_STR_MON"
+format "string"
+font "helvetica-medium-r-10.0"
+fontAlign "left"
+fgColor rgb 0 0 0
+bgColor rgb 54272 56064 40192
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 5
+y 647
+w 65
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Cmd"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 5
+y 664
+w 65
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Resp"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 5
+y 593
+w 85
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Controller mesg"
+}
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 9
+y 238
+w 97
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Home edge found"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 286
+y 238
+w 120
+h 13
+controlPv "$(DMC)HOMEEDGE_STATUS"
+format "decimal"
+font "helvetica-medium-r-10.0"
+fontAlign "left"
+fgColor rgb 2560 0 47104
+bgColor rgb 47872 47872 47872
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 286
+y 256
+w 81
+h 13
+controlPv "$(DMC)DEFER_STATUS"
+format "decimal"
+font "helvetica-medium-r-10.0"
+fontAlign "left"
+fgColor rgb 2560 0 47104
+bgColor rgb 47872 47872 47872
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 9
+y 257
+w 97
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Defer moves"
+}
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 9
+y 271
+w 397
+h 20
+
+beginGroup
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 9
+y 275
+w 97
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Deferred mode"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 286
+y 275
+w 120
+h 13
+controlPv "$(DMC)DEFER_MODE_STATUS"
+format "decimal"
+font "helvetica-medium-r-10.0"
+fontAlign "left"
+fgColor rgb 2560 0 47104
+bgColor rgb 47872 47872 47872
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 9
+y 293
+w 98
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Coordinate system"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 286
+y 294
+w 81
+h 13
+controlPv "$(DMC)COORDSYS_STATUS"
+format "decimal"
+font "helvetica-medium-r-10.0"
+fontAlign "left"
+fgColor rgb 2560 0 47104
+bgColor rgb 47872 47872 47872
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 9
+y 310
+w 97
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "EtherCat Network"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 286
+y 311
+w 81
+h 13
+controlPv "$(DMC)ECATNETWORK_STATUS"
+format "decimal"
+font "helvetica-medium-r-10.0"
+fontAlign "left"
+fgColor rgb 2560 0 47104
+bgColor rgb 47872 47872 47872
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 286
+y 201
+w 95
+h 13
+controlPv "$(DMC)LIMITTYPE_STATUS"
+format "decimal"
+font "helvetica-medium-r-10.0"
+fontAlign "left"
+fgColor rgb 2560 0 47104
+bgColor rgb 47872 47872 47872
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 9
+y 200
+w 97
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Limit switch type"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 9
+y 353
+w 68
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "All amplifiers"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 189
+y 374
+w 72
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Scan records"
+}
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 189
+y 353
+w 156
+h 16
+
+beginGroup
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 189
+y 353
+w 65
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "User array"
+}
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 9
+y 374
+w 65
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "All motors"
+}
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 56
+y 576
+w 289
+h 16
+
+beginGroup
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 56
+y 576
+w 75
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Profile move"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 228
+y 577
+w 69
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Profile move"
+}
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 189
+y 334
+w 156
+h 16
+
+beginGroup
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 330
+y 335
+w 15
+h 15
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+topShadowColor rgb 55808 55808 55808
+botShadowColor rgb 17920 17920 17920
+font "helvetica-bold-r-12.0"
+icon
+numPvs 4
+numDsps 2
+displayFileName {
+  0 "galil_coordinate_system.edl"
+  1 "galil_coordinate_system.edl"
+}
+menuLabel {
+  0 "Coordinate system S"
+  1 "Coordinate system T"
+}
+symbols {
+  0 "P=$(DMC),R=S"
+  1 "P=$(DMC),R=T"
+}
+replaceSymbols {
+  0 1
+  1 1
+}
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 9
+y 183
+w 358
+h 13
+
+beginGroup
+
+endGroup
+
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 9
+y 165
+w 358
+h 13
+
+beginGroup
+
+endGroup
+
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 9
+y 147
+w 358
+h 13
+
+beginGroup
+
+endGroup
+
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 9
+y 129
+w 358
+h 13
+
+beginGroup
+
+endGroup
+
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 9
+y 110
+w 372
+h 14
+
+beginGroup
+
+endGroup
+
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 9
+y 92
+w 372
+h 13
+
+beginGroup
+
+endGroup
+
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 9
+y 74
+w 372
+h 13
+
+beginGroup
+
+endGroup
+
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 9
+y 56
+w 397
+h 13
+
+beginGroup
+
+endGroup
+
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 9
+y 38
+w 397
+h 13
+
+beginGroup
+
+endGroup
+
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 9
+y 332
+w 156
+h 16
+
+beginGroup
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 150
+y 333
+w 15
+h 15
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+topShadowColor rgb 55808 55808 55808
+botShadowColor rgb 17920 17920 17920
+font "helvetica-bold-r-12.0"
+icon
+numPvs 2
+numDsps 1
+displayFileName {
+  0 "galil_ctrl_io.edl"
+}
+menuLabel {
+  0 "Controller IO"
+}
+symbols {
+  0 "P=$(DMC),R=$(R)"
+}
+replaceSymbols {
+  0 1
+}
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 56
+y 392
+w 237
+h 13
+
+beginGroup
+
+endGroup
+
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 56
+y 408
+w 289
+h 16
+
+beginGroup
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 150
+y 409
+w 15
+h 15
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+topShadowColor rgb 55808 55808 55808
+botShadowColor rgb 17920 17920 17920
+font "helvetica-bold-r-12.0"
+icon
+numPvs 12
+numDsps 6
+displayFileName {
+  0 "galil_motor_extras.edl"
+  1 "galil_BISS.edl"
+  2 "galil_SSI.edl"
+  3 "galil_ECAT.edl"
+  4 "galil_amp.edl"
+  5 "motorx_all.edl"
+}
+menuLabel {
+  0 "Motor A Extras"
+  1 "Motor A BISS"
+  2 "Motor A SSI"
+  3 "Motor A EtherCat"
+  4 "Motor A Amp"
+  5 "Motor A Motor"
+}
+symbols {
+  0 "P=$(DMC),M=$(M1)"
+  1 "P=$(DMC),M=$(M1)"
+  2 "P=$(DMC),M=$(M1)"
+  3 "P=$(DMC),M=$(M1)"
+  4 "P=$(DMC),M=$(M1)"
+  5 "P=$(DMC),M=$(M1)"
+}
+replaceSymbols {
+  0 1
+  1 1
+  2 1
+  3 1
+  4 1
+  5 1
+}
+endObjectProperties
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 330
+y 409
+w 15
+h 15
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+topShadowColor rgb 55808 55808 55808
+botShadowColor rgb 17920 17920 17920
+font "helvetica-bold-r-12.0"
+icon
+numPvs 4
+numDsps 2
+displayFileName {
+  0 "motorx_all.edl"
+  1 "galil_csmotor_kinematics.edl"
+}
+menuLabel {
+  0 "Motor I"
+  1 "Motor I kinematics"
+}
+symbols {
+  0 "P=$(DMC),M=$(M9)"
+  1 "P=$(DMC),M=$(M9),M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8),M9=$(M9),M10=$(M10),M11=$(M11),M12=$(M12),M13=$(M13),M14=$(M14),M15=$(M15),M16=$(M16)"
+}
+replaceSymbols {
+  0 1
+  1 1
+}
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 56
+y 429
+w 289
+h 16
+
+beginGroup
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 150
+y 430
+w 15
+h 15
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+topShadowColor rgb 55808 55808 55808
+botShadowColor rgb 17920 17920 17920
+font "helvetica-bold-r-12.0"
+icon
+numPvs 12
+numDsps 6
+displayFileName {
+  0 "galil_motor_extras.edl"
+  1 "galil_BISS.edl"
+  2 "galil_SSI.edl"
+  3 "galil_ECAT.edl"
+  4 "galil_amp.edl"
+  5 "motorx_all.edl"
+}
+menuLabel {
+  0 "Motor B Extras"
+  1 "Motor B BISS"
+  2 "Motor B SSI"
+  3 "Motor B EtherCat"
+  4 "Motor B Amp"
+  5 "Motor B Motor"
+}
+symbols {
+  0 "P=$(DMC),M=$(M2)"
+  1 "P=$(DMC),M=$(M2)"
+  2 "P=$(DMC),M=$(M2)"
+  3 "P=$(DMC),M=$(M2)"
+  4 "P=$(DMC),M=$(M2)"
+  5 "P=$(DMC),M=$(M2)"
+}
+replaceSymbols {
+  0 1
+  1 1
+  2 1
+  3 1
+  4 1
+  5 1
+}
+endObjectProperties
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 330
+y 430
+w 15
+h 15
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+topShadowColor rgb 55808 55808 55808
+botShadowColor rgb 17920 17920 17920
+font "helvetica-bold-r-12.0"
+icon
+numPvs 4
+numDsps 2
+displayFileName {
+  0 "motorx_all.edl"
+  1 "galil_csmotor_kinematics.edl"
+}
+menuLabel {
+  0 "Motor J"
+  1 "Motor J kinematics"
+}
+symbols {
+  0 "P=$(DMC),M=$(M10)"
+  1 "P=$(DMC),M=$(M10),M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8),M9=$(M9),M10=$(M10),M11=$(M11),M12=$(M12),M13=$(M13),M14=$(M14),M15=$(M15),M16=$(M16)"
+}
+replaceSymbols {
+  0 1
+  1 1
+}
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 150
+y 472
+w 15
+h 15
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+topShadowColor rgb 55808 55808 55808
+botShadowColor rgb 17920 17920 17920
+font "helvetica-bold-r-12.0"
+icon
+numPvs 12
+numDsps 6
+displayFileName {
+  0 "galil_motor_extras.edl"
+  1 "galil_BISS.edl"
+  2 "galil_SSI.edl"
+  3 "galil_ECAT.edl"
+  4 "galil_amp.edl"
+  5 "motorx_all.edl"
+}
+menuLabel {
+  0 "Motor D Extras"
+  1 "Motor D BISS"
+  2 "Motor D SSI"
+  3 "Motor D EtherCat"
+  4 "Motor D Amp"
+  5 "Motor D Motor"
+}
+symbols {
+  0 "P=$(DMC),M=$(M4)"
+  1 "P=$(DMC),M=$(M4)"
+  2 "P=$(DMC),M=$(M4)"
+  3 "P=$(DMC),M=$(M4)"
+  4 "P=$(DMC),M=$(M4)"
+  5 "P=$(DMC),M=$(M4)"
+}
+replaceSymbols {
+  0 1
+  1 1
+  2 1
+  3 1
+  4 1
+  5 1
+}
+endObjectProperties
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 330
+y 472
+w 15
+h 15
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+topShadowColor rgb 55808 55808 55808
+botShadowColor rgb 17920 17920 17920
+font "helvetica-bold-r-12.0"
+icon
+numPvs 4
+numDsps 2
+displayFileName {
+  0 "motorx_all.edl"
+  1 "galil_csmotor_kinematics.edl"
+}
+menuLabel {
+  0 "Motor L"
+  1 "Motor L kinematics"
+}
+symbols {
+  0 "P=$(DMC),M=$(M12)"
+  1 "P=$(DMC),M=$(M12),M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8),M9=$(M9),M10=$(M10),M11=$(M11),M12=$(M12),M13=$(M13),M14=$(M14),M15=$(M15),M16=$(M16)"
+}
+replaceSymbols {
+  0 1
+  1 1
+}
+endObjectProperties
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 150
+y 493
+w 15
+h 15
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+topShadowColor rgb 55808 55808 55808
+botShadowColor rgb 17920 17920 17920
+font "helvetica-bold-r-12.0"
+icon
+numPvs 12
+numDsps 6
+displayFileName {
+  0 "galil_motor_extras.edl"
+  1 "galil_BISS.edl"
+  2 "galil_SSI.edl"
+  3 "galil_ECAT.edl"
+  4 "galil_amp.edl"
+  5 "motorx_all.edl"
+}
+menuLabel {
+  0 "Motor E Extras"
+  1 "Motor E BISS"
+  2 "Motor E SSI"
+  3 "Motor E EtherCat"
+  4 "Motor E Amp"
+  5 "Motor E Motor"
+}
+symbols {
+  0 "P=$(DMC),M=$(M5)"
+  1 "P=$(DMC),M=$(M5)"
+  2 "P=$(DMC),M=$(M5)"
+  3 "P=$(DMC),M=$(M5)"
+  4 "P=$(DMC),M=$(M5)"
+  5 "P=$(DMC),M=$(M5)"
+}
+replaceSymbols {
+  0 1
+  1 1
+  2 1
+  3 1
+  4 1
+  5 1
+}
+endObjectProperties
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 330
+y 492
+w 15
+h 15
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+topShadowColor rgb 55808 55808 55808
+botShadowColor rgb 17920 17920 17920
+font "helvetica-bold-r-12.0"
+icon
+numPvs 4
+numDsps 2
+displayFileName {
+  0 "motorx_all.edl"
+  1 "galil_csmotor_kinematics.edl"
+}
+menuLabel {
+  0 "Motor M"
+  1 "Motor M kinematics"
+}
+symbols {
+  0 "P=$(DMC),M=$(M13)"
+  1 "P=$(DMC),M=$(M13),M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8),M9=$(M9),M10=$(M10),M11=$(M11),M12=$(M12),M13=$(M13),M14=$(M14),M15=$(M15),M16=$(M16)"
+}
+replaceSymbols {
+  0 1
+  1 1
+}
+endObjectProperties
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 150
+y 514
+w 15
+h 15
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+topShadowColor rgb 55808 55808 55808
+botShadowColor rgb 17920 17920 17920
+font "helvetica-bold-r-12.0"
+icon
+numPvs 12
+numDsps 6
+displayFileName {
+  0 "galil_motor_extras.edl"
+  1 "galil_BISS.edl"
+  2 "galil_SSI.edl"
+  3 "galil_ECAT.edl"
+  4 "galil_amp.edl"
+  5 "motorx_all.edl"
+}
+menuLabel {
+  0 "Motor F Extras"
+  1 "Motor F BISS"
+  2 "Motor F SSI"
+  3 "Motor F EtherCat"
+  4 "Motor F Amp"
+  5 "Motor F Motor"
+}
+symbols {
+  0 "P=$(DMC),M=$(M6)"
+  1 "P=$(DMC),M=$(M6)"
+  2 "P=$(DMC),M=$(M6)"
+  3 "P=$(DMC),M=$(M6)"
+  4 "P=$(DMC),M=$(M6)"
+  5 "P=$(DMC),M=$(M6)"
+}
+replaceSymbols {
+  0 1
+  1 1
+  2 1
+  3 1
+  4 1
+  5 1
+}
+endObjectProperties
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 330
+y 513
+w 15
+h 15
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+topShadowColor rgb 55808 55808 55808
+botShadowColor rgb 17920 17920 17920
+font "helvetica-bold-r-12.0"
+icon
+numPvs 4
+numDsps 2
+displayFileName {
+  0 "motorx_all.edl"
+  1 "galil_csmotor_kinematics.edl"
+}
+menuLabel {
+  0 "Motor N"
+  1 "Motor N kinematics"
+}
+symbols {
+  0 "P=$(DMC),M=$(M14)"
+  1 "P=$(DMC),M=$(M14),M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8),M9=$(M9),M10=$(M10),M11=$(M11),M12=$(M12),M13=$(M13),M14=$(M14),M15=$(M15),M16=$(M16)"
+}
+replaceSymbols {
+  0 1
+  1 1
+}
+endObjectProperties
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 150
+y 535
+w 15
+h 15
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+topShadowColor rgb 55808 55808 55808
+botShadowColor rgb 17920 17920 17920
+font "helvetica-bold-r-12.0"
+icon
+numPvs 12
+numDsps 6
+displayFileName {
+  0 "galil_motor_extras.edl"
+  1 "galil_BISS.edl"
+  2 "galil_SSI.edl"
+  3 "galil_ECAT.edl"
+  4 "galil_amp.edl"
+  5 "motorx_all.edl"
+}
+menuLabel {
+  0 "Motor G Extras"
+  1 "Motor G BISS"
+  2 "Motor G SSI"
+  3 "Motor G EtherCat"
+  4 "Motor G Amp"
+  5 "Motor G Motor"
+}
+symbols {
+  0 "P=$(DMC),M=$(M7)"
+  1 "P=$(DMC),M=$(M7)"
+  2 "P=$(DMC),M=$(M7)"
+  3 "P=$(DMC),M=$(M7)"
+  4 "P=$(DMC),M=$(M7)"
+  5 "P=$(DMC),M=$(M7)"
+}
+replaceSymbols {
+  0 1
+  1 1
+  2 1
+  3 1
+  4 1
+  5 1
+}
+endObjectProperties
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 330
+y 535
+w 15
+h 15
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+topShadowColor rgb 55808 55808 55808
+botShadowColor rgb 17920 17920 17920
+font "helvetica-bold-r-12.0"
+icon
+numPvs 4
+numDsps 2
+displayFileName {
+  0 "motorx_all.edl"
+  1 "galil_csmotor_kinematics.edl"
+}
+menuLabel {
+  0 "Motor O"
+  1 "Motor O kinematics"
+}
+symbols {
+  0 "P=$(DMC),M=$(M15)"
+  1 "P=$(DMC),M=$(M15),M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8),M9=$(M9),M10=$(M10),M11=$(M11),M12=$(M12),M13=$(M13),M14=$(M14),M15=$(M15),M16=$(M16)"
+}
+replaceSymbols {
+  0 1
+  1 1
+}
+endObjectProperties
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 150
+y 556
+w 15
+h 15
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+topShadowColor rgb 55808 55808 55808
+botShadowColor rgb 17920 17920 17920
+font "helvetica-bold-r-12.0"
+icon
+numPvs 12
+numDsps 6
+displayFileName {
+  0 "galil_motor_extras.edl"
+  1 "galil_BISS.edl"
+  2 "galil_SSI.edl"
+  3 "galil_ECAT.edl"
+  4 "galil_amp.edl"
+  5 "motorx_all.edl"
+}
+menuLabel {
+  0 "Motor H Extras"
+  1 "Motor H BISS"
+  2 "Motor H SSI"
+  3 "Motor H EtherCat"
+  4 "Motor H Amp"
+  5 "Motor H Motor"
+}
+symbols {
+  0 "P=$(DMC),M=$(M8)"
+  1 "P=$(DMC),M=$(M8)"
+  2 "P=$(DMC),M=$(M8)"
+  3 "P=$(DMC),M=$(M8)"
+  4 "P=$(DMC),M=$(M8)"
+  5 "P=$(DMC),M=$(M8)"
+}
+replaceSymbols {
+  0 1
+  1 1
+  2 1
+  3 1
+  4 1
+  5 1
+}
+endObjectProperties
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 330
+y 556
+w 15
+h 15
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+topShadowColor rgb 55808 55808 55808
+botShadowColor rgb 17920 17920 17920
+font "helvetica-bold-r-12.0"
+icon
+numPvs 4
+numDsps 2
+displayFileName {
+  0 "motorx_all.edl"
+  1 "galil_csmotor_kinematics.edl"
+}
+menuLabel {
+  0 "Motor P"
+  1 "Motor P kinematics"
+}
+symbols {
+  0 "P=$(DMC),M=$(M16)"
+  1 "P=$(DMC),M=$(M16),M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8),M9=$(M9),M10=$(M10),M11=$(M11),M12=$(M12),M13=$(M13),M14=$(M14),M15=$(M15),M16=$(M16)"
+}
+replaceSymbols {
+  0 1
+  1 1
+}
+endObjectProperties
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 56
+y 450
+w 289
+h 16
+
+beginGroup
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 150
+y 451
+w 15
+h 15
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+topShadowColor rgb 55808 55808 55808
+botShadowColor rgb 17920 17920 17920
+font "helvetica-bold-r-12.0"
+icon
+numPvs 12
+numDsps 6
+displayFileName {
+  0 "galil_motor_extras.edl"
+  1 "galil_BISS.edl"
+  2 "galil_SSI.edl"
+  3 "galil_ECAT.edl"
+  4 "galil_amp.edl"
+  5 "motorx_all.edl"
+}
+menuLabel {
+  0 "Motor C Extras"
+  1 "Motor C BISS"
+  2 "Motor C SSI"
+  3 "Motor C EtherCat"
+  4 "Motor C Amp"
+  5 "Motor C Motor"
+}
+symbols {
+  0 "P=$(DMC),M=$(M3)"
+  1 "P=$(DMC),M=$(M3)"
+  2 "P=$(DMC),M=$(M3)"
+  3 "P=$(DMC),M=$(M3)"
+  4 "P=$(DMC),M=$(M3)"
+  5 "P=$(DMC),M=$(M3)"
+}
+replaceSymbols {
+  0 1
+  1 1
+  2 1
+  3 1
+  4 1
+  5 1
+}
+endObjectProperties
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 330
+y 451
+w 15
+h 15
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+topShadowColor rgb 55808 55808 55808
+botShadowColor rgb 17920 17920 17920
+font "helvetica-bold-r-12.0"
+icon
+numPvs 4
+numDsps 2
+displayFileName {
+  0 "motorx_all.edl"
+  1 "galil_csmotor_kinematics.edl"
+}
+menuLabel {
+  0 "Motor K"
+  1 "Motor K kinematics"
+}
+symbols {
+  0 "P=$(DMC),M=$(M11)"
+  1 "P=$(DMC),M=$(M11),M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8),M9=$(M9),M10=$(M10),M11=$(M11),M12=$(M12),M13=$(M13),M14=$(M14),M15=$(M15),M16=$(M16)"
+}
+replaceSymbols {
+  0 1
+  1 1
+}
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 5
+y 593
+w 402
+h 85
+
+beginGroup
+
+endGroup
+
+endObjectProperties
+
+
+# (Menu Button)
+object activeMenuButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 149
+y 235
+w 120
+h 20
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+inconsistentColor rgb 17920 17920 17920
+topShadowColor rgb 55808 55808 55808
+botShadowColor rgb 17920 17920 17920
+controlPv "$(DMC)HOMEEDGE_CMD"
+indicatorPv "$(DMC)HOMEEDGE_CMD"
+font "helvetica-medium-r-12.0"
+endObjectProperties
+
+# (Choice Button)
+object activeChoiceButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 149
+y 253
+w 125
+h 18
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+selectColor rgb 29440 57088 65280
+inconsistentColor rgb 0 0 0
+topShadowColor rgb 65280 65280 65280
+botShadowColor rgb 0 0 0
+controlPv "$(DMC)DEFER_CMD"
+font "helvetica-medium-r-10.0"
+orientation "horizontal"
+endObjectProperties
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 9
+y 271
+w 397
+h 20
+
+beginGroup
+
+# (Menu Button)
+object activeMenuButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 149
+y 271
+w 120
+h 20
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+inconsistentColor rgb 17920 17920 17920
+topShadowColor rgb 55808 55808 55808
+botShadowColor rgb 17920 17920 17920
+controlPv "$(DMC)DEFER_MODE_CMD"
+indicatorPv "$(DMC)DEFER_MODE_CMD"
+font "helvetica-medium-r-12.0"
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+
+# (Choice Button)
+object activeChoiceButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 149
+y 290
+w 125
+h 18
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+selectColor rgb 29440 57088 65280
+inconsistentColor rgb 0 0 0
+topShadowColor rgb 65280 65280 65280
+botShadowColor rgb 0 0 0
+controlPv "$(DMC)COORDSYS_CMD"
+font "helvetica-medium-r-10.0"
+orientation "horizontal"
+endObjectProperties
+
+# (Choice Button)
+object activeChoiceButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 149
+y 307
+w 125
+h 18
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+selectColor rgb 29440 57088 65280
+inconsistentColor rgb 0 0 0
+topShadowColor rgb 65280 65280 65280
+botShadowColor rgb 0 0 0
+controlPv "$(DMC)ECATNETWORK_CMD"
+font "helvetica-medium-r-10.0"
+orientation "horizontal"
+endObjectProperties
+
+# (Menu Button)
+object activeMenuButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 149
+y 197
+w 120
+h 20
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+inconsistentColor rgb 17920 17920 17920
+topShadowColor rgb 55808 55808 55808
+botShadowColor rgb 17920 17920 17920
+controlPv "$(DMC)LIMITTYPE_CMD"
+indicatorPv "$(DMC)LIMITTYPE_CMD"
+font "helvetica-medium-r-12.0"
+endObjectProperties
+
+# (Menu Button)
+object activeMenuButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 149
+y 215
+w 120
+h 20
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+inconsistentColor rgb 17920 17920 17920
+topShadowColor rgb 55808 55808 55808
+botShadowColor rgb 17920 17920 17920
+controlPv "$(DMC)HOMETYPE_CMD"
+indicatorPv "$(DMC)HOMETYPE_CMD"
+font "helvetica-medium-r-12.0"
+endObjectProperties
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 150
+y 354
+w 15
+h 15
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+topShadowColor rgb 55808 55808 55808
+botShadowColor rgb 17920 17920 17920
+font "helvetica-bold-r-12.0"
+icon
+numPvs 2
+numDsps 1
+displayFileName {
+  0 "galil_amp_8.edl"
+}
+menuLabel {
+  0 "All amplifiers"
+}
+symbols {
+  0 "P=$(DMC),M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8)"
+}
+replaceSymbols {
+  0 1
+}
+endObjectProperties
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 330
+y 375
+w 15
+h 15
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+topShadowColor rgb 55808 55808 55808
+botShadowColor rgb 17920 17920 17920
+font "helvetica-bold-r-12.0"
+icon
+numPvs 10
+numDsps 5
+displayFileName {
+  0 "scan.edl"
+  1 "scan.edl"
+  2 "scan.edl"
+  3 "scan.edl"
+  4 "scan.edl"
+}
+menuLabel {
+  0 "Scan1 (for all scans)"
+  1 "Scan2 (for 2D & higher scans)"
+  2 "Scan3 (for 3D & higher scans)"
+  3 "Scan4 (for 4D scans)"
+  4 "ScanH (for Hardware-assisted scans)"
+}
+symbols {
+  0 "P=$(IOC),N=1,S=scan1"
+  1 "P=$(IOC),N=2,S=scan2"
+  2 "P=$(IOC),N=3,S=scan3"
+  3 "P=$(IOC),N=4,S=scan4"
+  4 "P=$(IOC),N=H,S=scanH"
+}
+replaceSymbols {
+  0 1
+  1 1
+  2 1
+  3 1
+  4 1
+}
+endObjectProperties
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 189
+y 353
+w 156
+h 16
+
+beginGroup
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 330
+y 354
+w 15
+h 15
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+topShadowColor rgb 55808 55808 55808
+botShadowColor rgb 17920 17920 17920
+font "helvetica-bold-r-12.0"
+icon
+numPvs 16
+numDsps 8
+displayFileName {
+  0 "galil_user_array.edl"
+  1 "galil_user_array.edl"
+  2 "galil_user_array.edl"
+  3 "galil_user_array.edl"
+  4 "galil_user_array.edl"
+  5 "galil_user_array.edl"
+  6 "galil_user_array.edl"
+  7 "galil_user_array.edl"
+}
+menuLabel {
+  0 "User array0"
+  1 "User array1"
+  2 "User array2"
+  3 "User array3"
+  4 "User array4"
+  5 "User array5"
+  6 "User array6"
+  7 "User array7"
+}
+symbols {
+  0 "P=$(DMC),R=0,Y=$(DMC)UARRAY0_MON"
+  1 "P=$(DMC),R=1,Y=$(DMC)UARRAY1_MON"
+  2 "P=$(DMC),R=2,Y=$(DMC)UARRAY2_MON"
+  3 "P=$(DMC),R=3,Y=$(DMC)UARRAY3_MON"
+  4 "P=$(DMC),R=4,Y=$(DMC)UARRAY4_MON"
+  5 "P=$(DMC),R=5,Y=$(DMC)UARRAY5_MON"
+  6 "P=$(DMC),R=6,Y=$(DMC)UARRAY6_MON"
+  7 "P=$(DMC),R=7,Y=$(DMC)UARRAY7_MON"
+}
+replaceSymbols {
+  0 1
+  1 1
+  2 1
+  3 1
+  4 1
+  5 1
+  6 1
+  7 1
+}
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 150
+y 375
+w 15
+h 15
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+topShadowColor rgb 55808 55808 55808
+botShadowColor rgb 17920 17920 17920
+font "helvetica-bold-r-12.0"
+icon
+numPvs 2
+numDsps 1
+displayFileName {
+  0 "motor8x.edl"
+}
+menuLabel {
+  0 "All motors"
+}
+symbols {
+  0 "P=$(DMC),M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8)"
+}
+replaceSymbols {
+  0 1
+}
+endObjectProperties
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 56
+y 576
+w 289
+h 16
+
+beginGroup
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 150
+y 576
+w 15
+h 15
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+topShadowColor rgb 55808 55808 55808
+botShadowColor rgb 17920 17920 17920
+font "helvetica-bold-r-12.0"
+icon
+numPvs 2
+numDsps 1
+displayFileName {
+  0 "galil_profileMove.edl"
+}
+menuLabel {
+  0 "Profile 1"
+}
+symbols {
+  0 "P=$(DMC),TITLE=Galilprofile,R=Prof1:,M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8)"
+}
+replaceSymbols {
+  0 1
+}
+endObjectProperties
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 330
+y 577
+w 15
+h 15
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+topShadowColor rgb 55808 55808 55808
+botShadowColor rgb 17920 17920 17920
+font "helvetica-bold-r-12.0"
+icon
+numPvs 2
+numDsps 1
+displayFileName {
+  0 "galil_CSprofileMove.edl"
+}
+menuLabel {
+  0 "Profile 1"
+}
+symbols {
+  0 "P=$(DMC),TITLE=GalilCSprofile,R=Prof1:,M9=I,M10=J,M11=K,M12=L,M13=M,M14=N,M15=O,M16=P"
+}
+replaceSymbols {
+  0 1
+}
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+
