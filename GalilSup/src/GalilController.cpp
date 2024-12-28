@@ -4293,13 +4293,13 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
         getIntegerParam(pAxis->axisNo_, GalilWrongLimitProtection_, &wlp);
         //Check if limitDisable conflicts with WLP
         if (wlp && value > 0) {
-           mesg = pAxis->axisName_ + " wrong limit protect disabled at end(s) with disabled limits";
+           mesg = address_ + " Axis " + string(1, pAxis->axisName_) + " wrong limit protect disabled at end(s) with disabled limits";
            setCtrlError(mesg);
         }
      }
      else if (value != 0) {
         //Controller doesn't support limit disable
-        mesg = address_ + " Axis " + pAxis->axisName_ + " does not support limit disable feature";
+        mesg = address_ + " Axis " + string(1, pAxis->axisName_) + " does not support limit disable feature";
         setCtrlError(mesg);
         setIntegerParam(pAxis->axisNo_, GalilLimitDisable_, 0);
      }
@@ -4311,7 +4311,7 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
      getIntegerParam(pAxis->axisNo_, GalilLimitDisable_, &limitDisable);
      //Check if WLP conflicts with limitDisable
      if (limitDisable && value) {
-        mesg = pAxis->axisName_ + " wrong limit protect disabled at end(s) with disabled limits";
+        mesg = address_ + " Axis " + string(1, pAxis->axisName_) + " wrong limit protect disabled at end(s) with disabled limits";
         setCtrlError(mesg);
      }
   }
