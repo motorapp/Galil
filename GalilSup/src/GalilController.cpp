@@ -1368,10 +1368,9 @@ void GalilController::report(FILE *fp, int level)
   double pollDelay;
 
   getDoubleParam(GalilStatusPollDelay_, &pollDelay);
-  fprintf(fp, "Galil motor driver %s, numAxes=%d, poll delay=%f\n", 
-    this->portName, numAxes_, pollDelay);
+  fprintf(fp, "Galil motor driver %s, IP address=%s, numAxes=%d, Amp1 model=%d, Amp2 model=%d, poll delay=%f\n", 
+    this->portName, address_.c_str(), numAxes_, ampModel_[0], ampModel_[1], pollDelay);
   if (level > 0) {
-    fprintf(fp, "  Amp1 model=%d, Amp2 model=%d\n", ampModel_[0], ampModel_[1]);
     for (axis=0; axis<numAxes_; axis++) {
       pAxis = getAxis(axis);
       fprintf(fp, "  axis %c\n"
@@ -3859,37 +3858,65 @@ asynStatus GalilController::readEnum(asynUser *pasynUser, char *strings[], int v
   }
 
   if (function == GalilAmpGain_) {
-    if (ampModel_[boardNum] == 43040) {
-      pEnum    = ampGain_43040;
-      numEnums = sizeof(ampGain_43040)/sizeof(enumStruct_t);
-    } else if (ampModel_[boardNum] == 43140) {
-      pEnum    = ampGain_43140;
-      numEnums = sizeof(ampGain_43140)/sizeof(enumStruct_t);
-    } else if (ampModel_[boardNum] == 44040) {
-      pEnum    = ampGain_44040;
-      numEnums = sizeof(ampGain_44040)/sizeof(enumStruct_t);
-    } else if (ampModel_[boardNum] == 44140) {
-      pEnum    = ampGain_44140;
-      numEnums = sizeof(ampGain_44140)/sizeof(enumStruct_t);
-    } else {
-      asynPrint(pasynUserSelf, ASYN_TRACE_ERROR,
-                "GalilController::readEnum unsupported amplifier model=%d\n", 
-                ampModel_[boardNum]);
-      goto unsupported;
+    switch (ampModel_[boardNum]) {
+      case 0:
+        // No amplifier
+        goto unsupported;
+      case 43020:
+      case 43040: 
+        pEnum    = ampGain_43040;
+        numEnums = sizeof(ampGain_43040)/sizeof(enumStruct_t);
+        break;
+      case 43140:
+        pEnum    = ampGain_43140;
+        numEnums = sizeof(ampGain_43140)/sizeof(enumStruct_t);
+        break;
+      case 43547:
+        // This is complicated because it has different gains for servo and stepper modes
+        // May need to add another parameter and record?
+        goto unsupported;
+      case 44040:
+        pEnum    = ampGain_44040;
+        numEnums = sizeof(ampGain_44040)/sizeof(enumStruct_t);
+        break;
+      case 44140:
+        pEnum    = ampGain_44140;
+        numEnums = sizeof(ampGain_44140)/sizeof(enumStruct_t);
+        break;
+      default:
+        asynPrint(pasynUserSelf, ASYN_TRACE_ERROR,
+                  "GalilController::readEnum unknown amplifier gain model=%d, address=%s, axis=%c\n", 
+                  ampModel_[boardNum], address_.c_str(), pAxis->axisName_);
+        goto unsupported;
     }
   }
   else if (function == GalilMicrostep_) {
-    if (ampModel_[boardNum] == 44040) {
-      pEnum    = microstep_44040;
-      numEnums = sizeof(microstep_44040)/sizeof(enumStruct_t);
-    } else if (ampModel_[boardNum] == 44140) {
-      pEnum    = microstep_44140;
-      numEnums = sizeof(microstep_44140)/sizeof(enumStruct_t);
-    } else if (ampModel_[boardNum] == 43547) {
-      pEnum    = microstep_43547;
-      numEnums = sizeof(microstep_43547)/sizeof(enumStruct_t);
-    } else {
-      goto unsupported;
+    switch (ampModel_[boardNum]) {
+      case 0:
+        // No amplifier
+        goto unsupported;
+      case 43020:
+      case 43040:
+      case 43140:
+        // These are servo only, no microstep feature
+        goto unsupported;
+      case 43547:
+        pEnum    = microstep_43547;
+        numEnums = sizeof(microstep_43547)/sizeof(enumStruct_t);
+        break;
+      case 44040:
+        pEnum    = microstep_44040;
+        numEnums = sizeof(microstep_44040)/sizeof(enumStruct_t);
+        break;
+      case 44140:
+        pEnum    = microstep_44140;
+        numEnums = sizeof(microstep_44140)/sizeof(enumStruct_t);
+        break;
+      default:
+        asynPrint(pasynUserSelf, ASYN_TRACE_ERROR,
+                  "GalilController::readEnum unknown amplifier microstep model=%d, address=%s, axis=%c\n", 
+                  ampModel_[boardNum], address_.c_str(), pAxis->axisName_);
+        goto unsupported;
     }
   }
   else {
@@ -4868,24 +4895,40 @@ asynStatus GalilController::updateAmpInfo(void) {
       // Will have to update relevant mbbi, mbbo record enum states by callback instead
       // Cycle thru amplifier boards
       for (i = 0; i < 2; i++) {
-        if (ampModel_[i] == 44040) {
-          pEnum    = ampGain_44040;
-          numEnums = sizeof(ampGain_44040)/sizeof(enumStruct_t);
-          enumRowCallback(i, GalilAmpGain_, pEnum, numEnums);
-          pEnum    = microstep_44040;
-          numEnums = sizeof(microstep_44040)/sizeof(enumStruct_t);
-          enumRowCallback(i, GalilMicrostep_, pEnum, numEnums);
-        } else if (ampModel_[i] == 44140) {
-          pEnum    = ampGain_44140;
-          numEnums = sizeof(ampGain_44140)/sizeof(enumStruct_t);
-          enumRowCallback(i, GalilAmpGain_, pEnum, numEnums);
-          pEnum    = microstep_44140;
-          numEnums = sizeof(microstep_44140)/sizeof(enumStruct_t);
-          enumRowCallback(i, GalilMicrostep_, pEnum, numEnums);
-        } else if (ampModel_[i] == 43547) {
-          pEnum    = microstep_43547;
-          numEnums = sizeof(microstep_43547)/sizeof(enumStruct_t);
-          enumRowCallback(i, GalilMicrostep_, pEnum, numEnums);
+        switch (ampModel_[i]) {
+          case 43020:
+          case 43040: 
+            pEnum    = ampGain_43040;
+            numEnums = sizeof(ampGain_43040)/sizeof(enumStruct_t);
+            enumRowCallback(i, GalilAmpGain_, pEnum, numEnums);
+            break;
+          case 43140:
+            pEnum    = ampGain_43140;
+            numEnums = sizeof(ampGain_43140)/sizeof(enumStruct_t);
+            enumRowCallback(i, GalilAmpGain_, pEnum, numEnums);
+            break;
+          case 43547:
+            pEnum    = microstep_43547;
+            numEnums = sizeof(microstep_43547)/sizeof(enumStruct_t);
+            enumRowCallback(i, GalilMicrostep_, pEnum, numEnums);
+            // Gain is complicated for this model, different gains for stepper and servo modes
+            break;
+          case 44040:
+            pEnum    = ampGain_44040;
+            numEnums = sizeof(ampGain_44040)/sizeof(enumStruct_t);
+            enumRowCallback(i, GalilAmpGain_, pEnum, numEnums);
+            pEnum    = microstep_44040;
+            numEnums = sizeof(microstep_44040)/sizeof(enumStruct_t);
+            enumRowCallback(i, GalilMicrostep_, pEnum, numEnums);
+            break;
+          case 44140:
+            pEnum    = ampGain_44140;
+            numEnums = sizeof(ampGain_44140)/sizeof(enumStruct_t);
+            enumRowCallback(i, GalilAmpGain_, pEnum, numEnums);
+            pEnum    = microstep_44140;
+            numEnums = sizeof(microstep_44140)/sizeof(enumStruct_t);
+            enumRowCallback(i, GalilMicrostep_, pEnum, numEnums);
+            break;
         }
       }
     }
