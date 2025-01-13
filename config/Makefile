@@ -12,8 +12,8 @@
 #	another configuration, then the	DIRS line for that support module
 #       must be commented out (i.e, must begin with a '#').
 
-include GALILRELEASE
-MASTER_FILES = GALILRELEASE
+include RELEASE.local
+MASTER_FILES = RELEASE.local
 
 include $(EPICS_BASE)/configure/CONFIG_COMMON
 

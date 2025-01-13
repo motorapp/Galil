@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Saved on 2024-12-28 15:07:24 by epics-->
+<display version="2.0.0">
+  <name>galil_rio_ctrl</name>
+  <x>258</x>
+  <y>80</y>
+  <width>410</width>
+  <height>268</height>
+  <background_color>
+    <color red="187" green="187" blue="187">
+    </color>
+  </background_color>
+  <grid_visible>false</grid_visible>
+  <grid_step_x>5</grid_step_x>
+  <widget type="rectangle" version="2.0.0">
+    <name>rectangle #6</name>
+    <x>124</x>
+    <y>8</y>
+    <width>150</width>
+    <height>28</height>
+    <line_width>1</line_width>
+    <line_color>
+      <color red="0" green="0" blue="0">
+      </color>
+    </line_color>
+    <background_color>
+      <color red="0" green="0" blue="0">
+      </color>
+    </background_color>
+    <transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #9</name>
+    <text>RIO controller</text>
+    <x>105</x>
+    <y>15</y>
+    <width>193</width>
+    <height>18</height>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <horizontal_alignment>1</horizontal_alignment>
+  </widget>
+  <widget type="group" version="2.0.0">
+    <name>composite #12</name>
+    <x>5</x>
+    <y>142</y>
+    <width>399</width>
+    <height>119</height>
+    <style>3</style>
+    <transparent>true</transparent>
+    <widget type="label" version="2.0.0">
+      <name>text #15</name>
+      <text>Analog/Digital IO</text>
+      <x>4</x>
+      <width>65</width>
+      <height>13</height>
+      <auto_size>true</auto_size>
+    </widget>
+    <widget type="action_button" version="3.0.0">
+      <name>related display #18</name>
+      <actions>
+        <action type="open_display">
+          <file>galil_ctrl_io.opi</file>
+          <macros>
+            <P>$(RIO)</P>
+          </macros>
+          <target>tab</target>
+          <description>Controller IO</description>
+        </action>
+      </actions>
+      <text></text>
+      <x>145</x>
+      <y>1</y>
+      <width>15</width>
+      <height>15</height>
+      <background_color>
+        <color red="115" green="223" blue="255">
+        </color>
+      </background_color>
+    </widget>
+    <widget type="group" version="2.0.0">
+      <name>composite #21</name>
+      <y>38</y>
+      <width>399</width>
+      <height>81</height>
+      <style>3</style>
+      <transparent>true</transparent>
+      <widget type="textupdate" version="2.0.0">
+        <name>text update #24</name>
+        <pv_name>$(RIO)ERROR_MON</pv_name>
+        <x>27</x>
+        <y>16</y>
+        <width>372</width>
+        <height>13</height>
+        <background_color>
+          <color red="212" green="219" blue="157">
+          </color>
+        </background_color>
+        <format>6</format>
+        <show_units>false</show_units>
+        <border_alarm_sensitive>false</border_alarm_sensitive>
+      </widget>
+      <widget type="label" version="2.0.0">
+        <name>text #28</name>
+        <text>Command console</text>
+        <y>31</y>
+        <width>65</width>
+        <height>13</height>
+        <auto_size>true</auto_size>
+      </widget>
+      <widget type="textentry" version="3.0.0">
+        <name>text entry #31</name>
+        <pv_name>$(RIO)SEND_STR_CMD</pv_name>
+        <x>27</x>
+        <y>48</y>
+        <width>372</width>
+        <font>
+          <font family="Liberation Sans" style="REGULAR" size="16.0">
+          </font>
+        </font>
+        <background_color>
+          <color red="115" green="223" blue="255">
+          </color>
+        </background_color>
+        <format>1</format>
+        <show_units>false</show_units>
+        <border_alarm_sensitive>false</border_alarm_sensitive>
+      </widget>
+      <widget type="textupdate" version="2.0.0">
+        <name>text update #35</name>
+        <pv_name>$(RIO)SEND_STR_MON</pv_name>
+        <x>27</x>
+        <y>68</y>
+        <width>372</width>
+        <height>13</height>
+        <background_color>
+          <color red="212" green="219" blue="157">
+          </color>
+        </background_color>
+        <format>6</format>
+        <show_units>false</show_units>
+        <border_alarm_sensitive>false</border_alarm_sensitive>
+      </widget>
+      <widget type="label" version="2.0.0">
+        <name>text #39</name>
+        <text>Cmd</text>
+        <y>50</y>
+        <width>65</width>
+        <height>13</height>
+        <auto_size>true</auto_size>
+      </widget>
+      <widget type="label" version="2.0.0">
+        <name>text #42</name>
+        <text>Resp</text>
+        <y>67</y>
+        <width>65</width>
+        <height>13</height>
+        <auto_size>true</auto_size>
+      </widget>
+      <widget type="label" version="2.0.0">
+        <name>text #45</name>
+        <text>Controller mesg</text>
+        <width>65</width>
+        <height>13</height>
+        <auto_size>true</auto_size>
+      </widget>
+    </widget>
+    <widget type="label" version="2.0.0">
+      <name>text #48</name>
+      <text>User array</text>
+      <x>4</x>
+      <y>20</y>
+      <width>65</width>
+      <height>13</height>
+      <auto_size>true</auto_size>
+    </widget>
+    <widget type="action_button" version="3.0.0">
+      <name>related display #51</name>
+      <actions>
+        <action type="open_display">
+          <file>galil_user_array.opi</file>
+          <macros>
+            <P>$(RIO)</P>
+            <R>0</R>
+            <Y>$(RIO)UARRAY0_MON</Y>
+          </macros>
+          <target>tab</target>
+          <description>User array0</description>
+        </action>
+        <action type="open_display">
+          <file>galil_user_array.opi</file>
+          <macros>
+            <P>$(RIO)</P>
+            <R>1</R>
+            <Y>$(RIO)UARRAY1_MON</Y>
+          </macros>
+          <target>tab</target>
+          <description>User array1</description>
+        </action>
+        <action type="open_display">
+          <file>galil_user_array.opi</file>
+          <macros>
+            <P>$(RIO)</P>
+            <R>2</R>
+            <Y>$(RIO)UARRAY2_MON</Y>
+          </macros>
+          <target>tab</target>
+          <description>User array2</description>
+        </action>
+        <action type="open_display">
+          <file>galil_user_array.opi</file>
+          <macros>
+            <P>$(RIO)</P>
+            <R>3</R>
+            <Y>$(RIO)UARRAY3_MON</Y>
+          </macros>
+          <target>tab</target>
+          <description>User array3</description>
+        </action>
+        <action type="open_display">
+          <file>galil_user_array.opi</file>
+          <macros>
+            <P>$(RIO)</P>
+            <R>4</R>
+            <Y>$(RIO)UARRAY4_MON</Y>
+          </macros>
+          <target>tab</target>
+          <description>User array4</description>
+        </action>
+        <action type="open_display">
+          <file>galil_user_array.opi</file>
+          <macros>
+            <P>$(RIO)</P>
+            <R>5</R>
+            <Y>$(RIO)UARRAY5_MON</Y>
+          </macros>
+          <target>tab</target>
+          <description>User array5</description>
+        </action>
+        <action type="open_display">
+          <file>galil_user_array.opi</file>
+          <macros>
+            <P>$(RIO)</P>
+            <R>6</R>
+            <Y>$(RIO)UARRAY6_MON</Y>
+          </macros>
+          <target>tab</target>
+          <description>User array6</description>
+        </action>
+        <action type="open_display">
+          <file>galil_user_array.opi</file>
+          <macros>
+            <P>$(RIO)</P>
+            <R>7</R>
+            <Y>$(RIO)UARRAY7_MON</Y>
+          </macros>
+          <target>tab</target>
+          <description>User array7</description>
+        </action>
+      </actions>
+      <text></text>
+      <x>145</x>
+      <y>21</y>
+      <width>15</width>
+      <height>15</height>
+      <background_color>
+        <color red="115" green="223" blue="255">
+        </color>
+      </background_color>
+    </widget>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #61</name>
+    <pv_name>$(RIO)DRIVER_MON</pv_name>
+    <x>286</x>
+    <y>52</y>
+    <width>120</width>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>1</format>
+    <show_units>false</show_units>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #65</name>
+    <text>Driver version</text>
+    <x>9</x>
+    <y>52</y>
+    <width>97</width>
+    <height>13</height>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="group" version="2.0.0">
+    <name>composite #68</name>
+    <x>9</x>
+    <y>106</y>
+    <width>372</width>
+    <height>13</height>
+    <style>3</style>
+    <transparent>true</transparent>
+    <widget type="label" version="2.0.0">
+      <name>text #71</name>
+      <text>Communication Status</text>
+      <width>97</width>
+      <height>13</height>
+      <auto_size>true</auto_size>
+    </widget>
+    <widget type="textupdate" version="2.0.0">
+      <name>text update #74</name>
+      <pv_name>$(RIO)COMMERR_STATUS</pv_name>
+      <x>277</x>
+      <width>95</width>
+      <height>13</height>
+      <foreground_color>
+        <color red="10" green="0" blue="184">
+        </color>
+      </foreground_color>
+      <background_color>
+        <color red="187" green="187" blue="187">
+        </color>
+      </background_color>
+      <format>1</format>
+      <show_units>false</show_units>
+    </widget>
+  </widget>
+  <widget type="group" version="2.0.0">
+    <name>composite #78</name>
+    <x>9</x>
+    <y>88</y>
+    <width>372</width>
+    <height>13</height>
+    <style>3</style>
+    <transparent>true</transparent>
+    <widget type="label" version="2.0.0">
+      <name>text #81</name>
+      <text>Controller address</text>
+      <width>97</width>
+      <height>13</height>
+      <auto_size>true</auto_size>
+    </widget>
+    <widget type="textupdate" version="2.0.0">
+      <name>text update #84</name>
+      <pv_name>$(RIO)ADDRESS_MON</pv_name>
+      <x>277</x>
+      <width>95</width>
+      <height>13</height>
+      <foreground_color>
+        <color red="10" green="0" blue="184">
+        </color>
+      </foreground_color>
+      <background_color>
+        <color red="187" green="187" blue="187">
+        </color>
+      </background_color>
+      <format>1</format>
+      <show_units>false</show_units>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+    </widget>
+  </widget>
+  <widget type="group" version="2.0.0">
+    <name>composite #88</name>
+    <x>9</x>
+    <y>124</y>
+    <width>372</width>
+    <height>13</height>
+    <style>3</style>
+    <transparent>true</transparent>
+    <widget type="label" version="2.0.0">
+      <name>text #91</name>
+      <text>Controller start status</text>
+      <width>97</width>
+      <height>13</height>
+      <auto_size>true</auto_size>
+    </widget>
+    <widget type="textupdate" version="2.0.0">
+      <name>text update #94</name>
+      <pv_name>$(RIO)START_STATUS</pv_name>
+      <x>277</x>
+      <width>95</width>
+      <height>13</height>
+      <foreground_color>
+        <color red="10" green="0" blue="184">
+        </color>
+      </foreground_color>
+      <background_color>
+        <color red="187" green="187" blue="187">
+        </color>
+      </background_color>
+      <format>1</format>
+      <show_units>false</show_units>
+    </widget>
+  </widget>
+  <widget type="group" version="2.0.0">
+    <name>composite #98</name>
+    <x>9</x>
+    <y>70</y>
+    <width>397</width>
+    <height>13</height>
+    <style>3</style>
+    <transparent>true</transparent>
+    <widget type="textupdate" version="2.0.0">
+      <name>text update #101</name>
+      <pv_name>$(RIO)MODEL_MON</pv_name>
+      <x>277</x>
+      <width>120</width>
+      <height>13</height>
+      <foreground_color>
+        <color red="10" green="0" blue="184">
+        </color>
+      </foreground_color>
+      <background_color>
+        <color red="187" green="187" blue="187">
+        </color>
+      </background_color>
+      <format>1</format>
+      <show_units>false</show_units>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+    </widget>
+    <widget type="label" version="2.0.0">
+      <name>text #105</name>
+      <text>Controller model</text>
+      <width>97</width>
+      <height>13</height>
+      <auto_size>true</auto_size>
+    </widget>
+  </widget>
+</display>

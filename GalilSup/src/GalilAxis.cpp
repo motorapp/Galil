@@ -543,8 +543,11 @@ asynStatus GalilAxis::setAccelVelocity(double acceleration, double velocity, boo
    int status;
 
    //Set acceleration and deceleration for normal moves
+   //Ensure acceleration is within maximum for this model
+   acceleration = (acceleration > pC_->maxAcceleration_) ? pC_->maxAcceleration_ : acceleration;
    //Find closest hardware setting
    accel = (long)lrint(acceleration/1024.0) * 1024;
+   //Format the command string
    cmd = "AC" + string(1, c) + "=" + tsp(accel, 0) + ";DC" + string(1, c) + "=" + tsp(accel, 0);
 
    //Are we done here?
@@ -576,6 +579,7 @@ asynStatus GalilAxis::setAccelVelocity(double acceleration, double velocity, boo
    cmd += ";limdc" + string(1, c) + "=" + tsp(limdc_, 0);
    //Set normal deceleration galil code variable
    cmd += ";nrmdc" + string(1, c) + "=" + tsp(accel, 0);
+   
    //Write the command
    strcpy(pC_->cmd_, cmd.c_str());
    status = pC_->sync_writeReadController();
@@ -674,7 +678,7 @@ asynStatus GalilAxis::move(double position, int relative, double minVelocity, do
   //Is controller using main or auxillary encoder register for positioning
   double readback = (ctrlUseMain_) ? encoder_position_ : motor_position_;
   asynStatus status = asynError;
-
+  
   //If this axis is being driven by a CSAxis
   //Use the requested CSAxis velocity, acceleration instead of that provided by mr
   if (useCSADynamics_) {
