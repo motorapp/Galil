@@ -547,8 +547,11 @@ asynStatus GalilAxis::setAccelVelocity(double acceleration, double velocity, boo
    int status;
 
    //Set acceleration and deceleration for normal moves
+   //Ensure acceleration is within maximum for this model
+   acceleration = (acceleration > pC_->maxAcceleration_) ? pC_->maxAcceleration_ : acceleration;
    //Find closest hardware setting
    accel = (long)lrint(acceleration/1024.0) * 1024;
+   //Format the command string
    cmd = "AC" + string(1, c) + "=" + tsp(accel, 0) + ";DC" + string(1, c) + "=" + tsp(accel, 0);
 
    //Are we done here?

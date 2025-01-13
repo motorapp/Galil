@@ -5,8 +5,8 @@ file {
 }
 display {
 	object {
-		x=132
-		y=61
+		x=122
+		y=53
 		width=410
 		height=683
 	}
@@ -1125,70 +1125,59 @@ text {
 	clr=14
 	bclr=51
 }
-composite {
+text {
 	object {
 		x=56
 		y=576
-		width=289
-		height=16
+		width=75
+		height=13
 	}
-	"composite name"=""
-	children {
-		text {
-			object {
-				x=56
-				y=576
-				width=75
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Profile move"
-		}
-		"related display" {
-			object {
-				x=150
-				y=576
-				width=15
-				height=15
-			}
-			display[0] {
-				label="Profile 1"
-				name="galil_profileMove.adl"
-				args="P=$(DMC),TITLE=Galil profile, R=Prof1:, M1=A, M2=B, M3=C, M4=D, M5=E, M6=F, M7=G, M8=H"
-			}
-			clr=14
-			bclr=51
-		}
-		text {
-			object {
-				x=228
-				y=577
-				width=65
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Profile move"
-		}
-		"related display" {
-			object {
-				x=330
-				y=577
-				width=15
-				height=15
-			}
-			display[0] {
-				label="Profile 1"
-				name="galil_CSprofileMove.adl"
-				args="P=$(DMC),TITLE=Galil CS profile, R=Prof1:, M9=I, M10=J, M11=K, M12=L, M13=M, M14=N, M15=O, M16=P"
-			}
-			clr=14
-			bclr=51
-		}
+	"basic attribute" {
+		clr=14
 	}
+	textix="Profile move"
+}
+"related display" {
+	object {
+		x=150
+		y=576
+		width=15
+		height=15
+	}
+	display[0] {
+		label="Profile 1"
+		name="galil_profileMove.adl"
+		args="P=$(DMC),TITLE=Galil profile, R=Prof1:, M1=$(M1), M2=$(M2), M3=$(M3), M4=$(M4), M5=$(M5), M6=$(M6), M7=$(M7), M8=$(M8)"
+	}
+	clr=14
+	bclr=51
+}
+text {
+	object {
+		x=228
+		y=577
+		width=65
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Profile move"
+}
+"related display" {
+	object {
+		x=330
+		y=577
+		width=15
+		height=15
+	}
+	display[0] {
+		label="Profile 1"
+		name="galil_CSprofileMove.adl"
+		args="P=$(DMC),TITLE=Galil CS profile, R=Prof1:, M9=$(M9), M10=$(M10), M11=$(M11), M12=$(M12), M13=$(M13), M14=$(M14), M15=$(M15), M16=$(M16)"
+	}
+	clr=14
+	bclr=51
 }
 text {
 	object {

@@ -534,7 +534,7 @@ asynStatus GalilCSAxis::monitorCSAxisMove(void)
 {
    GalilAxis *pAxis;	//Reverse axis
    int dmov;		//Dmov status
-   int ssc;		//Reverse axis stop code that caused the CSAxis stop
+   int ssc = 0;		//Reverse axis stop code that caused the CSAxis stop
    int sc;		//Stop code of remaining reverse axis
    unsigned i;		//Looping
 
@@ -1206,7 +1206,7 @@ asynStatus GalilCSAxis::home(double minVelocity, double maxVelocity, double acce
    double naccel[MAX_GALIL_AXES];	//Real axis acceleration targets
    char maxes[MAX_GALIL_AXES];		//List of axis that we move home
    char paxes[MAX_GALIL_AXES];		//List of axis that we prepare to move home
-   int dir;				//Reverse axis home direction
+   int dir = 0;				//Reverse axis home direction
    int hometypeallowed;			//Home type allowed
    int useSwitch;			//Use switch when homing
    int ssiinput;			//SSI encoder register
