@@ -436,6 +436,8 @@
 //                  Add acceleration capped at controller maximum for independent moves
 //                  Rename config/GALILRELEASE to config/RELEASE.local
 //
+// 16/01/2025 M.Clift
+//                  Fix unknown amplifier messages at ioc start when no controller
 
 #include <stdio.h>
 #include <math.h>
@@ -475,7 +477,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "4-0-11";
+static const char *driverVersion = "4-0-12";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);
@@ -779,6 +781,9 @@ GalilController::GalilController(const char *portName, const char *address, doub
   rio_ = false;
   //Default numAxesMax_
   numAxesMax_ = 0;
+  //Default ampModel_
+  ampModel_[0] = 0;
+  ampModel_[1] = 0;
   //IOC is not shutting down yet
   shuttingDown_ = false;
   //Code for the controller has not been assembled yet
