@@ -35,7 +35,7 @@ dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_rio_digital_ports.substitutions", "
 dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_rio_analog_ports.substitutions", "P=$(P), PORT=$(PORT)")
 
 #Load user defined functions
-dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_userdef_records.substitutions", "PORT=$(PORT)")
+dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_userdef_records.substitutions", "P=$(P), PORT=$(PORT)")
 
 #Load user defined array support
 dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_user_array.substitutions", "P=$(P), PORT=$(PORT)")

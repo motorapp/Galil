@@ -438,6 +438,8 @@
 //
 // 16/01/2025 M.Clift
 //                  Fix unknown amplifier messages at ioc start when no controller
+// 17/01/2025 M.Clift
+//                  Change user defined record prefix now derived from PORT
 
 #include <stdio.h>
 #include <math.h>
@@ -477,7 +479,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "4-0-12";
+static const char *driverVersion = "4-0-14";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);
