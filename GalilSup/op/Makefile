@@ -9,4 +9,4 @@ BOB_DIR = bob/autoconvert
 
 include $(CONFIG)/RULES_DIRS
 
-include $(SUPPORT)/configure/RULES_OPI
+-include $(SUPPORT)/configure/RULES_OPI

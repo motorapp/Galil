@@ -8,7 +8,6 @@ include $(TOP)/configure/CONFIG
 #=============================
 # build an ioc application
 
-
 ifeq ($(HAVE_C++11), YES)
   PROD_IOC_DEFAULT = GalilTest
 endif

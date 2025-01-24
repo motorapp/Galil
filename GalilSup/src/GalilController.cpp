@@ -1,3 +1,4 @@
+//
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // Licence as published by the Free Software Foundation; either
@@ -422,6 +423,26 @@
 //                  Fix change text entry widgets to string type in galil_csmotor_kinematics.adl
 // 17/10/2024 M.Clift
 //                  Add support for motor record SET field to GalilCSAxis
+// 13/01/2025 M.Rivers
+//                  Fixed report function
+//                  Update Galil amplifier support to use switch statement instead
+//                  Fix bad string formatting in wlp support
+//                  Add variable initialization in GalilCSAxis to remove compile warnings
+//                  Add GalilDummy.cpp to create the GalilSupport registrar entry for systems without C++11
+//                  Changed src/Makefile to build the real driver if HAVE_C++11 is true (the default) and the dummy driver if it is false.
+//                  Added CONFIG_SITE.Common.$(EPICS_HOST_ARCH) for a few systems that don't have C++11
+// 
+// 13/01/2025 M.Clift
+//                  Add acceleration capped at controller maximum for independent moves
+//                  Rename config/GALILRELEASE to config/RELEASE.local
+//
+// 16/01/2025 M.Clift
+//                  Fix unknown amplifier messages at ioc start when no controller
+// 17/01/2025 M.Clift
+//                  Change user defined record prefix now derived from PORT
+// 24/01/2025 R.Riley, M.Rivers
+//                  Fix DMOV set true whilst controller still outputting step pulses that occurred
+//                  when the step smoothing factor (motor_extras) set higher than controller default
 //
 
 #include <stdio.h>
@@ -432,7 +453,6 @@
 #include <signal.h>
 #if defined _WIN32 || _WIN64
 #include <process.h>
-#include <ciso646>  // Allows use of "and" rather than &&
 #else
 #include <unistd.h>
 #endif /* _WIN32 */
@@ -463,7 +483,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "4-0-02";
+static const char *driverVersion = "4-0-15";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);
@@ -767,6 +787,9 @@ GalilController::GalilController(const char *portName, const char *address, doub
   rio_ = false;
   //Default numAxesMax_
   numAxesMax_ = 0;
+  //Default ampModel_
+  ampModel_[0] = 0;
+  ampModel_[1] = 0;
   //IOC is not shutting down yet
   shuttingDown_ = false;
   //Code for the controller has not been assembled yet
@@ -3857,7 +3880,7 @@ asynStatus GalilController::readEnum(asynUser *pasynUser, char *strings[], int v
     goto unsupported;
   }
 
-  if (function == GalilAmpGain_) {
+  if (function == GalilAmpGain_) {   
     switch (ampModel_[boardNum]) {
       case 0:
         // No amplifier
@@ -3890,7 +3913,7 @@ asynStatus GalilController::readEnum(asynUser *pasynUser, char *strings[], int v
         goto unsupported;
     }
   }
-  else if (function == GalilMicrostep_) {
+  else if (function == GalilMicrostep_) {   
     switch (ampModel_[boardNum]) {
       case 0:
         // No amplifier
@@ -4130,8 +4153,8 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
      //Write setting to controller
      status = sync_writeReadController();
 
-     //Determine if controller will use main or auxillary register with selected motor type
-     pAxis->ctrlUseMain_ = (value < 2 || (value >= 6 && value <= 12)) ? true : false;
+     //Determine motor type
+     pAxis->motorIsServo_ = (value < 2 || (value >= 6 && value <= 12)) ? true : false;
 
      //IF motor was servo, and now stepper
      //Galil hardware MAY push main encoder to aux encoder (stepper count reg)
@@ -4328,7 +4351,7 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
      }
      else if (value != 0) {
         //Controller doesn't support limit disable
-        mesg = address_ + " Axis " + string(1, pAxis->axisName_) + " does not support limit disable feature";
+        mesg = address_ + " Axis " + pAxis->axisName_ + " does not support limit disable feature";
         setCtrlError(mesg);
         setIntegerParam(pAxis->axisNo_, GalilLimitDisable_, 0);
      }

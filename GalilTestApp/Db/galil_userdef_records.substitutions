@@ -24,9 +24,9 @@
 # Mark Clift
 # email: padmoz@tpg.com.au
 
-# P - PV prefix
+# PV Prefix derived from PORT. PORT is defined in DMC01Configure.cmd, RIO01Configure.cmd
 # ADDR 0 - 63
-# EPICSNAME - PV suffix
+# EPICSNAME - PV suffix 
 # P:EPICSNAME_MONITOR
 # P:EPICSNAME_STATUS
 # P:EPICSNAME_SP
@@ -47,10 +47,10 @@ file "$(GALIL)/GalilSup/Db/galil_userdef_records.template"
 {
 
 pattern
-{ P,                ADDR,  EPICSNAME,       GALILSTR, DRVCMD, SCAN,       DRVL, DRVH, LOW,  HIGH, LSV,     HSV,     ZNAM,      ONAM,  ZSV,      OSV,        DEFAULT, EGU,  PINI }
+{ ADDR,  EPICSNAME,       GALILSTR, DRVCMD, SCAN,       DRVL, DRVH, LOW,  HIGH, LSV,     HSV,     ZNAM,      ONAM,  ZSV,      OSV,        DEFAULT, EGU,  PINI }
 
- {"SR08ID01WFS01:", 0,     "BEGIN",         "begin",  "VAR",  "I/O Intr", 0,    1,    0,    1,    "MINOR", "MINOR", "Invalid", "Ok",  "MAJOR",  "NO_ALARM", "10",    "",   "YES"}
-#{"SR08ID01WFS01:", 0,     "DIGITAL_PORT0", "TI",     "CMD",  "1 second", 1,    1000, 1,    1000, "MINOR", "MINOR", "Invalid", "Ok",  "MAJOR",  "NO_ALARM", "10",    "",   "YES"}
+ {0,     "BEGIN",         "begin",  "VAR",  "I/O Intr", 0,    1,    0,    1,    "MINOR", "MINOR", "Invalid", "Ok",  "MAJOR",  "NO_ALARM", "10",    "",   "YES"}
+#{0,     "DIGITAL_PORT0", "TI",     "CMD",  "1 second", 1,    1000, 1,    1000, "MINOR", "MINOR", "Invalid", "Ok",  "MAJOR",  "NO_ALARM", "10",    "",   "YES"}
 
 }
 
