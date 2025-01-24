@@ -679,7 +679,7 @@ asynStatus GalilAxis::move(double position, int relative, double minVelocity, do
   static const char *functionName = "GalilAxis::move";
   int deferredMode;				//Deferred move mode
   //Is controller using main or auxillary encoder register for positioning
-  double readback = (ctrlUseMain_) ? encoder_position_ : motor_position_;
+  double readback = (motorIsServo_) ? encoder_position_ : motor_position_;
   asynStatus status = asynError;
 
   //If this axis is being driven by a CSAxis
@@ -1022,7 +1022,7 @@ asynStatus GalilAxis::checkLimits(const char *caller, char callaxis, double posi
 
    if (!status) {
       //Readback in steps
-      readback = (ctrlUseMain_) ? encoder_position_ : motor_position_;
+      readback = (motorIsServo_) ? encoder_position_ : motor_position_;
       //Check physical limits
       if ((position < readback && rev) || (position > readback && fwd)) {
          mesg = string(caller) + " " + string(1, callaxis) + " failed, " + string(1, axisName_) + " ";
@@ -1625,7 +1625,7 @@ asynStatus GalilAxis::invert_ssi(void)
    //Retrieve SSI dataform
    pC_->getIntegerParam(axisNo_, pC_->GalilSSIData_, &ssidataform);
    //Direction invert only for stepper and binary dataform combination
-   if (ssidataform == 0 && !ctrlUseMain_)
+   if (ssidataform == 0 && !motorIsServo_)
       {
       //Binary data form
       //Invert encoder direction
@@ -1668,6 +1668,7 @@ asynStatus GalilAxis::getStatus(void)
    int brakeport;				//Brake port for this axis
    int limitDisable = 0;                        //Limit disabled param
    bool ctrlType;				//Controller type
+   double reference_position;                   //Reference position
 
    //If data record query success in GalilController::acquireDataRecord
    if (pC_->recstatus_ == asynSuccess) {
@@ -1722,6 +1723,18 @@ asynStatus GalilAxis::getStatus(void)
          strcpy(src, "_TPx");
          src[3] = axisName_;
          encoder_position_ = pC_->sourceValue(pC_->recdata_, src);
+         //If this is a stepper then profile might be done, but the pulse output might not be done yet
+         //Pulse output done when reference_position (commanded target) = motor position (steps output by controller)
+         if (!motorIsServo_ && !inmotion_) {
+            //Reference position (commanded target)
+            strcpy(src, "_RPx");
+            src[3] = axisName_;
+            reference_position = pC_->sourceValue(pC_->recdata_, src);
+            if (motor_position_ != reference_position) {
+               //Profile complete, but pulse output isn't
+               inmotion_ = true;
+            }
+         }
          //Invert SSI encoder direction
          if (invert_ssi_)
             invert_ssi();
@@ -1785,7 +1798,7 @@ void GalilAxis::setStatus(bool *moving)
 
   //Encoder move status
   encoderMove_ = false;
-  if (ueip_ || ctrlUseMain_)
+  if (ueip_ || motorIsServo_)
      {
      //Check encoder move
      if (last_encoder_position_ > (encoder_position_ + enc_tol_))
@@ -1825,7 +1838,7 @@ void GalilAxis::checkEncoder(void)
    double estall_time;			//Allowed encoder stall time specified by user
    double pestall_time;			//Possible encoder stall has been happening for this many secs
 
-   if (((ueip_ || ctrlUseMain_) && !done_ && !deferredMove_ && (!encoderMove_ || !encDirOk_)))
+   if (((ueip_ || motorIsServo_) && !done_ && !deferredMove_ && (!encoderMove_ || !encDirOk_)))
       {
       //Record time when possible stall was first detected
       if (!pestall_detected_)
@@ -1861,7 +1874,7 @@ void GalilAxis::checkEncoder(void)
             }
          }
       }
-  else if (((ueip_ || ctrlUseMain_) && !done_ && encoderMove_ && encDirOk_ && !stopSent_) || (!done_ && !ueip_ && !ctrlUseMain_ && !stopSent_))
+  else if (((ueip_ || motorIsServo_) && !done_ && encoderMove_ && encDirOk_ && !stopSent_) || (!done_ && !ueip_ && !motorIsServo_ && !stopSent_))
       {
       //Reset stalled encoder flag when moving ok
       //Pass stall status to higher layers
@@ -1894,7 +1907,7 @@ void GalilAxis::syncEncodedStepper(void)
    pC_->getIntegerParam(axisNo_, pC_->GalilHoming_, &homing);
 
    //Motor just stopped
-   if (ueip_ && !ctrlUseMain_ && done_ && !last_done_ && !syncEncodedStepperAtStopSent_ &&
+   if (ueip_ && !motorIsServo_ && done_ && !last_done_ && !syncEncodedStepperAtStopSent_ &&
        !homing_ && !homing) {
       //Request encoder value be copied to step register
       pollRequest_.send((void*)&MOTOR_STEP_SYNC_ATSTOP, sizeof(int));
@@ -1910,7 +1923,7 @@ void GalilAxis::syncEncodedStepper(void)
       mreadback = motor_position_ * mres;
       ereadback = encoder_position_ * eres;
       //Stepper motor not moving, but encoder moved more than retry deadband
-      if (ueip_ && !ctrlUseMain_ && done_ && last_done_ && !homing_ && !homing && 
+      if (ueip_ && !motorIsServo_ && done_ && last_done_ && !homing_ && !homing && 
           !syncEncodedStepperAtEncSent_ && (mreadback < ereadback - rdbd || mreadback > ereadback + rdbd)) {
          //Request encoder value be copied to step register
          pollRequest_.send((void*)&MOTOR_STEP_SYNC_ATENC, sizeof(int));
@@ -1972,7 +1985,7 @@ void GalilAxis::checkHoming(void)
    softlimits = (bool)(lowLimit_ == highLimit_ && lowLimit_ == 0.0) ? false : true;
 
    //Is controller using main or auxillary encoder register for positioning
-   double readback = (ctrlUseMain_) ? encoder_position_ : motor_position_;
+   double readback = (motorIsServo_) ? encoder_position_ : motor_position_;
 
    if ((homing_ && (stoppedTime_ >= HOMING_TIMEOUT) && !cancelHomeSent_) ||
        (((readback > highLimit_ && softlimits) || (readback < lowLimit_ && softlimits)) && homing_ && !cancelHomeSent_ && done_))
@@ -2411,7 +2424,7 @@ asynStatus GalilAxis::beginMotion(const char *caller, double position, bool rela
       if (!relative)
          {
          //Retrieve readback
-         readback = (ctrlUseMain_) ? encoder_position_ : motor_position_;
+         readback = (motorIsServo_) ? encoder_position_ : motor_position_;
          //If new position differs from readback, then write new position
          if (trunc(position) == trunc(readback))
             return asynSuccess;//Nothing to do
@@ -2473,7 +2486,7 @@ asynStatus GalilAxis::jogAfterHome(void) {
       sprintf(pC_->cmd_, "DP%c=0", axisName_);
       pC_->sync_writeReadController();
       //Program encoder position register
-      if (ueip_ || ctrlUseMain_) {
+      if (ueip_ || motorIsServo_) {
          sprintf(pC_->cmd_, "DE%c=0", axisName_);
          pC_->sync_writeReadController();
       }
@@ -2906,7 +2919,7 @@ void GalilAxis::set_ssi_connectflag(void)
        //set connect flag accordingly
        if ((ssiinput == 1 && !encoderSwapped_) || (ssiinput == 2 && encoderSwapped_))	//Main encoder
           ssi_connect = (encoder_position_ == disconnect_val) ? 0 : 1;
-       if ((ssiinput == 2 && !encoderSwapped_ && ctrlUseMain_) || (ssiinput == 1 && encoderSwapped_ && ctrlUseMain_))	//Aux encoder
+       if ((ssiinput == 2 && !encoderSwapped_ && motorIsServo_) || (ssiinput == 1 && encoderSwapped_ && motorIsServo_))	//Aux encoder
           ssi_connect = (motor_position_ == disconnect_val) ? 0 : 1;
        //Set motorRecord MSTA bit 15 motorStatusHomed_
        //With SSI encoder, just move it where you want it
@@ -3020,7 +3033,7 @@ asynStatus GalilAxis::set_ssi(void)
 	pC_->sync_writeReadController();
 	encoderSwapped_ = (bool)atoi(pC_->resp_);
 
-	if ((ssiinput == 2 && !encoderSwapped_ && !ctrlUseMain_) || (ssiinput == 1 && encoderSwapped_ && !ctrlUseMain_))
+	if ((ssiinput == 2 && !encoderSwapped_ && !motorIsServo_) || (ssiinput == 1 && encoderSwapped_ && !motorIsServo_))
 		{
 		sprintf(mesg, "%c cannot use auxillary encoder for SSI whilst motor is stepper", axisName_);
 		pC_->setCtrlError(mesg);
@@ -3134,8 +3147,8 @@ asynStatus GalilAxis::set_biss(void)
    //Figure out if we have a stepper
    stepper = ((motortype >= 2) && (motortype <= 5));
 
-   if ((bissInput == 2 && !encoderSwapped_ && !ctrlUseMain_ && stepper)
-            || (bissInput == 1 && encoderSwapped_ && !ctrlUseMain_ && stepper)) {
+   if ((bissInput == 2 && !encoderSwapped_ && !motorIsServo_ && stepper)
+            || (bissInput == 1 && encoderSwapped_ && !motorIsServo_ && stepper)) {
       sprintf(mesg, "%c cannot use auxillary encoder for BiSS whilst motor is stepper", axisName_);
       pC_->setCtrlError(mesg);
       status = asynError;

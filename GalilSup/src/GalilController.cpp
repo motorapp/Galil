@@ -436,6 +436,10 @@
 //
 // 16/01/2025 M.Clift
 //                  Fix unknown amplifier messages at ioc start when no controller
+// 24/01/2025 R.Riley, M.Rivers
+//                  Fix DMOV set true whilst controller still outputting step pulses that occurred
+//                  when the step smoothing factor (motor_extras) set higher than controller default
+//
 
 #include <stdio.h>
 #include <math.h>
@@ -475,7 +479,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "3-6-100";
+static const char *driverVersion = "3-6-101";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);
@@ -4145,7 +4149,7 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
      status = sync_writeReadController();
 
      //Determine if controller will use main or auxillary register with selected motor type
-     pAxis->ctrlUseMain_ = (value < 2 || (value >= 6 && value <= 12)) ? true : false;
+     pAxis->motorIsServo_ = (value < 2 || (value >= 6 && value <= 12)) ? true : false;
 
      //IF motor was servo, and now stepper
      //Galil hardware MAY push main encoder to aux encoder (stepper count reg)

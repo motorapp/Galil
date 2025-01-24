@@ -278,7 +278,7 @@ asynStatus GalilCSAxis::checkMotorVelocities(double npos[], double nvel[], doubl
         //Calculate incremental move distance in steps
         //Here we must use the register the controller uses for positioning
         //This may differ from the real axis motor record readback as set by ueip
-        incmove[i] = (pAxis->ctrlUseMain_) ? npos[i] - epos : npos[i] - mpos;
+        incmove[i] = (pAxis->motorIsServo_) ? npos[i] - epos : npos[i] - mpos;
         //Sum vector distance, velocity for non zero move increments
         if (fabs(incmove[i]) != 0.0)
            {
@@ -1013,7 +1013,7 @@ asynStatus GalilCSAxis::moveVelocity(double minVelocity, double maxVelocity, dou
               {
               //Sync start stop move
               //Calculate this motors readback
-              readback = (pAxis->ctrlUseMain_) ? pAxis->encoder_position_ : pAxis->motor_position_;
+              readback = (pAxis->motorIsServo_) ? pAxis->encoder_position_ : pAxis->motor_position_;
               //Convert absolute position back to incremental distance for sanity check
               axisIncrement = npos[i] - readback;
               }
@@ -1912,7 +1912,7 @@ asynStatus GalilCSAxis::reverseTransform(double pos, double vel, double accel, d
        // Calculate direction multiplier
        dirm = (dir == 0) ? 1 : -1;
        // Determine reverse axis readback in dial coordinates
-       readback = (pAxis->ctrlUseMain_) ? (pAxis->encoder_position_ * eres) : (pAxis->motor_position_ * mres);
+       readback = (pAxis->motorIsServo_) ? (pAxis->encoder_position_ * eres) : (pAxis->motor_position_ * mres);
        // Convert readback to user coordinates
        readback = (readback * dirm) + off;
 
