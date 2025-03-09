@@ -1,0 +1,6 @@
+'Running a program can stablize rio
+#AUTO
+#THREADA
+WT 500
+JP #THREADA
+EN
