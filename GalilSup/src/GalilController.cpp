@@ -440,6 +440,8 @@
 //                  Fix GalilAddCode to remove REM lines and replace empty lines in custom code with '
 //                  Fix GalilReplaceHomeCode to remove REM lines and replace empty in custom code lines with '
 //                  Fix GalilStartController to remove REM lines and replace empty in custom code lines with '
+// 10/03/2025 M.Clift
+//                  Fix add rio.dmc code for rio.  Running code on rio makes it stable.
 
 #include <stdio.h>
 #include <math.h>
@@ -479,7 +481,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "3-6-104";
+static const char *driverVersion = "3-6-105";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);
