@@ -659,6 +659,7 @@ GalilController::GalilController(const char *portName, const char *address, doub
 
   createParam(GalilStepSmoothString, asynParamFloat64, &GalilStepSmooth_);
   createParam(GalilMotorTypeString, asynParamInt32, &GalilMotorType_);
+  createParam(GalilBrushTypeString, asynParamInt32, &GalilBrushType_);
 
   createParam(GalilEtherCatCapableString, asynParamInt32, &GalilEtherCatCapable_);
   createParam(GalilEtherCatNetworkString, asynParamInt32, &GalilEtherCatNetwork_);
@@ -3639,6 +3640,12 @@ asynStatus GalilController::readInt32(asynUser *pasynUser, epicsInt32 *value)
       else    //Comms error, return last ParamList value set using setIntegerParam
          getIntegerParam(pAxis->axisNo_, function, value);
    } //GalilMotorType_
+   else if (function == GalilBrushType_) {
+      //If provided addr does not return an GalilAxis instance, then return asynError
+      if (!pAxis) return asynError;
+      sprintf(cmd_, "MG _BR%c", pAxis->axisName_);
+      status = get_integer(GalilBrushType_, value);
+   }
    else if (function >= GalilSSIInput_ && function <= GalilSSIData_) {
       //If provided addr does not return an GalilAxis instance, then return asynError
       if (!pAxis) return asynError;
@@ -4199,6 +4206,11 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
      }
      else if (oldmotor != newmtr)
         pAxis->limitsDirState_ = unknown;
+  }
+  else if (function == GalilBrushType_) {
+     sprintf(cmd_, "BR%c=%d", pAxis->axisName_, value);
+     //Write setting to controller
+     status = sync_writeReadController();
   }
   else if (function == GalilUseEncoder_) {
      //This is one of the last items pushed into driver at startup so flag
