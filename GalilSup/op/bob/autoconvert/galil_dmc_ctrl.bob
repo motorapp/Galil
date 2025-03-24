@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--Saved on 2024-12-28 15:07:24 by epics-->
+<!--Saved on 2025-03-18 14:49:21 by epics-->
 <display version="2.0.0">
   <name>galil_dmc_ctrl</name>
-  <x>132</x>
-  <y>61</y>
+  <x>122</x>
+  <y>53</y>
   <width>410</width>
   <height>683</height>
   <background_color>
@@ -14,9 +14,9 @@
   <grid_step_x>5</grid_step_x>
   <widget type="rectangle" version="2.0.0">
     <name>rectangle #6</name>
-    <x>124</x>
+    <x>5</x>
     <y>8</y>
-    <width>150</width>
+    <width>400</width>
     <height>28</height>
     <line_width>1</line_width>
     <line_color>
@@ -31,10 +31,10 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>text #9</name>
-    <text>DMC controller</text>
-    <x>105</x>
+    <text>DMC controller ($(DMC))</text>
+    <x>10</x>
     <y>15</y>
-    <width>193</width>
+    <width>390</width>
     <height>18</height>
     <font>
       <font family="Liberation Sans" style="REGULAR" size="16.0">
@@ -400,7 +400,7 @@
     <text>Home switch type</text>
     <x>9</x>
     <y>219</y>
-    <width>69</width>
+    <width>112</width>
     <height>13</height>
     <auto_size>true</auto_size>
   </widget>
@@ -738,7 +738,7 @@
     <text>Motor D</text>
     <x>56</x>
     <y>471</y>
-    <width>65</width>
+    <width>49</width>
     <height>13</height>
     <auto_size>true</auto_size>
   </widget>
@@ -815,7 +815,7 @@
     <text>Motor L</text>
     <x>228</x>
     <y>471</y>
-    <width>65</width>
+    <width>49</width>
     <height>13</height>
     <auto_size>true</auto_size>
   </widget>
@@ -856,7 +856,7 @@
     <text>Motor E</text>
     <x>56</x>
     <y>492</y>
-    <width>65</width>
+    <width>49</width>
     <height>13</height>
     <auto_size>true</auto_size>
   </widget>
@@ -933,7 +933,7 @@
     <text>Motor M</text>
     <x>228</x>
     <y>492</y>
-    <width>65</width>
+    <width>49</width>
     <height>13</height>
     <auto_size>true</auto_size>
   </widget>
@@ -974,7 +974,7 @@
     <text>Motor F</text>
     <x>56</x>
     <y>513</y>
-    <width>65</width>
+    <width>49</width>
     <height>13</height>
     <auto_size>true</auto_size>
   </widget>
@@ -1051,7 +1051,7 @@
     <text>Motor N</text>
     <x>228</x>
     <y>513</y>
-    <width>65</width>
+    <width>49</width>
     <height>13</height>
     <auto_size>true</auto_size>
   </widget>
@@ -1092,7 +1092,7 @@
     <text>Motor G</text>
     <x>56</x>
     <y>534</y>
-    <width>65</width>
+    <width>49</width>
     <height>13</height>
     <auto_size>true</auto_size>
   </widget>
@@ -1169,7 +1169,7 @@
     <text>Motor O</text>
     <x>228</x>
     <y>534</y>
-    <width>65</width>
+    <width>49</width>
     <height>13</height>
     <auto_size>true</auto_size>
   </widget>
@@ -1207,15 +1207,81 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>text #251</name>
-    <text>Motor H</text>
+    <text>Profile move</text>
     <x>56</x>
-    <y>555</y>
-    <width>65</width>
+    <y>576</y>
+    <width>84</width>
     <height>13</height>
     <auto_size>true</auto_size>
   </widget>
   <widget type="action_button" version="3.0.0">
     <name>related display #254</name>
+    <actions>
+      <action type="open_display">
+        <file>galil_profileMove.opi</file>
+        <macros>
+          <P>$(DMC)</P>
+          <R>Prof1:</R>
+          <TITLE>Galil profile</TITLE>
+        </macros>
+        <target>tab</target>
+        <description>Profile 1</description>
+      </action>
+    </actions>
+    <text></text>
+    <x>150</x>
+    <y>576</y>
+    <width>15</width>
+    <height>15</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #257</name>
+    <text>Profile move</text>
+    <x>228</x>
+    <y>577</y>
+    <width>84</width>
+    <height>13</height>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>related display #260</name>
+    <actions>
+      <action type="open_display">
+        <file>galil_CSprofileMove.opi</file>
+        <macros>
+          <P>$(DMC)</P>
+          <R>Prof1:</R>
+          <TITLE>Galil CS profile</TITLE>
+        </macros>
+        <target>tab</target>
+        <description>Profile 1</description>
+      </action>
+    </actions>
+    <text></text>
+    <x>330</x>
+    <y>577</y>
+    <width>15</width>
+    <height>15</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #263</name>
+    <text>Motor H</text>
+    <x>56</x>
+    <y>555</y>
+    <width>49</width>
+    <height>13</height>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>related display #266</name>
     <actions>
       <action type="open_display">
         <file>galil_motor_extras.opi</file>
@@ -1283,16 +1349,16 @@
     </background_color>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>text #262</name>
+    <name>text #274</name>
     <text>Motor P</text>
     <x>228</x>
     <y>555</y>
-    <width>65</width>
+    <width>49</width>
     <height>13</height>
     <auto_size>true</auto_size>
   </widget>
   <widget type="action_button" version="3.0.0">
-    <name>related display #265</name>
+    <name>related display #277</name>
     <actions>
       <action type="open_display">
         <file>motorx_all.opi</file>
@@ -1324,7 +1390,7 @@
     </background_color>
   </widget>
   <widget type="group" version="2.0.0">
-    <name>composite #269</name>
+    <name>composite #281</name>
     <x>56</x>
     <y>450</y>
     <width>289</width>
@@ -1332,14 +1398,14 @@
     <style>3</style>
     <transparent>true</transparent>
     <widget type="label" version="2.0.0">
-      <name>text #272</name>
+      <name>text #284</name>
       <text>Motor C</text>
       <width>65</width>
       <height>13</height>
       <auto_size>true</auto_size>
     </widget>
     <widget type="action_button" version="3.0.0">
-      <name>related display #275</name>
+      <name>related display #287</name>
       <actions>
         <action type="open_display">
           <file>galil_motor_extras.opi</file>
@@ -1407,7 +1473,7 @@
       </background_color>
     </widget>
     <widget type="label" version="2.0.0">
-      <name>text #283</name>
+      <name>text #295</name>
       <text>Motor K</text>
       <x>172</x>
       <width>65</width>
@@ -1415,7 +1481,7 @@
       <auto_size>true</auto_size>
     </widget>
     <widget type="action_button" version="3.0.0">
-      <name>related display #286</name>
+      <name>related display #298</name>
       <actions>
         <action type="open_display">
           <file>motorx_all.opi</file>
@@ -1448,7 +1514,7 @@
     </widget>
   </widget>
   <widget type="group" version="2.0.0">
-    <name>composite #290</name>
+    <name>composite #302</name>
     <x>5</x>
     <y>593</y>
     <width>402</width>
@@ -1456,7 +1522,7 @@
     <style>3</style>
     <transparent>true</transparent>
     <widget type="textupdate" version="2.0.0">
-      <name>text update #293</name>
+      <name>text update #305</name>
       <pv_name>$(DMC)ERROR_MON</pv_name>
       <x>7</x>
       <y>19</y>
@@ -1471,7 +1537,7 @@
       <border_alarm_sensitive>false</border_alarm_sensitive>
     </widget>
     <widget type="label" version="2.0.0">
-      <name>text #297</name>
+      <name>text #309</name>
       <text>Command console</text>
       <y>35</y>
       <width>65</width>
@@ -1479,7 +1545,7 @@
       <auto_size>true</auto_size>
     </widget>
     <widget type="textentry" version="3.0.0">
-      <name>text entry #300</name>
+      <name>text entry #312</name>
       <pv_name>$(DMC)SEND_STR_CMD</pv_name>
       <x>27</x>
       <y>52</y>
@@ -1497,7 +1563,7 @@
       <border_alarm_sensitive>false</border_alarm_sensitive>
     </widget>
     <widget type="textupdate" version="2.0.0">
-      <name>text update #304</name>
+      <name>text update #316</name>
       <pv_name>$(DMC)SEND_STR_MON</pv_name>
       <x>27</x>
       <y>72</y>
@@ -1512,7 +1578,7 @@
       <border_alarm_sensitive>false</border_alarm_sensitive>
     </widget>
     <widget type="label" version="2.0.0">
-      <name>text #308</name>
+      <name>text #320</name>
       <text>Cmd</text>
       <y>54</y>
       <width>65</width>
@@ -1520,7 +1586,7 @@
       <auto_size>true</auto_size>
     </widget>
     <widget type="label" version="2.0.0">
-      <name>text #311</name>
+      <name>text #323</name>
       <text>Resp</text>
       <y>71</y>
       <width>65</width>
@@ -1528,7 +1594,7 @@
       <auto_size>true</auto_size>
     </widget>
     <widget type="label" version="2.0.0">
-      <name>text #314</name>
+      <name>text #326</name>
       <text>Controller mesg</text>
       <width>65</width>
       <height>13</height>
@@ -1536,16 +1602,16 @@
     </widget>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>text #317</name>
+    <name>text #329</name>
     <text>Home edge found</text>
     <x>9</x>
     <y>238</y>
-    <width>97</width>
+    <width>105</width>
     <height>13</height>
     <auto_size>true</auto_size>
   </widget>
   <widget type="combo" version="2.0.0">
-    <name>menu #320</name>
+    <name>menu #332</name>
     <pv_name>$(DMC)HOMEEDGE_CMD</pv_name>
     <x>149</x>
     <y>235</y>
@@ -1558,7 +1624,7 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>text update #323</name>
+    <name>text update #335</name>
     <pv_name>$(DMC)HOMEEDGE_STATUS</pv_name>
     <x>286</x>
     <y>238</y>
@@ -1577,7 +1643,7 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>text update #327</name>
+    <name>text update #339</name>
     <pv_name>$(DMC)DEFER_STATUS</pv_name>
     <x>286</x>
     <y>256</y>
@@ -1596,7 +1662,7 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="choice" version="2.0.0">
-    <name>choice button #331</name>
+    <name>choice button #343</name>
     <pv_name>$(DMC)DEFER_CMD</pv_name>
     <x>149</x>
     <y>253</y>
@@ -1613,16 +1679,16 @@
     </items>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>text #334</name>
+    <name>text #346</name>
     <text>Defer moves</text>
     <x>9</x>
     <y>257</y>
-    <width>97</width>
+    <width>77</width>
     <height>13</height>
     <auto_size>true</auto_size>
   </widget>
   <widget type="group" version="2.0.0">
-    <name>composite #337</name>
+    <name>composite #349</name>
     <x>9</x>
     <y>271</y>
     <width>397</width>
@@ -1630,7 +1696,7 @@
     <style>3</style>
     <transparent>true</transparent>
     <widget type="label" version="2.0.0">
-      <name>text #340</name>
+      <name>text #352</name>
       <text>Deferred mode</text>
       <y>4</y>
       <width>97</width>
@@ -1638,7 +1704,7 @@
       <auto_size>true</auto_size>
     </widget>
     <widget type="combo" version="2.0.0">
-      <name>menu #343</name>
+      <name>menu #355</name>
       <pv_name>$(DMC)DEFER_MODE_CMD</pv_name>
       <x>140</x>
       <width>120</width>
@@ -1650,7 +1716,7 @@
       <border_alarm_sensitive>false</border_alarm_sensitive>
     </widget>
     <widget type="textupdate" version="2.0.0">
-      <name>text update #346</name>
+      <name>text update #358</name>
       <pv_name>$(DMC)DEFER_MODE_STATUS</pv_name>
       <x>277</x>
       <y>4</y>
@@ -1670,16 +1736,16 @@
     </widget>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>text #350</name>
+    <name>text #362</name>
     <text>Coordinate system</text>
     <x>9</x>
     <y>293</y>
-    <width>97</width>
+    <width>119</width>
     <height>13</height>
     <auto_size>true</auto_size>
   </widget>
   <widget type="choice" version="2.0.0">
-    <name>choice button #353</name>
+    <name>choice button #365</name>
     <pv_name>$(DMC)COORDSYS_CMD</pv_name>
     <x>149</x>
     <y>290</y>
@@ -1696,7 +1762,7 @@
     </items>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>text update #356</name>
+    <name>text update #368</name>
     <pv_name>$(DMC)COORDSYS_STATUS</pv_name>
     <x>286</x>
     <y>294</y>
@@ -1715,7 +1781,7 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="choice" version="2.0.0">
-    <name>choice button #360</name>
+    <name>choice button #372</name>
     <pv_name>$(DMC)ECATNETWORK_CMD</pv_name>
     <x>149</x>
     <y>307</y>
@@ -1732,16 +1798,16 @@
     </items>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>text #363</name>
+    <name>text #375</name>
     <text>EtherCat Network</text>
     <x>9</x>
     <y>310</y>
-    <width>97</width>
+    <width>112</width>
     <height>13</height>
     <auto_size>true</auto_size>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>text update #366</name>
+    <name>text update #378</name>
     <pv_name>$(DMC)ECATNETWORK_STATUS</pv_name>
     <x>286</x>
     <y>311</y>
@@ -1760,7 +1826,7 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>text update #370</name>
+    <name>text update #382</name>
     <pv_name>$(DMC)LIMITTYPE_STATUS</pv_name>
     <x>286</x>
     <y>201</y>
@@ -1779,16 +1845,16 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>text #374</name>
+    <name>text #386</name>
     <text>Limit switch type</text>
     <x>9</x>
     <y>200</y>
-    <width>97</width>
+    <width>119</width>
     <height>13</height>
     <auto_size>true</auto_size>
   </widget>
   <widget type="combo" version="2.0.0">
-    <name>menu #377</name>
+    <name>menu #389</name>
     <pv_name>$(DMC)LIMITTYPE_CMD</pv_name>
     <x>149</x>
     <y>197</y>
@@ -1801,7 +1867,7 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="combo" version="2.0.0">
-    <name>menu #380</name>
+    <name>menu #392</name>
     <pv_name>$(DMC)HOMETYPE_CMD</pv_name>
     <x>149</x>
     <y>215</y>
@@ -1813,39 +1879,8 @@
     </background_color>
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
-  <widget type="label" version="2.0.0">
-    <name>text #383</name>
-    <text>All amplifiers</text>
-    <x>9</x>
-    <y>353</y>
-    <width>65</width>
-    <height>13</height>
-    <auto_size>true</auto_size>
-  </widget>
   <widget type="action_button" version="3.0.0">
-    <name>related display #386</name>
-    <actions>
-      <action type="open_display">
-        <file>galil_amp_8.opi</file>
-        <macros>
-          <P>$(DMC)</P>
-        </macros>
-        <target>tab</target>
-        <description>All amplifiers</description>
-      </action>
-    </actions>
-    <text></text>
-    <x>150</x>
-    <y>354</y>
-    <width>15</width>
-    <height>15</height>
-    <background_color>
-      <color red="115" green="223" blue="255">
-      </color>
-    </background_color>
-  </widget>
-  <widget type="action_button" version="3.0.0">
-    <name>related display #389</name>
+    <name>related display #395</name>
     <actions>
       <action type="open_display">
         <file>scan.opi</file>
@@ -1909,16 +1944,16 @@
     </background_color>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>text #396</name>
+    <name>text #402</name>
     <text>Scan records</text>
     <x>189</x>
     <y>374</y>
-    <width>65</width>
+    <width>84</width>
     <height>13</height>
     <auto_size>true</auto_size>
   </widget>
   <widget type="group" version="2.0.0">
-    <name>composite #399</name>
+    <name>composite #405</name>
     <x>189</x>
     <y>353</y>
     <width>156</width>
@@ -1926,14 +1961,14 @@
     <style>3</style>
     <transparent>true</transparent>
     <widget type="label" version="2.0.0">
-      <name>text #402</name>
+      <name>text #408</name>
       <text>User array</text>
       <width>65</width>
       <height>13</height>
       <auto_size>true</auto_size>
     </widget>
     <widget type="action_button" version="3.0.0">
-      <name>related display #405</name>
+      <name>related display #411</name>
       <actions>
         <action type="open_display">
           <file>galil_user_array.opi</file>
@@ -2027,49 +2062,18 @@
       </background_color>
     </widget>
   </widget>
-  <widget type="label" version="2.0.0">
-    <name>text #415</name>
-    <text>All motors</text>
-    <x>9</x>
-    <y>374</y>
-    <width>65</width>
-    <height>13</height>
-    <auto_size>true</auto_size>
-  </widget>
-  <widget type="action_button" version="3.0.0">
-    <name>related display #418</name>
-    <actions>
-      <action type="open_display">
-        <file>motor8x.opi</file>
-        <macros>
-          <P>$(DMC)</P>
-        </macros>
-        <target>tab</target>
-        <description>All motors</description>
-      </action>
-    </actions>
-    <text></text>
-    <x>150</x>
-    <y>375</y>
-    <width>15</width>
-    <height>15</height>
-    <background_color>
-      <color red="115" green="223" blue="255">
-      </color>
-    </background_color>
-  </widget>
   <widget type="group" version="2.0.0">
     <name>composite #421</name>
-    <x>56</x>
-    <y>576</y>
-    <width>289</width>
+    <x>9</x>
+    <y>353</y>
+    <width>156</width>
     <height>16</height>
     <style>3</style>
     <transparent>true</transparent>
     <widget type="label" version="2.0.0">
       <name>text #424</name>
-      <text>Profile move</text>
-      <width>75</width>
+      <text>All motors</text>
+      <width>70</width>
       <height>13</height>
       <auto_size>true</auto_size>
     </widget>
@@ -2077,58 +2081,32 @@
       <name>related display #427</name>
       <actions>
         <action type="open_display">
-          <file>galil_profileMove.opi</file>
+          <file>motor8x.opi</file>
           <macros>
             <P>$(DMC)</P>
-            <R>Prof1:</R>
-            <TITLE>Galil profile</TITLE>
           </macros>
           <target>tab</target>
-          <description>Profile 1</description>
+          <description>All motors</description>
         </action>
-      </actions>
-      <text></text>
-      <x>94</x>
-      <width>15</width>
-      <height>15</height>
-      <background_color>
-        <color red="115" green="223" blue="255">
-        </color>
-      </background_color>
-    </widget>
-    <widget type="label" version="2.0.0">
-      <name>text #430</name>
-      <text>Profile move</text>
-      <x>172</x>
-      <y>1</y>
-      <width>65</width>
-      <height>13</height>
-      <auto_size>true</auto_size>
-    </widget>
-    <widget type="action_button" version="3.0.0">
-      <name>related display #433</name>
-      <actions>
         <action type="open_display">
-          <file>galil_CSprofileMove.opi</file>
+          <file>galil_amp_8.opi</file>
           <macros>
-            <M10>J</M10>
-            <M11>K</M11>
-            <M12>L</M12>
-            <M13>M</M13>
-            <M14>N</M14>
-            <M15>O</M15>
-            <M16>P</M16>
-            <M9>I</M9>
             <P>$(DMC)</P>
-            <R>Prof1:</R>
-            <TITLE>Galil CS profile</TITLE>
           </macros>
           <target>tab</target>
-          <description>Profile 1</description>
+          <description>All amplifiers</description>
+        </action>
+        <action type="open_display">
+          <file>galil_extras_8.opi</file>
+          <macros>
+            <P>$(DMC)</P>
+          </macros>
+          <target>tab</target>
+          <description>All extras</description>
         </action>
       </actions>
       <text></text>
-      <x>274</x>
+      <x>141</x>
       <y>1</y>
       <width>15</width>
       <height>15</height>

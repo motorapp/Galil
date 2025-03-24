@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 132
-y 61
+x 122
+y 53
 w 410
 h 683
 font "helvetica-medium-r-18.0"
@@ -30,9 +30,9 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 124
+x 5
 y 8
-w 150
+w 400
 h 28
 lineColor rgb 0 0 0
 fillColor rgb 0 0 0
@@ -45,9 +45,9 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 105
+x 10
 y 15
-w 193
+w 390
 h 18
 font "helvetica-medium-r-14.0"
 fontAlign "center"
@@ -55,7 +55,7 @@ fgColor rgb 0 0 0
 bgColor index 3
 useDisplayBg
 value {
-  "DMC controller"
+  "DMC controller ($(DMC))"
 }
 endObjectProperties
 
@@ -655,7 +655,7 @@ minor 1
 release 1
 x 9
 y 219
-w 94
+w 112
 h 13
 font "helvetica-medium-r-10.0"
 fgColor rgb 0 0 0
@@ -903,7 +903,7 @@ minor 1
 release 1
 x 56
 y 471
-w 65
+w 51
 h 13
 font "helvetica-medium-r-10.0"
 fgColor rgb 0 0 0
@@ -922,7 +922,7 @@ minor 1
 release 1
 x 228
 y 471
-w 65
+w 49
 h 13
 font "helvetica-medium-r-10.0"
 fgColor rgb 0 0 0
@@ -941,7 +941,7 @@ minor 1
 release 1
 x 56
 y 492
-w 65
+w 50
 h 13
 font "helvetica-medium-r-10.0"
 fgColor rgb 0 0 0
@@ -960,7 +960,7 @@ minor 1
 release 1
 x 228
 y 492
-w 65
+w 52
 h 13
 font "helvetica-medium-r-10.0"
 fgColor rgb 0 0 0
@@ -979,7 +979,7 @@ minor 1
 release 1
 x 56
 y 513
-w 65
+w 49
 h 13
 font "helvetica-medium-r-10.0"
 fgColor rgb 0 0 0
@@ -998,7 +998,7 @@ minor 1
 release 1
 x 228
 y 513
-w 65
+w 51
 h 13
 font "helvetica-medium-r-10.0"
 fgColor rgb 0 0 0
@@ -1017,7 +1017,7 @@ minor 1
 release 1
 x 56
 y 534
-w 65
+w 51
 h 13
 font "helvetica-medium-r-10.0"
 fgColor rgb 0 0 0
@@ -1036,7 +1036,7 @@ minor 1
 release 1
 x 228
 y 534
-w 65
+w 51
 h 13
 font "helvetica-medium-r-10.0"
 fgColor rgb 0 0 0
@@ -1054,8 +1054,46 @@ major 4
 minor 1
 release 1
 x 56
+y 576
+w 84
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Profile move"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 228
+y 577
+w 84
+h 13
+font "helvetica-medium-r-10.0"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Profile move"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 56
 y 555
-w 65
+w 51
 h 13
 font "helvetica-medium-r-10.0"
 fgColor rgb 0 0 0
@@ -1074,7 +1112,7 @@ minor 1
 release 1
 x 228
 y 555
-w 65
+w 50
 h 13
 font "helvetica-medium-r-10.0"
 fgColor rgb 0 0 0
@@ -1317,7 +1355,7 @@ minor 1
 release 1
 x 9
 y 238
-w 97
+w 105
 h 13
 font "helvetica-medium-r-10.0"
 fgColor rgb 0 0 0
@@ -1384,7 +1422,7 @@ minor 1
 release 1
 x 9
 y 257
-w 97
+w 77
 h 13
 font "helvetica-medium-r-10.0"
 fgColor rgb 0 0 0
@@ -1464,7 +1502,7 @@ minor 1
 release 1
 x 9
 y 293
-w 98
+w 119
 h 13
 font "helvetica-medium-r-10.0"
 fgColor rgb 0 0 0
@@ -1507,7 +1545,7 @@ minor 1
 release 1
 x 9
 y 310
-w 97
+w 112
 h 13
 font "helvetica-medium-r-10.0"
 fgColor rgb 0 0 0
@@ -1574,7 +1612,7 @@ minor 1
 release 1
 x 9
 y 200
-w 97
+w 119
 h 13
 font "helvetica-medium-r-10.0"
 fgColor rgb 0 0 0
@@ -1591,28 +1629,9 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 9
-y 353
-w 68
-h 13
-font "helvetica-medium-r-10.0"
-fgColor rgb 0 0 0
-bgColor index 3
-useDisplayBg
-value {
-  "All amplifiers"
-}
-endObjectProperties
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
 x 189
 y 374
-w 72
+w 84
 h 13
 font "helvetica-medium-r-10.0"
 fgColor rgb 0 0 0
@@ -1660,34 +1679,15 @@ endGroup
 endObjectProperties
 
 
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 9
-y 374
-w 65
-h 13
-font "helvetica-medium-r-10.0"
-fgColor rgb 0 0 0
-bgColor index 3
-useDisplayBg
-value {
-  "All motors"
-}
-endObjectProperties
-
 # (Group)
 object activeGroupClass
 beginObjectProperties
 major 4
 minor 0
 release 0
-x 56
-y 576
-w 289
+x 9
+y 353
+w 156
 h 16
 
 beginGroup
@@ -1698,35 +1698,16 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 56
-y 576
-w 75
+x 9
+y 353
+w 70
 h 13
 font "helvetica-medium-r-10.0"
 fgColor rgb 0 0 0
 bgColor index 3
 useDisplayBg
 value {
-  "Profile move"
-}
-endObjectProperties
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 228
-y 577
-w 69
-h 13
-font "helvetica-medium-r-10.0"
-fgColor rgb 0 0 0
-bgColor index 3
-useDisplayBg
-value {
-  "Profile move"
+  "All motors"
 }
 endObjectProperties
 
@@ -2576,6 +2557,70 @@ major 4
 minor 0
 release 0
 x 150
+y 576
+w 15
+h 15
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+topShadowColor rgb 55808 55808 55808
+botShadowColor rgb 17920 17920 17920
+font "helvetica-bold-r-12.0"
+icon
+numPvs 2
+numDsps 1
+displayFileName {
+  0 "galil_profileMove.edl"
+}
+menuLabel {
+  0 "Profile 1"
+}
+symbols {
+  0 "P=$(DMC),TITLE=Galilprofile,R=Prof1:,M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8)"
+}
+replaceSymbols {
+  0 1
+}
+endObjectProperties
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 330
+y 577
+w 15
+h 15
+fgColor rgb 0 0 0
+bgColor rgb 29440 57088 65280
+topShadowColor rgb 55808 55808 55808
+botShadowColor rgb 17920 17920 17920
+font "helvetica-bold-r-12.0"
+icon
+numPvs 2
+numDsps 1
+displayFileName {
+  0 "galil_CSprofileMove.edl"
+}
+menuLabel {
+  0 "Profile 1"
+}
+symbols {
+  0 "P=$(DMC),TITLE=GalilCSprofile,R=Prof1:,M9=$(M9),M10=$(M10),M11=$(M11),M12=$(M12),M13=$(M13),M14=$(M14),M15=$(M15),M16=$(M16)"
+}
+replaceSymbols {
+  0 1
+}
+endObjectProperties
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 150
 y 556
 w 15
 h 15
@@ -2945,38 +2990,6 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 150
-y 354
-w 15
-h 15
-fgColor rgb 0 0 0
-bgColor rgb 29440 57088 65280
-topShadowColor rgb 55808 55808 55808
-botShadowColor rgb 17920 17920 17920
-font "helvetica-bold-r-12.0"
-icon
-numPvs 2
-numDsps 1
-displayFileName {
-  0 "galil_amp_8.edl"
-}
-menuLabel {
-  0 "All amplifiers"
-}
-symbols {
-  0 "P=$(DMC),M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8)"
-}
-replaceSymbols {
-  0 1
-}
-endObjectProperties
-
-# (Related Display)
-object relatedDisplayClass
-beginObjectProperties
-major 4
-minor 0
-release 0
 x 330
 y 375
 w 15
@@ -3095,47 +3108,15 @@ endGroup
 
 endObjectProperties
 
-
-# (Related Display)
-object relatedDisplayClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 150
-y 375
-w 15
-h 15
-fgColor rgb 0 0 0
-bgColor rgb 29440 57088 65280
-topShadowColor rgb 55808 55808 55808
-botShadowColor rgb 17920 17920 17920
-font "helvetica-bold-r-12.0"
-icon
-numPvs 2
-numDsps 1
-displayFileName {
-  0 "motor8x.edl"
-}
-menuLabel {
-  0 "All motors"
-}
-symbols {
-  0 "P=$(DMC),M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8)"
-}
-replaceSymbols {
-  0 1
-}
-endObjectProperties
 # (Group)
 object activeGroupClass
 beginObjectProperties
 major 4
 minor 0
 release 0
-x 56
-y 576
-w 289
+x 9
+y 353
+w 156
 h 16
 
 beginGroup
@@ -3147,7 +3128,7 @@ major 4
 minor 0
 release 0
 x 150
-y 576
+y 354
 w 15
 h 15
 fgColor rgb 0 0 0
@@ -3156,51 +3137,27 @@ topShadowColor rgb 55808 55808 55808
 botShadowColor rgb 17920 17920 17920
 font "helvetica-bold-r-12.0"
 icon
-numPvs 2
-numDsps 1
+numPvs 6
+numDsps 3
 displayFileName {
-  0 "galil_profileMove.edl"
+  0 "motor8x.edl"
+  1 "galil_amp_8.edl"
+  2 "galil_extras_8.edl"
 }
 menuLabel {
-  0 "Profile 1"
+  0 "All motors"
+  1 "All amplifiers"
+  2 "All extras"
 }
 symbols {
-  0 "P=$(DMC),TITLE=Galilprofile,R=Prof1:,M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8)"
+  0 "P=$(DMC),M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8)"
+  1 "P=$(DMC),M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8)"
+  2 "P=$(DMC),M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8)"
 }
 replaceSymbols {
   0 1
-}
-endObjectProperties
-
-# (Related Display)
-object relatedDisplayClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 330
-y 577
-w 15
-h 15
-fgColor rgb 0 0 0
-bgColor rgb 29440 57088 65280
-topShadowColor rgb 55808 55808 55808
-botShadowColor rgb 17920 17920 17920
-font "helvetica-bold-r-12.0"
-icon
-numPvs 2
-numDsps 1
-displayFileName {
-  0 "galil_CSprofileMove.edl"
-}
-menuLabel {
-  0 "Profile 1"
-}
-symbols {
-  0 "P=$(DMC),TITLE=GalilCSprofile,R=Prof1:,M9=I,M10=J,M11=K,M12=L,M13=M,M14=N,M15=O,M16=P"
-}
-replaceSymbols {
-  0 1
+  1 1
+  2 1
 }
 endObjectProperties
 
