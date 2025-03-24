@@ -136,6 +136,7 @@
 #define GalilEncoderStallTimeString	"MOTOR_ENCODER_STALL_TIME"
 #define GalilStepSmoothString		"MOTOR_STEPSMOOTH"
 #define GalilMotorTypeString		"MOTOR_TYPE"
+#define GalilBrushTypeString		"BRUSH_TYPE"
 
 #define GalilEtherCatCapableString	"CONTROLLER_ECATCAPABLE"
 #define GalilEtherCatNetworkString	"CONTROLLER_ECAT_NETWORK"
@@ -294,6 +295,28 @@ static const enumStruct_t ampGain_43040[] = {
 static const enumStruct_t ampGain_43140[] = {
   {"0.10 A",   0},
 };
+
+static const enumStruct_t ampServoGain_43547[] = {
+  {"0.40 A/V",   0},
+  {"0.80 A/V",   1},
+  {"1.60 A/V",   2},
+};
+
+static const enumStruct_t ampCurrentLoopGain_43547[] = {
+  {"9",     9},
+  {"10",   10},
+  {"11",   11},
+  {"12",   12},
+};
+
+
+static const enumStruct_t ampStepperGain_43547[] = {
+  {"0.75 A",   0},
+  {"1.50 A",   1},
+  {"3.00 A",   2},
+  {"6.00 A",   3},
+};
+
 
 static const enumStruct_t microstep_43547[] = {
   {"256",   256},
@@ -526,6 +549,7 @@ protected:
   int GalilEStallTime_;
   int GalilStepSmooth_;
   int GalilMotorType_;
+  int GalilBrushType_;
 
   int GalilEtherCatCapable_;
   int GalilEtherCatNetwork_;
