@@ -441,7 +441,11 @@
 //                  Fix GalilReplaceHomeCode to remove REM lines and replace empty in custom code lines with '
 //                  Fix GalilStartController to remove REM lines and replace empty in custom code lines with '
 // 10/03/2025 M.Clift
-//                  Fix add rio.dmc code for rio.  Running code on rio makes it stable.
+//                  Fix add rio.dmc code for rio.  Running code on rio makes it stable
+// 27/03/2025 M.Clift
+//                  Change/increase timeout for user console commands known to take a long time
+//                  Add command console monitor PV $(P):SEND_STR_MON will now show controller error strings
+//                  Fix multi-thread access condition causing segfault during controller reconnect in UDP mode
 
 #include <stdio.h>
 #include <math.h>
@@ -481,7 +485,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "3-6-105";
+static const char *driverVersion = "3-6-108";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);
@@ -1334,42 +1338,9 @@ void GalilController::connected(void)
   if (code_assembled_)
      {
      //This is reconnect
-     //Put poller to sleep for GalilStartController
-     unlock();
-     poller_->sleepPoller();
-     lock();
      //Deliver and start the code on controller
      GalilStartController(code_file_, burn_program_, thread_mask_);
      }
-  else
-     {
-     //This is initial connect
-     //Try async udp mode unless user specfically wants sync tcp mode
-     if (try_async_)
-        {
-        //Start async data record transmission on controller
-        sprintf(cmd_, "DR %.0f, %d", updatePeriod_, udpHandle_ - AASCII);
-        status = sync_writeReadController();
-        if (status)
-           {
-           async_records_ = false; //Something went wrong
-           setCtrlError("Asynchronous UDP failed, switching to TCP synchronous");
-           }
-        else
-           async_records_ = true; //All ok
-        }
-     }
-
-  //Set connection that will receive unsolicited messages
-  if (async_records_)
-     sprintf(cmd_, "CF %c", udpHandle_);
-  else
-     sprintf(cmd_, "CF %c", syncHandle_);
-  status = sync_writeReadController();
-
-  //Set most signficant bit for unsolicited bytes
-  strcpy(cmd_, "CW 1");
-  status = sync_writeReadController();
 
   callParamCallbacks();
 }
@@ -4587,9 +4558,21 @@ asynStatus GalilController::writeOctet(asynUser *pasynUser, const char*  value, 
   /* Set the parameter and readback in the parameter library. */
   if (function == GalilUserOctet_)
      {
-     //Send the command	
+     //Set default response to empty string
+     setStringParam(GalilUserOctet_, "");
+     //Check user command for commands known to take a long time, increase timeout accordingly
+     if (((value_s.find("BZ") != string::npos) && (value_s.find("=") != string::npos)) || 
+          value_s.find("BP") != string::npos || value_s.find("BN") != string::npos || 
+          value_s.find("BV") != string::npos) {
+        //Increase timeout for user command
+        timeout_ = 3;
+     }
+     //Send the user command	
      epicsSnprintf(cmd_, sizeof(cmd_), "%s", value_s.c_str());
-     if ( (status = sync_writeReadController()) == asynSuccess )
+     status = sync_writeReadController();
+     //User command complete, set timeout back to default 1
+     timeout_ = 1;
+     if (status == asynSuccess)
         {
         //Set readback value(s) = response from controller
         //String monitor
@@ -4608,8 +4591,13 @@ asynStatus GalilController::writeOctet(asynUser *pasynUser, const char*  value, 
         }
      else
         {
-        //Set readback value = response from controller
-        setStringParam(GalilUserOctet_, "error");
+        //User command failed, get error message from controller
+        strcpy(cmd_, "TC1");
+        if ( (status = sync_writeReadController()) == asynSuccess )
+           {
+           //Set readback value = response from controller
+           setStringParam(GalilUserOctet_, resp_);
+           }
         }
      }
   else if (function >= GalilCSMotorForward_ && function <= GalilCSMotorReverseH_)
@@ -5467,8 +5455,12 @@ void GalilController::acquireDataRecord(void)
      consecutive_timeouts_++;
 
   //Force disconnect if any errors
-  if (consecutive_timeouts_ > ALLOWED_TIMEOUTS)
+  if (consecutive_timeouts_ > ALLOWED_TIMEOUTS) {
+     //Disconnect
      disconnect();
+     //Due to error, put poller to sleep at end of this cycle
+     poller_->sleepPoller(false);
+  }
 
   //If no errors, copy the data
   if (!recstatus_ && connected_)

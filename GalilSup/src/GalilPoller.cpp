@@ -160,15 +160,18 @@ GalilPoller::~GalilPoller()
 }
 
 //Put poller in sleep mode, and stop async records if needed
+//Put poller in sleep mode, and stop async records if needed
 //Must be called without lock so sync poller can be put to sleep
-void GalilPoller::sleepPoller(void)
+void GalilPoller::sleepPoller(bool waitTillSleep)
 {
    //Only if poller awake now
    if (!pollerSleep_) {
       //Tell poller to sleep
-      pollerSleep_ = true;
-      //Wait until GalilPoller is sleeping
-      epicsEventWait(pollerSleepEventId_);
+      pollerSleep_ = true;   
+      //Wait until GalilPoller is sleeping, if requested by caller
+      if (true == waitTillSleep) {
+         epicsEventWait(pollerSleepEventId_);
+      }
       //Tell controller to stop async record transmission
       if (pC_->async_records_ && pC_->connected_) {
          pC_->lock();
@@ -189,11 +192,30 @@ void GalilPoller::wakePoller(bool restart_async)
       //Wake up poller
       pollerSleep_ = false;
       epicsEventSignal(pollerWakeEventId_);
-      //Tell controller to re-start async record transmission
-      if (pC_->try_async_ && pC_->connected_ && restart_async) {
-         sprintf(pC_->cmd_, "DR %.0f, %d", pC_->updatePeriod_, pC_->udpHandle_ - AASCII);
+      if (pC_->connected_) {
+         //Turn on data record transmission if requested
+         if (pC_->try_async_ && restart_async) {
+            //Operator requests async UDP
+            //Turn on data record transmission
+            sprintf(pC_->cmd_, "DR %.0f, %d", pC_->updatePeriod_, pC_->udpHandle_ - AASCII);
+            status = pC_->sync_writeReadController();
+            if (status) {
+               pC_->async_records_ = false; //Something went wrong
+               pC_->setCtrlError("Asynchronous UDP failed, switching to TCP synchronous");
+            }
+            else {
+               pC_->async_records_ = true; //All ok
+            }
+         }
+         //Set connection that will receive unsolicited messages
+         if (pC_->async_records_)
+            sprintf(pC_->cmd_, "CF %c", pC_->udpHandle_);
+         else
+            sprintf(pC_->cmd_, "CF %c", pC_->syncHandle_);  
          status = pC_->sync_writeReadController();
-         pC_->async_records_ = (status) ? false : true;
+         //Set most signficant bit for unsolicited bytes
+         strcpy(pC_->cmd_, "CW 1");
+         status = pC_->sync_writeReadController();
       }
    }
 }
