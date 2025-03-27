@@ -172,6 +172,7 @@
 #define GalilHomeAllowedString		"MOTOR_HOME_ALLOWED"
 #define GalilStopDelayString		"MOTOR_STOP_DELAY"
 #define GalilMicrostepString		"MOTOR_MICROSTEP"
+#define GalilAmpModelString		"MOTOR_AMP_MODEL"
 #define GalilAmpGainString		"MOTOR_AMP_GAIN"
 #define GalilAmpCurrentLoopGainString	"MOTOR_AMP_CURRENTLOOP_GAIN"
 #define GalilAmpLowCurrentString	"MOTOR_AMP_LOWCURRENT"
@@ -470,6 +471,8 @@ public:
   asynStatus updateAmpInfo();
   //Enum row callback
   void enumRowCallback(unsigned ampNum, int reason, const enumStruct_t *pEnum, size_t nElements);
+  //Callback for amplifier gains when motor type changes
+  void ampGainCallback(int axis, int motorType);
 
   void InitializeDataRecord(void);
   double sourceValue(const std::vector<char>& record, const std::string& source);
@@ -583,6 +586,7 @@ protected:
   int GalilHomeAllowed_;
   int GalilStopDelay_;
   int GalilMicrostep_;
+  int GalilAmpModel_;
   int GalilAmpGain_;
   int GalilAmpCurrentLoopGain_;
   int GalilAmpLowCurrent_;
