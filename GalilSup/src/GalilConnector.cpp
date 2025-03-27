@@ -104,15 +104,21 @@ void GalilConnector::run(void)
                      sync_status = asynError; //Bad response
                }
             }
+            //Ensure data record transmission is off
+            if (!sync_status) {
+               //Ensure data record transmission is off
+               strcpy(pC_->cmd_, "DR 0");                                                                                                                                                                                                                                                      
+               sync_status = pC_->sync_writeReadController(true);
+            }
+            //Close all other connections on controller
+            if (!sync_status) {
+               //Close all other connections on controller
+               strcpy(pC_->cmd_, "IHT=>-3");
+               sync_status = pC_->sync_writeReadController(true);
+            }
          }
          //Check asynchronous communication
          if (pC_->try_async_ && !sync_status) {
-            //Ensure data record transmission is off
-            strcpy(pC_->cmd_, "DR 0");
-            sync_status = pC_->sync_writeReadController(true);
-            //Close all other connections on controller
-            strcpy(pC_->cmd_, "IHT=>-3");
-            sync_status = pC_->sync_writeReadController(true);
             //Open UDP connection, and retrieve connection handle
             strcpy(pC_->asynccmd_, "WH\r");
             async_status = pC_->async_writeReadController();

@@ -14,6 +14,8 @@ epicsEnvSet("PORT", "DMC01")
 epicsEnvSet("ADDRESS", "192.168.0.67")
 
 # Controller update period Unit = millisecond
+# Positive value tries UDP first, falls back to TCP
+# Negative value for TCP only
 # Range 2-200
 epicsEnvSet("UPDPERIOD", "8")
 
