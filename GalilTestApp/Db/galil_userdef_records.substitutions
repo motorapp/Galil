@@ -49,7 +49,7 @@ file "$(GALIL)/GalilSup/Db/galil_userdef_records.template"
 pattern
 { ADDR,  EPICSNAME,       GALILSTR, DRVCMD, SCAN,       DRVL, DRVH, LOW,  HIGH, LSV,     HSV,     ZNAM,      ONAM,  ZSV,      OSV,        DEFAULT, EGU,  PINI }
 
- {0,     "BEGIN",         "begin",  "VAR",  "I/O Intr", 0,    1,    0,    1,    "MINOR", "MINOR", "Invalid", "Ok",  "MAJOR",  "NO_ALARM", "10",    "",   "YES"}
+ {0,     "BEGIN",         "begin",  "VAR",  "I/O Intr", 0,    1,    0,    1,    "MINOR", "MINOR", "Invalid", "Ok",  "MAJOR",  "NO_ALARM", "0",     "",   "YES"}
 #{0,     "DIGITAL_PORT0", "TI",     "CMD",  "1 second", 1,    1000, 1,    1000, "MINOR", "MINOR", "Invalid", "Ok",  "MAJOR",  "NO_ALARM", "10",    "",   "YES"}
 
 }
