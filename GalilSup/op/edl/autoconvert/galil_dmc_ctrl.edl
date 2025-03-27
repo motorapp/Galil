@@ -1679,19 +1679,6 @@ endGroup
 endObjectProperties
 
 
-# (Group)
-object activeGroupClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 9
-y 353
-w 156
-h 16
-
-beginGroup
-
 # (Static Text)
 object activeXTextClass
 beginObjectProperties
@@ -1707,14 +1694,9 @@ fgColor rgb 0 0 0
 bgColor index 3
 useDisplayBg
 value {
-  "All motors"
+  "All axes"
 }
 endObjectProperties
-
-endGroup
-
-endObjectProperties
-
 # (Group)
 object activeGroupClass
 beginObjectProperties
@@ -3108,18 +3090,6 @@ endGroup
 
 endObjectProperties
 
-# (Group)
-object activeGroupClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 9
-y 353
-w 156
-h 16
-
-beginGroup
 
 # (Related Display)
 object relatedDisplayClass
@@ -3160,9 +3130,4 @@ replaceSymbols {
   2 1
 }
 endObjectProperties
-
-endGroup
-
-endObjectProperties
-
 

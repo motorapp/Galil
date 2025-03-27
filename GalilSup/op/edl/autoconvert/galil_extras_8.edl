@@ -3,10 +3,10 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 717
-y 290
-w 1075
-h 325
+x 495
+y 132
+w 990
+h 200
 font "helvetica-medium-r-18.0"
 ctlFont "helvetica-bold-r-10.0"
 btnFont "helvetica-medium-r-18.0"
@@ -24,13 +24,108 @@ snapToGrid
 gridSize 4
 endScreenProperties
 
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 5
+y 7
+w 980
+h 25
+lineColor rgb 0 0 0
+fillColor rgb 0 0 0
+lineWidth 0
+endObjectProperties
+
 # (Static Text)
 object activeXTextClass
 beginObjectProperties
 major 4
 minor 1
 release 1
-x 155
+x 10
+y 12
+w 970
+h 18
+font "helvetica-medium-r-14.0"
+fontAlign "center"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Galil extra settings  $(P)"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 45
+y 97
+w 98
+h 13
+font "helvetica-medium-r-10.0"
+fontAlign "right"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Limit disable"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 10
+y 138
+w 133
+h 13
+font "helvetica-medium-r-10.0"
+fontAlign "right"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Wrong limit protect"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 17
+y 179
+w 126
+h 13
+font "helvetica-medium-r-10.0"
+fontAlign "right"
+fgColor rgb 0 0 0
+bgColor index 3
+useDisplayBg
+value {
+  "Step smooth factor"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 73
 y 41
 w 70
 h 13
@@ -49,7 +144,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 162
+x 80
 y 59
 w 64
 h 13
@@ -68,1132 +163,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 230
-y 41
-w 100
-h 13
-controlPv "$(P)$(M1)_AXIS_STATUS"
-format "string"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 230
-y 59
-w 100
-h 13
-controlPv "$(P)$(M1).NAME"
-format "string"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 335
-y 41
-w 100
-h 13
-controlPv "$(P)$(M2)_AXIS_STATUS"
-format "string"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 335
-y 59
-w 100
-h 13
-controlPv "$(P)$(M2).NAME"
-format "string"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 440
-y 41
-w 100
-h 13
-controlPv "$(P)$(M3)_AXIS_STATUS"
-format "string"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 440
-y 59
-w 100
-h 13
-controlPv "$(P)$(M3).NAME"
-format "string"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 545
-y 41
-w 100
-h 13
-controlPv "$(P)$(M4)_AXIS_STATUS"
-format "string"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 545
-y 59
-w 100
-h 13
-controlPv "$(P)$(M4).NAME"
-format "string"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 650
-y 41
-w 100
-h 13
-controlPv "$(P)$(M5)_AXIS_STATUS"
-format "string"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 650
-y 59
-w 100
-h 13
-controlPv "$(P)$(M5).NAME"
-format "string"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 755
-y 41
-w 100
-h 13
-controlPv "$(P)$(M6)_AXIS_STATUS"
-format "string"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 755
-y 59
-w 100
-h 13
-controlPv "$(P)$(M6).NAME"
-format "string"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 860
-y 41
-w 100
-h 13
-controlPv "$(P)$(M7)_AXIS_STATUS"
-format "string"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 860
-y 59
-w 100
-h 13
-controlPv "$(P)$(M7).NAME"
-format "string"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 965
-y 41
-w 100
-h 13
-controlPv "$(P)$(M8)_AXIS_STATUS"
-format "string"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 965
-y 59
-w 100
-h 13
-controlPv "$(P)$(M8).NAME"
-format "string"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Rectangle)
-object activeRectangleClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 5
-y 7
-w 1065
-h 25
-lineColor rgb 0 0 0
-fillColor rgb 0 0 0
-lineWidth 0
-endObjectProperties
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 10
-y 12
-w 1050
-h 18
-font "helvetica-medium-r-14.0"
-fontAlign "center"
-fgColor rgb 0 0 0
-bgColor index 3
-useDisplayBg
-value {
-  "Galil extra settings  $(P)"
-}
-endObjectProperties
-
-# (Group)
-object activeGroupClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 155
+x 148
 y 77
-w 910
-h 36
-
-beginGroup
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 155
-y 97
-w 70
-h 13
-font "helvetica-medium-r-10.0"
-fontAlign "right"
-fgColor rgb 0 0 0
-bgColor index 3
-useDisplayBg
-value {
-  "Motor type"
-}
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 230
-y 77
-w 100
-h 13
-controlPv "$(P)$(M1)_MTRTYPE_STATUS"
-format "string"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 335
-y 77
-w 100
-h 13
-controlPv "$(P)$(M2)_MTRTYPE_STATUS"
-format "string"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 440
-y 77
-w 100
-h 13
-controlPv "$(P)$(M3)_MTRTYPE_STATUS"
-format "string"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 545
-y 77
-w 100
-h 13
-controlPv "$(P)$(M4)_MTRTYPE_STATUS"
-format "string"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 650
-y 77
-w 100
-h 13
-controlPv "$(P)$(M5)_MTRTYPE_STATUS"
-format "string"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 755
-y 77
-w 100
-h 13
-controlPv "$(P)$(M6)_MTRTYPE_STATUS"
-format "string"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 860
-y 77
-w 100
-h 13
-controlPv "$(P)$(M7)_MTRTYPE_STATUS"
-format "string"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 965
-y 77
-w 100
-h 13
-controlPv "$(P)$(M8)_MTRTYPE_STATUS"
-format "string"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-endGroup
-
-endObjectProperties
-
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 120
-y 302
-w 105
-h 13
-font "helvetica-medium-r-10.0"
-fontAlign "right"
-fgColor rgb 0 0 0
-bgColor index 3
-useDisplayBg
-value {
-  "Motor amplifier"
-}
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 230
-y 282
-w 100
-h 13
-controlPv "$(P)$(M1)_ON_STATUS"
-format "decimal"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 335
-y 282
-w 100
-h 13
-controlPv "$(P)$(M2)_ON_STATUS"
-format "decimal"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 440
-y 282
-w 100
-h 13
-controlPv "$(P)$(M3)_ON_STATUS"
-format "decimal"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 545
-y 282
-w 100
-h 13
-controlPv "$(P)$(M4)_ON_STATUS"
-format "decimal"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 650
-y 282
-w 100
-h 13
-controlPv "$(P)$(M5)_ON_STATUS"
-format "decimal"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 755
-y 282
-w 100
-h 13
-controlPv "$(P)$(M6)_ON_STATUS"
-format "decimal"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 860
-y 282
-w 100
-h 13
-controlPv "$(P)$(M7)_ON_STATUS"
-format "decimal"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 965
-y 282
-w 100
-h 13
-controlPv "$(P)$(M8)_ON_STATUS"
-format "decimal"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Group)
-object activeGroupClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 155
-y 118
-w 910
-h 36
-
-beginGroup
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 155
-y 138
-w 70
-h 13
-font "helvetica-medium-r-10.0"
-fontAlign "right"
-fgColor rgb 0 0 0
-bgColor index 3
-useDisplayBg
-value {
-  "Bursh type"
-}
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 230
-y 118
-w 100
-h 13
-controlPv "$(P)$(M1)_BRTYPE_STATUS"
-format "string"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 335
-y 118
-w 100
-h 13
-controlPv "$(P)$(M2)_BRTYPE_STATUS"
-format "string"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 440
-y 118
-w 100
-h 13
-controlPv "$(P)$(M3)_BRTYPE_STATUS"
-format "string"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 545
-y 118
-w 100
-h 13
-controlPv "$(P)$(M4)_BRTYPE_STATUS"
-format "string"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 650
-y 118
-w 100
-h 13
-controlPv "$(P)$(M5)_BRTYPE_STATUS"
-format "string"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 755
-y 118
-w 100
-h 13
-controlPv "$(P)$(M6)_BRTYPE_STATUS"
-format "string"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 860
-y 118
-w 100
-h 13
-controlPv "$(P)$(M7)_BRTYPE_STATUS"
-format "string"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 965
-y 118
-w 100
-h 13
-controlPv "$(P)$(M8)_BRTYPE_STATUS"
-format "string"
-font "helvetica-medium-r-10.0"
-fontAlign "center"
-fgColor rgb 2560 0 47104
-bgColor rgb 47872 47872 47872
-limitsFromDb
-nullColor rgb 60928 46592 11008
-smartRefresh
-fastUpdate
-newPos
-objType "controls"
-endObjectProperties
-
-endGroup
-
-endObjectProperties
-
-
-# (Group)
-object activeGroupClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 127
-y 159
-w 938
-h 36
-
-beginGroup
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 127
-y 179
-w 98
-h 13
-font "helvetica-medium-r-10.0"
-fontAlign "right"
-fgColor rgb 0 0 0
-bgColor index 3
-useDisplayBg
-value {
-  "Limit disable"
-}
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 230
-y 159
 w 100
 h 13
 controlPv "$(P)$(M1)_LIMITDISABLE_STATUS"
@@ -1216,8 +187,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 335
-y 159
+x 253
+y 77
 w 100
 h 13
 controlPv "$(P)$(M2)_LIMITDISABLE_STATUS"
@@ -1240,8 +211,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 440
-y 159
+x 358
+y 77
 w 100
 h 13
 controlPv "$(P)$(M3)_LIMITDISABLE_STATUS"
@@ -1264,8 +235,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 545
-y 159
+x 463
+y 77
 w 100
 h 13
 controlPv "$(P)$(M4)_LIMITDISABLE_STATUS"
@@ -1288,8 +259,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 650
-y 159
+x 568
+y 77
 w 100
 h 13
 controlPv "$(P)$(M5)_LIMITDISABLE_STATUS"
@@ -1312,8 +283,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 755
-y 159
+x 673
+y 77
 w 100
 h 13
 controlPv "$(P)$(M6)_LIMITDISABLE_STATUS"
@@ -1336,8 +307,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 860
-y 159
+x 778
+y 77
 w 100
 h 13
 controlPv "$(P)$(M7)_LIMITDISABLE_STATUS"
@@ -1360,8 +331,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 965
-y 159
+x 883
+y 77
 w 100
 h 13
 controlPv "$(P)$(M8)_LIMITDISABLE_STATUS"
@@ -1378,52 +349,14 @@ newPos
 objType "controls"
 endObjectProperties
 
-endGroup
-
-endObjectProperties
-
-
-# (Group)
-object activeGroupClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 92
-y 200
-w 973
-h 36
-
-beginGroup
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 92
-y 220
-w 133
-h 13
-font "helvetica-medium-r-10.0"
-fontAlign "right"
-fgColor rgb 0 0 0
-bgColor index 3
-useDisplayBg
-value {
-  "Wrong limit protect"
-}
-endObjectProperties
-
 # (Text Monitor)
 object activeXTextDspClass:noedit
 beginObjectProperties
 major 4
 minor 7
 release 0
-x 230
-y 200
+x 148
+y 118
 w 100
 h 13
 controlPv "$(P)$(M1)_WLP_STATUS"
@@ -1446,8 +379,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 335
-y 200
+x 253
+y 118
 w 100
 h 13
 controlPv "$(P)$(M2)_WLP_STATUS"
@@ -1470,8 +403,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 440
-y 200
+x 358
+y 118
 w 100
 h 13
 controlPv "$(P)$(M3)_WLP_STATUS"
@@ -1494,8 +427,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 545
-y 200
+x 463
+y 118
 w 100
 h 13
 controlPv "$(P)$(M4)_WLP_STATUS"
@@ -1518,8 +451,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 650
-y 200
+x 568
+y 118
 w 100
 h 13
 controlPv "$(P)$(M5)_WLP_STATUS"
@@ -1542,8 +475,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 755
-y 200
+x 673
+y 118
 w 100
 h 13
 controlPv "$(P)$(M6)_WLP_STATUS"
@@ -1566,8 +499,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 860
-y 200
+x 778
+y 118
 w 100
 h 13
 controlPv "$(P)$(M7)_WLP_STATUS"
@@ -1590,8 +523,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 965
-y 200
+x 883
+y 118
 w 100
 h 13
 controlPv "$(P)$(M8)_WLP_STATUS"
@@ -1608,39 +541,14 @@ newPos
 objType "controls"
 endObjectProperties
 
-endGroup
-
-endObjectProperties
-
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 99
-y 261
-w 126
-h 13
-font "helvetica-medium-r-10.0"
-fontAlign "right"
-fgColor rgb 0 0 0
-bgColor index 3
-useDisplayBg
-value {
-  "Step smooth factor"
-}
-endObjectProperties
-
 # (Text Monitor)
 object activeXTextDspClass:noedit
 beginObjectProperties
 major 4
 minor 7
 release 0
-x 230
-y 241
+x 148
+y 159
 w 100
 h 13
 controlPv "$(P)$(M1)_STEPSMOOTH_MON"
@@ -1663,8 +571,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 230
-y 259
+x 148
+y 177
 w 100
 h 18
 controlPv "$(P)$(M1)_STEPSMOOTH_SP"
@@ -1689,8 +597,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 335
-y 241
+x 253
+y 159
 w 100
 h 13
 controlPv "$(P)$(M2)_STEPSMOOTH_MON"
@@ -1713,8 +621,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 335
-y 259
+x 253
+y 177
 w 100
 h 18
 controlPv "$(P)$(M2)_STEPSMOOTH_SP"
@@ -1739,8 +647,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 440
-y 241
+x 358
+y 159
 w 100
 h 13
 controlPv "$(P)$(M3)_STEPSMOOTH_MON"
@@ -1763,8 +671,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 440
-y 259
+x 358
+y 177
 w 100
 h 18
 controlPv "$(P)$(M3)_STEPSMOOTH_SP"
@@ -1789,8 +697,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 545
-y 241
+x 463
+y 159
 w 100
 h 13
 controlPv "$(P)$(M4)_STEPSMOOTH_MON"
@@ -1813,8 +721,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 545
-y 259
+x 463
+y 177
 w 100
 h 18
 controlPv "$(P)$(M4)_STEPSMOOTH_SP"
@@ -1839,8 +747,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 650
-y 241
+x 568
+y 159
 w 100
 h 13
 controlPv "$(P)$(M5)_STEPSMOOTH_MON"
@@ -1863,8 +771,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 650
-y 259
+x 568
+y 177
 w 100
 h 18
 controlPv "$(P)$(M5)_STEPSMOOTH_SP"
@@ -1889,8 +797,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 755
-y 241
+x 673
+y 159
 w 100
 h 13
 controlPv "$(P)$(M6)_STEPSMOOTH_MON"
@@ -1913,8 +821,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 755
-y 259
+x 673
+y 177
 w 100
 h 18
 controlPv "$(P)$(M6)_STEPSMOOTH_SP"
@@ -1939,8 +847,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 860
-y 241
+x 778
+y 159
 w 100
 h 13
 controlPv "$(P)$(M7)_STEPSMOOTH_MON"
@@ -1963,8 +871,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 860
-y 259
+x 778
+y 177
 w 100
 h 18
 controlPv "$(P)$(M7)_STEPSMOOTH_SP"
@@ -1989,8 +897,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 965
-y 241
+x 883
+y 159
 w 100
 h 13
 controlPv "$(P)$(M8)_STEPSMOOTH_MON"
@@ -2013,8 +921,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 965
-y 259
+x 883
+y 177
 w 100
 h 18
 controlPv "$(P)$(M8)_STEPSMOOTH_SP"
@@ -2032,18 +940,390 @@ fastUpdate
 newPos
 objType "controls"
 endObjectProperties
-# (Group)
-object activeGroupClass
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
 beginObjectProperties
 major 4
-minor 0
+minor 7
 release 0
-x 155
-y 77
-w 910
-h 36
+x 148
+y 41
+w 100
+h 13
+controlPv "$(P)$(M1)_AXIS_STATUS"
+format "string"
+font "helvetica-medium-r-10.0"
+fontAlign "center"
+fgColor rgb 2560 0 47104
+bgColor rgb 47872 47872 47872
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
 
-beginGroup
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 148
+y 59
+w 100
+h 13
+controlPv "$(P)$(M1).NAME"
+format "string"
+font "helvetica-medium-r-10.0"
+fontAlign "center"
+fgColor rgb 2560 0 47104
+bgColor rgb 47872 47872 47872
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 253
+y 41
+w 100
+h 13
+controlPv "$(P)$(M2)_AXIS_STATUS"
+format "string"
+font "helvetica-medium-r-10.0"
+fontAlign "center"
+fgColor rgb 2560 0 47104
+bgColor rgb 47872 47872 47872
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 253
+y 59
+w 100
+h 13
+controlPv "$(P)$(M2).NAME"
+format "string"
+font "helvetica-medium-r-10.0"
+fontAlign "center"
+fgColor rgb 2560 0 47104
+bgColor rgb 47872 47872 47872
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 358
+y 41
+w 100
+h 13
+controlPv "$(P)$(M3)_AXIS_STATUS"
+format "string"
+font "helvetica-medium-r-10.0"
+fontAlign "center"
+fgColor rgb 2560 0 47104
+bgColor rgb 47872 47872 47872
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 358
+y 59
+w 100
+h 13
+controlPv "$(P)$(M3).NAME"
+format "string"
+font "helvetica-medium-r-10.0"
+fontAlign "center"
+fgColor rgb 2560 0 47104
+bgColor rgb 47872 47872 47872
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 463
+y 41
+w 100
+h 13
+controlPv "$(P)$(M4)_AXIS_STATUS"
+format "string"
+font "helvetica-medium-r-10.0"
+fontAlign "center"
+fgColor rgb 2560 0 47104
+bgColor rgb 47872 47872 47872
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 463
+y 59
+w 100
+h 13
+controlPv "$(P)$(M4).NAME"
+format "string"
+font "helvetica-medium-r-10.0"
+fontAlign "center"
+fgColor rgb 2560 0 47104
+bgColor rgb 47872 47872 47872
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 568
+y 41
+w 100
+h 13
+controlPv "$(P)$(M5)_AXIS_STATUS"
+format "string"
+font "helvetica-medium-r-10.0"
+fontAlign "center"
+fgColor rgb 2560 0 47104
+bgColor rgb 47872 47872 47872
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 568
+y 59
+w 100
+h 13
+controlPv "$(P)$(M5).NAME"
+format "string"
+font "helvetica-medium-r-10.0"
+fontAlign "center"
+fgColor rgb 2560 0 47104
+bgColor rgb 47872 47872 47872
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 673
+y 41
+w 100
+h 13
+controlPv "$(P)$(M6)_AXIS_STATUS"
+format "string"
+font "helvetica-medium-r-10.0"
+fontAlign "center"
+fgColor rgb 2560 0 47104
+bgColor rgb 47872 47872 47872
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 673
+y 59
+w 100
+h 13
+controlPv "$(P)$(M6).NAME"
+format "string"
+font "helvetica-medium-r-10.0"
+fontAlign "center"
+fgColor rgb 2560 0 47104
+bgColor rgb 47872 47872 47872
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 778
+y 41
+w 100
+h 13
+controlPv "$(P)$(M7)_AXIS_STATUS"
+format "string"
+font "helvetica-medium-r-10.0"
+fontAlign "center"
+fgColor rgb 2560 0 47104
+bgColor rgb 47872 47872 47872
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 778
+y 59
+w 100
+h 13
+controlPv "$(P)$(M7).NAME"
+format "string"
+font "helvetica-medium-r-10.0"
+fontAlign "center"
+fgColor rgb 2560 0 47104
+bgColor rgb 47872 47872 47872
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 883
+y 41
+w 100
+h 13
+controlPv "$(P)$(M8)_AXIS_STATUS"
+format "string"
+font "helvetica-medium-r-10.0"
+fontAlign "center"
+fgColor rgb 2560 0 47104
+bgColor rgb 47872 47872 47872
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 883
+y 59
+w 100
+h 13
+controlPv "$(P)$(M8).NAME"
+format "string"
+font "helvetica-medium-r-10.0"
+fontAlign "center"
+fgColor rgb 2560 0 47104
+bgColor rgb 47872 47872 47872
+limitsFromDb
+nullColor rgb 60928 46592 11008
+smartRefresh
+fastUpdate
+newPos
+objType "controls"
+endObjectProperties
 
 # (Menu Button)
 object activeMenuButtonClass
@@ -2051,530 +1331,8 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 230
+x 148
 y 95
-w 100
-h 18
-fgColor rgb 0 0 0
-bgColor rgb 47872 47872 47872
-inconsistentColor rgb 17920 17920 17920
-topShadowColor rgb 55808 55808 55808
-botShadowColor rgb 17920 17920 17920
-controlPv "$(P)$(M1)_MTRTYPE_CMD"
-indicatorPv "$(P)$(M1)_MTRTYPE_CMD"
-font "helvetica-medium-r-10.0"
-endObjectProperties
-
-# (Menu Button)
-object activeMenuButtonClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 335
-y 95
-w 100
-h 18
-fgColor rgb 0 0 0
-bgColor rgb 47872 47872 47872
-inconsistentColor rgb 17920 17920 17920
-topShadowColor rgb 55808 55808 55808
-botShadowColor rgb 17920 17920 17920
-controlPv "$(P)$(M2)_MTRTYPE_CMD"
-indicatorPv "$(P)$(M2)_MTRTYPE_CMD"
-font "helvetica-medium-r-10.0"
-endObjectProperties
-
-# (Menu Button)
-object activeMenuButtonClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 440
-y 95
-w 100
-h 18
-fgColor rgb 0 0 0
-bgColor rgb 47872 47872 47872
-inconsistentColor rgb 17920 17920 17920
-topShadowColor rgb 55808 55808 55808
-botShadowColor rgb 17920 17920 17920
-controlPv "$(P)$(M3)_MTRTYPE_CMD"
-indicatorPv "$(P)$(M3)_MTRTYPE_CMD"
-font "helvetica-medium-r-10.0"
-endObjectProperties
-
-# (Menu Button)
-object activeMenuButtonClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 545
-y 95
-w 100
-h 18
-fgColor rgb 0 0 0
-bgColor rgb 47872 47872 47872
-inconsistentColor rgb 17920 17920 17920
-topShadowColor rgb 55808 55808 55808
-botShadowColor rgb 17920 17920 17920
-controlPv "$(P)$(M4)_MTRTYPE_CMD"
-indicatorPv "$(P)$(M4)_MTRTYPE_CMD"
-font "helvetica-medium-r-10.0"
-endObjectProperties
-
-# (Menu Button)
-object activeMenuButtonClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 650
-y 95
-w 100
-h 18
-fgColor rgb 0 0 0
-bgColor rgb 47872 47872 47872
-inconsistentColor rgb 17920 17920 17920
-topShadowColor rgb 55808 55808 55808
-botShadowColor rgb 17920 17920 17920
-controlPv "$(P)$(M5)_MTRTYPE_CMD"
-indicatorPv "$(P)$(M5)_MTRTYPE_CMD"
-font "helvetica-medium-r-10.0"
-endObjectProperties
-
-# (Menu Button)
-object activeMenuButtonClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 755
-y 95
-w 100
-h 18
-fgColor rgb 0 0 0
-bgColor rgb 47872 47872 47872
-inconsistentColor rgb 17920 17920 17920
-topShadowColor rgb 55808 55808 55808
-botShadowColor rgb 17920 17920 17920
-controlPv "$(P)$(M6)_MTRTYPE_CMD"
-indicatorPv "$(P)$(M6)_MTRTYPE_CMD"
-font "helvetica-medium-r-10.0"
-endObjectProperties
-
-# (Menu Button)
-object activeMenuButtonClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 860
-y 95
-w 100
-h 18
-fgColor rgb 0 0 0
-bgColor rgb 47872 47872 47872
-inconsistentColor rgb 17920 17920 17920
-topShadowColor rgb 55808 55808 55808
-botShadowColor rgb 17920 17920 17920
-controlPv "$(P)$(M7)_MTRTYPE_CMD"
-indicatorPv "$(P)$(M7)_MTRTYPE_CMD"
-font "helvetica-medium-r-10.0"
-endObjectProperties
-
-# (Menu Button)
-object activeMenuButtonClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 965
-y 95
-w 100
-h 18
-fgColor rgb 0 0 0
-bgColor rgb 47872 47872 47872
-inconsistentColor rgb 17920 17920 17920
-topShadowColor rgb 55808 55808 55808
-botShadowColor rgb 17920 17920 17920
-controlPv "$(P)$(M8)_MTRTYPE_CMD"
-indicatorPv "$(P)$(M8)_MTRTYPE_CMD"
-font "helvetica-medium-r-10.0"
-endObjectProperties
-
-endGroup
-
-endObjectProperties
-
-
-# (Choice Button)
-object activeChoiceButtonClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 230
-y 300
-w 100
-h 18
-fgColor rgb 0 0 0
-bgColor rgb 29440 57088 65280
-selectColor rgb 29440 57088 65280
-inconsistentColor rgb 0 0 0
-topShadowColor rgb 65280 65280 65280
-botShadowColor rgb 0 0 0
-controlPv "$(P)$(M1)_ON_CMD"
-font "helvetica-medium-r-10.0"
-orientation "horizontal"
-endObjectProperties
-
-# (Choice Button)
-object activeChoiceButtonClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 335
-y 300
-w 100
-h 18
-fgColor rgb 0 0 0
-bgColor rgb 29440 57088 65280
-selectColor rgb 29440 57088 65280
-inconsistentColor rgb 0 0 0
-topShadowColor rgb 65280 65280 65280
-botShadowColor rgb 0 0 0
-controlPv "$(P)$(M2)_ON_CMD"
-font "helvetica-medium-r-10.0"
-orientation "horizontal"
-endObjectProperties
-
-# (Choice Button)
-object activeChoiceButtonClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 440
-y 300
-w 100
-h 18
-fgColor rgb 0 0 0
-bgColor rgb 29440 57088 65280
-selectColor rgb 29440 57088 65280
-inconsistentColor rgb 0 0 0
-topShadowColor rgb 65280 65280 65280
-botShadowColor rgb 0 0 0
-controlPv "$(P)$(M3)_ON_CMD"
-font "helvetica-medium-r-10.0"
-orientation "horizontal"
-endObjectProperties
-
-# (Choice Button)
-object activeChoiceButtonClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 545
-y 300
-w 100
-h 18
-fgColor rgb 0 0 0
-bgColor rgb 29440 57088 65280
-selectColor rgb 29440 57088 65280
-inconsistentColor rgb 0 0 0
-topShadowColor rgb 65280 65280 65280
-botShadowColor rgb 0 0 0
-controlPv "$(P)$(M4)_ON_CMD"
-font "helvetica-medium-r-10.0"
-orientation "horizontal"
-endObjectProperties
-
-# (Choice Button)
-object activeChoiceButtonClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 650
-y 300
-w 100
-h 18
-fgColor rgb 0 0 0
-bgColor rgb 29440 57088 65280
-selectColor rgb 29440 57088 65280
-inconsistentColor rgb 0 0 0
-topShadowColor rgb 65280 65280 65280
-botShadowColor rgb 0 0 0
-controlPv "$(P)$(M5)_ON_CMD"
-font "helvetica-medium-r-10.0"
-orientation "horizontal"
-endObjectProperties
-
-# (Choice Button)
-object activeChoiceButtonClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 755
-y 300
-w 100
-h 18
-fgColor rgb 0 0 0
-bgColor rgb 29440 57088 65280
-selectColor rgb 29440 57088 65280
-inconsistentColor rgb 0 0 0
-topShadowColor rgb 65280 65280 65280
-botShadowColor rgb 0 0 0
-controlPv "$(P)$(M6)_ON_CMD"
-font "helvetica-medium-r-10.0"
-orientation "horizontal"
-endObjectProperties
-
-# (Choice Button)
-object activeChoiceButtonClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 860
-y 300
-w 100
-h 18
-fgColor rgb 0 0 0
-bgColor rgb 29440 57088 65280
-selectColor rgb 29440 57088 65280
-inconsistentColor rgb 0 0 0
-topShadowColor rgb 65280 65280 65280
-botShadowColor rgb 0 0 0
-controlPv "$(P)$(M7)_ON_CMD"
-font "helvetica-medium-r-10.0"
-orientation "horizontal"
-endObjectProperties
-
-# (Choice Button)
-object activeChoiceButtonClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 965
-y 300
-w 100
-h 18
-fgColor rgb 0 0 0
-bgColor rgb 29440 57088 65280
-selectColor rgb 29440 57088 65280
-inconsistentColor rgb 0 0 0
-topShadowColor rgb 65280 65280 65280
-botShadowColor rgb 0 0 0
-controlPv "$(P)$(M8)_ON_CMD"
-font "helvetica-medium-r-10.0"
-orientation "horizontal"
-endObjectProperties
-# (Group)
-object activeGroupClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 155
-y 118
-w 910
-h 36
-
-beginGroup
-
-# (Menu Button)
-object activeMenuButtonClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 230
-y 136
-w 100
-h 18
-fgColor rgb 0 0 0
-bgColor rgb 47872 47872 47872
-inconsistentColor rgb 17920 17920 17920
-topShadowColor rgb 55808 55808 55808
-botShadowColor rgb 17920 17920 17920
-controlPv "$(P)$(M1)_BRTYPE_CMD"
-indicatorPv "$(P)$(M1)_BRTYPE_CMD"
-font "helvetica-medium-r-10.0"
-endObjectProperties
-
-# (Menu Button)
-object activeMenuButtonClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 335
-y 136
-w 100
-h 18
-fgColor rgb 0 0 0
-bgColor rgb 47872 47872 47872
-inconsistentColor rgb 17920 17920 17920
-topShadowColor rgb 55808 55808 55808
-botShadowColor rgb 17920 17920 17920
-controlPv "$(P)$(M2)_BRTYPE_CMD"
-indicatorPv "$(P)$(M2)_BRTYPE_CMD"
-font "helvetica-medium-r-10.0"
-endObjectProperties
-
-# (Menu Button)
-object activeMenuButtonClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 440
-y 136
-w 100
-h 18
-fgColor rgb 0 0 0
-bgColor rgb 47872 47872 47872
-inconsistentColor rgb 17920 17920 17920
-topShadowColor rgb 55808 55808 55808
-botShadowColor rgb 17920 17920 17920
-controlPv "$(P)$(M3)_BRTYPE_CMD"
-indicatorPv "$(P)$(M3)_BRTYPE_CMD"
-font "helvetica-medium-r-10.0"
-endObjectProperties
-
-# (Menu Button)
-object activeMenuButtonClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 545
-y 136
-w 100
-h 18
-fgColor rgb 0 0 0
-bgColor rgb 47872 47872 47872
-inconsistentColor rgb 17920 17920 17920
-topShadowColor rgb 55808 55808 55808
-botShadowColor rgb 17920 17920 17920
-controlPv "$(P)$(M4)_BRTYPE_CMD"
-indicatorPv "$(P)$(M4)_BRTYPE_CMD"
-font "helvetica-medium-r-10.0"
-endObjectProperties
-
-# (Menu Button)
-object activeMenuButtonClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 650
-y 136
-w 100
-h 18
-fgColor rgb 0 0 0
-bgColor rgb 47872 47872 47872
-inconsistentColor rgb 17920 17920 17920
-topShadowColor rgb 55808 55808 55808
-botShadowColor rgb 17920 17920 17920
-controlPv "$(P)$(M5)_BRTYPE_CMD"
-indicatorPv "$(P)$(M5)_BRTYPE_CMD"
-font "helvetica-medium-r-10.0"
-endObjectProperties
-
-# (Menu Button)
-object activeMenuButtonClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 755
-y 136
-w 100
-h 18
-fgColor rgb 0 0 0
-bgColor rgb 47872 47872 47872
-inconsistentColor rgb 17920 17920 17920
-topShadowColor rgb 55808 55808 55808
-botShadowColor rgb 17920 17920 17920
-controlPv "$(P)$(M6)_BRTYPE_CMD"
-indicatorPv "$(P)$(M6)_BRTYPE_CMD"
-font "helvetica-medium-r-10.0"
-endObjectProperties
-
-# (Menu Button)
-object activeMenuButtonClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 860
-y 136
-w 100
-h 18
-fgColor rgb 0 0 0
-bgColor rgb 47872 47872 47872
-inconsistentColor rgb 17920 17920 17920
-topShadowColor rgb 55808 55808 55808
-botShadowColor rgb 17920 17920 17920
-controlPv "$(P)$(M7)_BRTYPE_CMD"
-indicatorPv "$(P)$(M7)_BRTYPE_CMD"
-font "helvetica-medium-r-10.0"
-endObjectProperties
-
-# (Menu Button)
-object activeMenuButtonClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 965
-y 136
-w 100
-h 18
-fgColor rgb 0 0 0
-bgColor rgb 47872 47872 47872
-inconsistentColor rgb 17920 17920 17920
-topShadowColor rgb 55808 55808 55808
-botShadowColor rgb 17920 17920 17920
-controlPv "$(P)$(M8)_BRTYPE_CMD"
-indicatorPv "$(P)$(M8)_BRTYPE_CMD"
-font "helvetica-medium-r-10.0"
-endObjectProperties
-
-endGroup
-
-endObjectProperties
-
-# (Group)
-object activeGroupClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 127
-y 159
-w 938
-h 36
-
-beginGroup
-
-# (Menu Button)
-object activeMenuButtonClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 230
-y 177
 w 100
 h 18
 fgColor rgb 0 0 0
@@ -2593,8 +1351,8 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 335
-y 177
+x 253
+y 95
 w 100
 h 18
 fgColor rgb 0 0 0
@@ -2613,8 +1371,8 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 440
-y 177
+x 358
+y 95
 w 100
 h 18
 fgColor rgb 0 0 0
@@ -2633,8 +1391,8 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 545
-y 177
+x 463
+y 95
 w 100
 h 18
 fgColor rgb 0 0 0
@@ -2653,8 +1411,8 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 650
-y 177
+x 568
+y 95
 w 100
 h 18
 fgColor rgb 0 0 0
@@ -2673,8 +1431,8 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 755
-y 177
+x 673
+y 95
 w 100
 h 18
 fgColor rgb 0 0 0
@@ -2693,8 +1451,8 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 860
-y 177
+x 778
+y 95
 w 100
 h 18
 fgColor rgb 0 0 0
@@ -2713,8 +1471,8 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 965
-y 177
+x 883
+y 95
 w 100
 h 18
 fgColor rgb 0 0 0
@@ -2727,31 +1485,14 @@ indicatorPv "$(P)$(M8)_LIMITDISABLE_CMD"
 font "helvetica-medium-r-10.0"
 endObjectProperties
 
-endGroup
-
-endObjectProperties
-
-# (Group)
-object activeGroupClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 92
-y 200
-w 973
-h 36
-
-beginGroup
-
 # (Menu Button)
 object activeMenuButtonClass
 beginObjectProperties
 major 4
 minor 0
 release 0
-x 230
-y 218
+x 148
+y 136
 w 100
 h 18
 fgColor rgb 0 0 0
@@ -2770,8 +1511,8 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 335
-y 218
+x 253
+y 136
 w 100
 h 18
 fgColor rgb 0 0 0
@@ -2790,8 +1531,8 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 440
-y 218
+x 358
+y 136
 w 100
 h 18
 fgColor rgb 0 0 0
@@ -2810,8 +1551,8 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 545
-y 218
+x 463
+y 136
 w 100
 h 18
 fgColor rgb 0 0 0
@@ -2830,8 +1571,8 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 650
-y 218
+x 568
+y 136
 w 100
 h 18
 fgColor rgb 0 0 0
@@ -2850,8 +1591,8 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 755
-y 218
+x 673
+y 136
 w 100
 h 18
 fgColor rgb 0 0 0
@@ -2870,8 +1611,8 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 860
-y 218
+x 778
+y 136
 w 100
 h 18
 fgColor rgb 0 0 0
@@ -2890,8 +1631,8 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 965
-y 218
+x 883
+y 136
 w 100
 h 18
 fgColor rgb 0 0 0
@@ -2903,9 +1644,4 @@ controlPv "$(P)$(M8)_WLP_CMD"
 indicatorPv "$(P)$(M8)_WLP_CMD"
 font "helvetica-medium-r-10.0"
 endObjectProperties
-
-endGroup
-
-endObjectProperties
-
 
