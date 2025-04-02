@@ -923,7 +923,6 @@ record(mbbo,"$(P)$(M)_AMPGAIN_CMD")
 record(mbbi,"$(P)$(M)_AMPGAIN_STATUS")
 {
 	field(DESC, "Amp gain")
-	field(PHAS, "2")
 	field(SCAN, "$(SCAN)")
 	field(DTYP, "asynInt32")
 	field(ZRST, "Zero")
