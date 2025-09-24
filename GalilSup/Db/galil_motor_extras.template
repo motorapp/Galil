@@ -1516,6 +1516,32 @@ record(longin,"$(P)$(M)_ENC_TOLERANCE_MON")
 	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_ENCODER_TOLERANCE")
 }
 
+# Internal Galil amplifier hall error status
+record(bi,"$(P)$(M)_HALLERROR_STATUS")
+{
+	field(DESC, "Hall error status")
+	field(DTYP, "asynInt32")
+	field(SCAN, "I/O Intr")
+	field(ZNAM, "OK")
+	field(ZSV,  "NO_ALARM")
+	field(ONAM, "HallError")
+	field(OSV,  "MAJOR")
+	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_HALLERROR_STATUS")
+}
+
+# Internal Galil amplifier at torque limit status
+record(bi,"$(P)$(M)_ATTORQUELIMIT_STATUS")
+{
+	field(DESC, "At torque limit status")
+	field(DTYP, "asynInt32")
+	field(SCAN, "I/O Intr")
+	field(ZNAM, "OK")
+	field(ZSV,  "NO_ALARM")
+	field(ONAM, "TorqueLimit")
+	field(OSV,  "MAJOR")
+	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_ATTORQUELIMIT_STATUS")
+}
+
 record(bi,"$(P)$(M)_ON_STATUS")
 {
 	field(DESC, "Mtr on status")

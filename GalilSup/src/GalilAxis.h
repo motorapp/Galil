@@ -39,6 +39,7 @@
 #define MOTOR_STOP_REV 3
 #define MOTOR_STOP_STOP 4
 #define MOTOR_STOP_ONERR 8
+#define MOTOR_STOP_SABORT 11
 #define MOTOR_STOP_ENC 12
 #define MOTOR_STOP_AMP 15
 #define MOTOR_STOP_ECATCOMM 70
@@ -141,6 +142,8 @@ public:
   void setStatus(bool *moving);
   //Verify encoder operation whilst moving for safety
   void checkEncoder(void);
+  //Check axis stop code whilst moving
+  void checkStopCode(void);
   //Synchronize aux register with encoder
   void syncEncodedStepper(void);
   //Stop motor for wrong limit protection

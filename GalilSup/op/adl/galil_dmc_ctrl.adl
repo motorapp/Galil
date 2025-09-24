@@ -5,7 +5,7 @@ file {
 }
 display {
 	object {
-		x=122
+		x=112
 		y=53
 		width=410
 		height=683
@@ -1753,7 +1753,7 @@ text {
 	display[0] {
 		label="All amplifiers"
 		name="galil_amp_8.adl"
-		args="P=$(DMC), M1=$(M1), M2=$(M2), M3=$(M3), M4=$(M4), M5=$(M5), M6=$(M6), M7=$(M7), M8=$(M8)"
+		args="P=$(DMC), M1=$(M1), M2=$(M2), M3=$(M3), M4=$(M4), M5=$(M5), M6=$(M6), M7=$(M7), M8=$(M8), AMP1=$(AMP1), AMP2=$(AMP2)"
 	}
 	clr=14
 	bclr=51

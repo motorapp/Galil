@@ -1,0 +1,87 @@
+# Description
+# Template file for Galil internal quad amplifier status monitoring
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# Licence as published by the Free Software Foundation; either
+# version 2.1 of the Licence, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public Licence for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# Licence along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Contact details:
+# Mark Clift
+# email: padmoz@tpg.com.au
+
+# Internal Galil amplifier overcurrent status
+record(bi,"$(P)$(AMP)_OVERCURRENT_STATUS")
+{
+	field(DESC, "Amplifier overcurrent status")
+	field(DTYP, "asynInt32")
+	field(SCAN, "I/O Intr")
+	field(ZNAM, "OK")
+ 	field(ZSV,  "NO_ALARM")
+  	field(ONAM, "OverCurrent")
+  	field(OSV,  "MAJOR")
+   	field(INP,  "@asyn($(PORT),$(ADDR))AMP_OVERCURRENT_STATUS")
+}
+
+# Internal Galil amplifier undervoltage status
+record(bi,"$(P)$(AMP)_UNDERVOLTAGE_STATUS")
+{
+	field(DESC, "Amplifier undervoltage status")
+	field(DTYP, "asynInt32")
+	field(SCAN, "I/O Intr")
+	field(ZNAM, "OK")
+ 	field(ZSV,  "NO_ALARM")
+  	field(ONAM, "UnderVoltage")
+  	field(OSV,  "MAJOR")
+   	field(INP,  "@asyn($(PORT),$(ADDR))AMP_UNDERVOLTAGE_STATUS")
+}
+
+# Internal Galil amplifier overvoltage status
+record(bi,"$(P)$(AMP)_OVERVOLTAGE_STATUS")
+{
+	field(DESC, "Amplifier overvoltage status")
+	field(DTYP, "asynInt32")
+	field(SCAN, "I/O Intr")
+	field(ZNAM, "OK")
+ 	field(ZSV,  "NO_ALARM")
+  	field(ONAM, "OverVoltage")
+  	field(OSV,  "MAJOR")
+   	field(INP,  "@asyn($(PORT),$(ADDR))AMP_OVERVOLTAGE_STATUS")
+}
+
+# Internal Galil amplifier overtemperature status
+record(bi,"$(P)$(AMP)_OVERTEMPERATURE_STATUS")
+{
+	field(DESC, "Amplifier overtemperature status")
+	field(DTYP, "asynInt32")
+	field(SCAN, "I/O Intr")
+	field(ZNAM, "OK")
+ 	field(ZSV,  "NO_ALARM")
+  	field(ONAM, "OverTemp")
+  	field(OSV,  "MAJOR")
+   	field(INP,  "@asyn($(PORT),$(ADDR))AMP_OVERTEMPERATURE_STATUS")
+}
+
+# Internal Galil amplifier electronic lockout status
+record(bi,"$(P)$(AMP)_ELO_STATUS")
+{
+	field(DESC, "Electronic lockout status")
+	field(DTYP, "asynInt32")
+	field(SCAN, "I/O Intr")
+	field(ZNAM, "OK")
+ 	field(ZSV,  "NO_ALARM")
+  	field(ONAM, "Active")
+  	field(OSV,  "MAJOR")
+   	field(INP,  "@asyn($(PORT),$(ADDR))AMP_ELO_STATUS")
+}
+
+# end

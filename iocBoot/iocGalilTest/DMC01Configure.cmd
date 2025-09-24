@@ -36,6 +36,9 @@ dbLoadTemplate("$(TOP)/GalilTestApp/Db/$(PORT)_motors-v6-10up.substitutions", "P
 #Load DMC controller features (eg.  Limit switch type, home switch type, output compare, message consoles)
 dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_dmc_ctrl.substitutions", "P=$(P), PORT=$(PORT)")
 
+#Load Amplifier status monitors (eg. Overtemperature, OverVoltage, ELO, etc)
+dbLoadTemplate("$(TOP)/GalilTestApp/Db/galil_quadAmpStatus.substitutions", "P=$(P), PORT=$(PORT)")
+
 #Load extra features for real axis/motors (eg. Motor type, encoder type)
 dbLoadTemplate("$(TOP)/GalilTestApp/Db/$(PORT)_motor_extras.substitutions", "P=$(P), PORT=$(PORT)")
 

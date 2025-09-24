@@ -641,6 +641,7 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilUserArrayUploadString, asynParamInt32, &GalilUserArrayUpload_);
   createParam(GalilUserArrayString, asynParamFloat64Array, &GalilUserArray_);
   createParam(GalilUserArrayNameString, asynParamOctet, &GalilUserArrayName_);
+  createParam(GalilClearAmpFaultsString, asynParamInt32, &GalilClearAmpFaults_);
 
   createParam(GalilOutputCompare1AxisString, asynParamInt32, &GalilOutputCompareAxis_);
   createParam(GalilOutputCompare1StartString, asynParamFloat64, &GalilOutputCompareStart_);
@@ -771,6 +772,14 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilAxisString, asynParamInt32, &GalilAxis_);
   createParam(GalilMotorVelocityEGUString, asynParamFloat64, &GalilMotorVelocityEGU_);
   createParam(GalilMotorVelocityRAWString, asynParamFloat64, &GalilMotorVelocityRAW_);
+
+  createParam(GalilMotorHallErrorStatusString, asynParamInt32, &GalilMotorHallErrorStatus_);
+  createParam(GalilMotorAtTorqueLimitStatusString, asynParamInt32, &GalilMotorAtTorqueLimitStatus_);
+  createParam(GalilAmpOverCurrentStatusString, asynParamInt32, &GalilAmpOverCurrentStatus_);
+  createParam(GalilAmpUnderVoltageStatusString, asynParamInt32, &GalilAmpUnderVoltageStatus_);
+  createParam(GalilAmpOverVoltageStatusString, asynParamInt32, &GalilAmpOverVoltageStatus_);
+  createParam(GalilAmpOverTemperatureStatusString, asynParamInt32, &GalilAmpOverTemperatureStatus_);
+  createParam(GalilAmpELOStatusString, asynParamInt32, &GalilAmpELOStatus_);
 
   createParam(GalilUserCmdString, asynParamFloat64, &GalilUserCmd_);
   createParam(GalilUserOctetString, asynParamOctet, &GalilUserOctet_);
@@ -1140,6 +1149,21 @@ void GalilController::setParamDefaults(void)
   //Default all forward kinematics to null strings
   for (i = MAX_GALIL_CSAXES; i < MAX_GALIL_AXES + MAX_GALIL_CSAXES; i++)
      setStringParam(i, GalilCSMotorForward_, "");
+
+  //Amplifier faults are yet to be acquired
+  for (i = 0; i < 2; i++) {
+     //Set the AD amplifier overcurrent status
+     setIntegerParam(i, GalilAmpOverCurrentStatus_, 0);
+     //Set the AD amplifier overvoltage status
+     setIntegerParam(i, GalilAmpOverVoltageStatus_, 0);
+     //Set the AD amplifier overtemperature status
+     setIntegerParam(i, GalilAmpOverTemperatureStatus_, 0);
+     //Set the AD amplifier overtemperature status
+     setIntegerParam(i, GalilAmpUnderVoltageStatus_, 0);
+     //Set the AD amplifier ELO status
+     setIntegerParam(i, GalilAmpELOStatus_, 0);
+  }
+
   //Default controller error message to null string
   setStringParam(0, GalilCtrlError_, "");
 }
@@ -4384,6 +4408,14 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
         pAxis->home(0, hvel, acceleration, (function == GalilHomr_) ? 0 : 1);
      }
   }
+  else if (function == GalilClearAmpFaults_) {
+     //Controller must be 40xx or 41xx series
+     if (model_[3] == '4' && (model_[4] == '0' || model_[4] == '1')) {
+        //Clear all latched amplifier errors
+        strcpy(cmd_, "AZ1");
+        sync_writeReadController();
+     }
+  }
   else {
      /* Call base class method */
      status = asynMotorController::writeInt32(pasynUser, value);
@@ -5245,6 +5277,30 @@ void GalilController::getStatus(void)
          src[3] = (addr) ? 'T' : 'S';
          setIntegerParam(addr, GalilCoordSysSegments_, (int)sourceValue(recdata_, src));
       } //For
+
+      //40xx and 41xx series, obtain internal amplifier fault status
+      if (model_[3] == '4' && (model_[4] == '0' || model_[4] == '1')) {
+         //Set the AD amplifier overcurrent status
+         setIntegerParam(0, GalilAmpOverCurrentStatus_, (int)sourceValue(recdata_, "TA00"));
+         //Set the AD amplifier overvoltage status
+         setIntegerParam(0, GalilAmpOverVoltageStatus_, (int)sourceValue(recdata_, "TA01"));
+         //Set the AD amplifier overtemperature status
+         setIntegerParam(0, GalilAmpOverTemperatureStatus_, (int)sourceValue(recdata_, "TA02"));
+         //Set the AD amplifier overtemperature status
+         setIntegerParam(0, GalilAmpUnderVoltageStatus_, (int)sourceValue(recdata_, "TA03"));
+         //Set the AD amplifier overcurrent status
+         setIntegerParam(1, GalilAmpOverCurrentStatus_, (int)sourceValue(recdata_, "TA04"));
+         //Set the AD amplifier overvoltage status
+         setIntegerParam(1, GalilAmpOverVoltageStatus_, (int)sourceValue(recdata_, "TA05"));
+         //Set the AD amplifier overtemperature status
+         setIntegerParam(1, GalilAmpOverTemperatureStatus_, (int)sourceValue(recdata_, "TA06"));
+         //Set the AD amplifier overtemperature status
+         setIntegerParam(1, GalilAmpUnderVoltageStatus_, (int)sourceValue(recdata_, "TA07"));
+         //Set the AD amplifier ELO status
+         setIntegerParam(0, GalilAmpELOStatus_, (int)sourceValue(recdata_, "TA3AD"));
+         //Set the EH amplifier ELO status
+         setIntegerParam(1, GalilAmpELOStatus_, (int)sourceValue(recdata_, "TA3EH"));
+      }
    } //connected_
 }
 

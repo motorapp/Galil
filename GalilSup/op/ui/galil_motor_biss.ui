@@ -17,7 +17,16 @@
    <property name="spacing">
     <number>0</number>
    </property>
-   <property name="margin">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
     <number>0</number>
    </property>
    <item>
@@ -26,13 +35,31 @@
       <property name="spacing">
        <number>0</number>
       </property>
-      <property name="margin">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
        <number>0</number>
       </property>
       <item>
        <widget class="QEFrame" name="qeframe_3">
         <layout class="QGridLayout" name="gridLayout_4">
-         <property name="margin">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
           <number>0</number>
          </property>
          <property name="spacing">
@@ -218,7 +245,16 @@
          <property name="spacing">
           <number>0</number>
          </property>
-         <property name="margin">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
           <number>0</number>
          </property>
          <item>
@@ -258,7 +294,16 @@
       <item>
        <widget class="QEFrame" name="qeframe_4">
         <layout class="QGridLayout" name="gridLayout_5">
-         <property name="margin">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
           <number>0</number>
          </property>
          <property name="spacing">
@@ -270,7 +315,10 @@
             <number>0</number>
            </property>
            <item row="0" column="0">
-            <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,0">
+             <property name="spacing">
+              <number>6</number>
+             </property>
              <item>
               <widget class="QLabel" name="label_28">
                <property name="sizePolicy">
@@ -302,6 +350,9 @@
                </property>
                <property name="alignment">
                 <set>Qt::AlignCenter</set>
+               </property>
+               <property name="indent">
+                <number>4</number>
                </property>
               </widget>
              </item>
@@ -346,6 +397,9 @@
            </item>
            <item row="1" column="0">
             <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <property name="spacing">
+              <number>6</number>
+             </property>
              <item>
               <widget class="QEBitStatus" name="qebitstatus_11">
                <property name="sizePolicy">
@@ -371,15 +425,15 @@
                </property>
                <property name="onColour">
                 <color>
-                 <red>0</red>
-                 <green>136</green>
+                 <red>159</red>
+                 <green>0</green>
                  <blue>0</blue>
                 </color>
                </property>
                <property name="offColour">
                 <color>
-                 <red>159</red>
-                 <green>0</green>
+                 <red>0</red>
+                 <green>136</green>
                  <blue>0</blue>
                 </color>
                </property>
@@ -419,15 +473,15 @@
                </property>
                <property name="onColour">
                 <color>
-                 <red>0</red>
-                 <green>136</green>
+                 <red>159</red>
+                 <green>0</green>
                  <blue>0</blue>
                 </color>
                </property>
                <property name="offColour">
                 <color>
-                 <red>159</red>
-                 <green>0</green>
+                 <red>0</red>
+                 <green>136</green>
                  <blue>0</blue>
                 </color>
                </property>
@@ -471,15 +525,15 @@
                </property>
                <property name="onColour">
                 <color>
-                 <red>0</red>
-                 <green>136</green>
+                 <red>159</red>
+                 <green>0</green>
                  <blue>0</blue>
                 </color>
                </property>
                <property name="offColour">
                 <color>
-                 <red>159</red>
-                 <green>0</green>
+                 <red>0</red>
+                 <green>136</green>
                  <blue>0</blue>
                 </color>
                </property>
@@ -519,15 +573,15 @@
                </property>
                <property name="onColour">
                 <color>
-                 <red>0</red>
-                 <green>136</green>
+                 <red>159</red>
+                 <green>0</green>
                  <blue>0</blue>
                 </color>
                </property>
                <property name="offColour">
                 <color>
-                 <red>159</red>
-                 <green>0</green>
+                 <red>0</red>
+                 <green>136</green>
                  <blue>0</blue>
                 </color>
                </property>
@@ -924,7 +978,16 @@
          <property name="spacing">
           <number>0</number>
          </property>
-         <property name="margin">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
           <number>0</number>
          </property>
          <item>
@@ -964,7 +1027,16 @@
       <item>
        <widget class="QEFrame" name="qeframe_5">
         <layout class="QGridLayout" name="gridLayout_6">
-         <property name="margin">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
           <number>0</number>
          </property>
          <property name="spacing">

@@ -1,20 +1,20 @@
 
 file {
-	name="/home/epics/support/Galil/3-6/GalilSup/op/adl/galil_amp_8.adl"
-	version=030117
+	name="/home/ics/git/Galil/GalilSup/op/adl/galil_amp_8.adl"
+	version=030120
 }
 display {
 	object {
-		x=623
-		y=393
+		x=510
+		y=199
 		width=1075
-		height=350
+		height=450
 	}
 	clr=14
 	bclr=4
 	cmap=""
 	gridSpacing=5
-	gridOn=0
+	gridOn=1
 	snapToGrid=0
 }
 "color map" {
@@ -87,10 +87,82 @@ display {
 		1a7309,
 	}
 }
+rectangle {
+	object {
+		x=3
+		y=162
+		width=1065
+		height=283
+	}
+	"basic attribute" {
+		clr=14
+		fill="outline"
+	}
+}
+rectangle {
+	object {
+		x=3
+		y=86
+		width=1065
+		height=76
+	}
+	"basic attribute" {
+		clr=14
+		fill="outline"
+	}
+}
+rectangle {
+	object {
+		x=3
+		y=86
+		width=1065
+		height=15
+	}
+	"basic attribute" {
+		clr=14
+		fill="outline"
+	}
+}
+rectangle {
+	object {
+		x=3
+		y=47
+		width=1065
+		height=39
+	}
+	"basic attribute" {
+		clr=14
+		fill="outline"
+	}
+}
+rectangle {
+	object {
+		x=3
+		y=32
+		width=1065
+		height=15
+	}
+	"basic attribute" {
+		clr=14
+		fill="outline"
+	}
+}
+rectangle {
+	object {
+		x=3
+		y=7
+		width=1065
+		height=25
+	}
+	"basic attribute" {
+		clr=14
+		fill="outline"
+	}
+}
 composite {
 	object {
-		x=338
-		y=250
+		x=363
+		y=353
 		width=399
 		height=87
 	}
@@ -98,8 +170,8 @@ composite {
 	children {
 		text {
 			object {
-				x=338
-				y=250
+				x=363
+				y=353
 				width=175
 				height=13
 			}
@@ -110,8 +182,8 @@ composite {
 		}
 		text {
 			object {
-				x=345
-				y=270
+				x=370
+				y=373
 				width=392
 				height=13
 			}
@@ -122,8 +194,8 @@ composite {
 		}
 		text {
 			object {
-				x=345
-				y=288
+				x=370
+				y=391
 				width=364
 				height=13
 			}
@@ -134,8 +206,8 @@ composite {
 		}
 		text {
 			object {
-				x=345
-				y=306
+				x=370
+				y=409
 				width=364
 				height=13
 			}
@@ -146,8 +218,8 @@ composite {
 		}
 		text {
 			object {
-				x=345
-				y=324
+				x=370
+				y=427
 				width=392
 				height=13
 			}
@@ -158,110 +230,125 @@ composite {
 		}
 	}
 }
-composite {
+text {
 	object {
-		x=10
-		y=41
-		width=215
-		height=192
+		x=437
+		y=13
+		width=200
+		height=18
 	}
-	"composite name"=""
-	children {
-		text {
-			object {
-				x=155
-				y=41
-				width=70
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Motor axis"
-		}
-		text {
-			object {
-				x=162
-				y=59
-				width=63
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Motorname"
-		}
-		text {
-			object {
-				x=10
-				y=220
-				width=215
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Low current mode (stepper only)"
-		}
-		text {
-			object {
-				x=17
-				y=179
-				width=208
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Microsteps/step (stepper only)"
-		}
-		text {
-			object {
-				x=15
-				y=138
-				width=210
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Current loop gain (servo only)"
-		}
-		text {
-			object {
-				x=127
-				y=97
-				width=98
-				height=13
-			}
-			"basic attribute" {
-				clr=14
-			}
-			textix="Amplifier gain"
-		}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Galil amplifier $(P)"
+	align="horiz. centered"
+}
+rectangle {
+	object {
+		x=236
+		y=123
+		width=15
+		height=15
+	}
+	"basic attribute" {
+		clr=14
+	}
+	"dynamic attribute" {
+		clr="alarm"
+		chan="$(P)$(M1)_HALLERROR_STATUS"
 	}
 }
-"text update" {
+rectangle {
 	object {
-		x=230
-		y=41
-		width=100
+		x=236
+		y=143
+		width=15
+		height=15
+	}
+	"basic attribute" {
+		clr=14
+	}
+	"dynamic attribute" {
+		clr="alarm"
+		chan="$(P)$(M1)_ATTORQUELIMIT_STATUS"
+	}
+}
+text {
+	object {
+		x=130
+		y=87
+		width=58
 		height=13
 	}
-	monitor {
-		chan="$(P)$(M1)_AXIS_STATUS"
-		clr=54
-		bclr=4
+	"basic attribute" {
+		clr=14
 	}
-	align="horiz. centered"
-	format="string"
-	limits {
+	textix="Motor axis"
+}
+text {
+	object {
+		x=136
+		y=105
+		width=52
+		height=13
 	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Motorname"
+}
+text {
+	object {
+		x=6
+		y=286
+		width=182
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Low current mode (stepper only)"
+}
+text {
+	object {
+		x=12
+		y=245
+		width=176
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Microsteps/step (stepper only)"
+}
+text {
+	object {
+		x=10
+		y=204
+		width=178
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Current loop gain (servo only)"
+}
+text {
+	object {
+		x=106
+		y=163
+		width=82
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Amplifier gain"
 }
 "text update" {
 	object {
-		x=230
-		y=59
+		x=193
+		y=105
 		width=100
 		height=13
 	}
@@ -277,8 +364,8 @@ composite {
 }
 "text update" {
 	object {
-		x=230
-		y=200
+		x=193
+		y=286
 		width=100
 		height=13
 	}
@@ -293,8 +380,8 @@ composite {
 }
 "text update" {
 	object {
-		x=230
-		y=118
+		x=193
+		y=204
 		width=100
 		height=13
 	}
@@ -310,8 +397,8 @@ composite {
 }
 "text update" {
 	object {
-		x=230
-		y=77
+		x=193
+		y=163
 		width=100
 		height=13
 	}
@@ -327,8 +414,8 @@ composite {
 }
 "text update" {
 	object {
-		x=230
-		y=159
+		x=193
+		y=245
 		width=100
 		height=13
 	}
@@ -344,8 +431,8 @@ composite {
 }
 "text entry" {
 	object {
-		x=230
-		y=218
+		x=193
+		y=304
 		width=100
 		height=18
 	}
@@ -359,8 +446,8 @@ composite {
 }
 menu {
 	object {
-		x=230
-		y=177
+		x=193
+		y=263
 		width=100
 		height=18
 	}
@@ -372,8 +459,8 @@ menu {
 }
 menu {
 	object {
-		x=230
-		y=136
+		x=193
+		y=222
 		width=100
 		height=18
 	}
@@ -385,8 +472,8 @@ menu {
 }
 menu {
 	object {
-		x=230
-		y=95
+		x=193
+		y=181
 		width=100
 		height=18
 	}
@@ -398,25 +485,8 @@ menu {
 }
 "text update" {
 	object {
-		x=335
-		y=41
-		width=100
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M2)_AXIS_STATUS"
-		clr=54
-		bclr=4
-	}
-	align="horiz. centered"
-	format="string"
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=335
-		y=59
+		x=298
+		y=105
 		width=100
 		height=13
 	}
@@ -432,8 +502,8 @@ menu {
 }
 "text update" {
 	object {
-		x=335
-		y=200
+		x=298
+		y=286
 		width=100
 		height=13
 	}
@@ -448,8 +518,8 @@ menu {
 }
 "text update" {
 	object {
-		x=335
-		y=118
+		x=298
+		y=204
 		width=100
 		height=13
 	}
@@ -465,8 +535,8 @@ menu {
 }
 "text update" {
 	object {
-		x=335
-		y=77
+		x=298
+		y=163
 		width=100
 		height=13
 	}
@@ -482,8 +552,8 @@ menu {
 }
 "text update" {
 	object {
-		x=335
-		y=159
+		x=298
+		y=245
 		width=100
 		height=13
 	}
@@ -499,8 +569,8 @@ menu {
 }
 "text entry" {
 	object {
-		x=335
-		y=218
+		x=298
+		y=304
 		width=100
 		height=18
 	}
@@ -514,8 +584,8 @@ menu {
 }
 menu {
 	object {
-		x=335
-		y=177
+		x=298
+		y=263
 		width=100
 		height=18
 	}
@@ -527,8 +597,8 @@ menu {
 }
 menu {
 	object {
-		x=335
-		y=136
+		x=298
+		y=222
 		width=100
 		height=18
 	}
@@ -540,8 +610,8 @@ menu {
 }
 menu {
 	object {
-		x=335
-		y=95
+		x=298
+		y=181
 		width=100
 		height=18
 	}
@@ -553,25 +623,8 @@ menu {
 }
 "text update" {
 	object {
-		x=440
-		y=41
-		width=100
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M3)_AXIS_STATUS"
-		clr=54
-		bclr=4
-	}
-	align="horiz. centered"
-	format="string"
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=440
-		y=59
+		x=403
+		y=105
 		width=100
 		height=13
 	}
@@ -587,8 +640,8 @@ menu {
 }
 "text update" {
 	object {
-		x=440
-		y=200
+		x=403
+		y=286
 		width=100
 		height=13
 	}
@@ -603,8 +656,8 @@ menu {
 }
 "text update" {
 	object {
-		x=440
-		y=118
+		x=403
+		y=204
 		width=100
 		height=13
 	}
@@ -620,8 +673,8 @@ menu {
 }
 "text update" {
 	object {
-		x=440
-		y=77
+		x=403
+		y=163
 		width=100
 		height=13
 	}
@@ -637,8 +690,8 @@ menu {
 }
 "text update" {
 	object {
-		x=440
-		y=159
+		x=403
+		y=245
 		width=100
 		height=13
 	}
@@ -654,8 +707,8 @@ menu {
 }
 "text entry" {
 	object {
-		x=440
-		y=218
+		x=403
+		y=304
 		width=100
 		height=18
 	}
@@ -669,8 +722,8 @@ menu {
 }
 menu {
 	object {
-		x=440
-		y=177
+		x=403
+		y=263
 		width=100
 		height=18
 	}
@@ -682,8 +735,8 @@ menu {
 }
 menu {
 	object {
-		x=440
-		y=136
+		x=403
+		y=222
 		width=100
 		height=18
 	}
@@ -695,8 +748,8 @@ menu {
 }
 menu {
 	object {
-		x=440
-		y=95
+		x=403
+		y=181
 		width=100
 		height=18
 	}
@@ -708,25 +761,8 @@ menu {
 }
 "text update" {
 	object {
-		x=545
-		y=41
-		width=100
-		height=13
-	}
-	monitor {
-		chan="$(P)$(M4)_AXIS_STATUS"
-		clr=54
-		bclr=4
-	}
-	align="horiz. centered"
-	format="string"
-	limits {
-	}
-}
-"text update" {
-	object {
-		x=545
-		y=59
+		x=508
+		y=105
 		width=100
 		height=13
 	}
@@ -742,8 +778,8 @@ menu {
 }
 "text update" {
 	object {
-		x=545
-		y=200
+		x=508
+		y=286
 		width=100
 		height=13
 	}
@@ -758,8 +794,8 @@ menu {
 }
 "text update" {
 	object {
-		x=545
-		y=118
+		x=508
+		y=204
 		width=100
 		height=13
 	}
@@ -775,8 +811,8 @@ menu {
 }
 "text update" {
 	object {
-		x=545
-		y=77
+		x=508
+		y=163
 		width=100
 		height=13
 	}
@@ -792,8 +828,8 @@ menu {
 }
 "text update" {
 	object {
-		x=545
-		y=159
+		x=508
+		y=245
 		width=100
 		height=13
 	}
@@ -809,8 +845,8 @@ menu {
 }
 "text entry" {
 	object {
-		x=545
-		y=218
+		x=508
+		y=304
 		width=100
 		height=18
 	}
@@ -824,8 +860,8 @@ menu {
 }
 menu {
 	object {
-		x=545
-		y=177
+		x=508
+		y=263
 		width=100
 		height=18
 	}
@@ -837,8 +873,8 @@ menu {
 }
 menu {
 	object {
-		x=545
-		y=136
+		x=508
+		y=222
 		width=100
 		height=18
 	}
@@ -850,8 +886,8 @@ menu {
 }
 menu {
 	object {
-		x=545
-		y=95
+		x=508
+		y=181
 		width=100
 		height=18
 	}
@@ -863,8 +899,8 @@ menu {
 }
 "text update" {
 	object {
-		x=650
-		y=41
+		x=613
+		y=87
 		width=100
 		height=13
 	}
@@ -880,8 +916,8 @@ menu {
 }
 "text update" {
 	object {
-		x=650
-		y=59
+		x=613
+		y=105
 		width=100
 		height=13
 	}
@@ -897,8 +933,8 @@ menu {
 }
 "text update" {
 	object {
-		x=650
-		y=200
+		x=613
+		y=286
 		width=100
 		height=13
 	}
@@ -913,8 +949,8 @@ menu {
 }
 "text update" {
 	object {
-		x=650
-		y=118
+		x=613
+		y=204
 		width=100
 		height=13
 	}
@@ -930,8 +966,8 @@ menu {
 }
 "text update" {
 	object {
-		x=650
-		y=77
+		x=613
+		y=163
 		width=100
 		height=13
 	}
@@ -947,8 +983,8 @@ menu {
 }
 "text update" {
 	object {
-		x=650
-		y=159
+		x=613
+		y=245
 		width=100
 		height=13
 	}
@@ -964,8 +1000,8 @@ menu {
 }
 "text entry" {
 	object {
-		x=650
-		y=218
+		x=613
+		y=304
 		width=100
 		height=18
 	}
@@ -979,8 +1015,8 @@ menu {
 }
 menu {
 	object {
-		x=650
-		y=177
+		x=613
+		y=263
 		width=100
 		height=18
 	}
@@ -992,8 +1028,8 @@ menu {
 }
 menu {
 	object {
-		x=650
-		y=136
+		x=613
+		y=222
 		width=100
 		height=18
 	}
@@ -1005,8 +1041,8 @@ menu {
 }
 menu {
 	object {
-		x=650
-		y=95
+		x=613
+		y=181
 		width=100
 		height=18
 	}
@@ -1018,8 +1054,8 @@ menu {
 }
 "text update" {
 	object {
-		x=755
-		y=41
+		x=718
+		y=87
 		width=100
 		height=13
 	}
@@ -1035,8 +1071,8 @@ menu {
 }
 "text update" {
 	object {
-		x=755
-		y=59
+		x=718
+		y=105
 		width=100
 		height=13
 	}
@@ -1052,8 +1088,8 @@ menu {
 }
 "text update" {
 	object {
-		x=755
-		y=200
+		x=718
+		y=286
 		width=100
 		height=13
 	}
@@ -1068,8 +1104,8 @@ menu {
 }
 "text update" {
 	object {
-		x=755
-		y=118
+		x=718
+		y=204
 		width=100
 		height=13
 	}
@@ -1085,8 +1121,8 @@ menu {
 }
 "text update" {
 	object {
-		x=755
-		y=77
+		x=718
+		y=163
 		width=100
 		height=13
 	}
@@ -1102,8 +1138,8 @@ menu {
 }
 "text update" {
 	object {
-		x=755
-		y=159
+		x=718
+		y=245
 		width=100
 		height=13
 	}
@@ -1119,8 +1155,8 @@ menu {
 }
 "text entry" {
 	object {
-		x=755
-		y=218
+		x=718
+		y=304
 		width=100
 		height=18
 	}
@@ -1134,8 +1170,8 @@ menu {
 }
 menu {
 	object {
-		x=755
-		y=177
+		x=718
+		y=263
 		width=100
 		height=18
 	}
@@ -1147,8 +1183,8 @@ menu {
 }
 menu {
 	object {
-		x=755
-		y=136
+		x=718
+		y=222
 		width=100
 		height=18
 	}
@@ -1160,8 +1196,8 @@ menu {
 }
 menu {
 	object {
-		x=755
-		y=95
+		x=718
+		y=181
 		width=100
 		height=18
 	}
@@ -1173,8 +1209,8 @@ menu {
 }
 "text update" {
 	object {
-		x=860
-		y=41
+		x=823
+		y=87
 		width=100
 		height=13
 	}
@@ -1190,8 +1226,8 @@ menu {
 }
 "text update" {
 	object {
-		x=860
-		y=59
+		x=823
+		y=105
 		width=100
 		height=13
 	}
@@ -1207,8 +1243,8 @@ menu {
 }
 "text update" {
 	object {
-		x=860
-		y=200
+		x=823
+		y=286
 		width=100
 		height=13
 	}
@@ -1223,8 +1259,8 @@ menu {
 }
 "text update" {
 	object {
-		x=860
-		y=118
+		x=823
+		y=204
 		width=100
 		height=13
 	}
@@ -1240,8 +1276,8 @@ menu {
 }
 "text update" {
 	object {
-		x=860
-		y=77
+		x=823
+		y=163
 		width=100
 		height=13
 	}
@@ -1257,8 +1293,8 @@ menu {
 }
 "text update" {
 	object {
-		x=860
-		y=159
+		x=823
+		y=245
 		width=100
 		height=13
 	}
@@ -1274,8 +1310,8 @@ menu {
 }
 "text entry" {
 	object {
-		x=860
-		y=218
+		x=823
+		y=304
 		width=100
 		height=18
 	}
@@ -1289,8 +1325,8 @@ menu {
 }
 menu {
 	object {
-		x=860
-		y=177
+		x=823
+		y=263
 		width=100
 		height=18
 	}
@@ -1302,8 +1338,8 @@ menu {
 }
 menu {
 	object {
-		x=860
-		y=136
+		x=823
+		y=222
 		width=100
 		height=18
 	}
@@ -1315,8 +1351,8 @@ menu {
 }
 menu {
 	object {
-		x=860
-		y=95
+		x=823
+		y=181
 		width=100
 		height=18
 	}
@@ -1328,8 +1364,8 @@ menu {
 }
 "text update" {
 	object {
-		x=965
-		y=41
+		x=928
+		y=87
 		width=100
 		height=13
 	}
@@ -1345,8 +1381,8 @@ menu {
 }
 "text update" {
 	object {
-		x=965
-		y=59
+		x=928
+		y=105
 		width=100
 		height=13
 	}
@@ -1362,8 +1398,8 @@ menu {
 }
 "text update" {
 	object {
-		x=965
-		y=200
+		x=928
+		y=286
 		width=100
 		height=13
 	}
@@ -1378,8 +1414,8 @@ menu {
 }
 "text update" {
 	object {
-		x=965
-		y=118
+		x=928
+		y=204
 		width=100
 		height=13
 	}
@@ -1395,8 +1431,8 @@ menu {
 }
 "text update" {
 	object {
-		x=965
-		y=77
+		x=928
+		y=163
 		width=100
 		height=13
 	}
@@ -1412,8 +1448,8 @@ menu {
 }
 "text update" {
 	object {
-		x=965
-		y=159
+		x=928
+		y=245
 		width=100
 		height=13
 	}
@@ -1429,8 +1465,8 @@ menu {
 }
 "text entry" {
 	object {
-		x=965
-		y=218
+		x=928
+		y=304
 		width=100
 		height=18
 	}
@@ -1444,8 +1480,8 @@ menu {
 }
 menu {
 	object {
-		x=965
-		y=177
+		x=928
+		y=263
 		width=100
 		height=18
 	}
@@ -1457,8 +1493,8 @@ menu {
 }
 menu {
 	object {
-		x=965
-		y=136
+		x=928
+		y=222
 		width=100
 		height=18
 	}
@@ -1470,8 +1506,8 @@ menu {
 }
 menu {
 	object {
-		x=965
-		y=95
+		x=928
+		y=181
 		width=100
 		height=18
 	}
@@ -1481,28 +1517,774 @@ menu {
 		bclr=4
 	}
 }
-rectangle {
+text {
 	object {
-		x=5
-		y=7
-		width=1065
-		height=25
+		x=136
+		y=33
+		width=52
+		height=13
 	}
 	"basic attribute" {
 		clr=14
-		fill="outline"
+	}
+	textix="Amplifier"
+}
+text {
+	object {
+		x=191
+		y=33
+		width=105
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="$(AMP1)"
+	align="horiz. centered"
+}
+"text update" {
+	object {
+		x=504
+		y=87
+		width=100
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M4)_AXIS_STATUS"
+		clr=54
+		bclr=4
+	}
+	align="horiz. centered"
+	format="string"
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=403
+		y=87
+		width=100
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M3)_AXIS_STATUS"
+		clr=54
+		bclr=4
+	}
+	align="horiz. centered"
+	format="string"
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=298
+		y=87
+		width=100
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M2)_AXIS_STATUS"
+		clr=54
+		bclr=4
+	}
+	align="horiz. centered"
+	format="string"
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=193
+		y=87
+		width=100
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M1)_AXIS_STATUS"
+		clr=54
+		bclr=4
+	}
+	align="horiz. centered"
+	format="string"
+	limits {
 	}
 }
 text {
 	object {
-		x=10
-		y=12
-		width=1050
-		height=18
+		x=118
+		y=51
+		width=70
+		height=13
 	}
 	"basic attribute" {
 		clr=14
 	}
-	textix="Galil amplifier settings  $(P)"
+	textix="Fault status"
+}
+rectangle {
+	object {
+		x=236
+		y=69
+		width=15
+		height=15
+	}
+	"basic attribute" {
+		clr=14
+	}
+	"dynamic attribute" {
+		clr="alarm"
+		chan="$(P)$(AMP1)_OVERCURRENT_STATUS"
+	}
+}
+text {
+	object {
+		x=213
+		y=51
+		width=62
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="OverCurrent"
 	align="horiz. centered"
+}
+rectangle {
+	object {
+		x=315
+		y=69
+		width=15
+		height=15
+	}
+	"basic attribute" {
+		clr=14
+	}
+	"dynamic attribute" {
+		clr="alarm"
+		chan="$(P)$(AMP1)_UNDERVOLTAGE_STATUS"
+	}
+}
+text {
+	object {
+		x=299
+		y=51
+		width=50
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="UnderVolt"
+	align="horiz. centered"
+}
+text {
+	object {
+		x=378
+		y=51
+		width=45
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="OverVolt"
+	align="horiz. centered"
+}
+rectangle {
+	object {
+		x=393
+		y=69
+		width=15
+		height=15
+	}
+	"basic attribute" {
+		clr=14
+	}
+	"dynamic attribute" {
+		clr="alarm"
+		chan="$(P)$(AMP1)_OVERVOLTAGE_STATUS"
+	}
+}
+rectangle {
+	object {
+		x=472
+		y=69
+		width=15
+		height=15
+	}
+	"basic attribute" {
+		clr=14
+	}
+	"dynamic attribute" {
+		clr="alarm"
+		chan="$(P)$(AMP1)_OVERTEMPERATURE_STATUS"
+	}
+}
+text {
+	object {
+		x=456
+		y=51
+		width=45
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="OverTemp"
+	align="horiz. centered"
+}
+rectangle {
+	object {
+		x=551
+		y=69
+		width=15
+		height=15
+	}
+	"basic attribute" {
+		clr=14
+	}
+	"dynamic attribute" {
+		clr="alarm"
+		chan="$(P)$(AMP1)_ELO_STATUS"
+	}
+}
+text {
+	object {
+		x=552
+		y=51
+		width=15
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="ELO"
+	align="horiz. centered"
+}
+text {
+	object {
+		x=632
+		y=51
+		width=62
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="OverCurrent"
+	align="horiz. centered"
+}
+rectangle {
+	object {
+		x=656
+		y=69
+		width=15
+		height=15
+	}
+	"basic attribute" {
+		clr=14
+	}
+	"dynamic attribute" {
+		clr="alarm"
+		chan="$(P)$(AMP2)_OVERCURRENT_STATUS"
+	}
+}
+rectangle {
+	object {
+		x=735
+		y=69
+		width=15
+		height=15
+	}
+	"basic attribute" {
+		clr=14
+	}
+	"dynamic attribute" {
+		clr="alarm"
+		chan="$(P)$(AMP2)_UNDERVOLTAGE_STATUS"
+	}
+}
+text {
+	object {
+		x=717
+		y=51
+		width=50
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="UnderVolt"
+	align="horiz. centered"
+}
+text {
+	object {
+		x=797
+		y=51
+		width=45
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="OverVolt"
+	align="horiz. centered"
+}
+rectangle {
+	object {
+		x=813
+		y=69
+		width=15
+		height=15
+	}
+	"basic attribute" {
+		clr=14
+	}
+	"dynamic attribute" {
+		clr="alarm"
+		chan="$(P)$(AMP2)_OVERVOLTAGE_STATUS"
+	}
+}
+rectangle {
+	object {
+		x=892
+		y=69
+		width=15
+		height=15
+	}
+	"basic attribute" {
+		clr=14
+	}
+	"dynamic attribute" {
+		clr="alarm"
+		chan="$(P)$(AMP2)_OVERTEMPERATURE_STATUS"
+	}
+}
+text {
+	object {
+		x=876
+		y=51
+		width=45
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="OverTemp"
+	align="horiz. centered"
+}
+rectangle {
+	object {
+		x=971
+		y=69
+		width=15
+		height=15
+	}
+	"basic attribute" {
+		clr=14
+	}
+	"dynamic attribute" {
+		clr="alarm"
+		chan="$(P)$(AMP2)_ELO_STATUS"
+	}
+}
+text {
+	object {
+		x=972
+		y=51
+		width=15
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="ELO"
+	align="horiz. centered"
+}
+text {
+	object {
+		x=611
+		y=33
+		width=105
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="$(AMP2)"
+	align="horiz. centered"
+}
+text {
+	object {
+		x=136
+		y=125
+		width=52
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="HallError"
+}
+text {
+	object {
+		x=112
+		y=145
+		width=76
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="AtTorqueLimit"
+}
+rectangle {
+	object {
+		x=341
+		y=123
+		width=15
+		height=15
+	}
+	"basic attribute" {
+		clr=14
+	}
+	"dynamic attribute" {
+		clr="alarm"
+		chan="$(P)$(M2)_HALLERROR_STATUS"
+	}
+}
+rectangle {
+	object {
+		x=341
+		y=143
+		width=15
+		height=15
+	}
+	"basic attribute" {
+		clr=14
+	}
+	"dynamic attribute" {
+		clr="alarm"
+		chan="$(P)$(M2)_ATTORQUELIMIT_STATUS"
+	}
+}
+rectangle {
+	object {
+		x=446
+		y=143
+		width=15
+		height=15
+	}
+	"basic attribute" {
+		clr=14
+	}
+	"dynamic attribute" {
+		clr="alarm"
+		chan="$(P)$(M3)_ATTORQUELIMIT_STATUS"
+	}
+}
+rectangle {
+	object {
+		x=446
+		y=123
+		width=15
+		height=15
+	}
+	"basic attribute" {
+		clr=14
+	}
+	"dynamic attribute" {
+		clr="alarm"
+		chan="$(P)$(M3)_HALLERROR_STATUS"
+	}
+}
+rectangle {
+	object {
+		x=551
+		y=123
+		width=15
+		height=15
+	}
+	"basic attribute" {
+		clr=14
+	}
+	"dynamic attribute" {
+		clr="alarm"
+		chan="$(P)$(M4)_HALLERROR_STATUS"
+	}
+}
+rectangle {
+	object {
+		x=551
+		y=143
+		width=15
+		height=15
+	}
+	"basic attribute" {
+		clr=14
+	}
+	"dynamic attribute" {
+		clr="alarm"
+		chan="$(P)$(M4)_ATTORQUELIMIT_STATUS"
+	}
+}
+rectangle {
+	object {
+		x=656
+		y=122
+		width=15
+		height=15
+	}
+	"basic attribute" {
+		clr=14
+	}
+	"dynamic attribute" {
+		clr="alarm"
+		chan="$(P)$(M5)_HALLERROR_STATUS"
+	}
+}
+rectangle {
+	object {
+		x=656
+		y=142
+		width=15
+		height=15
+	}
+	"basic attribute" {
+		clr=14
+	}
+	"dynamic attribute" {
+		clr="alarm"
+		chan="$(P)$(M5)_ATTORQUELIMIT_STATUS"
+	}
+}
+rectangle {
+	object {
+		x=761
+		y=122
+		width=15
+		height=15
+	}
+	"basic attribute" {
+		clr=14
+	}
+	"dynamic attribute" {
+		clr="alarm"
+		chan="$(P)$(M6)_HALLERROR_STATUS"
+	}
+}
+rectangle {
+	object {
+		x=761
+		y=142
+		width=15
+		height=15
+	}
+	"basic attribute" {
+		clr=14
+	}
+	"dynamic attribute" {
+		clr="alarm"
+		chan="$(P)$(M6)_ATTORQUELIMIT_STATUS"
+	}
+}
+rectangle {
+	object {
+		x=866
+		y=122
+		width=15
+		height=15
+	}
+	"basic attribute" {
+		clr=14
+	}
+	"dynamic attribute" {
+		clr="alarm"
+		chan="$(P)$(M7)_HALLERROR_STATUS"
+	}
+}
+rectangle {
+	object {
+		x=866
+		y=142
+		width=15
+		height=15
+	}
+	"basic attribute" {
+		clr=14
+	}
+	"dynamic attribute" {
+		clr="alarm"
+		chan="$(P)$(M7)_ATTORQUELIMIT_STATUS"
+	}
+}
+rectangle {
+	object {
+		x=971
+		y=122
+		width=15
+		height=15
+	}
+	"basic attribute" {
+		clr=14
+	}
+	"dynamic attribute" {
+		clr="alarm"
+		chan="$(P)$(M8)_HALLERROR_STATUS"
+	}
+}
+rectangle {
+	object {
+		x=971
+		y=142
+		width=15
+		height=15
+	}
+	"basic attribute" {
+		clr=14
+	}
+	"dynamic attribute" {
+		clr="alarm"
+		chan="$(P)$(M8)_ATTORQUELIMIT_STATUS"
+	}
+}
+"message button" {
+	object {
+		x=116
+		y=69
+		width=72
+		height=15
+	}
+	control {
+		chan="$(P)CLEARAMPFAULTS_CMD"
+		clr=14
+		bclr=51
+	}
+	label="ClearFaults"
+	press_msg="1"
+}
+"choice button" {
+	object {
+		x=193
+		y=330
+		width=100
+		height=15
+	}
+	control {
+		chan="$(P)$(M1).CNEN"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+"choice button" {
+	object {
+		x=298
+		y=330
+		width=100
+		height=15
+	}
+	control {
+		chan="$(P)$(M1).CNEN"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+"choice button" {
+	object {
+		x=508
+		y=330
+		width=100
+		height=15
+	}
+	control {
+		chan="$(P)$(M1).CNEN"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+"choice button" {
+	object {
+		x=403
+		y=330
+		width=100
+		height=15
+	}
+	control {
+		chan="$(P)$(M1).CNEN"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+"choice button" {
+	object {
+		x=613
+		y=330
+		width=100
+		height=15
+	}
+	control {
+		chan="$(P)$(M1).CNEN"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+"choice button" {
+	object {
+		x=718
+		y=330
+		width=100
+		height=15
+	}
+	control {
+		chan="$(P)$(M1).CNEN"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+"choice button" {
+	object {
+		x=823
+		y=330
+		width=100
+		height=15
+	}
+	control {
+		chan="$(P)$(M1).CNEN"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+"choice button" {
+	object {
+		x=928
+		y=330
+		width=100
+		height=15
+	}
+	control {
+		chan="$(P)$(M1).CNEN"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+text {
+	object {
+		x=94
+		y=330
+		width=94
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Amplifier enable"
 }

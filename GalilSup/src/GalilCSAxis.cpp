@@ -549,10 +549,9 @@ asynStatus GalilCSAxis::monitorCSAxisMove(void)
          //Set axis stop code
          ssc = pAxis->stop_code_;
          //Set flag if an axis stops
-         if ((ssc == MOTOR_STOP_FWD) || (ssc == MOTOR_STOP_REV) ||
-            (ssc == MOTOR_STOP_ONERR) ||
-            (ssc == MOTOR_STOP_ENC) || (ssc == MOTOR_STOP_AMP) ||
-            (ssc == MOTOR_STOP_ECATCOMM) || (ssc == MOTOR_STOP_ECATAMP)) {
+         //Check for stop conditions that GalilAxis doesn't check
+         //Such as as fwd, rev limit and stop at controller level
+         if (MOTOR_STOP_FWD == ssc || MOTOR_STOP_REV == ssc || MOTOR_STOP_STOP == ssc) {
             stopInternal_ = true;
             break;
          }
@@ -580,9 +579,10 @@ asynStatus GalilCSAxis::monitorCSAxisMove(void)
          sc = pAxis->stop_code_;
          //Stop the CSAxis, if we find a revaxis is not stopping already
          if (!pAxis->done_ &&
-          sc != MOTOR_STOP_FWD && sc != MOTOR_STOP_REV && sc != MOTOR_STOP_STOP &&
-          sc != MOTOR_STOP_ONERR && sc != MOTOR_STOP_ENC && sc != MOTOR_STOP_AMP &&
-          sc != MOTOR_STOP_ECATCOMM && sc != MOTOR_STOP_ECATAMP) {
+             sc != MOTOR_STOP_FWD && sc != MOTOR_STOP_REV && sc != MOTOR_STOP_STOP &&
+             sc != MOTOR_STOP_ONERR && sc != MOTOR_STOP_ENC && sc != MOTOR_STOP_AMP &&
+             sc != MOTOR_STOP_ECATCOMM && sc != MOTOR_STOP_ECATAMP && sc != MOTOR_STOP_SABORT &&
+             sc != MOTOR_STOP_SABORT) {
             //Set CSAxis stop reason
             stop_reason_ = ssc;
             //Tell CSAxis to stop
@@ -1116,13 +1116,22 @@ asynStatus GalilCSAxis::stop(double acceleration)
 /** Stop the motor.  Called by driver internally
   * Blocks backlash, retries attempts from motorRecord until dmov
   * \param[in] emergencyStop - Emergency stop true or false */
-asynStatus GalilCSAxis::stopInternal(bool emergencyStop)
+asynStatus GalilCSAxis::stopInternal(void)
 {
    double acceleration[MAX_GALIL_AXES];
    double accel;
    string cmd;
    GalilAxis *pAxis;
    unsigned i;
+   bool emergencyStop = false;
+   int sr = stop_reason_;
+
+   //Determine if emergency stop required from stop_reason_
+   if (MOTOR_STOP_ONERR == sr || MOTOR_STOP_SABORT == sr || MOTOR_STOP_ENC == sr || MOTOR_STOP_AMP == sr ||
+       MOTOR_STOP_ECATCOMM == sr || MOTOR_STOP_ECATAMP == sr || MOTOR_STOP_ONWLP == sr || 
+       MOTOR_STOP_ONSTALL == sr || MOTOR_STOP_REV == sr || MOTOR_STOP_FWD == sr) {
+      emergencyStop = true;
+   }
 
    //Indicate stop source is the driver not motor record
    stopInternal_ = true;
@@ -1131,14 +1140,14 @@ asynStatus GalilCSAxis::stopInternal(bool emergencyStop)
    for (i = 0; i < MAX_GALIL_AXES; i++)
       acceleration[i] = -1;
 
-   //Loop thru real motor list, and determine correct deceleration to use for each motor
+   //Loop thru real motor list, and set correct deceleration to use for each motor
    for (i = 0; revaxes_[i] != '\0'; i++)
       {
       //Retrieve the axis
       pAxis = pC_->getAxis(revaxes_[i] - AASCII);
       //Process or skip
       if (!pAxis) continue;
-      //Determine correct deceleration
+      //Set correct deceleration
       acceleration[revaxes_[i] - AASCII] = (emergencyStop) ? pAxis->limdc_ : pAxis->csaAcceleration_;
       }
 
