@@ -4584,6 +4584,7 @@ asynStatus GalilController::writeOctet(asynUser *pasynUser, const char*  value, 
   string mesg;					//Controller mesg
   GalilCSAxis *pCSAxis;				//Pointer to CSAxis instance
   int addr=0;					//Address requested
+  char *endptr;					//String to double conversion
 
   //Just return if shutting down
   if (shuttingDown_)
@@ -4615,6 +4616,7 @@ asynStatus GalilController::writeOctet(asynUser *pasynUser, const char*  value, 
      //Send the user command	
      epicsSnprintf(cmd_, sizeof(cmd_), "%s", value_s.c_str());
      status = sync_writeReadController();
+
      //User command complete, set timeout back to default 1
      timeout_ = 1;
      if (status == asynSuccess)
@@ -4623,8 +4625,12 @@ asynStatus GalilController::writeOctet(asynUser *pasynUser, const char*  value, 
         //String monitor
         setStringParam(GalilUserOctet_, resp_);
         //ai monitor
-        aivalue = atof(resp_);
-        setDoubleParam(0, GalilUserOctetVal_, aivalue);
+        aivalue = strtod(resp_, &endptr);
+        //Check for conversion error
+        if (errno == 0 && *endptr == '\0') {
+           //Conversion ok, pass value on
+           setDoubleParam(0, GalilUserOctetVal_, aivalue);
+        }
         //Determine if custom command had potential to alter controller time base
         if (value_s.find("TM ") != string::npos)
            {
