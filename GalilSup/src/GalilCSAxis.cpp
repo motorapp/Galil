@@ -1115,7 +1115,7 @@ asynStatus GalilCSAxis::stop(double acceleration)
 
 /** Stop the motor.  Called by driver internally
   * Blocks backlash, retries attempts from motorRecord until dmov
-  * \param[in] emergencyStop - Emergency stop true or false */
+*/
 asynStatus GalilCSAxis::stopInternal(void)
 {
    double acceleration[MAX_GALIL_AXES];
