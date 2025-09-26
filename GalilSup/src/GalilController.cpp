@@ -451,6 +451,8 @@
 //                  Change/increase timeout for user console commands known to take a long time
 //                  Add command console monitor PV $(P):SEND_STR_MON will now show controller error strings
 //                  Fix multi-thread access condition causing segfault during controller reconnect in UDP mode
+// 06/05/2025 M.Clift, JHopkins
+//                  Add missing config/RELEASE.local
 
 #include <stdio.h>
 #include <math.h>
@@ -490,7 +492,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "4-0-21";
+static const char *driverVersion = "4-0-22";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);
