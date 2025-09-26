@@ -1955,7 +1955,7 @@ x 150
 y 124
 w 135
 h 20
-fgColor rgb 29440 57088 65280
+fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
 inconsistentColor rgb 17920 17920 17920
 topShadowColor rgb 55808 55808 55808
@@ -1975,7 +1975,7 @@ x 150
 y 103
 w 135
 h 20
-fgColor rgb 29440 57088 65280
+fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
 inconsistentColor rgb 17920 17920 17920
 topShadowColor rgb 55808 55808 55808
@@ -1995,7 +1995,7 @@ x 150
 y 144
 w 135
 h 20
-fgColor rgb 29440 57088 65280
+fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
 inconsistentColor rgb 17920 17920 17920
 topShadowColor rgb 55808 55808 55808
@@ -2015,7 +2015,7 @@ x 150
 y 164
 w 135
 h 18
-fgColor rgb 29440 57088 65280
+fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
 inconsistentColor rgb 17920 17920 17920
 topShadowColor rgb 55808 55808 55808
@@ -2056,7 +2056,7 @@ x 150
 y 345
 w 135
 h 20
-fgColor rgb 29440 57088 65280
+fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
 inconsistentColor rgb 17920 17920 17920
 topShadowColor rgb 55808 55808 55808
@@ -2076,7 +2076,7 @@ x 152
 y 493
 w 135
 h 20
-fgColor rgb 29440 57088 65280
+fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
 inconsistentColor rgb 17920 17920 17920
 topShadowColor rgb 55808 55808 55808
@@ -2096,7 +2096,7 @@ x 152
 y 513
 w 135
 h 20
-fgColor rgb 29440 57088 65280
+fgColor rgb 0 0 0
 bgColor rgb 29440 57088 65280
 inconsistentColor rgb 17920 17920 17920
 topShadowColor rgb 55808 55808 55808

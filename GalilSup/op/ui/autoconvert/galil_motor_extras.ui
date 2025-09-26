@@ -239,9 +239,9 @@ border-radius: 2px;
             </property>
             <property name="foreground">
                 <color alpha="255">
-                    <red>115</red>
-                    <green>223</green>
-                    <blue>255</blue>
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>0</blue>
                 </color>
             </property>
             <property name="background">
@@ -719,9 +719,9 @@ border-radius: 2px;
             </property>
             <property name="foreground">
                 <color alpha="255">
-                    <red>115</red>
-                    <green>223</green>
-                    <blue>255</blue>
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>0</blue>
                 </color>
             </property>
             <property name="background">
@@ -893,9 +893,9 @@ border-radius: 2px;
             </property>
             <property name="foreground">
                 <color alpha="255">
-                    <red>115</red>
-                    <green>223</green>
-                    <blue>255</blue>
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>0</blue>
                 </color>
             </property>
             <property name="background">
@@ -959,9 +959,9 @@ border-radius: 2px;
             </property>
             <property name="foreground">
                 <color alpha="255">
-                    <red>115</red>
-                    <green>223</green>
-                    <blue>255</blue>
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>0</blue>
                 </color>
             </property>
             <property name="background">
@@ -1757,9 +1757,9 @@ border-radius: 2px;
             </property>
             <property name="foreground">
                 <color alpha="255">
-                    <red>115</red>
-                    <green>223</green>
-                    <blue>255</blue>
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>0</blue>
                 </color>
             </property>
             <property name="background">
@@ -2042,9 +2042,9 @@ border-radius: 2px;
             </property>
             <property name="foreground">
                 <color alpha="255">
-                    <red>115</red>
-                    <green>223</green>
-                    <blue>255</blue>
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>0</blue>
                 </color>
             </property>
             <property name="background">
@@ -2072,9 +2072,9 @@ border-radius: 2px;
             </property>
             <property name="foreground">
                 <color alpha="255">
-                    <red>115</red>
-                    <green>223</green>
-                    <blue>255</blue>
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>0</blue>
                 </color>
             </property>
             <property name="background">

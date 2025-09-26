@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--Saved on 2025-03-18 14:48:20 by epics-->
+<!--Saved on 2025-04-07 17:47:29 by epics-->
 <display version="2.0.0">
   <name>galil_motor_extras</name>
   <x>422</x>
@@ -58,10 +58,6 @@
     <y>124</y>
     <width>135</width>
     <height>20</height>
-    <foreground_color>
-      <color red="115" green="223" blue="255">
-      </color>
-    </foreground_color>
     <background_color>
       <color red="115" green="223" blue="255">
       </color>
@@ -214,10 +210,6 @@
     <y>103</y>
     <width>135</width>
     <height>20</height>
-    <foreground_color>
-      <color red="115" green="223" blue="255">
-      </color>
-    </foreground_color>
     <background_color>
       <color red="115" green="223" blue="255">
       </color>
@@ -277,10 +269,6 @@
     <y>144</y>
     <width>135</width>
     <height>20</height>
-    <foreground_color>
-      <color red="115" green="223" blue="255">
-      </color>
-    </foreground_color>
     <background_color>
       <color red="115" green="223" blue="255">
       </color>
@@ -303,10 +291,6 @@
     <y>164</y>
     <width>135</width>
     <height>18</height>
-    <foreground_color>
-      <color red="115" green="223" blue="255">
-      </color>
-    </foreground_color>
     <background_color>
       <color red="115" green="223" blue="255">
       </color>
@@ -537,10 +521,6 @@
     <y>345</y>
     <width>135</width>
     <height>20</height>
-    <foreground_color>
-      <color red="115" green="223" blue="255">
-      </color>
-    </foreground_color>
     <background_color>
       <color red="115" green="223" blue="255">
       </color>
@@ -649,10 +629,6 @@
     <y>493</y>
     <width>135</width>
     <height>20</height>
-    <foreground_color>
-      <color red="115" green="223" blue="255">
-      </color>
-    </foreground_color>
     <background_color>
       <color red="115" green="223" blue="255">
       </color>
@@ -666,10 +642,6 @@
     <y>513</y>
     <width>135</width>
     <height>20</height>
-    <foreground_color>
-      <color red="115" green="223" blue="255">
-      </color>
-    </foreground_color>
     <background_color>
       <color red="115" green="223" blue="255">
       </color>

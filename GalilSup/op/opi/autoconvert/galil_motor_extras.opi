@@ -187,7 +187,7 @@ $(pv_value)</tooltip>
     </font>
     <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>
     <foreground_color>
-      <color red="115" green="223" blue="255" />
+      <color red="0" green="0" blue="0" />
     </foreground_color>
     <height>20</height>
     <label></label>
@@ -686,7 +686,7 @@ $(pv_value)</tooltip>
     </font>
     <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>
     <foreground_color>
-      <color red="115" green="223" blue="255" />
+      <color red="0" green="0" blue="0" />
     </foreground_color>
     <height>20</height>
     <label></label>
@@ -872,7 +872,7 @@ $(pv_value)</tooltip>
     </font>
     <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>
     <foreground_color>
-      <color red="115" green="223" blue="255" />
+      <color red="0" green="0" blue="0" />
     </foreground_color>
     <height>20</height>
     <label></label>
@@ -956,7 +956,7 @@ $(pv_value)</tooltip>
     </font>
     <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>
     <foreground_color>
-      <color red="115" green="223" blue="255" />
+      <color red="0" green="0" blue="0" />
     </foreground_color>
     <height>18</height>
     <label></label>
@@ -1854,7 +1854,7 @@ $(pv_value)</tooltip>
     </font>
     <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>
     <foreground_color>
-      <color red="115" green="223" blue="255" />
+      <color red="0" green="0" blue="0" />
     </foreground_color>
     <height>20</height>
     <label></label>
@@ -2208,7 +2208,7 @@ $(pv_value)</tooltip>
     </font>
     <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>
     <foreground_color>
-      <color red="115" green="223" blue="255" />
+      <color red="0" green="0" blue="0" />
     </foreground_color>
     <height>20</height>
     <label></label>
@@ -2252,7 +2252,7 @@ $(pv_value)</tooltip>
     </font>
     <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>
     <foreground_color>
-      <color red="115" green="223" blue="255" />
+      <color red="0" green="0" blue="0" />
     </foreground_color>
     <height>20</height>
     <label></label>
