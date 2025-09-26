@@ -2186,7 +2186,7 @@ rectangle {
 		height=15
 	}
 	control {
-		chan="$(P)$(M1).CNEN"
+		chan="$(P)$(M2).CNEN"
 		clr=14
 		bclr=51
 	}
@@ -2200,7 +2200,7 @@ rectangle {
 		height=15
 	}
 	control {
-		chan="$(P)$(M1).CNEN"
+		chan="$(P)$(M4).CNEN"
 		clr=14
 		bclr=51
 	}
@@ -2214,7 +2214,7 @@ rectangle {
 		height=15
 	}
 	control {
-		chan="$(P)$(M1).CNEN"
+		chan="$(P)$(M3).CNEN"
 		clr=14
 		bclr=51
 	}
@@ -2228,7 +2228,7 @@ rectangle {
 		height=15
 	}
 	control {
-		chan="$(P)$(M1).CNEN"
+		chan="$(P)$(M5).CNEN"
 		clr=14
 		bclr=51
 	}
@@ -2242,7 +2242,7 @@ rectangle {
 		height=15
 	}
 	control {
-		chan="$(P)$(M1).CNEN"
+		chan="$(P)$(M6).CNEN"
 		clr=14
 		bclr=51
 	}
@@ -2256,7 +2256,7 @@ rectangle {
 		height=15
 	}
 	control {
-		chan="$(P)$(M1).CNEN"
+		chan="$(P)$(M7).CNEN"
 		clr=14
 		bclr=51
 	}
@@ -2270,7 +2270,7 @@ rectangle {
 		height=15
 	}
 	control {
-		chan="$(P)$(M1).CNEN"
+		chan="$(P)$(M8).CNEN"
 		clr=14
 		bclr=51
 	}

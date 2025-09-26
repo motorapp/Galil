@@ -29,16 +29,7 @@
    <property name="spacing">
     <number>1</number>
    </property>
-   <property name="leftMargin">
-    <number>2</number>
-   </property>
-   <property name="topMargin">
-    <number>2</number>
-   </property>
-   <property name="rightMargin">
-    <number>2</number>
-   </property>
-   <property name="bottomMargin">
+   <property name="margin">
     <number>2</number>
    </property>
    <item>
@@ -53,16 +44,7 @@
       <property name="spacing">
        <number>5</number>
       </property>
-      <property name="leftMargin">
-       <number>5</number>
-      </property>
-      <property name="topMargin">
-       <number>5</number>
-      </property>
-      <property name="rightMargin">
-       <number>5</number>
-      </property>
-      <property name="bottomMargin">
+      <property name="margin">
        <number>5</number>
       </property>
       <item>
@@ -201,26 +183,23 @@
                 <property name="variableSubstitutions" stdset="0">
                  <string notr="true"/>
                 </property>
+                <property name="variableAsToolTip">
+                 <bool>false</bool>
+                </property>
+                <property name="userLevelVisibility" stdset="0">
+                 <enum>QEPushButton::User</enum>
+                </property>
                 <property name="writeOnClick">
                  <bool>false</bool>
                 </property>
                 <property name="guiFile" stdset="0">
                  <string>galil_motor_basic.ui</string>
                 </property>
+                <property name="creationOption" stdset="0">
+                 <enum>QEPushButton::NewWindow</enum>
+                </property>
                 <property name="prioritySubstitutions">
                  <string/>
-                </property>
-                <property name="creationOption">
-                 <enum>QE::Open</enum>
-                </property>
-                <property name="variableAsToolTip">
-                 <bool>false</bool>
-                </property>
-                <property name="userLevelVisibility">
-                 <enum>QE::User</enum>
-                </property>
-                <property name="userLevelEnabled">
-                 <enum>QE::User</enum>
                 </property>
                </widget>
               </item>
@@ -798,8 +777,8 @@
               <property name="variableSubstitutions" stdset="0">
                <string/>
               </property>
-              <property name="writeOnClick">
-               <bool>false</bool>
+              <property name="variableAsToolTip">
+               <bool>true</bool>
               </property>
               <property name="writeOnPress">
                <bool>true</bool>
@@ -807,8 +786,8 @@
               <property name="writeOnRelease">
                <bool>true</bool>
               </property>
-              <property name="variableAsToolTip">
-               <bool>true</bool>
+              <property name="writeOnClick">
+               <bool>false</bool>
               </property>
              </widget>
             </item>
@@ -980,8 +959,8 @@
               <property name="variableSubstitutions" stdset="0">
                <string/>
               </property>
-              <property name="writeOnClick">
-               <bool>false</bool>
+              <property name="variableAsToolTip">
+               <bool>true</bool>
               </property>
               <property name="writeOnPress">
                <bool>true</bool>
@@ -989,8 +968,8 @@
               <property name="writeOnRelease">
                <bool>true</bool>
               </property>
-              <property name="variableAsToolTip">
-               <bool>true</bool>
+              <property name="writeOnClick">
+               <bool>false</bool>
               </property>
              </widget>
             </item>
@@ -1045,11 +1024,11 @@
               <property name="variableAsToolTip">
                <bool>true</bool>
               </property>
-              <property name="userLevelVisibility">
-               <enum>QE::Scientist</enum>
+              <property name="userLevelVisibility" stdset="0">
+               <enum>QEPushButton::Scientist</enum>
               </property>
-              <property name="userLevelEnabled">
-               <enum>QE::Scientist</enum>
+              <property name="userLevelEnabled" stdset="0">
+               <enum>QEPushButton::Scientist</enum>
               </property>
              </widget>
             </item>
@@ -1118,11 +1097,11 @@
             <property name="variableAsToolTip">
              <bool>true</bool>
             </property>
-            <property name="userLevelVisibility">
-             <enum>QE::Scientist</enum>
+            <property name="userLevelVisibility" stdset="0">
+             <enum>QEPushButton::Scientist</enum>
             </property>
-            <property name="userLevelEnabled">
-             <enum>QE::Scientist</enum>
+            <property name="userLevelEnabled" stdset="0">
+             <enum>QEPushButton::Scientist</enum>
             </property>
            </widget>
           </item>
@@ -1161,11 +1140,11 @@
             <property name="variableAsToolTip">
              <bool>false</bool>
             </property>
-            <property name="userLevelVisibility">
-             <enum>QE::Scientist</enum>
+            <property name="userLevelVisibility" stdset="0">
+             <enum>QEComboBox::Scientist</enum>
             </property>
-            <property name="userLevelEnabled">
-             <enum>QE::Scientist</enum>
+            <property name="userLevelEnabled" stdset="0">
+             <enum>QEComboBox::Scientist</enum>
             </property>
            </widget>
           </item>
@@ -1216,11 +1195,11 @@
             <property name="styleSheet">
              <string notr="true">QWidget { color: grey }</string>
             </property>
-            <property name="userLevelVisibility">
-             <enum>QE::Scientist</enum>
+            <property name="userLevelVisibility" stdset="0">
+             <enum>QELabel::Scientist</enum>
             </property>
-            <property name="userLevelEnabled">
-             <enum>QE::Scientist</enum>
+            <property name="userLevelEnabled" stdset="0">
+             <enum>QELabel::Scientist</enum>
             </property>
             <property name="addUnits">
              <bool>false</bool>
@@ -1258,11 +1237,8 @@
               <property name="variable" stdset="0">
                <string>$(DMC)$(M$(SLOT))_ON_CMD</string>
               </property>
-              <property name="userLevelVisibility">
-               <enum>QE::Scientist</enum>
-              </property>
-              <property name="userLevelEnabled">
-               <enum>QE::Scientist</enum>
+              <property name="userLevelVisibility" stdset="0">
+               <enum>QEComboBox::Scientist</enum>
               </property>
              </widget>
             </item>
@@ -1301,11 +1277,11 @@
               <property name="variable" stdset="0">
                <string>$(DMC)$(M$(SLOT))_ON_STATUS</string>
               </property>
-              <property name="userLevelVisibility">
-               <enum>QE::Scientist</enum>
+              <property name="userLevelVisibility" stdset="0">
+               <enum>QELabel::Scientist</enum>
               </property>
-              <property name="userLevelEnabled">
-               <enum>QE::Scientist</enum>
+              <property name="userLevelEnabled" stdset="0">
+               <enum>QELabel::Scientist</enum>
               </property>
               <property name="text">
                <string>type</string>

@@ -453,6 +453,11 @@
 //                  Fix multi-thread access condition causing segfault during controller reconnect in UDP mode
 // 06/05/2025 M.Clift, JHopkins
 //                  Add missing config/RELEASE.local
+// 27/09/2025 M.Clift, M.Rivers
+//                  Add internal amplifier status and fault reset
+// 27/09/2025 M.Clift
+//                  Add several stop code cases to internal stop mechanism
+//                  Minor optimizations to GalilController::getStatus
 
 #include <stdio.h>
 #include <math.h>
@@ -492,7 +497,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "4-0-22";
+static const char *driverVersion = "4-1-25";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);
@@ -5149,7 +5154,8 @@ void GalilController::processUnsolicitedMesgs(void)
 //Return status of GalilController data record acquisition
 void GalilController::getStatus(void)
 {
-   char src[MAX_GALIL_STRING_SIZE];		//data source to retrieve
+   char src1[MAX_GALIL_STRING_SIZE];		//data source to retrieve
+   char src2[MAX_GALIL_STRING_SIZE];		//Two data sources per loop supported
    int addr;					//addr or byte of IO
    int start, end;				//start, and end of analog numbering for this controller
    double paramDouble;				//For passing asynFloat64 to ParamList
@@ -5164,20 +5170,23 @@ void GalilController::getStatus(void)
 
       //DMC30000 series only.
       if (model_[3] == '3') {
+         //Specify data source 1, digital input bit
+         strcpy(src1, "@IN[x]");
+         //Specify data source 2, digital output bit
+         strcpy(src2, "@OUT[x]");
          //First 8 input, and first 4 output bits only
          for (i = 1; i <= 8; i++) {
-            //Digital input bit
-            strcpy(src, "@IN[x]");
-            src[4] = i + ZEROASCII;
-            paramUDig = (unsigned)sourceValue(recdata_, src);
+            //Specify input bit
+            src1[4] = i + ZEROASCII;
+            paramUDig = (unsigned)sourceValue(recdata_, src1);
             in += paramUDig << (i - 1);
             //Digital output bits
             if (i <= 4) {
                //Database records are arranged by word
                //ValueMask = 0xFFFF because a word is 16 bits
-               strcpy(src, "@OUT[x]");
-               src[5] = i + ZEROASCII;
-               paramUDig = (unsigned)sourceValue(recdata_, src);
+               //Specify output bit
+               src2[5] = i + ZEROASCII;
+               paramUDig = (unsigned)sourceValue(recdata_, src2);
                out += paramUDig << (i - 1);
             }
          }//For
@@ -5202,10 +5211,12 @@ void GalilController::getStatus(void)
       else {
          //for all models except DMC30000 series
          //digital inputs in banks of 8 bits for all models except DMC30000 series
+         //Specify source 1, digital input byte
+         strcpy(src1, "_TIx");
          for (addr=0;addr<BINARYIN_BYTES;addr++) {
-            strcpy(src, "_TIx");
-            src[3] = addr + ZEROASCII;
-            paramUDig = (unsigned)sourceValue(recdata_, src);
+            //Specify byte
+            src1[3] = addr + ZEROASCII;
+            paramUDig = (unsigned)sourceValue(recdata_, src1);
             //ValueMask = 0xFF because a byte is 8 bits
             if (!digInitialUpdate_) {
                //Forced callbacks even if no value change
@@ -5217,10 +5228,12 @@ void GalilController::getStatus(void)
             }
          }//For
 	 //data record has digital outputs in banks of 16 bits for dmc, 8 bits for rio
+         //Specify source 1, digital output byte
+         strcpy(src1, "_OPx");
 	 for (addr=0;addr<BINARYOUT_WORDS;addr++) {
-            strcpy(src, "_OPx");
-            src[3] = addr + ZEROASCII;
-            paramUDig = (unsigned)sourceValue(recdata_, src);
+	    //Specify byte
+            src1[3] = addr + ZEROASCII;
+            paramUDig = (unsigned)sourceValue(recdata_, src1);
             if (!digInitialUpdate_) {
                //Forced callbacks even if no value change
                setUIntDigitalParam(addr, GalilBinaryOutRBV_, paramUDig, 0xFFFF, 0xFFFF );
@@ -5241,20 +5254,22 @@ void GalilController::getStatus(void)
       start = (rio_) ? 0 : 1;
       end = ANALOG_PORTS + start;
 
+      //Specify source 1, analog input
+      strcpy(src1, "@AN[x]");
+      //Specify source 2, analog output readback
+      strcpy(src2, "@AO[x]");
       for (addr = start;addr < end;addr++) {
-         //Analog inputs
-         strcpy(src, "@AN[x]");
-         src[4] = addr + ZEROASCII;
-         paramDouble = (double)sourceValue(recdata_, src);
+         //Specify analog input number
+         src1[4] = addr + ZEROASCII;
+         paramDouble = (double)sourceValue(recdata_, src1);
          if ((paramDouble < (analogInPosted_[addr] - analogIndeadb_[addr])) || (paramDouble > (analogInPosted_[addr] + analogIndeadb_[addr]))) {
             setDoubleParam(addr, GalilAnalogIn_, paramDouble);
             analogInPosted_[addr] = paramDouble;
          }
          if (rio_ || model_[3] == '3') {
-            //Analog output readbacks
-            strcpy(src, "@AO[x]");
-            src[4] = addr + ZEROASCII;
-            paramDouble = (double)sourceValue(recdata_, src);
+            //Specify analog output number
+            src2[4] = addr + ZEROASCII;
+            paramDouble = (double)sourceValue(recdata_, src2);
             if ((paramDouble < (analogOutRbvPosted_[addr] - analogOutRBVdeadb_[addr])) || (paramDouble > (analogOutRbvPosted_[addr] + analogOutRBVdeadb_[addr]))) {
                setDoubleParam(addr, GalilAnalogOutRBV_, paramDouble);
                analogOutRbvPosted_[addr] = paramDouble;
@@ -5266,16 +5281,17 @@ void GalilController::getStatus(void)
       processUnsolicitedMesgs();
 
       //Coordinate system status
+      //Specify source 1, coordinate system move status
+      strcpy(src1, "_BGx");
+      //Specify source 2, coordinate system segment count
+      strcpy(src1, "_CSx");
       for (addr=0;addr<COORDINATE_SYSTEMS;addr++) {
-         //Move/done status
-         strcpy(src, "_BGx");
-         src[3] = (addr) ? 'T' : 'S';
-         setIntegerParam(addr, GalilCoordSysMoving_, (int)sourceValue(recdata_, src));
-
-         //Segment count
-         strcpy(src, "_CSx");
-         src[3] = (addr) ? 'T' : 'S';
-         setIntegerParam(addr, GalilCoordSysSegments_, (int)sourceValue(recdata_, src));
+         //Specify coordinate system S or T to acquire move status from
+         src1[3] = (addr) ? 'T' : 'S';
+         setIntegerParam(addr, GalilCoordSysMoving_, (int)sourceValue(recdata_, src1));
+         //Specify coordinate system S or T to acquire segment count from
+         src2[3] = (addr) ? 'T' : 'S';
+         setIntegerParam(addr, GalilCoordSysSegments_, (int)sourceValue(recdata_, src2));
       } //For
 
       //40xx and 41xx series, obtain internal amplifier fault status

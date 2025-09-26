@@ -1,0 +1,1177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>EFrame</class>
+ <widget class="QEFrame" name="EFrame">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>997</width>
+    <height>576</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>EFrame</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>1</number>
+   </property>
+   <property name="leftMargin">
+    <number>1</number>
+   </property>
+   <property name="topMargin">
+    <number>1</number>
+   </property>
+   <property name="rightMargin">
+    <number>1</number>
+   </property>
+   <property name="bottomMargin">
+    <number>1</number>
+   </property>
+   <item>
+    <widget class="QEFrame" name="qeframe_4">
+     <layout class="QVBoxLayout" name="verticalLayout_5" stretch="1,4,14,3">
+      <property name="spacing">
+       <number>1</number>
+      </property>
+      <property name="leftMargin">
+       <number>1</number>
+      </property>
+      <property name="topMargin">
+       <number>1</number>
+      </property>
+      <property name="rightMargin">
+       <number>1</number>
+      </property>
+      <property name="bottomMargin">
+       <number>1</number>
+      </property>
+      <item>
+       <widget class="QEFrame" name="qeframe">
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <property name="spacing">
+          <number>1</number>
+         </property>
+         <property name="leftMargin">
+          <number>1</number>
+         </property>
+         <property name="topMargin">
+          <number>1</number>
+         </property>
+         <property name="rightMargin">
+          <number>1</number>
+         </property>
+         <property name="bottomMargin">
+          <number>1</number>
+         </property>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="1,1,1,1">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <item>
+            <spacer name="horizontalSpacer_35">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>80</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_5">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="sizeIncrement">
+              <size>
+               <width>1</width>
+               <height>1</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Abyssinica SIL</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>Internal Amplifiers</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QESubstitutedLabel" name="qesubstitutedlabel">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Abyssinica SIL</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="labelText" stdset="0">
+              <string>$(DMC)</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>80</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QEFrame" name="qeframe_3">
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <property name="spacing">
+          <number>1</number>
+         </property>
+         <property name="leftMargin">
+          <number>1</number>
+         </property>
+         <property name="topMargin">
+          <number>1</number>
+         </property>
+         <property name="rightMargin">
+          <number>1</number>
+         </property>
+         <property name="bottomMargin">
+          <number>1</number>
+         </property>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="1,10">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QEFrame" name="qeframe_8">
+             <property name="lineWidth">
+              <number>3</number>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_9">
+              <property name="spacing">
+               <number>3</number>
+              </property>
+              <property name="leftMargin">
+               <number>3</number>
+              </property>
+              <property name="topMargin">
+               <number>3</number>
+              </property>
+              <property name="rightMargin">
+               <number>3</number>
+              </property>
+              <property name="bottomMargin">
+               <number>3</number>
+              </property>
+              <item>
+               <layout class="QGridLayout" name="gridLayout_5" rowstretch="1,1,1" columnstretch="1">
+                <property name="spacing">
+                 <number>2</number>
+                </property>
+                <item row="0" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_35">
+                  <property name="rightMargin">
+                   <number>3</number>
+                  </property>
+                  <item>
+                   <spacer name="horizontalSpacer_23">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_86">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="sizeIncrement">
+                     <size>
+                      <width>1</width>
+                      <height>1</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>Abyssinica SIL</family>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>                        Amplifier</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="2" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_37">
+                  <item>
+                   <spacer name="horizontalSpacer_24">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QEPushButton" name="qepushbutton_2">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>1</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>Abyssinica SIL</family>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>ClearFaults</string>
+                    </property>
+                    <property name="iconSize">
+                     <size>
+                      <width>5</width>
+                      <height>5</height>
+                     </size>
+                    </property>
+                    <property name="variable" stdset="0">
+                     <string>$(DMC)CLEARAMPFAULTS_CMD</string>
+                    </property>
+                    <property name="alignment" stdset="0">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="1" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_38">
+                  <property name="rightMargin">
+                   <number>3</number>
+                  </property>
+                  <item>
+                   <spacer name="horizontalSpacer_29">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_87">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="sizeIncrement">
+                     <size>
+                      <width>1</width>
+                      <height>1</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>Abyssinica SIL</family>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Fault Status</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QEFormGrid" name="qeformgrid_3">
+             <property name="uiFile">
+              <string>galil_quadAmpFaults.ui</string>
+             </property>
+             <property name="variableSubstitutions" stdset="0">
+              <string/>
+             </property>
+             <property name="number">
+              <number>2</number>
+             </property>
+             <property name="columns">
+              <number>2</number>
+             </property>
+             <property name="margin">
+              <number>0</number>
+             </property>
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <property name="colNumberWidth">
+              <number>1</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QEFrame" name="qeframe_2">
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <property name="spacing">
+          <number>1</number>
+         </property>
+         <property name="leftMargin">
+          <number>1</number>
+         </property>
+         <property name="topMargin">
+          <number>1</number>
+         </property>
+         <property name="rightMargin">
+          <number>1</number>
+         </property>
+         <property name="bottomMargin">
+          <number>1</number>
+         </property>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,8">
+           <property name="spacing">
+            <number>1</number>
+           </property>
+           <item>
+            <widget class="QEFrame" name="qeframe_7">
+             <layout class="QVBoxLayout" name="verticalLayout_8">
+              <property name="spacing">
+               <number>2</number>
+              </property>
+              <property name="leftMargin">
+               <number>2</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>2</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <layout class="QGridLayout" name="gridLayout_4" rowstretch="1,1,1,1,1,1,1,1,1,1,1,1,1">
+                <property name="verticalSpacing">
+                 <number>1</number>
+                </property>
+                <item row="0" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_23">
+                  <property name="rightMargin">
+                   <number>3</number>
+                  </property>
+                  <item>
+                   <spacer name="horizontalSpacer_13">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_75">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="sizeIncrement">
+                     <size>
+                      <width>1</width>
+                      <height>1</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>Abyssinica SIL</family>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Motor axis</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="12" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_60">
+                  <property name="rightMargin">
+                   <number>3</number>
+                  </property>
+                  <item>
+                   <spacer name="horizontalSpacer_54">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_76">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="sizeIncrement">
+                     <size>
+                      <width>1</width>
+                      <height>1</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>Abyssinica SIL</family>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Amplifier on/off</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="10" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_59">
+                  <property name="rightMargin">
+                   <number>3</number>
+                  </property>
+                  <item>
+                   <spacer name="horizontalSpacer_53">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_73">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="sizeIncrement">
+                     <size>
+                      <width>1</width>
+                      <height>1</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>Abyssinica SIL</family>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Low current mode (stepper only)</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="7" column="0">
+                 <spacer name="horizontalSpacer_4">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="6" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_53">
+                  <property name="rightMargin">
+                   <number>3</number>
+                  </property>
+                  <item>
+                   <spacer name="horizontalSpacer_45">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_64">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="sizeIncrement">
+                     <size>
+                      <width>1</width>
+                      <height>1</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>Abyssinica SIL</family>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Current loop gain (servo only)</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="4" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_54">
+                  <property name="rightMargin">
+                   <number>3</number>
+                  </property>
+                  <item>
+                   <spacer name="horizontalSpacer_46">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_74">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="sizeIncrement">
+                     <size>
+                      <width>1</width>
+                      <height>1</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>Abyssinica SIL</family>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Amplifier gain</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="8" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_58">
+                  <property name="rightMargin">
+                   <number>3</number>
+                  </property>
+                  <item>
+                   <spacer name="horizontalSpacer_49">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_72">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="sizeIncrement">
+                     <size>
+                      <width>1</width>
+                      <height>1</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>Abyssinica SIL</family>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Microsteps/step (stepper only)</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="1" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_22">
+                  <property name="rightMargin">
+                   <number>3</number>
+                  </property>
+                  <item>
+                   <spacer name="horizontalSpacer_12">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_65">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="sizeIncrement">
+                     <size>
+                      <width>1</width>
+                      <height>1</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>Abyssinica SIL</family>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Motor name</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="5" column="0">
+                 <spacer name="horizontalSpacer_5">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="3" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_44">
+                  <property name="rightMargin">
+                   <number>3</number>
+                  </property>
+                  <item>
+                   <spacer name="horizontalSpacer_28">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_71">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="sizeIncrement">
+                     <size>
+                      <width>1</width>
+                      <height>1</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>Abyssinica SIL</family>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>AtTorqueLimit</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="2" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_36">
+                  <property name="rightMargin">
+                   <number>3</number>
+                  </property>
+                  <item>
+                   <spacer name="horizontalSpacer_27">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_70">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="sizeIncrement">
+                     <size>
+                      <width>1</width>
+                      <height>1</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>Abyssinica SIL</family>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>HallError</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="11" column="0">
+                 <spacer name="horizontalSpacer_2">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="9" column="0">
+                 <spacer name="horizontalSpacer_6">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>189</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QEFormGrid" name="qeformgrid">
+             <property name="uiFile">
+              <string>galil_motorAmpFaults.ui</string>
+             </property>
+             <property name="number">
+              <number>8</number>
+             </property>
+             <property name="columns">
+              <number>8</number>
+             </property>
+             <property name="rowNumberWidth">
+              <number>2</number>
+             </property>
+             <property name="colNumberWidth">
+              <number>1</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QEFrame" name="qeframe_6">
+        <layout class="QVBoxLayout" name="verticalLayout_6">
+         <property name="spacing">
+          <number>1</number>
+         </property>
+         <property name="leftMargin">
+          <number>1</number>
+         </property>
+         <property name="topMargin">
+          <number>1</number>
+         </property>
+         <property name="rightMargin">
+          <number>1</number>
+         </property>
+         <property name="bottomMargin">
+          <number>1</number>
+         </property>
+         <item>
+          <layout class="QGridLayout" name="gridLayout_3">
+           <item row="4" column="1">
+            <widget class="QLabel" name="label_85">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="sizeIncrement">
+              <size>
+               <width>1</width>
+               <height>1</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Abyssinica SIL</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>N = -1: 25% current after N samples after move complete</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QLabel" name="label_69">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="sizeIncrement">
+              <size>
+               <width>1</width>
+               <height>1</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Abyssinica SIL</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>N = 0: 100% current always, no reduction after move</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLabel" name="label_84">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="sizeIncrement">
+              <size>
+               <width>1</width>
+               <height>1</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Abyssinica SIL</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>N = 1: 25% current immediately after move complete</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLabel" name="label_83">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="sizeIncrement">
+              <size>
+               <width>1</width>
+               <height>1</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Abyssinica SIL</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>N &gt;= 2: 0% current after N samples after move complete</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <spacer name="horizontalSpacer_25">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLabel" name="label_82">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="sizeIncrement">
+              <size>
+               <width>1</width>
+               <height>1</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Abyssinica SIL</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>Low current mode value N:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="2">
+            <spacer name="horizontalSpacer_26">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QEFormGrid</class>
+   <extends>QEFrame</extends>
+   <header>QEFormGrid.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QEPushButton</class>
+   <extends>QPushButton</extends>
+   <header>QEPushButton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QESubstitutedLabel</class>
+   <extends>QLabel</extends>
+   <header>QESubstitutedLabel.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QEFrame</class>
+   <extends>QFrame</extends>
+   <header>QEFrame.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

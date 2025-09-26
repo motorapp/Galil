@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>EFrame</class>
+ <widget class="QEFrame" name="EFrame">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>199</width>
+    <height>334</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>EFrame</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <layout class="QGridLayout" name="gridLayout" rowstretch="1,1,1,1,1,1,1,1,1,1,1,1,1,0" columnstretch="1">
+     <item row="2" column="0">
+      <layout class="QHBoxLayout" name="horizontalLayout_17">
+       <item>
+        <widget class="QEBitStatus" name="qebitstatus_41">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>20</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>HallError</string>
+         </property>
+         <property name="numberOfBits">
+          <number>1</number>
+         </property>
+         <property name="shift">
+          <number>0</number>
+         </property>
+         <property name="onColour">
+          <color>
+           <red>159</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </property>
+         <property name="offColour">
+          <color>
+           <red>0</red>
+           <green>136</green>
+           <blue>0</blue>
+          </color>
+         </property>
+         <property name="variable" stdset="0">
+          <string>$(DMC)$(M$(COL))_HALLERROR_STATUS</string>
+         </property>
+         <property name="variableAsToolTip">
+          <bool>false</bool>
+         </property>
+         <property name="visible" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="10" column="0">
+      <widget class="QELabel" name="qelabel_49">
+       <property name="font">
+        <font>
+         <family>Abyssinica SIL</family>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+       <property name="variable" stdset="0">
+        <string>$(DMC)$(M$(COL))_AMPLC_MON</string>
+       </property>
+       <property name="text">
+        <string>LowCurrentMode</string>
+       </property>
+      </widget>
+     </item>
+     <item row="11" column="0">
+      <widget class="QELineEdit" name="qelineedit_19">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>85</width>
+         <height>1</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Abyssinica SIL</family>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
+       <property name="variable" stdset="0">
+        <string>$(DMC)$(M$(COL))_AMPLC_SP</string>
+       </property>
+       <property name="addUnits">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="0">
+      <widget class="QEComboBox" name="qecombobox_22">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>1</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Abyssinica SIL</family>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="variable" stdset="0">
+        <string>$(DMC)$(M$(COL))_AMPCLGAIN_CMD</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QELabel" name="qelabel_25">
+       <property name="font">
+        <font>
+         <family>Abyssinica SIL</family>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+       <property name="variable" stdset="0">
+        <string>$(DMC)$(M$(COL))_AMPGAIN_STATUS</string>
+       </property>
+       <property name="text">
+        <string>Amplifier gain</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QEComboBox" name="qecombobox_14">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>1</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Abyssinica SIL</family>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="variable" stdset="0">
+        <string>$(DMC)$(M$(COL))_AMPGAIN_CMD</string>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="0">
+      <widget class="QEComboBox" name="qecombobox_30">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>1</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Abyssinica SIL</family>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="variable" stdset="0">
+        <string>$(DMC)$(M$(COL))_MICROSTEP_CMD</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="0">
+      <widget class="QELabel" name="qelabel_41">
+       <property name="font">
+        <font>
+         <family>Abyssinica SIL</family>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+       <property name="variable" stdset="0">
+        <string>$(DMC)$(M$(COL))_MICROSTEP_STATUS</string>
+       </property>
+       <property name="text">
+        <string>Microstep</string>
+       </property>
+      </widget>
+     </item>
+     <item row="13" column="0">
+      <widget class="QEComboBox" name="qecombobox_38">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>1</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Abyssinica SIL</family>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="variable" stdset="0">
+        <string>$(DMC)$(M$(COL))_ON_CMD</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QELabel" name="qelabel_17">
+       <property name="font">
+        <font>
+         <family>Abyssinica SIL</family>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+       <property name="variable" stdset="0">
+        <string>$(DMC)$(M$(COL)).NAME</string>
+       </property>
+       <property name="text">
+        <string>AxisName</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <layout class="QHBoxLayout" name="horizontalLayout_50">
+       <property name="rightMargin">
+        <number>3</number>
+       </property>
+       <item>
+        <spacer name="horizontalSpacer_41">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QELabel" name="qelabel_9">
+         <property name="font">
+          <font>
+           <family>Abyssinica SIL</family>
+           <pointsize>9</pointsize>
+          </font>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="variable" stdset="0">
+          <string>$(DMC)$(M$(COL))_AXIS_STATUS</string>
+         </property>
+         <property name="text">
+          <string>Axis</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_42">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+     <item row="3" column="0">
+      <layout class="QHBoxLayout" name="horizontalLayout_41">
+       <item>
+        <widget class="QEBitStatus" name="qebitstatus_59">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>20</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>AtTorqueLimit</string>
+         </property>
+         <property name="numberOfBits">
+          <number>1</number>
+         </property>
+         <property name="shift">
+          <number>0</number>
+         </property>
+         <property name="onColour">
+          <color>
+           <red>159</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </property>
+         <property name="offColour">
+          <color>
+           <red>0</red>
+           <green>136</green>
+           <blue>0</blue>
+          </color>
+         </property>
+         <property name="variable" stdset="0">
+          <string>$(DMC)$(M$(COL))_ATTORQUELIMIT_STATUS</string>
+         </property>
+         <property name="variableAsToolTip">
+          <bool>false</bool>
+         </property>
+         <property name="visible" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="6" column="0">
+      <widget class="QELabel" name="qelabel_33">
+       <property name="font">
+        <font>
+         <family>Abyssinica SIL</family>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+       <property name="variable" stdset="0">
+        <string>$(DMC)$(M$(COL))_AMPCLGAIN_STATUS</string>
+       </property>
+       <property name="text">
+        <string>CLGain</string>
+       </property>
+      </widget>
+     </item>
+     <item row="12" column="0">
+      <widget class="QELabel" name="qelabel_50">
+       <property name="font">
+        <font>
+         <family>Abyssinica SIL</family>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+       <property name="variable" stdset="0">
+        <string>$(DMC)$(M$(COL))_ON_STATUS</string>
+       </property>
+       <property name="text">
+        <string>Enable status</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QEBitStatus</class>
+   <extends>QBitStatus</extends>
+   <header>QEBitStatus.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QEComboBox</class>
+   <extends>QComboBox</extends>
+   <header>QEComboBox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QELabel</class>
+   <extends>QLabel</extends>
+   <header>QELabel.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QELineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>QELineEdit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QBitStatus</class>
+   <extends>QWidget</extends>
+   <header>QBitStatus.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QEFrame</class>
+   <extends>QFrame</extends>
+   <header>QEFrame.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

@@ -35,5 +35,5 @@ else
 fi
 
 #Invoke QEGUI
-qegui -style ${QTSTYLE} -e -m "RIO=$RECPREFIX" galil_rio_ctrl.ui &
+qegui -style ${QTSTYLE} -m "RIO=$RECPREFIX" -e galil_rio_ctrl.ui &
 
