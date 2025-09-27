@@ -7251,35 +7251,35 @@ void GalilController::Init4000(int axes)
 	map["NO7"] = Source(51, "UB", 7, "Boolean", "Thread 7 running");
 
 	//Amplifier error status
-	map["TA00"] = Source(52, "UB", 0, "Boolean", "Axis A-D over current");
-	map["TA01"] = Source(52, "UB", 1, "Boolean", "Axis A-D over voltage");
-	map["TA02"] = Source(52, "UB", 2, "Boolean", "Axis A-D over temperature");
-	map["TA03"] = Source(52, "UB", 3, "Boolean", "Axis A-D under voltage");
-	map["TA04"] = Source(52, "UB", 4, "Boolean", "Axis E-H over current");
-	map["TA05"] = Source(52, "UB", 5, "Boolean", "Axis E-H over voltage");
-	map["TA06"] = Source(52, "UB", 6, "Boolean", "Axis E-H over temperature");
-	map["TA07"] = Source(52, "UB", 7, "Boolean", "Axis E-H under voltage");
+	map["TA3AD"] = Source(52, "UB", 0, "Boolean", "Axis A-D ELO active");
+	map["TA3EH"] = Source(52, "UB", 1, "Boolean", "Axis E-H ELO active");
 
-	map["TA1A"] = Source(53, "UB", 0, "Boolean", "Axis A hall error");
-	map["TA1B"] = Source(53, "UB", 1, "Boolean", "Axis B hall error");
-	map["TA1C"] = Source(53, "UB", 2, "Boolean", "Axis C hall error");
-	map["TA1D"] = Source(53, "UB", 3, "Boolean", "Axis D hall error");
-	map["TA1E"] = Source(53, "UB", 4, "Boolean", "Axis E hall error");
-	map["TA1F"] = Source(53, "UB", 5, "Boolean", "Axis F hall error");
-	map["TA1G"] = Source(53, "UB", 6, "Boolean", "Axis G hall error");
-	map["TA1H"] = Source(53, "UB", 7, "Boolean", "Axis H hall error");
+	map["TA2A"] = Source(53, "UB", 0, "Boolean", "Axis A at _TKA peak current");
+	map["TA2B"] = Source(53, "UB", 1, "Boolean", "Axis B at _TKB peak current");
+	map["TA2C"] = Source(53, "UB", 2, "Boolean", "Axis C at _TVC peak current");
+	map["TA2D"] = Source(53, "UB", 3, "Boolean", "Axis D at _TKD peak current");
+	map["TA2E"] = Source(53, "UB", 4, "Boolean", "Axis E at _TKE peak current");
+	map["TA2F"] = Source(53, "UB", 5, "Boolean", "Axis F at _TKF peak current");
+	map["TA2G"] = Source(53, "UB", 6, "Boolean", "Axis G at _TKG peak current");
+	map["TA2H"] = Source(53, "UB", 7, "Boolean", "Axis H at _TKH peak current");
 
-	map["TA2A"] = Source(54, "UB", 0, "Boolean", "Axis A at _TKA peak current");
-	map["TA2B"] = Source(54, "UB", 1, "Boolean", "Axis B at _TKB peak current");
-	map["TA2C"] = Source(54, "UB", 2, "Boolean", "Axis C at _TVC peak current");
-	map["TA2D"] = Source(54, "UB", 3, "Boolean", "Axis D at _TKD peak current");
-	map["TA2E"] = Source(54, "UB", 4, "Boolean", "Axis E at _TKE peak current");
-	map["TA2F"] = Source(54, "UB", 5, "Boolean", "Axis F at _TKF peak current");
-	map["TA2G"] = Source(54, "UB", 6, "Boolean", "Axis G at _TKG peak current");
-	map["TA2H"] = Source(54, "UB", 7, "Boolean", "Axis H at _TKH peak current");
+	map["TA1A"] = Source(54, "UB", 0, "Boolean", "Axis A hall error");
+	map["TA1B"] = Source(54, "UB", 1, "Boolean", "Axis B hall error");
+	map["TA1C"] = Source(54, "UB", 2, "Boolean", "Axis C hall error");
+	map["TA1D"] = Source(54, "UB", 3, "Boolean", "Axis D hall error");
+	map["TA1E"] = Source(54, "UB", 4, "Boolean", "Axis E hall error");
+	map["TA1F"] = Source(54, "UB", 5, "Boolean", "Axis F hall error");
+	map["TA1G"] = Source(54, "UB", 6, "Boolean", "Axis G hall error");
+	map["TA1H"] = Source(54, "UB", 7, "Boolean", "Axis H hall error");
 
-	map["TA3AD"] = Source(55, "UB", 0, "Boolean", "Axis A-D ELO active");
-	map["TA3EH"] = Source(55, "UB", 1, "Boolean", "Axis E-H ELO active");
+	map["TA00"] = Source(55, "UB", 0, "Boolean", "Axis A-D over current");
+	map["TA01"] = Source(55, "UB", 1, "Boolean", "Axis A-D over voltage");
+	map["TA02"] = Source(55, "UB", 2, "Boolean", "Axis A-D over temperature");
+	map["TA03"] = Source(55, "UB", 3, "Boolean", "Axis A-D under voltage");
+	map["TA04"] = Source(55, "UB", 4, "Boolean", "Axis E-H over current");
+	map["TA05"] = Source(55, "UB", 5, "Boolean", "Axis E-H over voltage");
+	map["TA06"] = Source(55, "UB", 6, "Boolean", "Axis E-H over temperature");
+	map["TA07"] = Source(55, "UB", 7, "Boolean", "Axis E-H under voltage");
 
 	//contour mode
 	map["CD"] = Source(56, "UL", -1, "segments", "Contour segment count");

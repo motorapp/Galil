@@ -1205,11 +1205,12 @@ asynStatus GalilAxis::stop(double acceleration)
               found = true;
         }
         //Stop a CSAxis that is moving, and contains this axis
-        if (found && !pCSAxis->done_ && pCSAxis->move_started_)
+        if (found && !pCSAxis->done_ && pCSAxis->move_started_) {
            //Use coordinated stop
            pCSAxis->stopSent_ = true;
            pCSAxis->stop_reason_ = stop_reason_;
            pCSAxis->stopInternal();
+        }
      }
   }
   else {
