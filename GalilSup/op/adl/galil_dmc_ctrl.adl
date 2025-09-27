@@ -5,7 +5,7 @@ file {
 }
 display {
 	object {
-		x=112
+		x=122
 		y=53
 		width=410
 		height=683
@@ -89,9 +89,9 @@ display {
 }
 rectangle {
 	object {
-		x=124
+		x=5
 		y=8
-		width=150
+		width=400
 		height=28
 	}
 	"basic attribute" {
@@ -101,15 +101,15 @@ rectangle {
 }
 text {
 	object {
-		x=105
+		x=10
 		y=15
-		width=193
+		width=390
 		height=18
 	}
 	"basic attribute" {
 		clr=14
 	}
-	textix="DMC controller"
+	textix="DMC controller ($(DMC))"
 	align="horiz. centered"
 }
 composite {
@@ -503,7 +503,7 @@ text {
 	object {
 		x=9
 		y=219
-		width=69
+		width=112
 		height=13
 	}
 	"basic attribute" {
@@ -793,7 +793,7 @@ text {
 	object {
 		x=56
 		y=471
-		width=65
+		width=49
 		height=13
 	}
 	"basic attribute" {
@@ -845,7 +845,7 @@ text {
 	object {
 		x=228
 		y=471
-		width=65
+		width=49
 		height=13
 	}
 	"basic attribute" {
@@ -877,7 +877,7 @@ text {
 	object {
 		x=56
 		y=492
-		width=65
+		width=49
 		height=13
 	}
 	"basic attribute" {
@@ -929,7 +929,7 @@ text {
 	object {
 		x=228
 		y=492
-		width=65
+		width=49
 		height=13
 	}
 	"basic attribute" {
@@ -961,7 +961,7 @@ text {
 	object {
 		x=56
 		y=513
-		width=65
+		width=49
 		height=13
 	}
 	"basic attribute" {
@@ -1013,7 +1013,7 @@ text {
 	object {
 		x=228
 		y=513
-		width=65
+		width=49
 		height=13
 	}
 	"basic attribute" {
@@ -1045,7 +1045,7 @@ text {
 	object {
 		x=56
 		y=534
-		width=65
+		width=49
 		height=13
 	}
 	"basic attribute" {
@@ -1097,7 +1097,7 @@ text {
 	object {
 		x=228
 		y=534
-		width=65
+		width=49
 		height=13
 	}
 	"basic attribute" {
@@ -1129,7 +1129,7 @@ text {
 	object {
 		x=56
 		y=576
-		width=75
+		width=84
 		height=13
 	}
 	"basic attribute" {
@@ -1156,7 +1156,7 @@ text {
 	object {
 		x=228
 		y=577
-		width=65
+		width=84
 		height=13
 	}
 	"basic attribute" {
@@ -1183,7 +1183,7 @@ text {
 	object {
 		x=56
 		y=555
-		width=65
+		width=49
 		height=13
 	}
 	"basic attribute" {
@@ -1235,7 +1235,7 @@ text {
 	object {
 		x=228
 		y=555
-		width=65
+		width=49
 		height=13
 	}
 	"basic attribute" {
@@ -1468,7 +1468,7 @@ text {
 	object {
 		x=9
 		y=238
-		width=97
+		width=105
 		height=13
 	}
 	"basic attribute" {
@@ -1537,7 +1537,7 @@ text {
 	object {
 		x=9
 		y=257
-		width=97
+		width=77
 		height=13
 	}
 	"basic attribute" {
@@ -1600,7 +1600,7 @@ text {
 	object {
 		x=9
 		y=293
-		width=97
+		width=119
 		height=13
 	}
 	"basic attribute" {
@@ -1655,7 +1655,7 @@ text {
 	object {
 		x=9
 		y=310
-		width=97
+		width=112
 		height=13
 	}
 	"basic attribute" {
@@ -1697,7 +1697,7 @@ text {
 	object {
 		x=9
 		y=200
-		width=97
+		width=119
 		height=13
 	}
 	"basic attribute" {
@@ -1730,33 +1730,6 @@ menu {
 		clr=14
 		bclr=51
 	}
-}
-text {
-	object {
-		x=9
-		y=353
-		width=65
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="All amplifiers"
-}
-"related display" {
-	object {
-		x=150
-		y=354
-		width=15
-		height=15
-	}
-	display[0] {
-		label="All amplifiers"
-		name="galil_amp_8.adl"
-		args="P=$(DMC), M1=$(M1), M2=$(M2), M3=$(M3), M4=$(M4), M5=$(M5), M6=$(M6), M7=$(M7), M8=$(M8), AMP1=$(AMP1), AMP2=$(AMP2)"
-	}
-	clr=14
-	bclr=51
 }
 "related display" {
 	object {
@@ -1797,7 +1770,7 @@ text {
 	object {
 		x=189
 		y=374
-		width=65
+		width=84
 		height=13
 	}
 	"basic attribute" {
@@ -1881,25 +1854,35 @@ composite {
 text {
 	object {
 		x=9
-		y=374
-		width=65
+		y=353
+		width=70
 		height=13
 	}
 	"basic attribute" {
 		clr=14
 	}
-	textix="All motors"
+	textix="All axes"
 }
 "related display" {
 	object {
 		x=150
-		y=375
+		y=354
 		width=15
 		height=15
 	}
 	display[0] {
 		label="All motors"
 		name="motor8x.adl"
+		args="P=$(DMC), M1=$(M1), M2=$(M2), M3=$(M3), M4=$(M4), M5=$(M5), M6=$(M6), M7=$(M7), M8=$(M8), AMP1=$(AMP1), AMP2=$(AMP2)"
+	}
+	display[1] {
+		label="All amplifiers"
+		name="galil_amp_8.adl"
+		args="P=$(DMC), M1=$(M1), M2=$(M2), M3=$(M3), M4=$(M4), M5=$(M5), M6=$(M6), M7=$(M7), M8=$(M8), AMP1=$(AMP1), AMP2=$(AMP2)"
+	}
+	display[2] {
+		label="All extras"
+		name="galil_extras_8.adl"
 		args="P=$(DMC), M1=$(M1), M2=$(M2), M3=$(M3), M4=$(M4), M5=$(M5), M6=$(M6), M7=$(M7), M8=$(M8)"
 	}
 	clr=14

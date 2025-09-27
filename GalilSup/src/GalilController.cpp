@@ -674,6 +674,7 @@ GalilController::GalilController(const char *portName, const char *address, doub
 
   createParam(GalilStepSmoothString, asynParamFloat64, &GalilStepSmooth_);
   createParam(GalilMotorTypeString, asynParamInt32, &GalilMotorType_);
+  createParam(GalilBrushTypeString, asynParamInt32, &GalilBrushType_);
 
   createParam(GalilEtherCatCapableString, asynParamInt32, &GalilEtherCatCapable_);
   createParam(GalilEtherCatNetworkString, asynParamInt32, &GalilEtherCatNetwork_);
@@ -714,6 +715,7 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilStopDelayString, asynParamFloat64, &GalilStopDelay_);
   createParam(GalilMicrostepString, asynParamInt32, &GalilMicrostep_);
 
+  createParam(GalilAmpModelString, asynParamInt32, &GalilAmpModel_);
   createParam(GalilAmpGainString, asynParamInt32, &GalilAmpGain_);
   createParam(GalilAmpCurrentLoopGainString, asynParamInt32, &GalilAmpCurrentLoopGain_);
   createParam(GalilAmpLowCurrentString, asynParamInt32, &GalilAmpLowCurrent_);
@@ -3644,6 +3646,17 @@ asynStatus GalilController::readInt32(asynUser *pasynUser, epicsInt32 *value)
       else    //Comms error, return last ParamList value set using setIntegerParam
          getIntegerParam(pAxis->axisNo_, function, value);
    } //GalilMotorType_
+   else if (function == GalilBrushType_) {
+      //If provided addr does not return an GalilAxis instance, then return asynError
+      if (!pAxis) return asynError;
+      sprintf(cmd_, "MG _BR%c", pAxis->axisName_);
+      status = get_integer(GalilBrushType_, value);
+   }
+   else if (function == GalilAmpModel_) {
+      //If provided addr does not return an GalilAxis instance, then return asynError
+      if (!pAxis) return asynError;
+      *value = (addr <= 3)? ampModel_[0] : ampModel_[1];
+   }
    else if (function >= GalilSSIInput_ && function <= GalilSSIData_) {
       //If provided addr does not return an GalilAxis instance, then return asynError
       if (!pAxis) return asynError;
@@ -3900,9 +3913,9 @@ asynStatus GalilController::readEnum(asynUser *pasynUser, char *strings[], int v
         numEnums = sizeof(ampGain_43140)/sizeof(enumStruct_t);
         break;
       case 43547:
-        // This is complicated because it has different gains for servo and stepper modes
-        // May need to add another parameter and record?
-        goto unsupported;
+        // This cannot be handled here because the allowed gains depend on the selected motor type
+        // We use doCallBacksEnum when the motor type changes
+        goto unsupported; 
       case 44040:
         pEnum    = ampGain_44040;
         numEnums = sizeof(ampGain_44040)/sizeof(enumStruct_t);
@@ -4204,6 +4217,15 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
      }
      else if (oldmotor != newmtr)
         pAxis->limitsDirState_ = unknown;
+        
+     // On some amplifiers (e.g. 43547) changing the motor type changes the amplifier gain enums.
+     // Need to do callbacks with the new enum choices.
+     ampGainCallback(addr, value);
+  }
+  else if (function == GalilBrushType_) {
+     sprintf(cmd_, "BR%c=%d", pAxis->axisName_, value);
+     //Write setting to controller
+     status = sync_writeReadController();
   }
   else if (function == GalilUseEncoder_) {
      //This is one of the last items pushed into driver at startup so flag
@@ -4418,7 +4440,15 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
      if (model_[3] == '4' && (model_[4] == '0' || model_[4] == '1')) {
         //Clear all latched amplifier errors
         strcpy(cmd_, "AZ1");
-        sync_writeReadController();
+        status = sync_writeReadController();
+        if (asynSuccess != status) {
+           //Command failed, get error message from controller
+           strcpy(cmd_, "TC1");
+           if (asynSuccess == (status = sync_writeReadController())) {
+              //Set error message
+              setCtrlError(resp_);
+           }
+        }
      }
   }
   else {
@@ -5020,6 +5050,39 @@ void GalilController::enumRowCallback(unsigned ampNum, int reason, const enumStr
   for (i = addressStart; i < addressEnd; i++) {
     doCallbacksEnum(strings, values, severities, nElements, reason, i);
   }
+}
+
+/** Update amplifier gains when motor type changes for some amplifiers (e.g. 43547)
+  * Called by GalilController::writeInt32
+  */
+void GalilController::ampGainCallback(int axis, int motorType) {
+  unsigned i;
+  char *strings[MAX_ENUM_ROWS] = {0};
+  int values[MAX_ENUM_ROWS];
+  int severities[MAX_ENUM_ROWS];
+  int ampModel;
+  unsigned numEnums = 0;
+  const enumStruct_t *pEnum;
+
+  ampModel = (axis <= 3) ? ampModel_[0] : ampModel_[1];
+  if (ampModel == 43547) {
+    if ((motorType >= 1) && (motorType <= 5)) {
+      pEnum    = ampStepperGain_43547;
+      numEnums = sizeof(ampStepperGain_43547)/sizeof(enumStruct_t);
+    } else {
+      pEnum    = ampServoGain_43547;
+      numEnums = sizeof(ampServoGain_43547)/sizeof(enumStruct_t);
+    }
+  }
+  if (numEnums == 0) return;
+
+  for (i = 0; ((i < numEnums) && (i < MAX_ENUM_ROWS)); i++) {
+    if (strings[i]) free(strings[i]);
+    strings[i] = epicsStrDup(pEnum[i].enumString);
+    values[i] = pEnum[i].enumValue;
+    severities[i] = 0;
+  }
+  doCallbacksEnum(strings, values, severities, numEnums, GalilAmpGain_, axis);
 }
 
 //Process unsolicited message from the controller

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>508</width>
-    <height>110</height>
+    <height>89</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,8 +32,23 @@
    <item>
     <widget class="QEFrame" name="qeframe">
      <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="spacing">
+       <number>1</number>
+      </property>
+      <property name="leftMargin">
+       <number>1</number>
+      </property>
+      <property name="topMargin">
+       <number>1</number>
+      </property>
+      <property name="rightMargin">
+       <number>1</number>
+      </property>
+      <property name="bottomMargin">
+       <number>1</number>
+      </property>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout" stretch="3,80,1">
+       <layout class="QHBoxLayout" name="horizontalLayout" stretch="5,80,3">
         <item>
          <spacer name="horizontalSpacer">
           <property name="orientation">
@@ -154,7 +169,7 @@
              <number>0</number>
             </property>
             <property name="bottomMargin">
-             <number>0</number>
+             <number>1</number>
             </property>
             <item>
              <widget class="QEBitStatus" name="qebitstatus_46">
@@ -212,7 +227,7 @@
              <number>0</number>
             </property>
             <property name="bottomMargin">
-             <number>0</number>
+             <number>1</number>
             </property>
             <item>
              <widget class="QEBitStatus" name="qebitstatus_49">
@@ -298,7 +313,7 @@
              <number>0</number>
             </property>
             <property name="bottomMargin">
-             <number>0</number>
+             <number>1</number>
             </property>
             <item>
              <widget class="QEBitStatus" name="qebitstatus_52">
@@ -423,7 +438,7 @@
              <number>0</number>
             </property>
             <property name="bottomMargin">
-             <number>0</number>
+             <number>1</number>
             </property>
             <item>
              <widget class="QEBitStatus" name="qebitstatus_51">
@@ -481,7 +496,7 @@
              <number>0</number>
             </property>
             <property name="bottomMargin">
-             <number>0</number>
+             <number>1</number>
             </property>
             <item>
              <widget class="QEBitStatus" name="qebitstatus_48">
