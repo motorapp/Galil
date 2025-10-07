@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--Saved on 2024-12-28 15:07:24 by epics-->
+<!--Saved on 2025-09-27 15:22:34 by epics-->
 <display version="2.0.0">
   <name>galil_ECAT</name>
   <x>179</x>
@@ -288,59 +288,8 @@
       </color>
     </background_color>
   </widget>
-  <widget type="group" version="2.0.0">
-    <name>composite #69</name>
-    <x>171</x>
-    <y>131</y>
-    <width>15</width>
-    <height>15</height>
-    <style>3</style>
-    <transparent>true</transparent>
-    <widget type="rectangle" version="2.0.0">
-      <name>rectangle #72</name>
-      <width>15</width>
-      <height>15</height>
-      <line_color>
-        <color red="0" green="216" blue="0">
-        </color>
-      </line_color>
-      <background_color>
-        <color red="0" green="216" blue="0">
-        </color>
-      </background_color>
-      <rules>
-        <rule name="vis_if_not_zero" prop_id="visible" out_exp="false">
-          <exp bool_exp="!(pv0!=0)">
-            <value>false</value>
-          </exp>
-          <pv_name>$(P)$(M)_ECATFLT_STATUS</pv_name>
-        </rule>
-      </rules>
-    </widget>
-    <widget type="rectangle" version="2.0.0">
-      <name>rectangle #76</name>
-      <width>15</width>
-      <height>15</height>
-      <line_color>
-        <color red="253" green="0" blue="0">
-        </color>
-      </line_color>
-      <background_color>
-        <color red="253" green="0" blue="0">
-        </color>
-      </background_color>
-      <rules>
-        <rule name="vis_if_zero" prop_id="visible" out_exp="false">
-          <exp bool_exp="!(pv0==0)">
-            <value>false</value>
-          </exp>
-          <pv_name>$(P)$(M)_ECATFLT_STATUS</pv_name>
-        </rule>
-      </rules>
-    </widget>
-  </widget>
   <widget type="rectangle" version="2.0.0">
-    <name>rectangle #80</name>
+    <name>rectangle #69</name>
     <x>4</x>
     <y>4</y>
     <width>372</width>
@@ -355,5 +304,61 @@
       </color>
     </background_color>
     <transparent>true</transparent>
+  </widget>
+  <widget type="multi_state_led" version="2.0.0">
+    <name>rectangle #72</name>
+    <pv_name>=highestSeverity(`$(P)$(M)_ECATFLT_STATUS`)</pv_name>
+    <x>171</x>
+    <y>131</y>
+    <width>15</width>
+    <height>15</height>
+    <line_color>
+      <color name="Transparent" red="255" green="255" blue="255" alpha="0">
+      </color>
+    </line_color>
+    <square>true</square>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+    <states>
+      <state>
+        <value>0</value>
+        <label></label>
+        <color>
+          <color name="OK" red="0" green="255" blue="0">
+          </color>
+        </color>
+      </state>
+      <state>
+        <value>1</value>
+        <label></label>
+        <color>
+          <color name="MINOR" red="255" green="128" blue="0">
+          </color>
+        </color>
+      </state>
+      <state>
+        <value>2</value>
+        <label></label>
+        <color>
+          <color name="MAJOR" red="255" green="0" blue="0">
+          </color>
+        </color>
+      </state>
+      <state>
+        <value>3</value>
+        <label></label>
+        <color>
+          <color name="INVALID" red="255" green="0" blue="255">
+          </color>
+        </color>
+      </state>
+      <state>
+        <value>4</value>
+        <label></label>
+        <color>
+          <color name="DISCONNECTED" red="200" green="0" blue="200" alpha="200">
+          </color>
+        </color>
+      </state>
+    </states>
   </widget>
 </display>
