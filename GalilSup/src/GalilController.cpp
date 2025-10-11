@@ -5353,7 +5353,7 @@ void GalilController::getStatus(void)
       //Specify source 1, coordinate system move status
       strcpy(src1, "_BGx");
       //Specify source 2, coordinate system segment count
-      strcpy(src1, "_CSx");
+      strcpy(src2, "_CSx");
       for (addr=0;addr<COORDINATE_SYSTEMS;addr++) {
          //Specify coordinate system S or T to acquire move status from
          src1[3] = (addr) ? 'T' : 'S';

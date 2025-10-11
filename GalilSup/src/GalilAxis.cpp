@@ -682,7 +682,7 @@ asynStatus GalilAxis::move(double position, int relative, double minVelocity, do
   //Is controller using main or auxillary encoder register for positioning
   double readback = (motorIsServo_) ? encoder_position_ : motor_position_;
   asynStatus status = asynError;
-  
+
   //If this axis is being driven by a CSAxis
   //Use the requested CSAxis velocity, acceleration instead of that provided by mr
   if (useCSADynamics_) {
@@ -2453,21 +2453,19 @@ asynStatus GalilAxis::beginMotion(const char *caller, double position, bool rela
       return asynSuccess;
 
    //Check position at last possible moment prior to move
-   if (checkpos)
-      {
+   if (checkpos) {
       //Relative moves
       if (relative && position == 0)
          return asynSuccess;//Nothing to do
       //Absolute moves
-      if (!relative)
-         {
+      if (!relative) {
          //Retrieve readback
          readback = (motorIsServo_) ? encoder_position_ : motor_position_;
          //If new position differs from readback, then write new position
          if (trunc(position) == trunc(readback))
             return asynSuccess;//Nothing to do
-         }
       }
+   }
 
    //Begin the move
    sprintf(pC_->cmd_, "BG%c", axisName_);
