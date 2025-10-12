@@ -4643,41 +4643,46 @@ asynStatus GalilController::writeOctet(asynUser *pasynUser, const char*  value, 
         //Increase timeout for user command
         timeout_ = 3;
      }
-     //Send the user command	
-     epicsSnprintf(cmd_, sizeof(cmd_), "%s", value_s.c_str());
-     status = sync_writeReadController();
 
-     //User command complete, set timeout back to default 1
-     timeout_ = 1;
-     if (status == asynSuccess)
+     //Ensure operator doesn't accidently kill all threads
+     if (value_s.find("ST") == string::npos)
         {
-        //Set readback value(s) = response from controller
-        //String monitor
-        setStringParam(GalilUserOctet_, resp_);
-        //ai monitor
-        aivalue = strtod(resp_, &endptr);
-        //Check for conversion error
-        if (errno == 0 && *endptr == '\0') {
-           //Conversion ok, pass value on
-           setDoubleParam(0, GalilUserOctetVal_, aivalue);
-        }
-        //Determine if custom command had potential to alter controller time base
-        if (value_s.find("TM ") != string::npos)
+        //Send the user command
+        epicsSnprintf(cmd_, sizeof(cmd_), "%s", value_s.c_str());
+        status = sync_writeReadController();
+
+        //User command complete, set timeout back to default 1
+        timeout_ = 1;
+        if (status == asynSuccess)
            {
-           //Retrieve controller time base
-           sprintf(cmd_, "MG _TM");
-           if (sync_writeReadController() == asynSuccess)
-              timeMultiplier_ = DEFAULT_TIME / atof(resp_);
-           }
-        }
-     else
-        {
-        //User command failed, get error message from controller
-        strcpy(cmd_, "TC1");
-        if ( (status = sync_writeReadController()) == asynSuccess )
-           {
-           //Set readback value = response from controller
+           //Set readback value(s) = response from controller
+           //String monitor
            setStringParam(GalilUserOctet_, resp_);
+           //ai monitor
+           aivalue = strtod(resp_, &endptr);
+           //Check for conversion error
+           if (errno == 0 && *endptr == '\0') {
+              //Conversion ok, pass value on
+              setDoubleParam(0, GalilUserOctetVal_, aivalue);
+           }
+           //Determine if custom command had potential to alter controller time base
+           if (value_s.find("TM ") != string::npos)
+              {
+              //Retrieve controller time base
+              sprintf(cmd_, "MG _TM");
+              if (sync_writeReadController() == asynSuccess)
+                 timeMultiplier_ = DEFAULT_TIME / atof(resp_);
+              }
+           }
+        else
+           {
+           //User command failed, get error message from controller
+           strcpy(cmd_, "TC1");
+           if ( (status = sync_writeReadController()) == asynSuccess )
+              {
+              //Set readback value = response from controller
+              setStringParam(GalilUserOctet_, resp_);
+              }
            }
         }
      }
@@ -5419,13 +5424,14 @@ asynStatus GalilController::sendUnsolicitedMessage(char *mesg)
 }
 
 //Below function supplied for Cygwin, MingGw
-bool GalilController::my_isascii(int c)
+bool GalilController::isprintable(int c)
 {
-   if (c == 10 || c == 13 || (c >= 48 && c <= 57) || (c >= 65 && c <= 90) ||
-       (c >= 97 && c <= 122) || c == 32 || c == 46)
+   if ((10 == c) || (13 == c) || (0 != isprint(c))) {
+      //Character is printable
       return true;
-   else
-      return false;
+   }
+   //Character not printable
+   return false;
 }
 
 /** Reads a binary data record from the controller
@@ -5511,7 +5517,7 @@ asynStatus GalilController::readDataRecord(char *input, unsigned bytesize)
                  {
                  //Extract unsolictied message
                  value = (unsigned char)(input[i] - 0x80);
-                 if (((input[i] & 0x80) == 0x80) && (my_isascii((int)value)))
+                 if (((input[i] & 0x80) == 0x80) && (isprintable((int)value)))
                     {
                     //Byte looks like an unsolicited packet
                     //Check for overrun
@@ -5746,7 +5752,7 @@ asynStatus GalilController::sync_writeReadController(const char *output, char *i
               //Split received byte stream into solicited, and unsolicited messages
               //Unsolicited messages are received here only in synchronous mode
               value = (unsigned char)buf[i] - 128;
-              if (((buf[i] & 0x80) == 0x80) && (my_isascii((int)value)))
+              if (((buf[i] & 0x80) == 0x80) && (isprintable((int)value)))
                  {
                  //Byte looks like an unsolicited packet
                  //Check for overrun

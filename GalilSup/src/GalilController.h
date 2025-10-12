@@ -378,7 +378,7 @@ public:
   asynStatus sync_writeReadController(bool testQuery = false, bool logCommand = true);
 
   asynStatus sendUnsolicitedMessage(char *mesg);
-  bool my_isascii(int c);
+  bool isprintable(int c);
   asynStatus arrayUpload(void);
   asynStatus programUpload(string *prog);
   asynStatus programDownload(const string prog);
