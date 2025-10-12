@@ -431,11 +431,9 @@
 //                  Add GalilDummy.cpp to create the GalilSupport registrar entry for systems without C++11
 //                  Changed src/Makefile to build the real driver if HAVE_C++11 is true (the default) and the dummy driver if it is false.
 //                  Added CONFIG_SITE.Common.$(EPICS_HOST_ARCH) for a few systems that don't have C++11
-// 
 // 13/01/2025 M.Clift
 //                  Add acceleration capped at controller maximum for independent moves
 //                  Rename config/GALILRELEASE to config/RELEASE.local
-//
 // 16/01/2025 M.Clift
 //                  Fix unknown amplifier messages at ioc start when no controller
 // 17/01/2025 M.Clift
@@ -458,6 +456,12 @@
 // 27/09/2025 M.Clift
 //                  Add several stop code cases to internal stop mechanism
 //                  Minor optimizations to GalilController::getStatus
+// 05/10/2025 M.Rivers
+//                  Fix data record decoding of amplifier fault status
+//                  Update internal amplifer MEDM screen
+// 12/10/2025 M.Clift
+//                  Add block ST command through command console preventing accidental kill of all controller threads 
+//                  Fix some characters missing from unsolicited messages
 
 #include <stdio.h>
 #include <math.h>
@@ -497,7 +501,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "4-1-25";
+static const char *driverVersion = "4-1-07";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);
