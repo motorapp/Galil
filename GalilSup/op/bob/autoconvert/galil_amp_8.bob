@@ -1,135 +1,220 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--Saved on 2024-12-28 15:07:24 by epics-->
+<!--Saved on 2025-03-27 15:50:31 by epics-->
 <display version="2.0.0">
   <name>galil_amp_8</name>
-  <x>623</x>
-  <y>393</y>
+  <x>283</x>
+  <y>278</y>
   <width>1075</width>
-  <height>350</height>
+  <height>435</height>
   <background_color>
     <color red="187" green="187" blue="187">
     </color>
   </background_color>
   <grid_visible>false</grid_visible>
   <grid_step_x>5</grid_step_x>
-  <widget type="group" version="2.0.0">
-    <name>composite #6</name>
-    <x>338</x>
-    <y>250</y>
-    <width>399</width>
-    <height>87</height>
-    <style>3</style>
+  <widget type="rectangle" version="2.0.0">
+    <name>rectangle #6</name>
+    <x>5</x>
+    <y>7</y>
+    <width>1065</width>
+    <height>25</height>
+    <line_width>1</line_width>
+    <line_color>
+      <color red="0" green="0" blue="0">
+      </color>
+    </line_color>
+    <background_color>
+      <color red="0" green="0" blue="0">
+      </color>
+    </background_color>
     <transparent>true</transparent>
-    <widget type="label" version="2.0.0">
-      <name>text #9</name>
-      <text>Low current mode value N:</text>
-      <width>175</width>
-      <height>13</height>
-      <auto_size>true</auto_size>
-    </widget>
-    <widget type="label" version="2.0.0">
-      <name>text #12</name>
-      <text>N &gt;= 2:   0% current after N samples after move complete</text>
-      <x>7</x>
-      <y>20</y>
-      <width>392</width>
-      <height>13</height>
-      <auto_size>true</auto_size>
-    </widget>
-    <widget type="label" version="2.0.0">
-      <name>text #15</name>
-      <text>N = 1:   25% current immediately after move complete</text>
-      <x>7</x>
-      <y>38</y>
-      <width>364</width>
-      <height>13</height>
-      <auto_size>true</auto_size>
-    </widget>
-    <widget type="label" version="2.0.0">
-      <name>text #18</name>
-      <text>N = 0:  100% current always, no reduction after move</text>
-      <x>7</x>
-      <y>56</y>
-      <width>364</width>
-      <height>13</height>
-      <auto_size>true</auto_size>
-    </widget>
-    <widget type="label" version="2.0.0">
-      <name>text #21</name>
-      <text>N &lt;= -1: 25% current after N samples after move complete</text>
-      <x>7</x>
-      <y>74</y>
-      <width>392</width>
-      <height>13</height>
-      <auto_size>true</auto_size>
-    </widget>
   </widget>
-  <widget type="group" version="2.0.0">
-    <name>composite #24</name>
+  <widget type="label" version="2.0.0">
+    <name>text #9</name>
+    <text>Galil amplifier settings  $(P)</text>
     <x>10</x>
+    <y>12</y>
+    <width>1050</width>
+    <height>18</height>
+    <font>
+      <font family="Liberation Sans" style="REGULAR" size="16.0">
+      </font>
+    </font>
+    <horizontal_alignment>1</horizontal_alignment>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #12</name>
+    <text>Amplifier gain</text>
+    <x>127</x>
+    <y>197</y>
+    <width>98</width>
+    <height>13</height>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #15</name>
+    <text>Current loop gain (servo only)</text>
+    <x>15</x>
+    <y>238</y>
+    <width>210</width>
+    <height>13</height>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #18</name>
+    <text>Microsteps/step (stepper only)</text>
+    <x>17</x>
+    <y>279</y>
+    <width>208</width>
+    <height>13</height>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #21</name>
+    <text>Motor type</text>
+    <x>155</x>
+    <y>115</y>
+    <width>70</width>
+    <height>13</height>
+    <horizontal_alignment>2</horizontal_alignment>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #24</name>
+    <text>Bursh type</text>
+    <x>155</x>
+    <y>156</y>
+    <width>70</width>
+    <height>13</height>
+    <horizontal_alignment>2</horizontal_alignment>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #27</name>
+    <text>Motor name</text>
+    <x>155</x>
+    <y>59</y>
+    <width>70</width>
+    <height>13</height>
+    <horizontal_alignment>2</horizontal_alignment>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #30</name>
+    <text>Motor axis</text>
+    <x>155</x>
     <y>41</y>
-    <width>215</width>
-    <height>192</height>
-    <style>3</style>
-    <transparent>true</transparent>
-    <widget type="label" version="2.0.0">
-      <name>text #27</name>
-      <text>Motor axis</text>
-      <x>145</x>
-      <width>70</width>
-      <height>13</height>
-      <auto_size>true</auto_size>
-    </widget>
-    <widget type="label" version="2.0.0">
-      <name>text #30</name>
-      <text>Motorname</text>
-      <x>152</x>
-      <y>18</y>
-      <width>63</width>
-      <height>13</height>
-      <auto_size>true</auto_size>
-    </widget>
-    <widget type="label" version="2.0.0">
-      <name>text #33</name>
-      <text>Low current mode (stepper only)</text>
-      <y>179</y>
-      <width>215</width>
-      <height>13</height>
-      <auto_size>true</auto_size>
-    </widget>
-    <widget type="label" version="2.0.0">
-      <name>text #36</name>
-      <text>Microsteps/step (stepper only)</text>
-      <x>7</x>
-      <y>138</y>
-      <width>208</width>
-      <height>13</height>
-      <auto_size>true</auto_size>
-    </widget>
-    <widget type="label" version="2.0.0">
-      <name>text #39</name>
-      <text>Current loop gain (servo only)</text>
-      <x>5</x>
-      <y>97</y>
-      <width>210</width>
-      <height>13</height>
-      <auto_size>true</auto_size>
-    </widget>
-    <widget type="label" version="2.0.0">
-      <name>text #42</name>
-      <text>Amplifier gain</text>
-      <x>117</x>
-      <y>56</y>
-      <width>98</width>
-      <height>13</height>
-      <auto_size>true</auto_size>
-    </widget>
+    <width>70</width>
+    <height>13</height>
+    <auto_size>true</auto_size>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>text #33</name>
+    <text>Amplifier model</text>
+    <x>120</x>
+    <y>77</y>
+    <width>105</width>
+    <height>13</height>
+    <horizontal_alignment>2</horizontal_alignment>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #36</name>
+    <pv_name>$(P)$(M1)_AMPGAIN_CMD</pv_name>
+    <x>230</x>
+    <y>195</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #39</name>
+    <pv_name>$(P)$(M2)_AMPGAIN_CMD</pv_name>
+    <x>335</x>
+    <y>195</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #42</name>
+    <pv_name>$(P)$(M3)_AMPGAIN_CMD</pv_name>
+    <x>440</x>
+    <y>195</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #45</name>
+    <pv_name>$(P)$(M4)_AMPGAIN_CMD</pv_name>
+    <x>545</x>
+    <y>195</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #48</name>
+    <pv_name>$(P)$(M5)_AMPGAIN_CMD</pv_name>
+    <x>650</x>
+    <y>195</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #51</name>
+    <pv_name>$(P)$(M6)_AMPGAIN_CMD</pv_name>
+    <x>755</x>
+    <y>195</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #54</name>
+    <pv_name>$(P)$(M7)_AMPGAIN_CMD</pv_name>
+    <x>860</x>
+    <y>195</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #57</name>
+    <pv_name>$(P)$(M8)_AMPGAIN_CMD</pv_name>
+    <x>965</x>
+    <y>195</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>text update #45</name>
-    <pv_name>$(P)$(M1)_AXIS_STATUS</pv_name>
+    <name>text update #60</name>
+    <pv_name>$(P)$(M1)_AMPCLGAIN_STATUS</pv_name>
     <x>230</x>
-    <y>41</y>
+    <y>218</y>
     <height>13</height>
     <foreground_color>
       <color red="10" green="0" blue="184">
@@ -145,7 +230,1132 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>text update #49</name>
+    <name>text update #64</name>
+    <pv_name>$(P)$(M2)_AMPCLGAIN_STATUS</pv_name>
+    <x>335</x>
+    <y>218</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #68</name>
+    <pv_name>$(P)$(M3)_AMPCLGAIN_STATUS</pv_name>
+    <x>440</x>
+    <y>218</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #72</name>
+    <pv_name>$(P)$(M4)_AMPCLGAIN_STATUS</pv_name>
+    <x>545</x>
+    <y>218</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #76</name>
+    <pv_name>$(P)$(M5)_AMPCLGAIN_STATUS</pv_name>
+    <x>650</x>
+    <y>218</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #80</name>
+    <pv_name>$(P)$(M6)_AMPCLGAIN_STATUS</pv_name>
+    <x>755</x>
+    <y>218</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #84</name>
+    <pv_name>$(P)$(M7)_AMPCLGAIN_STATUS</pv_name>
+    <x>860</x>
+    <y>218</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #88</name>
+    <pv_name>$(P)$(M8)_AMPCLGAIN_STATUS</pv_name>
+    <x>965</x>
+    <y>218</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #92</name>
+    <pv_name>$(P)$(M1)_AMPCLGAIN_CMD</pv_name>
+    <x>230</x>
+    <y>236</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #95</name>
+    <pv_name>$(P)$(M2)_AMPCLGAIN_CMD</pv_name>
+    <x>335</x>
+    <y>236</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #98</name>
+    <pv_name>$(P)$(M3)_AMPCLGAIN_CMD</pv_name>
+    <x>440</x>
+    <y>236</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #101</name>
+    <pv_name>$(P)$(M4)_AMPCLGAIN_CMD</pv_name>
+    <x>545</x>
+    <y>236</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #104</name>
+    <pv_name>$(P)$(M5)_AMPCLGAIN_CMD</pv_name>
+    <x>650</x>
+    <y>236</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #107</name>
+    <pv_name>$(P)$(M6)_AMPCLGAIN_CMD</pv_name>
+    <x>755</x>
+    <y>236</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #110</name>
+    <pv_name>$(P)$(M7)_AMPCLGAIN_CMD</pv_name>
+    <x>860</x>
+    <y>236</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #113</name>
+    <pv_name>$(P)$(M8)_AMPCLGAIN_CMD</pv_name>
+    <x>965</x>
+    <y>236</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #116</name>
+    <pv_name>$(P)$(M1)_MICROSTEP_CMD</pv_name>
+    <x>230</x>
+    <y>277</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #119</name>
+    <pv_name>$(P)$(M2)_MICROSTEP_CMD</pv_name>
+    <x>335</x>
+    <y>277</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #122</name>
+    <pv_name>$(P)$(M3)_MICROSTEP_CMD</pv_name>
+    <x>440</x>
+    <y>277</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #125</name>
+    <pv_name>$(P)$(M4)_MICROSTEP_CMD</pv_name>
+    <x>545</x>
+    <y>277</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #128</name>
+    <pv_name>$(P)$(M5)_MICROSTEP_CMD</pv_name>
+    <x>650</x>
+    <y>277</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #131</name>
+    <pv_name>$(P)$(M6)_MICROSTEP_CMD</pv_name>
+    <x>755</x>
+    <y>277</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #134</name>
+    <pv_name>$(P)$(M7)_MICROSTEP_CMD</pv_name>
+    <x>860</x>
+    <y>277</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #137</name>
+    <pv_name>$(P)$(M8)_MICROSTEP_CMD</pv_name>
+    <x>965</x>
+    <y>277</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #140</name>
+    <pv_name>$(P)$(M1)_MICROSTEP_STATUS</pv_name>
+    <x>230</x>
+    <y>259</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #144</name>
+    <pv_name>$(P)$(M2)_MICROSTEP_STATUS</pv_name>
+    <x>335</x>
+    <y>259</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #148</name>
+    <pv_name>$(P)$(M3)_MICROSTEP_STATUS</pv_name>
+    <x>440</x>
+    <y>259</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #152</name>
+    <pv_name>$(P)$(M4)_MICROSTEP_STATUS</pv_name>
+    <x>545</x>
+    <y>259</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #156</name>
+    <pv_name>$(P)$(M5)_MICROSTEP_STATUS</pv_name>
+    <x>650</x>
+    <y>259</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #160</name>
+    <pv_name>$(P)$(M6)_MICROSTEP_STATUS</pv_name>
+    <x>755</x>
+    <y>259</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #164</name>
+    <pv_name>$(P)$(M7)_MICROSTEP_STATUS</pv_name>
+    <x>860</x>
+    <y>259</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #168</name>
+    <pv_name>$(P)$(M8)_MICROSTEP_STATUS</pv_name>
+    <x>965</x>
+    <y>259</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #172</name>
+    <pv_name>$(P)$(M1)_MTRTYPE_STATUS</pv_name>
+    <x>230</x>
+    <y>95</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #176</name>
+    <pv_name>$(P)$(M1)_MTRTYPE_CMD</pv_name>
+    <x>230</x>
+    <y>113</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #179</name>
+    <pv_name>$(P)$(M2)_MTRTYPE_STATUS</pv_name>
+    <x>335</x>
+    <y>95</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #183</name>
+    <pv_name>$(P)$(M2)_MTRTYPE_CMD</pv_name>
+    <x>335</x>
+    <y>113</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #186</name>
+    <pv_name>$(P)$(M3)_MTRTYPE_STATUS</pv_name>
+    <x>440</x>
+    <y>95</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #190</name>
+    <pv_name>$(P)$(M3)_MTRTYPE_CMD</pv_name>
+    <x>440</x>
+    <y>113</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #193</name>
+    <pv_name>$(P)$(M4)_MTRTYPE_STATUS</pv_name>
+    <x>545</x>
+    <y>95</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #197</name>
+    <pv_name>$(P)$(M4)_MTRTYPE_CMD</pv_name>
+    <x>545</x>
+    <y>113</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #200</name>
+    <pv_name>$(P)$(M5)_MTRTYPE_STATUS</pv_name>
+    <x>650</x>
+    <y>95</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #204</name>
+    <pv_name>$(P)$(M5)_MTRTYPE_CMD</pv_name>
+    <x>650</x>
+    <y>113</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #207</name>
+    <pv_name>$(P)$(M6)_MTRTYPE_STATUS</pv_name>
+    <x>755</x>
+    <y>95</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #211</name>
+    <pv_name>$(P)$(M6)_MTRTYPE_CMD</pv_name>
+    <x>755</x>
+    <y>113</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #214</name>
+    <pv_name>$(P)$(M7)_MTRTYPE_STATUS</pv_name>
+    <x>860</x>
+    <y>95</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #218</name>
+    <pv_name>$(P)$(M7)_MTRTYPE_CMD</pv_name>
+    <x>860</x>
+    <y>113</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #221</name>
+    <pv_name>$(P)$(M8)_MTRTYPE_STATUS</pv_name>
+    <x>965</x>
+    <y>95</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #225</name>
+    <pv_name>$(P)$(M8)_MTRTYPE_CMD</pv_name>
+    <x>965</x>
+    <y>113</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #228</name>
+    <pv_name>$(P)$(M1)_BRTYPE_STATUS</pv_name>
+    <x>230</x>
+    <y>136</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #232</name>
+    <pv_name>$(P)$(M1)_BRTYPE_CMD</pv_name>
+    <x>230</x>
+    <y>154</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #235</name>
+    <pv_name>$(P)$(M2)_BRTYPE_STATUS</pv_name>
+    <x>335</x>
+    <y>136</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #239</name>
+    <pv_name>$(P)$(M2)_BRTYPE_CMD</pv_name>
+    <x>335</x>
+    <y>154</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #242</name>
+    <pv_name>$(P)$(M3)_BRTYPE_STATUS</pv_name>
+    <x>440</x>
+    <y>136</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #246</name>
+    <pv_name>$(P)$(M3)_BRTYPE_CMD</pv_name>
+    <x>440</x>
+    <y>154</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #249</name>
+    <pv_name>$(P)$(M4)_BRTYPE_STATUS</pv_name>
+    <x>545</x>
+    <y>136</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #253</name>
+    <pv_name>$(P)$(M4)_BRTYPE_CMD</pv_name>
+    <x>545</x>
+    <y>154</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #256</name>
+    <pv_name>$(P)$(M5)_BRTYPE_STATUS</pv_name>
+    <x>650</x>
+    <y>136</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #260</name>
+    <pv_name>$(P)$(M5)_BRTYPE_CMD</pv_name>
+    <x>650</x>
+    <y>154</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #263</name>
+    <pv_name>$(P)$(M6)_BRTYPE_STATUS</pv_name>
+    <x>755</x>
+    <y>136</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #267</name>
+    <pv_name>$(P)$(M6)_BRTYPE_CMD</pv_name>
+    <x>755</x>
+    <y>154</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #270</name>
+    <pv_name>$(P)$(M7)_BRTYPE_STATUS</pv_name>
+    <x>860</x>
+    <y>136</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #274</name>
+    <pv_name>$(P)$(M7)_BRTYPE_CMD</pv_name>
+    <x>860</x>
+    <y>154</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #277</name>
+    <pv_name>$(P)$(M8)_BRTYPE_STATUS</pv_name>
+    <x>965</x>
+    <y>136</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>menu #281</name>
+    <pv_name>$(P)$(M8)_BRTYPE_CMD</pv_name>
+    <x>965</x>
+    <y>154</y>
+    <height>18</height>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #284</name>
+    <pv_name>$(P)$(M1)_AMPGAIN_STATUS</pv_name>
+    <x>230</x>
+    <y>177</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #288</name>
+    <pv_name>$(P)$(M2)_AMPGAIN_STATUS</pv_name>
+    <x>335</x>
+    <y>177</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #292</name>
+    <pv_name>$(P)$(M3)_AMPGAIN_STATUS</pv_name>
+    <x>440</x>
+    <y>177</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #296</name>
+    <pv_name>$(P)$(M4)_AMPGAIN_STATUS</pv_name>
+    <x>545</x>
+    <y>177</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #300</name>
+    <pv_name>$(P)$(M5)_AMPGAIN_STATUS</pv_name>
+    <x>650</x>
+    <y>177</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #304</name>
+    <pv_name>$(P)$(M6)_AMPGAIN_STATUS</pv_name>
+    <x>755</x>
+    <y>177</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #308</name>
+    <pv_name>$(P)$(M7)_AMPGAIN_STATUS</pv_name>
+    <x>860</x>
+    <y>177</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #312</name>
+    <pv_name>$(P)$(M8)_AMPGAIN_STATUS</pv_name>
+    <x>965</x>
+    <y>177</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #316</name>
     <pv_name>$(P)$(M1).NAME</pv_name>
     <x>230</x>
     <y>59</y>
@@ -164,156 +1374,7 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>text update #53</name>
-    <pv_name>$(P)$(M1)_AMPLC_MON</pv_name>
-    <x>230</x>
-    <y>200</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>1</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #57</name>
-    <pv_name>$(P)$(M1)_AMPCLGAIN_STATUS</pv_name>
-    <x>230</x>
-    <y>118</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>6</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #61</name>
-    <pv_name>$(P)$(M1)_AMPGAIN_STATUS</pv_name>
-    <x>230</x>
-    <y>77</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>6</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #65</name>
-    <pv_name>$(P)$(M1)_MICROSTEP_STATUS</pv_name>
-    <x>230</x>
-    <y>159</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>6</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textentry" version="3.0.0">
-    <name>text entry #69</name>
-    <pv_name>$(P)$(M1)_AMPLC_SP</pv_name>
-    <x>230</x>
-    <y>218</y>
-    <height>18</height>
-    <font>
-      <font family="Liberation Sans" style="REGULAR" size="16.0">
-      </font>
-    </font>
-    <background_color>
-      <color red="115" green="223" blue="255">
-      </color>
-    </background_color>
-    <format>1</format>
-    <show_units>false</show_units>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="combo" version="2.0.0">
-    <name>menu #73</name>
-    <pv_name>$(P)$(M1)_MICROSTEP_CMD</pv_name>
-    <x>230</x>
-    <y>177</y>
-    <height>18</height>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="combo" version="2.0.0">
-    <name>menu #76</name>
-    <pv_name>$(P)$(M1)_AMPCLGAIN_CMD</pv_name>
-    <x>230</x>
-    <y>136</y>
-    <height>18</height>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="combo" version="2.0.0">
-    <name>menu #79</name>
-    <pv_name>$(P)$(M1)_AMPGAIN_CMD</pv_name>
-    <x>230</x>
-    <y>95</y>
-    <height>18</height>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #82</name>
-    <pv_name>$(P)$(M2)_AXIS_STATUS</pv_name>
-    <x>335</x>
-    <y>41</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>6</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #86</name>
+    <name>text update #320</name>
     <pv_name>$(P)$(M2).NAME</pv_name>
     <x>335</x>
     <y>59</y>
@@ -332,156 +1393,7 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>text update #90</name>
-    <pv_name>$(P)$(M2)_AMPLC_MON</pv_name>
-    <x>335</x>
-    <y>200</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>1</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #94</name>
-    <pv_name>$(P)$(M2)_AMPCLGAIN_STATUS</pv_name>
-    <x>335</x>
-    <y>118</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>6</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #98</name>
-    <pv_name>$(P)$(M2)_AMPGAIN_STATUS</pv_name>
-    <x>335</x>
-    <y>77</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>6</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #102</name>
-    <pv_name>$(P)$(M2)_MICROSTEP_STATUS</pv_name>
-    <x>335</x>
-    <y>159</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>6</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textentry" version="3.0.0">
-    <name>text entry #106</name>
-    <pv_name>$(P)$(M2)_AMPLC_SP</pv_name>
-    <x>335</x>
-    <y>218</y>
-    <height>18</height>
-    <font>
-      <font family="Liberation Sans" style="REGULAR" size="16.0">
-      </font>
-    </font>
-    <background_color>
-      <color red="115" green="223" blue="255">
-      </color>
-    </background_color>
-    <format>1</format>
-    <show_units>false</show_units>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="combo" version="2.0.0">
-    <name>menu #110</name>
-    <pv_name>$(P)$(M2)_MICROSTEP_CMD</pv_name>
-    <x>335</x>
-    <y>177</y>
-    <height>18</height>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="combo" version="2.0.0">
-    <name>menu #113</name>
-    <pv_name>$(P)$(M2)_AMPCLGAIN_CMD</pv_name>
-    <x>335</x>
-    <y>136</y>
-    <height>18</height>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="combo" version="2.0.0">
-    <name>menu #116</name>
-    <pv_name>$(P)$(M2)_AMPGAIN_CMD</pv_name>
-    <x>335</x>
-    <y>95</y>
-    <height>18</height>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #119</name>
-    <pv_name>$(P)$(M3)_AXIS_STATUS</pv_name>
-    <x>440</x>
-    <y>41</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>6</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #123</name>
+    <name>text update #324</name>
     <pv_name>$(P)$(M3).NAME</pv_name>
     <x>440</x>
     <y>59</y>
@@ -500,156 +1412,7 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>text update #127</name>
-    <pv_name>$(P)$(M3)_AMPLC_MON</pv_name>
-    <x>440</x>
-    <y>200</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>1</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #131</name>
-    <pv_name>$(P)$(M3)_AMPCLGAIN_STATUS</pv_name>
-    <x>440</x>
-    <y>118</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>6</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #135</name>
-    <pv_name>$(P)$(M3)_AMPGAIN_STATUS</pv_name>
-    <x>440</x>
-    <y>77</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>6</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #139</name>
-    <pv_name>$(P)$(M3)_MICROSTEP_STATUS</pv_name>
-    <x>440</x>
-    <y>159</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>6</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textentry" version="3.0.0">
-    <name>text entry #143</name>
-    <pv_name>$(P)$(M3)_AMPLC_SP</pv_name>
-    <x>440</x>
-    <y>218</y>
-    <height>18</height>
-    <font>
-      <font family="Liberation Sans" style="REGULAR" size="16.0">
-      </font>
-    </font>
-    <background_color>
-      <color red="115" green="223" blue="255">
-      </color>
-    </background_color>
-    <format>1</format>
-    <show_units>false</show_units>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="combo" version="2.0.0">
-    <name>menu #147</name>
-    <pv_name>$(P)$(M3)_MICROSTEP_CMD</pv_name>
-    <x>440</x>
-    <y>177</y>
-    <height>18</height>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="combo" version="2.0.0">
-    <name>menu #150</name>
-    <pv_name>$(P)$(M3)_AMPCLGAIN_CMD</pv_name>
-    <x>440</x>
-    <y>136</y>
-    <height>18</height>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="combo" version="2.0.0">
-    <name>menu #153</name>
-    <pv_name>$(P)$(M3)_AMPGAIN_CMD</pv_name>
-    <x>440</x>
-    <y>95</y>
-    <height>18</height>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #156</name>
-    <pv_name>$(P)$(M4)_AXIS_STATUS</pv_name>
-    <x>545</x>
-    <y>41</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>6</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #160</name>
+    <name>text update #328</name>
     <pv_name>$(P)$(M4).NAME</pv_name>
     <x>545</x>
     <y>59</y>
@@ -668,156 +1431,7 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>text update #164</name>
-    <pv_name>$(P)$(M4)_AMPLC_MON</pv_name>
-    <x>545</x>
-    <y>200</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>1</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #168</name>
-    <pv_name>$(P)$(M4)_AMPCLGAIN_STATUS</pv_name>
-    <x>545</x>
-    <y>118</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>6</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #172</name>
-    <pv_name>$(P)$(M4)_AMPGAIN_STATUS</pv_name>
-    <x>545</x>
-    <y>77</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>6</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #176</name>
-    <pv_name>$(P)$(M4)_MICROSTEP_STATUS</pv_name>
-    <x>545</x>
-    <y>159</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>6</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textentry" version="3.0.0">
-    <name>text entry #180</name>
-    <pv_name>$(P)$(M4)_AMPLC_SP</pv_name>
-    <x>545</x>
-    <y>218</y>
-    <height>18</height>
-    <font>
-      <font family="Liberation Sans" style="REGULAR" size="16.0">
-      </font>
-    </font>
-    <background_color>
-      <color red="115" green="223" blue="255">
-      </color>
-    </background_color>
-    <format>1</format>
-    <show_units>false</show_units>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="combo" version="2.0.0">
-    <name>menu #184</name>
-    <pv_name>$(P)$(M4)_MICROSTEP_CMD</pv_name>
-    <x>545</x>
-    <y>177</y>
-    <height>18</height>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="combo" version="2.0.0">
-    <name>menu #187</name>
-    <pv_name>$(P)$(M4)_AMPCLGAIN_CMD</pv_name>
-    <x>545</x>
-    <y>136</y>
-    <height>18</height>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="combo" version="2.0.0">
-    <name>menu #190</name>
-    <pv_name>$(P)$(M4)_AMPGAIN_CMD</pv_name>
-    <x>545</x>
-    <y>95</y>
-    <height>18</height>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #193</name>
-    <pv_name>$(P)$(M5)_AXIS_STATUS</pv_name>
-    <x>650</x>
-    <y>41</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>6</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #197</name>
+    <name>text update #332</name>
     <pv_name>$(P)$(M5).NAME</pv_name>
     <x>650</x>
     <y>59</y>
@@ -836,156 +1450,7 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>text update #201</name>
-    <pv_name>$(P)$(M5)_AMPLC_MON</pv_name>
-    <x>650</x>
-    <y>200</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>1</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #205</name>
-    <pv_name>$(P)$(M5)_AMPCLGAIN_STATUS</pv_name>
-    <x>650</x>
-    <y>118</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>6</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #209</name>
-    <pv_name>$(P)$(M5)_AMPGAIN_STATUS</pv_name>
-    <x>650</x>
-    <y>77</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>6</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #213</name>
-    <pv_name>$(P)$(M5)_MICROSTEP_STATUS</pv_name>
-    <x>650</x>
-    <y>159</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>6</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textentry" version="3.0.0">
-    <name>text entry #217</name>
-    <pv_name>$(P)$(M5)_AMPLC_SP</pv_name>
-    <x>650</x>
-    <y>218</y>
-    <height>18</height>
-    <font>
-      <font family="Liberation Sans" style="REGULAR" size="16.0">
-      </font>
-    </font>
-    <background_color>
-      <color red="115" green="223" blue="255">
-      </color>
-    </background_color>
-    <format>1</format>
-    <show_units>false</show_units>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="combo" version="2.0.0">
-    <name>menu #221</name>
-    <pv_name>$(P)$(M5)_MICROSTEP_CMD</pv_name>
-    <x>650</x>
-    <y>177</y>
-    <height>18</height>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="combo" version="2.0.0">
-    <name>menu #224</name>
-    <pv_name>$(P)$(M5)_AMPCLGAIN_CMD</pv_name>
-    <x>650</x>
-    <y>136</y>
-    <height>18</height>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="combo" version="2.0.0">
-    <name>menu #227</name>
-    <pv_name>$(P)$(M5)_AMPGAIN_CMD</pv_name>
-    <x>650</x>
-    <y>95</y>
-    <height>18</height>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #230</name>
-    <pv_name>$(P)$(M6)_AXIS_STATUS</pv_name>
-    <x>755</x>
-    <y>41</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>6</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #234</name>
+    <name>text update #336</name>
     <pv_name>$(P)$(M6).NAME</pv_name>
     <x>755</x>
     <y>59</y>
@@ -1004,156 +1469,7 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>text update #238</name>
-    <pv_name>$(P)$(M6)_AMPLC_MON</pv_name>
-    <x>755</x>
-    <y>200</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>1</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #242</name>
-    <pv_name>$(P)$(M6)_AMPCLGAIN_STATUS</pv_name>
-    <x>755</x>
-    <y>118</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>6</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #246</name>
-    <pv_name>$(P)$(M6)_AMPGAIN_STATUS</pv_name>
-    <x>755</x>
-    <y>77</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>6</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #250</name>
-    <pv_name>$(P)$(M6)_MICROSTEP_STATUS</pv_name>
-    <x>755</x>
-    <y>159</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>6</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textentry" version="3.0.0">
-    <name>text entry #254</name>
-    <pv_name>$(P)$(M6)_AMPLC_SP</pv_name>
-    <x>755</x>
-    <y>218</y>
-    <height>18</height>
-    <font>
-      <font family="Liberation Sans" style="REGULAR" size="16.0">
-      </font>
-    </font>
-    <background_color>
-      <color red="115" green="223" blue="255">
-      </color>
-    </background_color>
-    <format>1</format>
-    <show_units>false</show_units>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="combo" version="2.0.0">
-    <name>menu #258</name>
-    <pv_name>$(P)$(M6)_MICROSTEP_CMD</pv_name>
-    <x>755</x>
-    <y>177</y>
-    <height>18</height>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="combo" version="2.0.0">
-    <name>menu #261</name>
-    <pv_name>$(P)$(M6)_AMPCLGAIN_CMD</pv_name>
-    <x>755</x>
-    <y>136</y>
-    <height>18</height>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="combo" version="2.0.0">
-    <name>menu #264</name>
-    <pv_name>$(P)$(M6)_AMPGAIN_CMD</pv_name>
-    <x>755</x>
-    <y>95</y>
-    <height>18</height>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #267</name>
-    <pv_name>$(P)$(M7)_AXIS_STATUS</pv_name>
-    <x>860</x>
-    <y>41</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>6</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #271</name>
+    <name>text update #340</name>
     <pv_name>$(P)$(M7).NAME</pv_name>
     <x>860</x>
     <y>59</y>
@@ -1172,156 +1488,7 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>text update #275</name>
-    <pv_name>$(P)$(M7)_AMPLC_MON</pv_name>
-    <x>860</x>
-    <y>200</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>1</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #279</name>
-    <pv_name>$(P)$(M7)_AMPCLGAIN_STATUS</pv_name>
-    <x>860</x>
-    <y>118</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>6</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #283</name>
-    <pv_name>$(P)$(M7)_AMPGAIN_STATUS</pv_name>
-    <x>860</x>
-    <y>77</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>6</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #287</name>
-    <pv_name>$(P)$(M7)_MICROSTEP_STATUS</pv_name>
-    <x>860</x>
-    <y>159</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>6</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textentry" version="3.0.0">
-    <name>text entry #291</name>
-    <pv_name>$(P)$(M7)_AMPLC_SP</pv_name>
-    <x>860</x>
-    <y>218</y>
-    <height>18</height>
-    <font>
-      <font family="Liberation Sans" style="REGULAR" size="16.0">
-      </font>
-    </font>
-    <background_color>
-      <color red="115" green="223" blue="255">
-      </color>
-    </background_color>
-    <format>1</format>
-    <show_units>false</show_units>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="combo" version="2.0.0">
-    <name>menu #295</name>
-    <pv_name>$(P)$(M7)_MICROSTEP_CMD</pv_name>
-    <x>860</x>
-    <y>177</y>
-    <height>18</height>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="combo" version="2.0.0">
-    <name>menu #298</name>
-    <pv_name>$(P)$(M7)_AMPCLGAIN_CMD</pv_name>
-    <x>860</x>
-    <y>136</y>
-    <height>18</height>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="combo" version="2.0.0">
-    <name>menu #301</name>
-    <pv_name>$(P)$(M7)_AMPGAIN_CMD</pv_name>
-    <x>860</x>
-    <y>95</y>
-    <height>18</height>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #304</name>
-    <pv_name>$(P)$(M8)_AXIS_STATUS</pv_name>
-    <x>965</x>
-    <y>41</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>6</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #308</name>
+    <name>text update #344</name>
     <pv_name>$(P)$(M8).NAME</pv_name>
     <x>965</x>
     <y>59</y>
@@ -1340,29 +1507,10 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>text update #312</name>
-    <pv_name>$(P)$(M8)_AMPLC_MON</pv_name>
-    <x>965</x>
-    <y>200</y>
-    <height>13</height>
-    <foreground_color>
-      <color red="10" green="0" blue="184">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <format>1</format>
-    <show_units>false</show_units>
-    <horizontal_alignment>1</horizontal_alignment>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>text update #316</name>
-    <pv_name>$(P)$(M8)_AMPCLGAIN_STATUS</pv_name>
-    <x>965</x>
-    <y>118</y>
+    <name>text update #348</name>
+    <pv_name>$(P)$(M1)_AXIS_STATUS</pv_name>
+    <x>230</x>
+    <y>41</y>
     <height>13</height>
     <foreground_color>
       <color red="10" green="0" blue="184">
@@ -1378,9 +1526,142 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>text update #320</name>
-    <pv_name>$(P)$(M8)_AMPGAIN_STATUS</pv_name>
+    <name>text update #352</name>
+    <pv_name>$(P)$(M2)_AXIS_STATUS</pv_name>
+    <x>335</x>
+    <y>41</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #356</name>
+    <pv_name>$(P)$(M3)_AXIS_STATUS</pv_name>
+    <x>440</x>
+    <y>41</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #360</name>
+    <pv_name>$(P)$(M4)_AXIS_STATUS</pv_name>
+    <x>545</x>
+    <y>41</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #364</name>
+    <pv_name>$(P)$(M5)_AXIS_STATUS</pv_name>
+    <x>650</x>
+    <y>41</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #368</name>
+    <pv_name>$(P)$(M6)_AXIS_STATUS</pv_name>
+    <x>755</x>
+    <y>41</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #372</name>
+    <pv_name>$(P)$(M7)_AXIS_STATUS</pv_name>
+    <x>860</x>
+    <y>41</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #376</name>
+    <pv_name>$(P)$(M8)_AXIS_STATUS</pv_name>
     <x>965</x>
+    <y>41</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #380</name>
+    <pv_name>$(P)$(M1)_AMPMODEL_STATUS</pv_name>
+    <x>230</x>
     <y>77</y>
     <height>13</height>
     <foreground_color>
@@ -1397,10 +1678,10 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>text update #324</name>
-    <pv_name>$(P)$(M8)_MICROSTEP_STATUS</pv_name>
-    <x>965</x>
-    <y>159</y>
+    <name>text update #384</name>
+    <pv_name>$(P)$(M2)_AMPMODEL_STATUS</pv_name>
+    <x>335</x>
+    <y>77</y>
     <height>13</height>
     <foreground_color>
       <color red="10" green="0" blue="184">
@@ -1415,88 +1696,793 @@
     <horizontal_alignment>1</horizontal_alignment>
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
-  <widget type="textentry" version="3.0.0">
-    <name>text entry #328</name>
-    <pv_name>$(P)$(M8)_AMPLC_SP</pv_name>
-    <x>965</x>
-    <y>218</y>
-    <height>18</height>
-    <font>
-      <font family="Liberation Sans" style="REGULAR" size="16.0">
-      </font>
-    </font>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #388</name>
+    <pv_name>$(P)$(M3)_AMPMODEL_STATUS</pv_name>
+    <x>440</x>
+    <y>77</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
     <background_color>
-      <color red="115" green="223" blue="255">
+      <color red="187" green="187" blue="187">
       </color>
     </background_color>
-    <format>1</format>
+    <format>6</format>
     <show_units>false</show_units>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="combo" version="2.0.0">
-    <name>menu #332</name>
-    <pv_name>$(P)$(M8)_MICROSTEP_CMD</pv_name>
-    <x>965</x>
-    <y>177</y>
-    <height>18</height>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="combo" version="2.0.0">
-    <name>menu #335</name>
-    <pv_name>$(P)$(M8)_AMPCLGAIN_CMD</pv_name>
-    <x>965</x>
-    <y>136</y>
-    <height>18</height>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="combo" version="2.0.0">
-    <name>menu #338</name>
-    <pv_name>$(P)$(M8)_AMPGAIN_CMD</pv_name>
-    <x>965</x>
-    <y>95</y>
-    <height>18</height>
-    <background_color>
-      <color red="187" green="187" blue="187">
-      </color>
-    </background_color>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-  </widget>
-  <widget type="rectangle" version="2.0.0">
-    <name>rectangle #341</name>
-    <x>5</x>
-    <y>7</y>
-    <width>1065</width>
-    <height>25</height>
-    <line_width>1</line_width>
-    <line_color>
-      <color red="0" green="0" blue="0">
-      </color>
-    </line_color>
-    <background_color>
-      <color red="0" green="0" blue="0">
-      </color>
-    </background_color>
-    <transparent>true</transparent>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>text #344</name>
-    <text>Galil amplifier settings  $(P)</text>
-    <x>10</x>
-    <y>12</y>
-    <width>1050</width>
-    <height>18</height>
-    <font>
-      <font family="Liberation Sans" style="REGULAR" size="16.0">
-      </font>
-    </font>
     <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #392</name>
+    <pv_name>$(P)$(M4)_AMPMODEL_STATUS</pv_name>
+    <x>545</x>
+    <y>77</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #396</name>
+    <pv_name>$(P)$(M5)_AMPMODEL_STATUS</pv_name>
+    <x>650</x>
+    <y>77</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #400</name>
+    <pv_name>$(P)$(M6)_AMPMODEL_STATUS</pv_name>
+    <x>755</x>
+    <y>77</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #404</name>
+    <pv_name>$(P)$(M7)_AMPMODEL_STATUS</pv_name>
+    <x>860</x>
+    <y>77</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>text update #408</name>
+    <pv_name>$(P)$(M8)_AMPMODEL_STATUS</pv_name>
+    <x>965</x>
+    <y>77</y>
+    <height>13</height>
+    <foreground_color>
+      <color red="10" green="0" blue="184">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="187" green="187" blue="187">
+      </color>
+    </background_color>
+    <format>6</format>
+    <show_units>false</show_units>
+    <horizontal_alignment>1</horizontal_alignment>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+  </widget>
+  <widget type="group" version="2.0.0">
+    <name>composite #412</name>
+    <x>5</x>
+    <y>387</y>
+    <width>1065</width>
+    <height>40</height>
+    <style>3</style>
+    <transparent>true</transparent>
+    <widget type="rectangle" version="2.0.0">
+      <name>rectangle #415</name>
+      <width>1065</width>
+      <height>40</height>
+      <line_width>1</line_width>
+      <line_color>
+        <color red="0" green="0" blue="0">
+        </color>
+      </line_color>
+      <background_color>
+        <color red="0" green="0" blue="0">
+        </color>
+      </background_color>
+      <transparent>true</transparent>
+    </widget>
+    <widget type="label" version="2.0.0">
+      <name>text #418</name>
+      <text>Low current mode value N:</text>
+      <x>45</x>
+      <y>4</y>
+      <width>175</width>
+      <height>13</height>
+      <auto_size>true</auto_size>
+    </widget>
+    <widget type="group" version="2.0.0">
+      <name>composite #421</name>
+      <x>230</x>
+      <y>4</y>
+      <width>392</width>
+      <height>31</height>
+      <style>3</style>
+      <transparent>true</transparent>
+      <widget type="label" version="2.0.0">
+        <name>text #424</name>
+        <text>N &gt;= 2:   0% current after N samples after move complete</text>
+        <width>392</width>
+        <height>13</height>
+        <auto_size>true</auto_size>
+      </widget>
+      <widget type="label" version="2.0.0">
+        <name>text #427</name>
+        <text>N = 1:   25% current immediately after move complete</text>
+        <y>18</y>
+        <width>364</width>
+        <height>13</height>
+        <auto_size>true</auto_size>
+      </widget>
+    </widget>
+    <widget type="group" version="2.0.0">
+      <name>composite #430</name>
+      <x>645</x>
+      <y>4</y>
+      <width>392</width>
+      <height>31</height>
+      <style>3</style>
+      <transparent>true</transparent>
+      <widget type="label" version="2.0.0">
+        <name>text #433</name>
+        <text>N = 0:  100% current always, no reduction after move</text>
+        <width>364</width>
+        <height>13</height>
+        <auto_size>true</auto_size>
+      </widget>
+      <widget type="label" version="2.0.0">
+        <name>text #436</name>
+        <text>N &lt;= -1: 25% current after N samples after move complete</text>
+        <y>18</y>
+        <width>392</width>
+        <height>13</height>
+        <auto_size>true</auto_size>
+      </widget>
+    </widget>
+  </widget>
+  <widget type="group" version="2.0.0">
+    <name>composite #439</name>
+    <x>110</x>
+    <y>300</y>
+    <width>955</width>
+    <height>36</height>
+    <style>3</style>
+    <transparent>true</transparent>
+    <widget type="label" version="2.0.0">
+      <name>text #442</name>
+      <text>Motor amplifier</text>
+      <y>20</y>
+      <width>115</width>
+      <height>13</height>
+      <horizontal_alignment>2</horizontal_alignment>
+    </widget>
+    <widget type="choice" version="2.0.0">
+      <name>choice button #445</name>
+      <pv_name>$(P)$(M1)_ON_CMD</pv_name>
+      <x>120</x>
+      <y>18</y>
+      <height>18</height>
+      <background_color>
+        <color red="115" green="223" blue="255">
+        </color>
+      </background_color>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+      <items>
+        <item>Item 1</item>
+        <item>Item 2</item>
+      </items>
+    </widget>
+    <widget type="textupdate" version="2.0.0">
+      <name>text update #448</name>
+      <pv_name>$(P)$(M1)_ON_STATUS</pv_name>
+      <x>120</x>
+      <height>13</height>
+      <foreground_color>
+        <color red="10" green="0" blue="184">
+        </color>
+      </foreground_color>
+      <background_color>
+        <color red="187" green="187" blue="187">
+        </color>
+      </background_color>
+      <format>1</format>
+      <show_units>false</show_units>
+      <horizontal_alignment>1</horizontal_alignment>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+    </widget>
+    <widget type="choice" version="2.0.0">
+      <name>choice button #452</name>
+      <pv_name>$(P)$(M2)_ON_CMD</pv_name>
+      <x>225</x>
+      <y>18</y>
+      <height>18</height>
+      <background_color>
+        <color red="115" green="223" blue="255">
+        </color>
+      </background_color>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+      <items>
+        <item>Item 1</item>
+        <item>Item 2</item>
+      </items>
+    </widget>
+    <widget type="textupdate" version="2.0.0">
+      <name>text update #455</name>
+      <pv_name>$(P)$(M2)_ON_STATUS</pv_name>
+      <x>225</x>
+      <height>13</height>
+      <foreground_color>
+        <color red="10" green="0" blue="184">
+        </color>
+      </foreground_color>
+      <background_color>
+        <color red="187" green="187" blue="187">
+        </color>
+      </background_color>
+      <format>1</format>
+      <show_units>false</show_units>
+      <horizontal_alignment>1</horizontal_alignment>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+    </widget>
+    <widget type="choice" version="2.0.0">
+      <name>choice button #459</name>
+      <pv_name>$(P)$(M3)_ON_CMD</pv_name>
+      <x>330</x>
+      <y>18</y>
+      <height>18</height>
+      <background_color>
+        <color red="115" green="223" blue="255">
+        </color>
+      </background_color>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+      <items>
+        <item>Item 1</item>
+        <item>Item 2</item>
+      </items>
+    </widget>
+    <widget type="textupdate" version="2.0.0">
+      <name>text update #462</name>
+      <pv_name>$(P)$(M3)_ON_STATUS</pv_name>
+      <x>330</x>
+      <height>13</height>
+      <foreground_color>
+        <color red="10" green="0" blue="184">
+        </color>
+      </foreground_color>
+      <background_color>
+        <color red="187" green="187" blue="187">
+        </color>
+      </background_color>
+      <format>1</format>
+      <show_units>false</show_units>
+      <horizontal_alignment>1</horizontal_alignment>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+    </widget>
+    <widget type="choice" version="2.0.0">
+      <name>choice button #466</name>
+      <pv_name>$(P)$(M4)_ON_CMD</pv_name>
+      <x>435</x>
+      <y>18</y>
+      <height>18</height>
+      <background_color>
+        <color red="115" green="223" blue="255">
+        </color>
+      </background_color>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+      <items>
+        <item>Item 1</item>
+        <item>Item 2</item>
+      </items>
+    </widget>
+    <widget type="textupdate" version="2.0.0">
+      <name>text update #469</name>
+      <pv_name>$(P)$(M4)_ON_STATUS</pv_name>
+      <x>435</x>
+      <height>13</height>
+      <foreground_color>
+        <color red="10" green="0" blue="184">
+        </color>
+      </foreground_color>
+      <background_color>
+        <color red="187" green="187" blue="187">
+        </color>
+      </background_color>
+      <format>1</format>
+      <show_units>false</show_units>
+      <horizontal_alignment>1</horizontal_alignment>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+    </widget>
+    <widget type="choice" version="2.0.0">
+      <name>choice button #473</name>
+      <pv_name>$(P)$(M5)_ON_CMD</pv_name>
+      <x>540</x>
+      <y>18</y>
+      <height>18</height>
+      <background_color>
+        <color red="115" green="223" blue="255">
+        </color>
+      </background_color>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+      <items>
+        <item>Item 1</item>
+        <item>Item 2</item>
+      </items>
+    </widget>
+    <widget type="textupdate" version="2.0.0">
+      <name>text update #476</name>
+      <pv_name>$(P)$(M5)_ON_STATUS</pv_name>
+      <x>540</x>
+      <height>13</height>
+      <foreground_color>
+        <color red="10" green="0" blue="184">
+        </color>
+      </foreground_color>
+      <background_color>
+        <color red="187" green="187" blue="187">
+        </color>
+      </background_color>
+      <format>1</format>
+      <show_units>false</show_units>
+      <horizontal_alignment>1</horizontal_alignment>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+    </widget>
+    <widget type="choice" version="2.0.0">
+      <name>choice button #480</name>
+      <pv_name>$(P)$(M6)_ON_CMD</pv_name>
+      <x>645</x>
+      <y>18</y>
+      <height>18</height>
+      <background_color>
+        <color red="115" green="223" blue="255">
+        </color>
+      </background_color>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+      <items>
+        <item>Item 1</item>
+        <item>Item 2</item>
+      </items>
+    </widget>
+    <widget type="textupdate" version="2.0.0">
+      <name>text update #483</name>
+      <pv_name>$(P)$(M6)_ON_STATUS</pv_name>
+      <x>645</x>
+      <height>13</height>
+      <foreground_color>
+        <color red="10" green="0" blue="184">
+        </color>
+      </foreground_color>
+      <background_color>
+        <color red="187" green="187" blue="187">
+        </color>
+      </background_color>
+      <format>1</format>
+      <show_units>false</show_units>
+      <horizontal_alignment>1</horizontal_alignment>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+    </widget>
+    <widget type="choice" version="2.0.0">
+      <name>choice button #487</name>
+      <pv_name>$(P)$(M7)_ON_CMD</pv_name>
+      <x>750</x>
+      <y>18</y>
+      <height>18</height>
+      <background_color>
+        <color red="115" green="223" blue="255">
+        </color>
+      </background_color>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+      <items>
+        <item>Item 1</item>
+        <item>Item 2</item>
+      </items>
+    </widget>
+    <widget type="textupdate" version="2.0.0">
+      <name>text update #490</name>
+      <pv_name>$(P)$(M7)_ON_STATUS</pv_name>
+      <x>750</x>
+      <height>13</height>
+      <foreground_color>
+        <color red="10" green="0" blue="184">
+        </color>
+      </foreground_color>
+      <background_color>
+        <color red="187" green="187" blue="187">
+        </color>
+      </background_color>
+      <format>1</format>
+      <show_units>false</show_units>
+      <horizontal_alignment>1</horizontal_alignment>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+    </widget>
+    <widget type="choice" version="2.0.0">
+      <name>choice button #494</name>
+      <pv_name>$(P)$(M8)_ON_CMD</pv_name>
+      <x>855</x>
+      <y>18</y>
+      <height>18</height>
+      <background_color>
+        <color red="115" green="223" blue="255">
+        </color>
+      </background_color>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+      <items>
+        <item>Item 1</item>
+        <item>Item 2</item>
+      </items>
+    </widget>
+    <widget type="textupdate" version="2.0.0">
+      <name>text update #497</name>
+      <pv_name>$(P)$(M8)_ON_STATUS</pv_name>
+      <x>855</x>
+      <height>13</height>
+      <foreground_color>
+        <color red="10" green="0" blue="184">
+        </color>
+      </foreground_color>
+      <background_color>
+        <color red="187" green="187" blue="187">
+        </color>
+      </background_color>
+      <format>1</format>
+      <show_units>false</show_units>
+      <horizontal_alignment>1</horizontal_alignment>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+    </widget>
+  </widget>
+  <widget type="group" version="2.0.0">
+    <name>composite #501</name>
+    <x>10</x>
+    <y>341</y>
+    <width>1055</width>
+    <height>36</height>
+    <style>3</style>
+    <transparent>true</transparent>
+    <widget type="label" version="2.0.0">
+      <name>text #504</name>
+      <text>Low current mode (stepper only)</text>
+      <y>20</y>
+      <width>215</width>
+      <height>13</height>
+      <auto_size>true</auto_size>
+    </widget>
+    <widget type="textupdate" version="2.0.0">
+      <name>text update #507</name>
+      <pv_name>$(P)$(M1)_AMPLC_MON</pv_name>
+      <x>220</x>
+      <height>13</height>
+      <foreground_color>
+        <color red="10" green="0" blue="184">
+        </color>
+      </foreground_color>
+      <background_color>
+        <color red="187" green="187" blue="187">
+        </color>
+      </background_color>
+      <format>1</format>
+      <show_units>false</show_units>
+      <horizontal_alignment>1</horizontal_alignment>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+    </widget>
+    <widget type="textentry" version="3.0.0">
+      <name>text entry #511</name>
+      <pv_name>$(P)$(M1)_AMPLC_SP</pv_name>
+      <x>220</x>
+      <y>18</y>
+      <height>18</height>
+      <font>
+        <font family="Liberation Sans" style="REGULAR" size="16.0">
+        </font>
+      </font>
+      <background_color>
+        <color red="115" green="223" blue="255">
+        </color>
+      </background_color>
+      <format>1</format>
+      <show_units>false</show_units>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+    </widget>
+    <widget type="textupdate" version="2.0.0">
+      <name>text update #515</name>
+      <pv_name>$(P)$(M2)_AMPLC_MON</pv_name>
+      <x>325</x>
+      <height>13</height>
+      <foreground_color>
+        <color red="10" green="0" blue="184">
+        </color>
+      </foreground_color>
+      <background_color>
+        <color red="187" green="187" blue="187">
+        </color>
+      </background_color>
+      <format>1</format>
+      <show_units>false</show_units>
+      <horizontal_alignment>1</horizontal_alignment>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+    </widget>
+    <widget type="textentry" version="3.0.0">
+      <name>text entry #519</name>
+      <pv_name>$(P)$(M2)_AMPLC_SP</pv_name>
+      <x>325</x>
+      <y>18</y>
+      <height>18</height>
+      <font>
+        <font family="Liberation Sans" style="REGULAR" size="16.0">
+        </font>
+      </font>
+      <background_color>
+        <color red="115" green="223" blue="255">
+        </color>
+      </background_color>
+      <format>1</format>
+      <show_units>false</show_units>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+    </widget>
+    <widget type="textupdate" version="2.0.0">
+      <name>text update #523</name>
+      <pv_name>$(P)$(M3)_AMPLC_MON</pv_name>
+      <x>430</x>
+      <height>13</height>
+      <foreground_color>
+        <color red="10" green="0" blue="184">
+        </color>
+      </foreground_color>
+      <background_color>
+        <color red="187" green="187" blue="187">
+        </color>
+      </background_color>
+      <format>1</format>
+      <show_units>false</show_units>
+      <horizontal_alignment>1</horizontal_alignment>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+    </widget>
+    <widget type="textentry" version="3.0.0">
+      <name>text entry #527</name>
+      <pv_name>$(P)$(M3)_AMPLC_SP</pv_name>
+      <x>430</x>
+      <y>18</y>
+      <height>18</height>
+      <font>
+        <font family="Liberation Sans" style="REGULAR" size="16.0">
+        </font>
+      </font>
+      <background_color>
+        <color red="115" green="223" blue="255">
+        </color>
+      </background_color>
+      <format>1</format>
+      <show_units>false</show_units>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+    </widget>
+    <widget type="textupdate" version="2.0.0">
+      <name>text update #531</name>
+      <pv_name>$(P)$(M4)_AMPLC_MON</pv_name>
+      <x>535</x>
+      <height>13</height>
+      <foreground_color>
+        <color red="10" green="0" blue="184">
+        </color>
+      </foreground_color>
+      <background_color>
+        <color red="187" green="187" blue="187">
+        </color>
+      </background_color>
+      <format>1</format>
+      <show_units>false</show_units>
+      <horizontal_alignment>1</horizontal_alignment>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+    </widget>
+    <widget type="textentry" version="3.0.0">
+      <name>text entry #535</name>
+      <pv_name>$(P)$(M4)_AMPLC_SP</pv_name>
+      <x>535</x>
+      <y>18</y>
+      <height>18</height>
+      <font>
+        <font family="Liberation Sans" style="REGULAR" size="16.0">
+        </font>
+      </font>
+      <background_color>
+        <color red="115" green="223" blue="255">
+        </color>
+      </background_color>
+      <format>1</format>
+      <show_units>false</show_units>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+    </widget>
+    <widget type="textupdate" version="2.0.0">
+      <name>text update #539</name>
+      <pv_name>$(P)$(M5)_AMPLC_MON</pv_name>
+      <x>640</x>
+      <height>13</height>
+      <foreground_color>
+        <color red="10" green="0" blue="184">
+        </color>
+      </foreground_color>
+      <background_color>
+        <color red="187" green="187" blue="187">
+        </color>
+      </background_color>
+      <format>1</format>
+      <show_units>false</show_units>
+      <horizontal_alignment>1</horizontal_alignment>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+    </widget>
+    <widget type="textentry" version="3.0.0">
+      <name>text entry #543</name>
+      <pv_name>$(P)$(M5)_AMPLC_SP</pv_name>
+      <x>640</x>
+      <y>18</y>
+      <height>18</height>
+      <font>
+        <font family="Liberation Sans" style="REGULAR" size="16.0">
+        </font>
+      </font>
+      <background_color>
+        <color red="115" green="223" blue="255">
+        </color>
+      </background_color>
+      <format>1</format>
+      <show_units>false</show_units>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+    </widget>
+    <widget type="textupdate" version="2.0.0">
+      <name>text update #547</name>
+      <pv_name>$(P)$(M6)_AMPLC_MON</pv_name>
+      <x>745</x>
+      <height>13</height>
+      <foreground_color>
+        <color red="10" green="0" blue="184">
+        </color>
+      </foreground_color>
+      <background_color>
+        <color red="187" green="187" blue="187">
+        </color>
+      </background_color>
+      <format>1</format>
+      <show_units>false</show_units>
+      <horizontal_alignment>1</horizontal_alignment>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+    </widget>
+    <widget type="textentry" version="3.0.0">
+      <name>text entry #551</name>
+      <pv_name>$(P)$(M6)_AMPLC_SP</pv_name>
+      <x>745</x>
+      <y>18</y>
+      <height>18</height>
+      <font>
+        <font family="Liberation Sans" style="REGULAR" size="16.0">
+        </font>
+      </font>
+      <background_color>
+        <color red="115" green="223" blue="255">
+        </color>
+      </background_color>
+      <format>1</format>
+      <show_units>false</show_units>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+    </widget>
+    <widget type="textupdate" version="2.0.0">
+      <name>text update #555</name>
+      <pv_name>$(P)$(M7)_AMPLC_MON</pv_name>
+      <x>850</x>
+      <height>13</height>
+      <foreground_color>
+        <color red="10" green="0" blue="184">
+        </color>
+      </foreground_color>
+      <background_color>
+        <color red="187" green="187" blue="187">
+        </color>
+      </background_color>
+      <format>1</format>
+      <show_units>false</show_units>
+      <horizontal_alignment>1</horizontal_alignment>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+    </widget>
+    <widget type="textentry" version="3.0.0">
+      <name>text entry #559</name>
+      <pv_name>$(P)$(M7)_AMPLC_SP</pv_name>
+      <x>850</x>
+      <y>18</y>
+      <height>18</height>
+      <font>
+        <font family="Liberation Sans" style="REGULAR" size="16.0">
+        </font>
+      </font>
+      <background_color>
+        <color red="115" green="223" blue="255">
+        </color>
+      </background_color>
+      <format>1</format>
+      <show_units>false</show_units>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+    </widget>
+    <widget type="textupdate" version="2.0.0">
+      <name>text update #563</name>
+      <pv_name>$(P)$(M8)_AMPLC_MON</pv_name>
+      <x>955</x>
+      <height>13</height>
+      <foreground_color>
+        <color red="10" green="0" blue="184">
+        </color>
+      </foreground_color>
+      <background_color>
+        <color red="187" green="187" blue="187">
+        </color>
+      </background_color>
+      <format>1</format>
+      <show_units>false</show_units>
+      <horizontal_alignment>1</horizontal_alignment>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+    </widget>
+    <widget type="textentry" version="3.0.0">
+      <name>text entry #567</name>
+      <pv_name>$(P)$(M8)_AMPLC_SP</pv_name>
+      <x>955</x>
+      <y>18</y>
+      <height>18</height>
+      <font>
+        <font family="Liberation Sans" style="REGULAR" size="16.0">
+        </font>
+      </font>
+      <background_color>
+        <color red="115" green="223" blue="255">
+        </color>
+      </background_color>
+      <format>1</format>
+      <show_units>false</show_units>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+    </widget>
   </widget>
 </display>

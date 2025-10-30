@@ -1,14 +1,14 @@
 
 file {
-	name="/home/ics/git/Galil/GalilSup/op/adl/galil_motor_extras.adl"
-	version=030120
+	name="/home/epics/support/Galil-4-0-2/GalilSup/op/adl/galil_motor_extras.adl"
+	version=030117
 }
 display {
 	object {
-		x=609
-		y=77
+		x=422
+		y=192
 		width=456
-		height=672
+		height=700
 	}
 	clr=14
 	bclr=4
@@ -101,9 +101,9 @@ rectangle {
 }
 text {
 	object {
-		x=116
+		x=140
 		y=11
-		width=193
+		width=144
 		height=18
 	}
 	"basic attribute" {
@@ -115,68 +115,90 @@ text {
 text {
 	object {
 		x=2
-		y=105
-		width=97
+		y=127
+		width=70
 		height=13
 	}
 	"basic attribute" {
 		clr=14
 	}
-	textix="Motor type"
+	textix="Brush type"
+}
+menu {
+	object {
+		x=150
+		y=124
+		width=135
+		height=20
+	}
+	control {
+		chan="$(P)$(M)_BRTYPE_CMD"
+		clr=14
+		bclr=51
+	}
+}
+"text update" {
+	object {
+		x=295
+		y=129
+		width=100
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_BRTYPE_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
 }
 text {
 	object {
 		x=2
-		y=125
-		width=97
+		y=33
+		width=70
 		height=13
 	}
 	"basic attribute" {
 		clr=14
 	}
-	textix="Main encoder"
+	textix="Motor axis"
 }
-text {
+"text update" {
 	object {
-		x=2
-		y=145
-		width=97
+		x=150
+		y=34
+		width=58
 		height=13
 	}
-	"basic attribute" {
-		clr=14
+	monitor {
+		chan="$(P)$(M)_AXIS_STATUS"
+		clr=54
+		bclr=4
 	}
-	textix="Auxiliary encoder"
+	limits {
+	}
 }
-text {
+"text update" {
 	object {
-		x=2
-		y=88
-		width=97
+		x=150
+		y=52
+		width=120
 		height=13
 	}
-	"basic attribute" {
-		clr=14
+	monitor {
+		chan="$(P)$(M).NAME"
+		clr=54
+		bclr=4
 	}
-	textix="Motor/limits consistent"
-}
-text {
-	object {
-		x=2
-		y=70
-		width=97
-		height=13
+	limits {
 	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Motor connected"
 }
 text {
 	object {
 		x=2
 		y=52
-		width=97
+		width=63
 		height=13
 	}
 	"basic attribute" {
@@ -187,31 +209,181 @@ text {
 text {
 	object {
 		x=2
-		y=33
-		width=97
+		y=70
+		width=105
 		height=13
 	}
 	"basic attribute" {
 		clr=14
 	}
-	textix="Motor axis"
+	textix="Motor connected"
+}
+"text update" {
+	object {
+		x=150
+		y=70
+		width=120
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_MCONN_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
 }
 text {
 	object {
 		x=2
-		y=161
-		width=89
+		y=88
+		width=161
 		height=13
 	}
 	"basic attribute" {
 		clr=14
 	}
-	textix="Wrong limit protection"
+	textix="Motor/limits consistent"
+}
+"text update" {
+	object {
+		x=150
+		y=88
+		width=120
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_LIMITCONSISTENT_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=2
+		y=107
+		width=70
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Motor type"
+}
+menu {
+	object {
+		x=150
+		y=103
+		width=135
+		height=20
+	}
+	control {
+		chan="$(P)$(M)_MTRTYPE_CMD"
+		clr=14
+		bclr=51
+	}
+}
+"text update" {
+	object {
+		x=295
+		y=107
+		width=100
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_MTRTYPE_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=2
+		y=147
+		width=84
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Main encoder"
+}
+"text update" {
+	object {
+		x=295
+		y=148
+		width=200
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_MENCTYPE_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+menu {
+	object {
+		x=150
+		y=144
+		width=135
+		height=20
+	}
+	control {
+		chan="$(P)$(M)_MENCTYPE_CMD"
+		clr=14
+		bclr=51
+	}
+}
+text {
+	object {
+		x=2
+		y=167
+		width=119
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Auxiliary encoder"
+}
+menu {
+	object {
+		x=150
+		y=164
+		width=135
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_AENCTYPE_CMD"
+		clr=14
+		bclr=51
+	}
+}
+"text update" {
+	object {
+		x=295
+		y=168
+		width=200
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_AENCTYPE_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
 }
 "text update" {
 	object {
 		x=326
-		y=163
+		y=187
 		width=58
 		height=13
 	}
@@ -227,80 +399,8 @@ text {
 text {
 	object {
 		x=2
-		y=179
-		width=89
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Motor amplifier"
-}
-text {
-	object {
-		x=2
-		y=196
-		width=69
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Amp auto on/off"
-}
-text {
-	object {
-		x=2
-		y=214
-		width=69
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Amp on/brake off delay"
-}
-text {
-	object {
-		x=2
-		y=233
-		width=69
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Amp off delay"
-}
-text {
-	object {
-		x=2
-		y=251
-		width=69
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Brake on delay"
-}
-text {
-	object {
-		x=2
-		y=269
-		width=69
-		height=13
-	}
-	"basic attribute" {
-		clr=14
-	}
-	textix="Motor brake on/off port"
-}
-text {
-	object {
-		x=2
-		y=287
-		width=69
+		y=311
+		width=161
 		height=13
 	}
 	"basic attribute" {
@@ -311,8 +411,8 @@ text {
 text {
 	object {
 		x=2
-		y=305
-		width=69
+		y=329
+		width=112
 		height=13
 	}
 	"basic attribute" {
@@ -323,8 +423,8 @@ text {
 text {
 	object {
 		x=2
-		y=324
-		width=97
+		y=348
+		width=126
 		height=13
 	}
 	"basic attribute" {
@@ -335,8 +435,8 @@ text {
 text {
 	object {
 		x=2
-		y=343
-		width=100
+		y=367
+		width=119
 		height=13
 	}
 	"basic attribute" {
@@ -347,8 +447,8 @@ text {
 text {
 	object {
 		x=2
-		y=360
-		width=97
+		y=384
+		width=77
 		height=13
 	}
 	"basic attribute" {
@@ -359,8 +459,8 @@ text {
 text {
 	object {
 		x=2
-		y=378
-		width=69
+		y=402
+		width=91
 		height=13
 	}
 	"basic attribute" {
@@ -371,8 +471,8 @@ text {
 text {
 	object {
 		x=2
-		y=398
-		width=69
+		y=422
+		width=154
 		height=13
 	}
 	"basic attribute" {
@@ -383,8 +483,8 @@ text {
 text {
 	object {
 		x=2
-		y=416
-		width=69
+		y=440
+		width=161
 		height=13
 	}
 	"basic attribute" {
@@ -395,8 +495,8 @@ text {
 text {
 	object {
 		x=2
-		y=491
-		width=69
+		y=515
+		width=84
 		height=13
 	}
 	"basic attribute" {
@@ -407,8 +507,8 @@ text {
 text {
 	object {
 		x=2
-		y=434
-		width=89
+		y=458
+		width=126
 		height=13
 	}
 	"basic attribute" {
@@ -419,8 +519,8 @@ text {
 text {
 	object {
 		x=2
-		y=452
-		width=69
+		y=476
+		width=105
 		height=13
 	}
 	"basic attribute" {
@@ -431,8 +531,8 @@ text {
 text {
 	object {
 		x=2
-		y=471
-		width=69
+		y=495
+		width=91
 		height=13
 	}
 	"basic attribute" {
@@ -443,8 +543,8 @@ text {
 text {
 	object {
 		x=2
-		y=511
-		width=69
+		y=535
+		width=126
 		height=13
 	}
 	"basic attribute" {
@@ -455,8 +555,8 @@ text {
 text {
 	object {
 		x=2
-		y=546
-		width=69
+		y=570
+		width=147
 		height=13
 	}
 	"basic attribute" {
@@ -467,8 +567,8 @@ text {
 text {
 	object {
 		x=2
-		y=529
-		width=69
+		y=553
+		width=154
 		height=13
 	}
 	"basic attribute" {
@@ -479,8 +579,8 @@ text {
 text {
 	object {
 		x=2
-		y=564
-		width=69
+		y=588
+		width=98
 		height=13
 	}
 	"basic attribute" {
@@ -488,23 +588,853 @@ text {
 	}
 	textix="Jog after home"
 }
+"choice button" {
+	object {
+		x=150
+		y=308
+		width=140
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_AUTOBRAKE_CMD"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+"text entry" {
+	object {
+		x=150
+		y=326
+		width=138
+		height=19
+	}
+	control {
+		chan="$(P)$(M)_STOPDELAY_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+menu {
+	object {
+		x=150
+		y=345
+		width=135
+		height=20
+	}
+	control {
+		chan="$(P)$(M)_OFFONERR_CMD"
+		clr=14
+		bclr=51
+	}
+}
+"text entry" {
+	object {
+		x=150
+		y=363
+		width=138
+		height=19
+	}
+	control {
+		chan="$(P)$(M)_ERRLIMIT_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text entry" {
+	object {
+		x=151
+		y=419
+		width=138
+		height=19
+	}
+	control {
+		chan="$(P)$(M)_ESTALLTIME_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text entry" {
+	object {
+		x=151
+		y=437
+		width=138
+		height=19
+	}
+	control {
+		chan="$(P)$(M)_ENC_TOLERANCE_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text entry" {
+	object {
+		x=151
+		y=456
+		width=138
+		height=19
+	}
+	control {
+		chan="$(P)$(M)_STEPSMOOTH_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text entry" {
+	object {
+		x=151
+		y=474
+		width=138
+		height=19
+	}
+	control {
+		chan="$(P)$(M)_EGUAFTLIMIT_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+menu {
+	object {
+		x=152
+		y=493
+		width=135
+		height=20
+	}
+	control {
+		chan="$(P)$(M)_LIMITDISABLE_CMD"
+		clr=14
+		bclr=51
+	}
+}
+menu {
+	object {
+		x=152
+		y=513
+		width=135
+		height=20
+	}
+	control {
+		chan="$(P)$(M)_HOMEALLOWED_CMD"
+		clr=14
+		bclr=51
+	}
+}
+"choice button" {
+	object {
+		x=152
+		y=533
+		width=140
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_ULAH_CMD"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+"choice button" {
+	object {
+		x=151
+		y=551
+		width=140
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_USWITCH_CMD"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+"choice button" {
+	object {
+		x=151
+		y=568
+		width=140
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_UINDEX_CMD"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+"choice button" {
+	object {
+		x=151
+		y=586
+		width=140
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_JAH_CMD"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+"text update" {
+	object {
+		x=295
+		y=311
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_AUTOBRAKE_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=295
+		y=329
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_STOPDELAY_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=295
+		y=349
+		width=100
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_OFFONERR_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=295
+		y=368
+		width=58
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_ERRLIMIT_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=295
+		y=386
+		width=58
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_ERR_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=295
+		y=403
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_ESTALL_STATUS"
+		clr=54
+		bclr=4
+	}
+	clrmod="alarm"
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=295
+		y=420
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_ESTALLTIME_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=295
+		y=438
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_ENC_TOLERANCE_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=296
+		y=457
+		width=58
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_STEPSMOOTH_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=296
+		y=475
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_EGUAFTLIMIT_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=296
+		y=496
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_LIMITDISABLE_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=296
+		y=516
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_HOMEALLOWED_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=297
+		y=535
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_ULAH_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=296
+		y=553
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_USWITCH_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=296
+		y=570
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_UINDEX_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=296
+		y=588
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_JAH_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
 text {
 	object {
 		x=2
-		y=583
-		width=69
+		y=185
+		width=154
 		height=13
 	}
 	"basic attribute" {
 		clr=14
 	}
-	textix="Jog after home to (User)"
+	textix="Wrong limit protection"
+}
+"choice button" {
+	object {
+		x=150
+		y=183
+		width=140
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_WLP_CMD"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+"text update" {
+	object {
+		x=295
+		y=187
+		width=30
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_WLP_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
 }
 text {
 	object {
 		x=2
-		y=602
-		width=69
+		y=203
+		width=105
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Motor amplifier"
+}
+"text update" {
+	object {
+		x=295
+		y=204
+		width=58
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_ON_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"choice button" {
+	object {
+		x=150
+		y=200
+		width=140
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_ON_CMD"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+text {
+	object {
+		x=2
+		y=220
+		width=105
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Amp auto on/off"
+}
+"choice button" {
+	object {
+		x=150
+		y=218
+		width=140
+		height=18
+	}
+	control {
+		chan="$(P)$(M)_AUTOONOFF_CMD"
+		clr=14
+		bclr=51
+	}
+	stacking="column"
+}
+"text update" {
+	object {
+		x=295
+		y=221
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_AUTOONOFF_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=2
+		y=238
+		width=154
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Amp on/brake off delay"
+}
+"text entry" {
+	object {
+		x=150
+		y=236
+		width=138
+		height=19
+	}
+	control {
+		chan="$(P)$(M)_ONDELAY_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=295
+		y=239
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_ONDELAY_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=2
+		y=257
+		width=91
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Amp off delay"
+}
+"text entry" {
+	object {
+		x=150
+		y=254
+		width=138
+		height=19
+	}
+	control {
+		chan="$(P)$(M)_OFFDELAY_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=295
+		y=257
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_OFFDELAY_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=2
+		y=275
+		width=98
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Brake on delay"
+}
+"text entry" {
+	object {
+		x=150
+		y=272
+		width=138
+		height=19
+	}
+	control {
+		chan="$(P)$(M)_BRAKEONDELAY_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=295
+		y=275
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_BRAKEONDELAY_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text entry" {
+	object {
+		x=150
+		y=290
+		width=138
+		height=19
+	}
+	control {
+		chan="$(P)$(M)_BRAKEPORT_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=295
+		y=293
+		width=10
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_BRAKEPORT_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text update" {
+	object {
+		x=314
+		y=293
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_BRAKE_STATUS"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=2
+		y=293
+		width=161
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Motor brake on/off port"
+}
+text {
+	object {
+		x=2
+		y=681
+		width=154
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Servo velocity (EGU/s)"
+}
+"text update" {
+	object {
+		x=296
+		y=679
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_VELOCITYEGU_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=2
+		y=663
+		width=154
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="Servo velocity (cts/s)"
+}
+"text update" {
+	object {
+		x=296
+		y=662
+		width=81
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_VELOCITYRAW_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=2
+		y=644
+		width=63
+		height=13
+	}
+	"basic attribute" {
+		clr=14
+	}
+	textix="User data"
+}
+"text update" {
+	object {
+		x=296
+		y=646
+		width=58
+		height=13
+	}
+	monitor {
+		chan="$(P)$(M)_USERDATA_MON"
+		clr=54
+		bclr=4
+	}
+	limits {
+	}
+}
+"text entry" {
+	object {
+		x=151
+		y=623
+		width=138
+		height=19
+	}
+	control {
+		chan="$(P)$(M)_USERDATADEADB_SP"
+		clr=14
+		bclr=51
+	}
+	limits {
+	}
+}
+text {
+	object {
+		x=2
+		y=626
+		width=126
 		height=13
 	}
 	"basic attribute" {
@@ -515,943 +1445,42 @@ text {
 text {
 	object {
 		x=2
-		y=620
-		width=97
+		y=607
+		width=168
 		height=13
 	}
 	"basic attribute" {
 		clr=14
 	}
-	textix="User data"
+	textix="Jog after home to (User)"
 }
-text {
+"text update" {
 	object {
-		x=2
-		y=639
-		width=69
+		x=296
+		y=605
+		width=81
 		height=13
 	}
-	"basic attribute" {
-		clr=14
+	monitor {
+		chan="$(P)$(M)_JAHV_MON"
+		clr=54
+		bclr=4
 	}
-	textix="Servo velocity (cts/s)"
+	limits {
+	}
 }
-text {
+"text entry" {
 	object {
-		x=2
-		y=657
-		width=69
-		height=13
+		x=151
+		y=604
+		width=138
+		height=19
 	}
-	"basic attribute" {
+	control {
+		chan="$(P)$(M)_JAHV_SP"
 		clr=14
+		bclr=51
 	}
-	textix="Servo velocity (EGU/s)"
-}
-composite {
-	object {
-		x=150
-		y=34
-		width=345
-		height=634
-	}
-	"composite name"=""
-	children {
-		"text update" {
-			object {
-				x=150
-				y=52
-				width=120
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M).NAME"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=150
-				y=34
-				width=58
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_AXIS_STATUS"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=150
-				y=70
-				width=120
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_MCONN_STATUS"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=150
-				y=88
-				width=120
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_LIMITCONSISTENT_STATUS"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		menu {
-			object {
-				x=150
-				y=102
-				width=135
-				height=20
-			}
-			control {
-				chan="$(P)$(M)_MTRTYPE_CMD"
-				clr=51
-				bclr=51
-			}
-		}
-		menu {
-			object {
-				x=150
-				y=122
-				width=135
-				height=20
-			}
-			control {
-				chan="$(P)$(M)_MENCTYPE_CMD"
-				clr=51
-				bclr=51
-			}
-		}
-		menu {
-			object {
-				x=150
-				y=142
-				width=135
-				height=18
-			}
-			control {
-				chan="$(P)$(M)_AENCTYPE_CMD"
-				clr=51
-				bclr=51
-			}
-		}
-		"choice button" {
-			object {
-				x=150
-				y=159
-				width=140
-				height=18
-			}
-			control {
-				chan="$(P)$(M)_WLP_CMD"
-				clr=14
-				bclr=51
-			}
-			stacking="column"
-		}
-		"choice button" {
-			object {
-				x=150
-				y=176
-				width=140
-				height=18
-			}
-			control {
-				chan="$(P)$(M)_ON_CMD"
-				clr=14
-				bclr=51
-			}
-			stacking="column"
-		}
-		"choice button" {
-			object {
-				x=150
-				y=194
-				width=140
-				height=18
-			}
-			control {
-				chan="$(P)$(M)_AUTOONOFF_CMD"
-				clr=14
-				bclr=51
-			}
-			stacking="column"
-		}
-		"text entry" {
-			object {
-				x=150
-				y=212
-				width=138
-				height=19
-			}
-			control {
-				chan="$(P)$(M)_ONDELAY_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		"text entry" {
-			object {
-				x=150
-				y=230
-				width=138
-				height=19
-			}
-			control {
-				chan="$(P)$(M)_OFFDELAY_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		"text entry" {
-			object {
-				x=150
-				y=248
-				width=138
-				height=19
-			}
-			control {
-				chan="$(P)$(M)_BRAKEONDELAY_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		"text entry" {
-			object {
-				x=150
-				y=266
-				width=138
-				height=19
-			}
-			control {
-				chan="$(P)$(M)_BRAKEPORT_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		"choice button" {
-			object {
-				x=150
-				y=284
-				width=140
-				height=18
-			}
-			control {
-				chan="$(P)$(M)_AUTOBRAKE_CMD"
-				clr=14
-				bclr=51
-			}
-			stacking="column"
-		}
-		"text entry" {
-			object {
-				x=150
-				y=302
-				width=138
-				height=19
-			}
-			control {
-				chan="$(P)$(M)_STOPDELAY_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		menu {
-			object {
-				x=150
-				y=321
-				width=135
-				height=20
-			}
-			control {
-				chan="$(P)$(M)_OFFONERR_CMD"
-				clr=51
-				bclr=51
-			}
-		}
-		"text entry" {
-			object {
-				x=150
-				y=339
-				width=138
-				height=19
-			}
-			control {
-				chan="$(P)$(M)_ERRLIMIT_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		"text entry" {
-			object {
-				x=151
-				y=395
-				width=138
-				height=19
-			}
-			control {
-				chan="$(P)$(M)_ESTALLTIME_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		"text entry" {
-			object {
-				x=151
-				y=413
-				width=138
-				height=19
-			}
-			control {
-				chan="$(P)$(M)_ENC_TOLERANCE_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		"text entry" {
-			object {
-				x=151
-				y=432
-				width=138
-				height=19
-			}
-			control {
-				chan="$(P)$(M)_STEPSMOOTH_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		"text entry" {
-			object {
-				x=151
-				y=450
-				width=138
-				height=19
-			}
-			control {
-				chan="$(P)$(M)_EGUAFTLIMIT_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		menu {
-			object {
-				x=152
-				y=469
-				width=135
-				height=20
-			}
-			control {
-				chan="$(P)$(M)_LIMITDISABLE_CMD"
-				clr=51
-				bclr=51
-			}
-		}
-		menu {
-			object {
-				x=152
-				y=489
-				width=135
-				height=20
-			}
-			control {
-				chan="$(P)$(M)_HOMEALLOWED_CMD"
-				clr=51
-				bclr=51
-			}
-		}
-		"choice button" {
-			object {
-				x=152
-				y=509
-				width=140
-				height=18
-			}
-			control {
-				chan="$(P)$(M)_ULAH_CMD"
-				clr=14
-				bclr=51
-			}
-			stacking="column"
-		}
-		"choice button" {
-			object {
-				x=151
-				y=527
-				width=140
-				height=18
-			}
-			control {
-				chan="$(P)$(M)_USWITCH_CMD"
-				clr=14
-				bclr=51
-			}
-			stacking="column"
-		}
-		"choice button" {
-			object {
-				x=151
-				y=544
-				width=140
-				height=18
-			}
-			control {
-				chan="$(P)$(M)_UINDEX_CMD"
-				clr=14
-				bclr=51
-			}
-			stacking="column"
-		}
-		"choice button" {
-			object {
-				x=151
-				y=562
-				width=140
-				height=18
-			}
-			control {
-				chan="$(P)$(M)_JAH_CMD"
-				clr=14
-				bclr=51
-			}
-			stacking="column"
-		}
-		"text entry" {
-			object {
-				x=151
-				y=580
-				width=138
-				height=19
-			}
-			control {
-				chan="$(P)$(M)_JAHV_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		"text entry" {
-			object {
-				x=151
-				y=599
-				width=138
-				height=19
-			}
-			control {
-				chan="$(P)$(M)_USERDATADEADB_SP"
-				clr=14
-				bclr=51
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=295
-				y=107
-				width=100
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_MTRTYPE_STATUS"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=295
-				y=127
-				width=200
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_MENCTYPE_STATUS"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=295
-				y=147
-				width=200
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_AENCTYPE_STATUS"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=295
-				y=163
-				width=30
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_WLP_STATUS"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=295
-				y=197
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_AUTOONOFF_STATUS"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=295
-				y=180
-				width=58
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_ON_STATUS"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=295
-				y=215
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_ONDELAY_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=295
-				y=233
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_OFFDELAY_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=295
-				y=251
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_BRAKEONDELAY_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=295
-				y=269
-				width=10
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_BRAKEPORT_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=314
-				y=269
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_BRAKE_STATUS"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=295
-				y=287
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_AUTOBRAKE_STATUS"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=295
-				y=305
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_STOPDELAY_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=295
-				y=325
-				width=100
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_OFFONERR_STATUS"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=295
-				y=344
-				width=58
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_ERRLIMIT_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=295
-				y=362
-				width=58
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_ERR_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=295
-				y=379
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_ESTALL_STATUS"
-				clr=54
-				bclr=4
-			}
-			clrmod="alarm"
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=295
-				y=396
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_ESTALLTIME_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=295
-				y=414
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_ENC_TOLERANCE_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=296
-				y=433
-				width=58
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_STEPSMOOTH_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=296
-				y=451
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_EGUAFTLIMIT_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=296
-				y=472
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_LIMITDISABLE_STATUS"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=296
-				y=492
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_HOMEALLOWED_STATUS"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=297
-				y=511
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_ULAH_STATUS"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=296
-				y=529
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_USWITCH_STATUS"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=296
-				y=546
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_UINDEX_STATUS"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=296
-				y=564
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_JAH_STATUS"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=296
-				y=581
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_JAHV_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=296
-				y=622
-				width=58
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_USERDATA_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=296
-				y=638
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_VELOCITYRAW_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
-		"text update" {
-			object {
-				x=296
-				y=655
-				width=81
-				height=13
-			}
-			monitor {
-				chan="$(P)$(M)_VELOCITYEGU_MON"
-				clr=54
-				bclr=4
-			}
-			limits {
-			}
-		}
+	limits {
 	}
 }

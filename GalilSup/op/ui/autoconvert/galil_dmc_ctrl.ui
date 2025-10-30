@@ -4,8 +4,8 @@
 <widget class="QMainWindow" name="MainWindow">
     <property name="geometry">
         <rect>
-            <x>132</x>
-            <y>61</y>
+            <x>122</x>
+            <y>53</y>
             <width>410</width>
             <height>683</height>
         </rect>
@@ -122,9 +122,9 @@ border-radius: 2px;
             </property>
             <property name="geometry">
                 <rect>
-                    <x>124</x>
+                    <x>5</x>
                     <y>8</y>
-                    <width>150</width>
+                    <width>400</width>
                     <height>28</height>
                 </rect>
             </property>
@@ -172,7 +172,7 @@ border-radius: 2px;
                 </color>
             </property>
             <property name="text">
-                <string>DMC controller</string>
+                <string>DMC controller ($(DMC))</string>
             </property>
             <property name="fontScaleMode">
                 <enum>ESimpleLabel::WidthAndHeight</enum>
@@ -182,9 +182,9 @@ border-radius: 2px;
             </property>
             <property name="geometry">
                 <rect>
-                    <x>105</x>
+                    <x>10</x>
                     <y>15</y>
-                    <width>193</width>
+                    <width>390</width>
                     <height>18</height>
                 </rect>
             </property>
@@ -1202,7 +1202,7 @@ border-radius: 2px;
                 <rect>
                     <x>9</x>
                     <y>219</y>
-                    <width>69</width>
+                    <width>112</width>
                     <height>13</height>
                 </rect>
             </property>
@@ -1779,7 +1779,7 @@ border-radius: 2px;
                 <rect>
                     <x>56</x>
                     <y>471</y>
-                    <width>65</width>
+                    <width>49</width>
                     <height>13</height>
                 </rect>
             </property>
@@ -1854,7 +1854,7 @@ border-radius: 2px;
                 <rect>
                     <x>228</x>
                     <y>471</y>
-                    <width>65</width>
+                    <width>49</width>
                     <height>13</height>
                 </rect>
             </property>
@@ -1929,7 +1929,7 @@ border-radius: 2px;
                 <rect>
                     <x>56</x>
                     <y>492</y>
-                    <width>65</width>
+                    <width>49</width>
                     <height>13</height>
                 </rect>
             </property>
@@ -2004,7 +2004,7 @@ border-radius: 2px;
                 <rect>
                     <x>228</x>
                     <y>492</y>
-                    <width>65</width>
+                    <width>49</width>
                     <height>13</height>
                 </rect>
             </property>
@@ -2079,7 +2079,7 @@ border-radius: 2px;
                 <rect>
                     <x>56</x>
                     <y>513</y>
-                    <width>65</width>
+                    <width>49</width>
                     <height>13</height>
                 </rect>
             </property>
@@ -2154,7 +2154,7 @@ border-radius: 2px;
                 <rect>
                     <x>228</x>
                     <y>513</y>
-                    <width>65</width>
+                    <width>49</width>
                     <height>13</height>
                 </rect>
             </property>
@@ -2229,7 +2229,7 @@ border-radius: 2px;
                 <rect>
                     <x>56</x>
                     <y>534</y>
-                    <width>65</width>
+                    <width>49</width>
                     <height>13</height>
                 </rect>
             </property>
@@ -2304,7 +2304,7 @@ border-radius: 2px;
                 <rect>
                     <x>228</x>
                     <y>534</y>
-                    <width>65</width>
+                    <width>49</width>
                     <height>13</height>
                 </rect>
             </property>
@@ -2370,6 +2370,156 @@ border-radius: 2px;
                 </color>
             </property>
             <property name="text">
+                <string>Profile move</string>
+            </property>
+            <property name="fontScaleMode">
+                <enum>ESimpleLabel::WidthAndHeight</enum>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>56</x>
+                    <y>576</y>
+                    <width>84</width>
+                    <height>13</height>
+                </rect>
+            </property>
+            <property name="alignment">
+                <set>Qt::AlignAbsolute|Qt::AlignLeft|Qt::AlignVCenter</set>
+            </property>
+        </widget>
+        <widget class="caRelatedDisplay" name="caRelatedDisplay_14">
+            <property name="geometry">
+                <rect>
+                    <x>150</x>
+                    <y>576</y>
+                    <width>15</width>
+                    <height>15</height>
+                </rect>
+            </property>
+            <property name="foreground">
+                <color alpha="255">
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>0</blue>
+                </color>
+            </property>
+            <property name="background">
+                <color alpha="255">
+                    <red>115</red>
+                    <green>223</green>
+                    <blue>255</blue>
+                </color>
+            </property>
+            <property name="stackingMode">
+                <enum>Menu</enum>
+            </property>
+            <property name="labels">
+                <string>Profile 1</string>
+            </property>
+            <property name="files">
+                <string>galil_profileMove.ui </string>
+            </property>
+            <property name="args">
+                <string>P=$(DMC),TITLE=Galil profile, R=Prof1:, M1=$(M1), M2=$(M2), M3=$(M3), M4=$(M4), M5=$(M5), M6=$(M6), M7=$(M7), M8=$(M8)</string>
+            </property>
+            <property name="removeParent">
+                <string>false</string>
+            </property>
+        </widget>
+        <widget class="caLabel" name="caLabel_28">
+            <property name="frameShape">
+                <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="foreground">
+                <color alpha="255">
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>0</blue>
+                </color>
+            </property>
+            <property name="background">
+                <color alpha="0">
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>0</blue>
+                </color>
+            </property>
+            <property name="text">
+                <string>Profile move</string>
+            </property>
+            <property name="fontScaleMode">
+                <enum>ESimpleLabel::WidthAndHeight</enum>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>228</x>
+                    <y>577</y>
+                    <width>84</width>
+                    <height>13</height>
+                </rect>
+            </property>
+            <property name="alignment">
+                <set>Qt::AlignAbsolute|Qt::AlignLeft|Qt::AlignVCenter</set>
+            </property>
+        </widget>
+        <widget class="caRelatedDisplay" name="caRelatedDisplay_15">
+            <property name="geometry">
+                <rect>
+                    <x>330</x>
+                    <y>577</y>
+                    <width>15</width>
+                    <height>15</height>
+                </rect>
+            </property>
+            <property name="foreground">
+                <color alpha="255">
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>0</blue>
+                </color>
+            </property>
+            <property name="background">
+                <color alpha="255">
+                    <red>115</red>
+                    <green>223</green>
+                    <blue>255</blue>
+                </color>
+            </property>
+            <property name="stackingMode">
+                <enum>Menu</enum>
+            </property>
+            <property name="labels">
+                <string>Profile 1</string>
+            </property>
+            <property name="files">
+                <string>galil_CSprofileMove.ui </string>
+            </property>
+            <property name="args">
+                <string>P=$(DMC),TITLE=Galil CS profile, R=Prof1:, M9=$(M9), M10=$(M10), M11=$(M11), M12=$(M12), M13=$(M13), M14=$(M14), M15=$(M15), M16=$(M16)</string>
+            </property>
+            <property name="removeParent">
+                <string>false</string>
+            </property>
+        </widget>
+        <widget class="caLabel" name="caLabel_29">
+            <property name="frameShape">
+                <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="foreground">
+                <color alpha="255">
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>0</blue>
+                </color>
+            </property>
+            <property name="background">
+                <color alpha="0">
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>0</blue>
+                </color>
+            </property>
+            <property name="text">
                 <string>Motor H</string>
             </property>
             <property name="fontScaleMode">
@@ -2379,7 +2529,7 @@ border-radius: 2px;
                 <rect>
                     <x>56</x>
                     <y>555</y>
-                    <width>65</width>
+                    <width>49</width>
                     <height>13</height>
                 </rect>
             </property>
@@ -2387,7 +2537,7 @@ border-radius: 2px;
                 <set>Qt::AlignAbsolute|Qt::AlignLeft|Qt::AlignVCenter</set>
             </property>
         </widget>
-        <widget class="caRelatedDisplay" name="caRelatedDisplay_14">
+        <widget class="caRelatedDisplay" name="caRelatedDisplay_16">
             <property name="geometry">
                 <rect>
                     <x>150</x>
@@ -2426,7 +2576,7 @@ border-radius: 2px;
                 <string>false;false;false;false;false;false</string>
             </property>
         </widget>
-        <widget class="caLabel" name="caLabel_28">
+        <widget class="caLabel" name="caLabel_30">
             <property name="frameShape">
                 <enum>QFrame::NoFrame</enum>
             </property>
@@ -2454,7 +2604,7 @@ border-radius: 2px;
                 <rect>
                     <x>228</x>
                     <y>555</y>
-                    <width>65</width>
+                    <width>49</width>
                     <height>13</height>
                 </rect>
             </property>
@@ -2462,7 +2612,7 @@ border-radius: 2px;
                 <set>Qt::AlignAbsolute|Qt::AlignLeft|Qt::AlignVCenter</set>
             </property>
         </widget>
-        <widget class="caRelatedDisplay" name="caRelatedDisplay_15">
+        <widget class="caRelatedDisplay" name="caRelatedDisplay_17">
             <property name="geometry">
                 <rect>
                     <x>330</x>
@@ -2510,7 +2660,7 @@ border-radius: 2px;
                     <height>18</height>
                 </rect>
             </property>
-            <widget class="caLabel" name="caLabel_29">
+            <widget class="caLabel" name="caLabel_31">
                 <property name="frameShape">
                     <enum>QFrame::NoFrame</enum>
                 </property>
@@ -2546,7 +2696,7 @@ border-radius: 2px;
                     <set>Qt::AlignAbsolute|Qt::AlignLeft|Qt::AlignVCenter</set>
                 </property>
             </widget>
-            <widget class="caRelatedDisplay" name="caRelatedDisplay_16">
+            <widget class="caRelatedDisplay" name="caRelatedDisplay_18">
                 <property name="geometry">
                     <rect>
                         <x>94</x>
@@ -2585,7 +2735,7 @@ border-radius: 2px;
                     <string>false;false;false;false;false;false</string>
                 </property>
             </widget>
-            <widget class="caLabel" name="caLabel_30">
+            <widget class="caLabel" name="caLabel_32">
                 <property name="frameShape">
                     <enum>QFrame::NoFrame</enum>
                 </property>
@@ -2621,7 +2771,7 @@ border-radius: 2px;
                     <set>Qt::AlignAbsolute|Qt::AlignLeft|Qt::AlignVCenter</set>
                 </property>
             </widget>
-            <widget class="caRelatedDisplay" name="caRelatedDisplay_17">
+            <widget class="caRelatedDisplay" name="caRelatedDisplay_19">
                 <property name="geometry">
                     <rect>
                         <x>274</x>
@@ -2724,7 +2874,7 @@ border-radius: 2px;
                     <enum>caLineEdit::Static</enum>
                 </property>
             </widget>
-            <widget class="caLabel" name="caLabel_31">
+            <widget class="caLabel" name="caLabel_33">
                 <property name="frameShape">
                     <enum>QFrame::NoFrame</enum>
                 </property>
@@ -2865,7 +3015,7 @@ border-radius: 2px;
                     <enum>caLineEdit::Static</enum>
                 </property>
             </widget>
-            <widget class="caLabel" name="caLabel_32">
+            <widget class="caLabel" name="caLabel_34">
                 <property name="frameShape">
                     <enum>QFrame::NoFrame</enum>
                 </property>
@@ -2901,7 +3051,7 @@ border-radius: 2px;
                     <set>Qt::AlignAbsolute|Qt::AlignLeft|Qt::AlignVCenter</set>
                 </property>
             </widget>
-            <widget class="caLabel" name="caLabel_33">
+            <widget class="caLabel" name="caLabel_35">
                 <property name="frameShape">
                     <enum>QFrame::NoFrame</enum>
                 </property>
@@ -2937,7 +3087,7 @@ border-radius: 2px;
                     <set>Qt::AlignAbsolute|Qt::AlignLeft|Qt::AlignVCenter</set>
                 </property>
             </widget>
-            <widget class="caLabel" name="caLabel_34">
+            <widget class="caLabel" name="caLabel_36">
                 <property name="frameShape">
                     <enum>QFrame::NoFrame</enum>
                 </property>
@@ -2974,7 +3124,7 @@ border-radius: 2px;
                 </property>
             </widget>
         </widget>
-        <widget class="caLabel" name="caLabel_35">
+        <widget class="caLabel" name="caLabel_37">
             <property name="frameShape">
                 <enum>QFrame::NoFrame</enum>
             </property>
@@ -3002,7 +3152,7 @@ border-radius: 2px;
                 <rect>
                     <x>9</x>
                     <y>238</y>
-                    <width>97</width>
+                    <width>105</width>
                     <height>13</height>
                 </rect>
             </property>
@@ -3181,7 +3331,7 @@ border-radius: 2px;
                 <enum>caChoice::Static</enum>
             </property>
         </widget>
-        <widget class="caLabel" name="caLabel_36">
+        <widget class="caLabel" name="caLabel_38">
             <property name="frameShape">
                 <enum>QFrame::NoFrame</enum>
             </property>
@@ -3209,7 +3359,7 @@ border-radius: 2px;
                 <rect>
                     <x>9</x>
                     <y>257</y>
-                    <width>97</width>
+                    <width>77</width>
                     <height>13</height>
                 </rect>
             </property>
@@ -3226,7 +3376,7 @@ border-radius: 2px;
                     <height>22</height>
                 </rect>
             </property>
-            <widget class="caLabel" name="caLabel_37">
+            <widget class="caLabel" name="caLabel_39">
                 <property name="frameShape">
                     <enum>QFrame::NoFrame</enum>
                 </property>
@@ -3347,7 +3497,7 @@ border-radius: 2px;
                 </property>
             </widget>
         </widget>
-        <widget class="caLabel" name="caLabel_38">
+        <widget class="caLabel" name="caLabel_40">
             <property name="frameShape">
                 <enum>QFrame::NoFrame</enum>
             </property>
@@ -3375,7 +3525,7 @@ border-radius: 2px;
                 <rect>
                     <x>9</x>
                     <y>293</y>
-                    <width>97</width>
+                    <width>119</width>
                     <height>13</height>
                 </rect>
             </property>
@@ -3503,7 +3653,7 @@ border-radius: 2px;
                 <enum>caChoice::Static</enum>
             </property>
         </widget>
-        <widget class="caLabel" name="caLabel_39">
+        <widget class="caLabel" name="caLabel_41">
             <property name="frameShape">
                 <enum>QFrame::NoFrame</enum>
             </property>
@@ -3531,7 +3681,7 @@ border-radius: 2px;
                 <rect>
                     <x>9</x>
                     <y>310</y>
-                    <width>97</width>
+                    <width>112</width>
                     <height>13</height>
                 </rect>
             </property>
@@ -3647,7 +3797,7 @@ border-radius: 2px;
                 <enum>caLineEdit::Static</enum>
             </property>
         </widget>
-        <widget class="caLabel" name="caLabel_40">
+        <widget class="caLabel" name="caLabel_42">
             <property name="frameShape">
                 <enum>QFrame::NoFrame</enum>
             </property>
@@ -3675,7 +3825,7 @@ border-radius: 2px;
                 <rect>
                     <x>9</x>
                     <y>200</y>
-                    <width>97</width>
+                    <width>119</width>
                     <height>13</height>
                 </rect>
             </property>
@@ -3743,82 +3893,7 @@ border-radius: 2px;
                 <enum>caMenu::Static</enum>
             </property>
         </widget>
-        <widget class="caLabel" name="caLabel_41">
-            <property name="frameShape">
-                <enum>QFrame::NoFrame</enum>
-            </property>
-            <property name="foreground">
-                <color alpha="255">
-                    <red>0</red>
-                    <green>0</green>
-                    <blue>0</blue>
-                </color>
-            </property>
-            <property name="background">
-                <color alpha="0">
-                    <red>0</red>
-                    <green>0</green>
-                    <blue>0</blue>
-                </color>
-            </property>
-            <property name="text">
-                <string>All amplifiers</string>
-            </property>
-            <property name="fontScaleMode">
-                <enum>ESimpleLabel::WidthAndHeight</enum>
-            </property>
-            <property name="geometry">
-                <rect>
-                    <x>9</x>
-                    <y>353</y>
-                    <width>65</width>
-                    <height>13</height>
-                </rect>
-            </property>
-            <property name="alignment">
-                <set>Qt::AlignAbsolute|Qt::AlignLeft|Qt::AlignVCenter</set>
-            </property>
-        </widget>
-        <widget class="caRelatedDisplay" name="caRelatedDisplay_18">
-            <property name="geometry">
-                <rect>
-                    <x>150</x>
-                    <y>354</y>
-                    <width>15</width>
-                    <height>15</height>
-                </rect>
-            </property>
-            <property name="foreground">
-                <color alpha="255">
-                    <red>0</red>
-                    <green>0</green>
-                    <blue>0</blue>
-                </color>
-            </property>
-            <property name="background">
-                <color alpha="255">
-                    <red>115</red>
-                    <green>223</green>
-                    <blue>255</blue>
-                </color>
-            </property>
-            <property name="stackingMode">
-                <enum>Menu</enum>
-            </property>
-            <property name="labels">
-                <string>All amplifiers</string>
-            </property>
-            <property name="files">
-                <string>galil_amp_8.ui </string>
-            </property>
-            <property name="args">
-                <string>P=$(DMC), M1=$(M1), M2=$(M2), M3=$(M3), M4=$(M4), M5=$(M5), M6=$(M6), M7=$(M7), M8=$(M8)</string>
-            </property>
-            <property name="removeParent">
-                <string>false</string>
-            </property>
-        </widget>
-        <widget class="caRelatedDisplay" name="caRelatedDisplay_19">
+        <widget class="caRelatedDisplay" name="caRelatedDisplay_20">
             <property name="geometry">
                 <rect>
                     <x>330</x>
@@ -3857,7 +3932,7 @@ border-radius: 2px;
                 <string>false;false;false;false;false</string>
             </property>
         </widget>
-        <widget class="caLabel" name="caLabel_42">
+        <widget class="caLabel" name="caLabel_43">
             <property name="frameShape">
                 <enum>QFrame::NoFrame</enum>
             </property>
@@ -3885,7 +3960,7 @@ border-radius: 2px;
                 <rect>
                     <x>189</x>
                     <y>374</y>
-                    <width>65</width>
+                    <width>84</width>
                     <height>13</height>
                 </rect>
             </property>
@@ -3902,7 +3977,7 @@ border-radius: 2px;
                     <height>18</height>
                 </rect>
             </property>
-            <widget class="caLabel" name="caLabel_43">
+            <widget class="caLabel" name="caLabel_44">
                 <property name="frameShape">
                     <enum>QFrame::NoFrame</enum>
                 </property>
@@ -3938,7 +4013,7 @@ border-radius: 2px;
                     <set>Qt::AlignAbsolute|Qt::AlignLeft|Qt::AlignVCenter</set>
                 </property>
             </widget>
-            <widget class="caRelatedDisplay" name="caRelatedDisplay_20">
+            <widget class="caRelatedDisplay" name="caRelatedDisplay_21">
                 <property name="geometry">
                     <rect>
                         <x>141</x>
@@ -3978,7 +4053,7 @@ border-radius: 2px;
                 </property>
             </widget>
         </widget>
-        <widget class="caLabel" name="caLabel_44">
+        <widget class="caLabel" name="caLabel_45">
             <property name="frameShape">
                 <enum>QFrame::NoFrame</enum>
             </property>
@@ -3997,7 +4072,7 @@ border-radius: 2px;
                 </color>
             </property>
             <property name="text">
-                <string>All motors</string>
+                <string>All axes</string>
             </property>
             <property name="fontScaleMode">
                 <enum>ESimpleLabel::WidthAndHeight</enum>
@@ -4005,8 +4080,8 @@ border-radius: 2px;
             <property name="geometry">
                 <rect>
                     <x>9</x>
-                    <y>374</y>
-                    <width>65</width>
+                    <y>353</y>
+                    <width>70</width>
                     <height>13</height>
                 </rect>
             </property>
@@ -4014,11 +4089,11 @@ border-radius: 2px;
                 <set>Qt::AlignAbsolute|Qt::AlignLeft|Qt::AlignVCenter</set>
             </property>
         </widget>
-        <widget class="caRelatedDisplay" name="caRelatedDisplay_21">
+        <widget class="caRelatedDisplay" name="caRelatedDisplay_22">
             <property name="geometry">
                 <rect>
                     <x>150</x>
-                    <y>375</y>
+                    <y>354</y>
                     <width>15</width>
                     <height>15</height>
                 </rect>
@@ -4041,177 +4116,17 @@ border-radius: 2px;
                 <enum>Menu</enum>
             </property>
             <property name="labels">
-                <string>All motors</string>
+                <string>All motors;All amplifiers;All extras</string>
             </property>
             <property name="files">
-                <string>motor8x.ui </string>
+                <string>motor8x.ui ;galil_amp_8.ui ;galil_extras_8.ui </string>
             </property>
             <property name="args">
-                <string>P=$(DMC), M1=$(M1), M2=$(M2), M3=$(M3), M4=$(M4), M5=$(M5), M6=$(M6), M7=$(M7), M8=$(M8)</string>
+                <string>P=$(DMC), M1=$(M1), M2=$(M2), M3=$(M3), M4=$(M4), M5=$(M5), M6=$(M6), M7=$(M7), M8=$(M8);P=$(DMC), M1=$(M1), M2=$(M2), M3=$(M3), M4=$(M4), M5=$(M5), M6=$(M6), M7=$(M7), M8=$(M8);P=$(DMC), M1=$(M1), M2=$(M2), M3=$(M3), M4=$(M4), M5=$(M5), M6=$(M6), M7=$(M7), M8=$(M8)</string>
             </property>
             <property name="removeParent">
-                <string>false</string>
+                <string>false;false;false</string>
             </property>
-        </widget>
-        <widget class="caFrame" name="caFrame_18">
-            <property name="geometry">
-                <rect>
-                    <x>56</x>
-                    <y>576</y>
-                    <width>291</width>
-                    <height>18</height>
-                </rect>
-            </property>
-            <widget class="caLabel" name="caLabel_45">
-                <property name="frameShape">
-                    <enum>QFrame::NoFrame</enum>
-                </property>
-                <property name="foreground">
-                    <color alpha="255">
-                        <red>0</red>
-                        <green>0</green>
-                        <blue>0</blue>
-                    </color>
-                </property>
-                <property name="background">
-                    <color alpha="0">
-                        <red>0</red>
-                        <green>0</green>
-                        <blue>0</blue>
-                    </color>
-                </property>
-                <property name="text">
-                    <string>Profile move</string>
-                </property>
-                <property name="fontScaleMode">
-                    <enum>ESimpleLabel::WidthAndHeight</enum>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>0</x>
-                        <y>0</y>
-                        <width>75</width>
-                        <height>13</height>
-                    </rect>
-                </property>
-                <property name="alignment">
-                    <set>Qt::AlignAbsolute|Qt::AlignLeft|Qt::AlignVCenter</set>
-                </property>
-            </widget>
-            <widget class="caRelatedDisplay" name="caRelatedDisplay_22">
-                <property name="geometry">
-                    <rect>
-                        <x>94</x>
-                        <y>0</y>
-                        <width>15</width>
-                        <height>15</height>
-                    </rect>
-                </property>
-                <property name="foreground">
-                    <color alpha="255">
-                        <red>0</red>
-                        <green>0</green>
-                        <blue>0</blue>
-                    </color>
-                </property>
-                <property name="background">
-                    <color alpha="255">
-                        <red>115</red>
-                        <green>223</green>
-                        <blue>255</blue>
-                    </color>
-                </property>
-                <property name="stackingMode">
-                    <enum>Menu</enum>
-                </property>
-                <property name="labels">
-                    <string>Profile 1</string>
-                </property>
-                <property name="files">
-                    <string>galil_profileMove.ui </string>
-                </property>
-                <property name="args">
-                    <string>P=$(DMC),TITLE=Galil profile, R=Prof1:, M1=$(M1), M2=$(M2), M3=$(M3), M4=$(M4), M5=$(M5), M6=$(M6), M7=$(M7), M8=$(M8)</string>
-                </property>
-                <property name="removeParent">
-                    <string>false</string>
-                </property>
-            </widget>
-            <widget class="caLabel" name="caLabel_46">
-                <property name="frameShape">
-                    <enum>QFrame::NoFrame</enum>
-                </property>
-                <property name="foreground">
-                    <color alpha="255">
-                        <red>0</red>
-                        <green>0</green>
-                        <blue>0</blue>
-                    </color>
-                </property>
-                <property name="background">
-                    <color alpha="0">
-                        <red>0</red>
-                        <green>0</green>
-                        <blue>0</blue>
-                    </color>
-                </property>
-                <property name="text">
-                    <string>Profile move</string>
-                </property>
-                <property name="fontScaleMode">
-                    <enum>ESimpleLabel::WidthAndHeight</enum>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>172</x>
-                        <y>1</y>
-                        <width>65</width>
-                        <height>13</height>
-                    </rect>
-                </property>
-                <property name="alignment">
-                    <set>Qt::AlignAbsolute|Qt::AlignLeft|Qt::AlignVCenter</set>
-                </property>
-            </widget>
-            <widget class="caRelatedDisplay" name="caRelatedDisplay_23">
-                <property name="geometry">
-                    <rect>
-                        <x>274</x>
-                        <y>1</y>
-                        <width>15</width>
-                        <height>15</height>
-                    </rect>
-                </property>
-                <property name="foreground">
-                    <color alpha="255">
-                        <red>0</red>
-                        <green>0</green>
-                        <blue>0</blue>
-                    </color>
-                </property>
-                <property name="background">
-                    <color alpha="255">
-                        <red>115</red>
-                        <green>223</green>
-                        <blue>255</blue>
-                    </color>
-                </property>
-                <property name="stackingMode">
-                    <enum>Menu</enum>
-                </property>
-                <property name="labels">
-                    <string>Profile 1</string>
-                </property>
-                <property name="files">
-                    <string>galil_CSprofileMove.ui </string>
-                </property>
-                <property name="args">
-                    <string>P=$(DMC),TITLE=Galil CS profile, R=Prof1:, M9=I, M10=J, M11=K, M12=L, M13=M, M14=N, M15=O, M16=P</string>
-                </property>
-                <property name="removeParent">
-                    <string>false</string>
-                </property>
-            </widget>
         </widget>
         <zorder>caRectangle_0</zorder>
         <zorder>caLabel_0</zorder>
@@ -4259,27 +4174,25 @@ border-radius: 2px;
         <zorder>caLabel_28</zorder>
         <zorder>caLabel_29</zorder>
         <zorder>caLabel_30</zorder>
-        <zorder>caFrame_14</zorder>
         <zorder>caLabel_31</zorder>
         <zorder>caLabel_32</zorder>
+        <zorder>caFrame_14</zorder>
         <zorder>caLabel_33</zorder>
         <zorder>caLabel_34</zorder>
-        <zorder>caFrame_15</zorder>
         <zorder>caLabel_35</zorder>
         <zorder>caLabel_36</zorder>
+        <zorder>caFrame_15</zorder>
         <zorder>caLabel_37</zorder>
-        <zorder>caFrame_16</zorder>
         <zorder>caLabel_38</zorder>
         <zorder>caLabel_39</zorder>
+        <zorder>caFrame_16</zorder>
         <zorder>caLabel_40</zorder>
         <zorder>caLabel_41</zorder>
         <zorder>caLabel_42</zorder>
         <zorder>caLabel_43</zorder>
-        <zorder>caFrame_17</zorder>
         <zorder>caLabel_44</zorder>
+        <zorder>caFrame_17</zorder>
         <zorder>caLabel_45</zorder>
-        <zorder>caLabel_46</zorder>
-        <zorder>caFrame_18</zorder>
         <zorder>caRelatedDisplay_0</zorder>
         <zorder>caLineEdit_0</zorder>
         <zorder>caLineEdit_1</zorder>
@@ -4308,6 +4221,8 @@ border-radius: 2px;
         <zorder>caRelatedDisplay_15</zorder>
         <zorder>caRelatedDisplay_16</zorder>
         <zorder>caRelatedDisplay_17</zorder>
+        <zorder>caRelatedDisplay_18</zorder>
+        <zorder>caRelatedDisplay_19</zorder>
         <zorder>caLineEdit_10</zorder>
         <zorder>caTextEntry_0</zorder>
         <zorder>caLineEdit_11</zorder>
@@ -4324,12 +4239,9 @@ border-radius: 2px;
         <zorder>caLineEdit_17</zorder>
         <zorder>caMenu_2</zorder>
         <zorder>caMenu_3</zorder>
-        <zorder>caRelatedDisplay_18</zorder>
-        <zorder>caRelatedDisplay_19</zorder>
         <zorder>caRelatedDisplay_20</zorder>
         <zorder>caRelatedDisplay_21</zorder>
         <zorder>caRelatedDisplay_22</zorder>
-        <zorder>caRelatedDisplay_23</zorder>
     </widget>
 </widget>
 </ui>

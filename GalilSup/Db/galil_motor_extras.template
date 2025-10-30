@@ -893,6 +893,15 @@ record(mbbi,"$(P)$(M)_MICROSTEP_STATUS")
 	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_MICROSTEP")
 }
 
+record(longin,"$(P)$(M)_AMPMODEL_STATUS")
+{
+	field(DESC, "Amp model")
+	field(PINI, "YES")
+	field(DTYP, "asynInt32")
+	field(VAL,  "0")
+	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_AMP_MODEL")
+}
+
 record(mbbo,"$(P)$(M)_AMPGAIN_CMD")
 {
 	field(DESC, "Amp gain")
@@ -1199,6 +1208,38 @@ record(mbbi,"$(P)$(M)_MTRTYPE_STATUS")
 	field(TVVL, "12")
 	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_TYPE")
 }
+
+record(mbbo,"$(P)$(M)_BRTYPE_CMD")
+{
+	field(DESC, "brush type")
+	field(DTYP, "asynInt32")
+	field(ZRST, "External Drive")
+	field(ONST, "Brushless")
+	field(TWST, "Brush")
+	field(ZRVL, "-1")
+	field(ONVL, "0")
+	field(TWVL, "1")
+	field(VAL,  "2")
+	field(PINI, "YES")
+	field(OUT,  "@asyn($(PORT),$(ADDR))BRUSH_TYPE")
+	field(FLNK, "$(P)$(M)_BRTYPE_STATUS")
+}
+
+record(mbbi,"$(P)$(M)_BRTYPE_STATUS")
+{
+	field(DESC, "brush type")
+	field(PINI, "YES")
+	field(SCAN, "$(SCAN)")
+	field(DTYP, "asynInt32")
+	field(ZRST, "External Drive")
+	field(ONST, "Brushless")
+	field(TWST, "Brush")
+	field(ZRVL, "-1")
+	field(ONVL, "0")
+	field(TWVL, "1")
+	field(INP,  "@asyn($(PORT),$(ADDR))BRUSH_TYPE")
+}
+
 
 record(mbbo,"$(P)$(M)_MENCTYPE_CMD")
 {
