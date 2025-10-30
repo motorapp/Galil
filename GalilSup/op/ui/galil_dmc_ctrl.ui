@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>450</width>
-    <height>630</height>
+    <height>653</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -1574,6 +1574,82 @@
         </item>
         <item>
          <spacer name="horizontalSpacer_18">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_28">
+        <item>
+         <spacer name="horizontalSpacer_21">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QEPushButton" name="qepushbutton_12">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>1</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Abyssinica SIL</family>
+            <pointsize>9</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Internal Amplifiers</string>
+          </property>
+          <property name="variable" stdset="0">
+           <string/>
+          </property>
+          <property name="guiFile" stdset="0">
+           <string>galil_amp8.ui</string>
+          </property>
+          <property name="prioritySubstitutions">
+           <string/>
+          </property>
+          <property name="creationOption">
+           <enum>QE::NewWindow</enum>
+          </property>
+          <property name="variableAsToolTip">
+           <bool>false</bool>
+          </property>
+          <property name="userLevelVisibility">
+           <enum>QE::User</enum>
+          </property>
+          <property name="userLevelEnabled">
+           <enum>QE::Engineer</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_22">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>

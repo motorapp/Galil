@@ -278,24 +278,24 @@
                <number>1</number>
               </property>
               <property name="shift">
-               <number>2</number>
+               <number>0</number>
               </property>
               <property name="onColour">
-               <color>
-                <red>0</red>
-                <green>136</green>
-                <blue>0</blue>
-               </color>
-              </property>
-              <property name="offColour">
                <color>
                 <red>159</red>
                 <green>0</green>
                 <blue>0</blue>
                </color>
               </property>
+              <property name="offColour">
+               <color>
+                <red>0</red>
+                <green>136</green>
+                <blue>0</blue>
+               </color>
+              </property>
               <property name="variable" stdset="0">
-               <string>$(DMC)$(M$(SLOT)).MSTA</string>
+               <string>$(DMC)$(M$(SLOT)).HLS</string>
               </property>
               <property name="variableAsToolTip">
                <bool>false</bool>
@@ -452,24 +452,24 @@
                <number>1</number>
               </property>
               <property name="shift">
-               <number>13</number>
+               <number>0</number>
               </property>
               <property name="onColour">
-               <color>
-                <red>0</red>
-                <green>136</green>
-                <blue>0</blue>
-               </color>
-              </property>
-              <property name="offColour">
                <color>
                 <red>159</red>
                 <green>0</green>
                 <blue>0</blue>
                </color>
               </property>
+              <property name="offColour">
+               <color>
+                <red>0</red>
+                <green>136</green>
+                <blue>0</blue>
+               </color>
+              </property>
               <property name="variable" stdset="0">
-               <string>$(DMC)$(M$(SLOT)).MSTA</string>
+               <string>$(DMC)$(M$(SLOT)).LLS</string>
               </property>
               <property name="variableAsToolTip">
                <bool>false</bool>
@@ -504,15 +504,15 @@
               </property>
               <property name="onColour">
                <color>
-                <red>0</red>
-                <green>136</green>
+                <red>159</red>
+                <green>0</green>
                 <blue>0</blue>
                </color>
               </property>
               <property name="offColour">
                <color>
-                <red>159</red>
-                <green>0</green>
+                <red>0</red>
+                <green>136</green>
                 <blue>0</blue>
                </color>
               </property>

@@ -298,17 +298,21 @@ asynStatus GalilAxis::setDefaults(char *enables_string, int switch_type)
 
    //Default motor record stop
    pC_->setIntegerParam(axisNo_, pC_->GalilMotorRecordStop_, 0);
-   
+
    //Default related csaxes list
    csaxesList_[0] = '\0';
 
    //Default softLimits
    lowLimit_ = 0.0;
    highLimit_ = 0.0;
-   
+
    //Operator has not used MR SET field yet
    setPositionIn_ = false;
    setPositionOut_ = false;
+
+   //Default motor/axis related amplifier statuses
+   setIntegerParam(pC_->GalilMotorHallErrorStatus_, 0);
+   setIntegerParam(pC_->GalilMotorAtTorqueLimitStatus_, 0);
 
    return asynSuccess;
 }
@@ -678,7 +682,7 @@ asynStatus GalilAxis::move(double position, int relative, double minVelocity, do
   //Is controller using main or auxillary encoder register for positioning
   double readback = (motorIsServo_) ? encoder_position_ : motor_position_;
   asynStatus status = asynError;
-  
+
   //If this axis is being driven by a CSAxis
   //Use the requested CSAxis velocity, acceleration instead of that provided by mr
   if (useCSADynamics_) {
@@ -1200,14 +1204,13 @@ asynStatus GalilAxis::stop(double acceleration)
            if (pCSAxis->revaxes_[j] == axisName_)
               found = true;
         }
-        //Stop the CSAxis that is moving, and contains this axis
-        //Using coordinated stop
-        pCSAxis->stopSent_ = true;
-        pCSAxis->stop_reason_ = stop_reason_;
-        if (found && !pCSAxis->done_ && pCSAxis->move_started_ && (stop_reason_ == MOTOR_STOP_ONWLP || stop_reason_ == MOTOR_STOP_ONSTALL))
-           pCSAxis->stopInternal(); //WLP or encoder stall are emergency stop
-        else if (found && !pCSAxis->done_  && pCSAxis->move_started_ && stop_reason_ != MOTOR_STOP_ONWLP && stop_reason_ != MOTOR_STOP_ONSTALL)
-           pCSAxis->stopInternal(false); //Normal stop (eg. spmg)
+        //Stop a CSAxis that is moving, and contains this axis
+        if (found && !pCSAxis->done_ && pCSAxis->move_started_) {
+           //Use coordinated stop
+           pCSAxis->stopSent_ = true;
+           pCSAxis->stop_reason_ = stop_reason_;
+           pCSAxis->stopInternal();
+        }
      }
   }
   else {
@@ -1760,6 +1763,20 @@ asynStatus GalilAxis::getStatus(void)
          strcpy(src, "_HMx");
          src[3] = axisName_;
          home_ = (bool)(pC_->sourceValue(pC_->recdata_, src) == pC_->hswact_) ? 1 : 0;
+
+         //40xx and 41xx series, obtain internal amplifier fault status
+         if (pC_->model_[3] == '4' && (pC_->model_[4] == '0' || pC_->model_[4] == '1')) {
+            //Amplifier Hall Error Status
+            strcpy(src, "TA1x");
+            src[3] = axisName_;
+            setIntegerParam(pC_->GalilMotorHallErrorStatus_, (int)pC_->sourceValue(pC_->recdata_, src));
+
+            //Amplifier At Torque Limit Status
+            strcpy(src, "TA2x");
+            src[3] = axisName_;
+            setIntegerParam(pC_->GalilMotorAtTorqueLimitStatus_, (int)pC_->sourceValue(pC_->recdata_, src));
+         }
+
          //User data
          strcpy(src, "_ZAx");
          src[3] = axisName_;
@@ -1890,6 +1907,25 @@ void GalilAxis::checkEncoder(void)
       //Leave ParamList values un-changed until user attempts to move again
       pestall_detected_ = false;
       }
+}
+
+//Called by poll without lock
+//When axis problem detected
+//May stop motor via pollServices thread
+void GalilAxis::checkStopCode(void)
+{
+   int sc = stop_code_;  //Conveniance variable
+   if (!done_ && !deferredMove_ && !stopSent_) {
+      if (MOTOR_STOP_ONERR == sc || MOTOR_STOP_SABORT == sc || MOTOR_STOP_ENC == sc || MOTOR_STOP_AMP == sc ||
+          MOTOR_STOP_ECATCOMM == sc || MOTOR_STOP_ECATAMP == sc) {
+         //Set the stop reason so limit deceleration is applied during stop
+         stop_reason_ = sc;
+         //stop the motor
+         pollRequest_.send((void*)&MOTOR_STOP, sizeof(int));
+         //Flag the motor has been stopped
+         stopSent_ = true;
+      }
+   }
 }
 
 //Called by poll without lock
@@ -2417,21 +2453,19 @@ asynStatus GalilAxis::beginMotion(const char *caller, double position, bool rela
       return asynSuccess;
 
    //Check position at last possible moment prior to move
-   if (checkpos)
-      {
+   if (checkpos) {
       //Relative moves
       if (relative && position == 0)
          return asynSuccess;//Nothing to do
       //Absolute moves
-      if (!relative)
-         {
+      if (!relative) {
          //Retrieve readback
          readback = (motorIsServo_) ? encoder_position_ : motor_position_;
          //If new position differs from readback, then write new position
          if (trunc(position) == trunc(readback))
             return asynSuccess;//Nothing to do
-         }
       }
+   }
 
    //Begin the move
    sprintf(pC_->cmd_, "BG%c", axisName_);
@@ -2689,6 +2723,9 @@ asynStatus GalilAxis::poller(void)
 
    //Set motor stop time
    setStopTime();
+
+   //Check axis stop code
+   checkStopCode();
 
    //Check motor direction/limits consistency
    checkMotorLimitConsistency();

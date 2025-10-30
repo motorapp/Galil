@@ -5,8 +5,8 @@ file {
 }
 display {
 	object {
-		x=689
-		y=188
+		x=679
+		y=180
 		width=400
 		height=360
 	}
@@ -272,170 +272,6 @@ composite {
 				clr=14
 			}
 			textix="Error"
-		}
-	}
-}
-composite {
-	object {
-		x=36
-		y=131
-		width=15
-		height=15
-	}
-	"composite name"=""
-	children {
-		rectangle {
-			object {
-				x=36
-				y=131
-				width=15
-				height=15
-			}
-			"basic attribute" {
-				clr=20
-			}
-			"dynamic attribute" {
-				vis="if zero"
-				chan="$(P)$(M)_BISSSTAT_TIMEOUT"
-			}
-		}
-		rectangle {
-			object {
-				x=36
-				y=131
-				width=15
-				height=15
-			}
-			"basic attribute" {
-				clr=15
-			}
-			"dynamic attribute" {
-				vis="if not zero"
-				chan="$(P)$(M)_BISSSTAT_TIMEOUT"
-			}
-		}
-	}
-}
-composite {
-	object {
-		x=100
-		y=131
-		width=15
-		height=15
-	}
-	"composite name"=""
-	children {
-		rectangle {
-			object {
-				x=100
-				y=131
-				width=15
-				height=15
-			}
-			"basic attribute" {
-				clr=20
-			}
-			"dynamic attribute" {
-				vis="if zero"
-				chan="$(P)$(M)_BISSSTAT_CRC"
-			}
-		}
-		rectangle {
-			object {
-				x=100
-				y=131
-				width=15
-				height=15
-			}
-			"basic attribute" {
-				clr=15
-			}
-			"dynamic attribute" {
-				vis="if not zero"
-				chan="$(P)$(M)_BISSSTAT_CRC"
-			}
-		}
-	}
-}
-composite {
-	object {
-		x=251
-		y=131
-		width=15
-		height=15
-	}
-	"composite name"=""
-	children {
-		rectangle {
-			object {
-				x=251
-				y=131
-				width=15
-				height=15
-			}
-			"basic attribute" {
-				clr=20
-			}
-			"dynamic attribute" {
-				vis="if zero"
-				chan="$(P)$(M)_BISSSTAT_WARN"
-			}
-		}
-		rectangle {
-			object {
-				x=251
-				y=131
-				width=15
-				height=15
-			}
-			"basic attribute" {
-				clr=15
-			}
-			"dynamic attribute" {
-				vis="if not zero"
-				chan="$(P)$(M)_BISSSTAT_WARN"
-			}
-		}
-	}
-}
-composite {
-	object {
-		x=327
-		y=131
-		width=15
-		height=15
-	}
-	"composite name"=""
-	children {
-		rectangle {
-			object {
-				x=327
-				y=131
-				width=15
-				height=15
-			}
-			"basic attribute" {
-				clr=20
-			}
-			"dynamic attribute" {
-				vis="if zero"
-				chan="$(P)$(M)_BISSSTAT_ERROR"
-			}
-		}
-		rectangle {
-			object {
-				x=327
-				y=131
-				width=15
-				height=15
-			}
-			"basic attribute" {
-				clr=15
-			}
-			"dynamic attribute" {
-				vis="if not zero"
-				chan="$(P)$(M)_BISSSTAT_ERROR"
-			}
 		}
 	}
 }
@@ -779,5 +615,65 @@ rectangle {
 	"basic attribute" {
 		clr=14
 		fill="outline"
+	}
+}
+rectangle {
+	object {
+		x=36
+		y=131
+		width=15
+		height=15
+	}
+	"basic attribute" {
+		clr=15
+	}
+	"dynamic attribute" {
+		clr="alarm"
+		chan="$(P)$(M)_BISSSTAT_TIMEOUT"
+	}
+}
+rectangle {
+	object {
+		x=100
+		y=131
+		width=15
+		height=15
+	}
+	"basic attribute" {
+		clr=15
+	}
+	"dynamic attribute" {
+		clr="alarm"
+		chan="$(P)$(M)_BISSSTAT_CRC"
+	}
+}
+rectangle {
+	object {
+		x=251
+		y=131
+		width=15
+		height=15
+	}
+	"basic attribute" {
+		clr=15
+	}
+	"dynamic attribute" {
+		clr="alarm"
+		chan="$(P)$(M)_BISSSTAT_WARN"
+	}
+}
+rectangle {
+	object {
+		x=327
+		y=131
+		width=15
+		height=15
+	}
+	"basic attribute" {
+		clr=15
+	}
+	"dynamic attribute" {
+		clr="alarm"
+		chan="$(P)$(M)_BISSSTAT_ERROR"
 	}
 }

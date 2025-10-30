@@ -1,7 +1,7 @@
 
 file {
-	name="/home/epics/devel/Galil/GalilSup/op/adl/galil_dmc_ctrl.adl"
-	version=030117
+	name="/home/ics/git/Galil/GalilSup/op/adl/galil_dmc_ctrl.adl"
+	version=030120
 }
 display {
 	object {
@@ -1873,12 +1873,12 @@ text {
 	display[0] {
 		label="All motors"
 		name="motor8x.adl"
-		args="P=$(DMC), M1=$(M1), M2=$(M2), M3=$(M3), M4=$(M4), M5=$(M5), M6=$(M6), M7=$(M7), M8=$(M8)"
+		args="P=$(DMC), M1=$(M1), M2=$(M2), M3=$(M3), M4=$(M4), M5=$(M5), M6=$(M6), M7=$(M7), M8=$(M8), AMP1=$(AMP1), AMP2=$(AMP2)"
 	}
 	display[1] {
 		label="All amplifiers"
 		name="galil_amp_8.adl"
-		args="P=$(DMC), M1=$(M1), M2=$(M2), M3=$(M3), M4=$(M4), M5=$(M5), M6=$(M6), M7=$(M7), M8=$(M8)"
+		args="P=$(DMC), M1=$(M1), M2=$(M2), M3=$(M3), M4=$(M4), M5=$(M5), M6=$(M6), M7=$(M7), M8=$(M8), AMP1=$(AMP1), AMP2=$(AMP2)"
 	}
 	display[2] {
 		label="All extras"

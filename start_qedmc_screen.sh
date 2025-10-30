@@ -47,5 +47,5 @@ else
 fi
 
 #Invoke QEGUI
-qegui -style ${QTSTYLE} -e -m "DMC=$RECPREFIX,M1=A,M2=B,M3=C,M4=D,M5=E,M6=F,M7=G,M8=H,M9=I,M10=J,M11=K,M12=L,M13=M,M14=N,M15=O,M16=P" galil_dmc_ctrl.ui &
+qegui -style ${QTSTYLE} -m "DMC=$RECPREFIX,M1=A,M2=B,M3=C,M4=D,M5=E,M6=F,M7=G,M8=H,M9=I,M10=J,M11=K,M12=L,M13=M,M14=N,M15=O,M16=P,AMP1=AD,AMP2=EH" -e galil_dmc_ctrl.ui &
 

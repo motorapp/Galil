@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--Saved on 2024-12-28 15:07:24 by epics-->
+<!--Saved on 2025-09-27 15:22:34 by epics-->
 <display version="2.0.0">
   <name>galil_BISS</name>
-  <x>689</x>
-  <y>188</y>
+  <x>679</x>
+  <y>180</y>
   <width>400</width>
   <height>360</height>
   <background_color>
@@ -198,212 +198,8 @@
       <auto_size>true</auto_size>
     </widget>
   </widget>
-  <widget type="group" version="2.0.0">
-    <name>composite #53</name>
-    <x>36</x>
-    <y>131</y>
-    <width>15</width>
-    <height>15</height>
-    <style>3</style>
-    <transparent>true</transparent>
-    <widget type="rectangle" version="2.0.0">
-      <name>rectangle #56</name>
-      <width>15</width>
-      <height>15</height>
-      <line_color>
-        <color red="253" green="0" blue="0">
-        </color>
-      </line_color>
-      <background_color>
-        <color red="253" green="0" blue="0">
-        </color>
-      </background_color>
-      <rules>
-        <rule name="vis_if_zero" prop_id="visible" out_exp="false">
-          <exp bool_exp="!(pv0==0)">
-            <value>false</value>
-          </exp>
-          <pv_name>$(P)$(M)_BISSSTAT_TIMEOUT</pv_name>
-        </rule>
-      </rules>
-    </widget>
-    <widget type="rectangle" version="2.0.0">
-      <name>rectangle #60</name>
-      <width>15</width>
-      <height>15</height>
-      <line_color>
-        <color red="0" green="216" blue="0">
-        </color>
-      </line_color>
-      <background_color>
-        <color red="0" green="216" blue="0">
-        </color>
-      </background_color>
-      <rules>
-        <rule name="vis_if_not_zero" prop_id="visible" out_exp="false">
-          <exp bool_exp="!(pv0!=0)">
-            <value>false</value>
-          </exp>
-          <pv_name>$(P)$(M)_BISSSTAT_TIMEOUT</pv_name>
-        </rule>
-      </rules>
-    </widget>
-  </widget>
-  <widget type="group" version="2.0.0">
-    <name>composite #64</name>
-    <x>100</x>
-    <y>131</y>
-    <width>15</width>
-    <height>15</height>
-    <style>3</style>
-    <transparent>true</transparent>
-    <widget type="rectangle" version="2.0.0">
-      <name>rectangle #67</name>
-      <width>15</width>
-      <height>15</height>
-      <line_color>
-        <color red="253" green="0" blue="0">
-        </color>
-      </line_color>
-      <background_color>
-        <color red="253" green="0" blue="0">
-        </color>
-      </background_color>
-      <rules>
-        <rule name="vis_if_zero" prop_id="visible" out_exp="false">
-          <exp bool_exp="!(pv0==0)">
-            <value>false</value>
-          </exp>
-          <pv_name>$(P)$(M)_BISSSTAT_CRC</pv_name>
-        </rule>
-      </rules>
-    </widget>
-    <widget type="rectangle" version="2.0.0">
-      <name>rectangle #71</name>
-      <width>15</width>
-      <height>15</height>
-      <line_color>
-        <color red="0" green="216" blue="0">
-        </color>
-      </line_color>
-      <background_color>
-        <color red="0" green="216" blue="0">
-        </color>
-      </background_color>
-      <rules>
-        <rule name="vis_if_not_zero" prop_id="visible" out_exp="false">
-          <exp bool_exp="!(pv0!=0)">
-            <value>false</value>
-          </exp>
-          <pv_name>$(P)$(M)_BISSSTAT_CRC</pv_name>
-        </rule>
-      </rules>
-    </widget>
-  </widget>
-  <widget type="group" version="2.0.0">
-    <name>composite #75</name>
-    <x>251</x>
-    <y>131</y>
-    <width>15</width>
-    <height>15</height>
-    <style>3</style>
-    <transparent>true</transparent>
-    <widget type="rectangle" version="2.0.0">
-      <name>rectangle #78</name>
-      <width>15</width>
-      <height>15</height>
-      <line_color>
-        <color red="253" green="0" blue="0">
-        </color>
-      </line_color>
-      <background_color>
-        <color red="253" green="0" blue="0">
-        </color>
-      </background_color>
-      <rules>
-        <rule name="vis_if_zero" prop_id="visible" out_exp="false">
-          <exp bool_exp="!(pv0==0)">
-            <value>false</value>
-          </exp>
-          <pv_name>$(P)$(M)_BISSSTAT_WARN</pv_name>
-        </rule>
-      </rules>
-    </widget>
-    <widget type="rectangle" version="2.0.0">
-      <name>rectangle #82</name>
-      <width>15</width>
-      <height>15</height>
-      <line_color>
-        <color red="0" green="216" blue="0">
-        </color>
-      </line_color>
-      <background_color>
-        <color red="0" green="216" blue="0">
-        </color>
-      </background_color>
-      <rules>
-        <rule name="vis_if_not_zero" prop_id="visible" out_exp="false">
-          <exp bool_exp="!(pv0!=0)">
-            <value>false</value>
-          </exp>
-          <pv_name>$(P)$(M)_BISSSTAT_WARN</pv_name>
-        </rule>
-      </rules>
-    </widget>
-  </widget>
-  <widget type="group" version="2.0.0">
-    <name>composite #86</name>
-    <x>327</x>
-    <y>131</y>
-    <width>15</width>
-    <height>15</height>
-    <style>3</style>
-    <transparent>true</transparent>
-    <widget type="rectangle" version="2.0.0">
-      <name>rectangle #89</name>
-      <width>15</width>
-      <height>15</height>
-      <line_color>
-        <color red="253" green="0" blue="0">
-        </color>
-      </line_color>
-      <background_color>
-        <color red="253" green="0" blue="0">
-        </color>
-      </background_color>
-      <rules>
-        <rule name="vis_if_zero" prop_id="visible" out_exp="false">
-          <exp bool_exp="!(pv0==0)">
-            <value>false</value>
-          </exp>
-          <pv_name>$(P)$(M)_BISSSTAT_ERROR</pv_name>
-        </rule>
-      </rules>
-    </widget>
-    <widget type="rectangle" version="2.0.0">
-      <name>rectangle #93</name>
-      <width>15</width>
-      <height>15</height>
-      <line_color>
-        <color red="0" green="216" blue="0">
-        </color>
-      </line_color>
-      <background_color>
-        <color red="0" green="216" blue="0">
-        </color>
-      </background_color>
-      <rules>
-        <rule name="vis_if_not_zero" prop_id="visible" out_exp="false">
-          <exp bool_exp="!(pv0!=0)">
-            <value>false</value>
-          </exp>
-          <pv_name>$(P)$(M)_BISSSTAT_ERROR</pv_name>
-        </rule>
-      </rules>
-    </widget>
-  </widget>
   <widget type="label" version="2.0.0">
-    <name>text #97</name>
+    <name>text #53</name>
     <text>BISS poll period</text>
     <x>12</x>
     <y>160</y>
@@ -412,7 +208,7 @@
     <auto_size>true</auto_size>
   </widget>
   <widget type="textentry" version="3.0.0">
-    <name>text entry #100</name>
+    <name>text entry #56</name>
     <pv_name>$(P)$(M)_STATUS_POLL_DELAY_CMD</pv_name>
     <x>154</x>
     <y>160</y>
@@ -431,7 +227,7 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>text update #104</name>
+    <name>text update #60</name>
     <pv_name>$(P)$(M)_STATUS_POLL_DELAY_MON</pv_name>
     <x>278</x>
     <y>164</y>
@@ -450,7 +246,7 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>text #108</name>
+    <name>text #64</name>
     <text>BISS status poll</text>
     <x>12</x>
     <y>178</y>
@@ -459,7 +255,7 @@
     <auto_size>true</auto_size>
   </widget>
   <widget type="combo" version="2.0.0">
-    <name>menu #111</name>
+    <name>menu #67</name>
     <pv_name>$(P)$(M)_BISSSTAT_POLL_CMD</pv_name>
     <x>154</x>
     <y>178</y>
@@ -471,7 +267,7 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>text update #114</name>
+    <name>text update #70</name>
     <pv_name>$(P)$(M)_BISSSTAT_POLL</pv_name>
     <x>278</x>
     <y>183</y>
@@ -490,7 +286,7 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>text update #118</name>
+    <name>text update #74</name>
     <pv_name>$(P)$(M)_BISSINPUT_STATUS</pv_name>
     <x>278</x>
     <y>265</y>
@@ -509,7 +305,7 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="combo" version="2.0.0">
-    <name>menu #122</name>
+    <name>menu #78</name>
     <pv_name>$(P)$(M)_BISSINPUT_CMD</pv_name>
     <x>154</x>
     <y>260</y>
@@ -521,7 +317,7 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>text #125</name>
+    <name>text #81</name>
     <text>BISS Input</text>
     <x>12</x>
     <y>260</y>
@@ -530,7 +326,7 @@
     <auto_size>true</auto_size>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>text #128</name>
+    <name>text #84</name>
     <text>BISS level</text>
     <x>12</x>
     <y>196</y>
@@ -539,7 +335,7 @@
     <auto_size>true</auto_size>
   </widget>
   <widget type="combo" version="2.0.0">
-    <name>menu #131</name>
+    <name>menu #87</name>
     <pv_name>$(P)$(M)_BISSLEVEL_CMD</pv_name>
     <x>154</x>
     <y>196</y>
@@ -551,7 +347,7 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>text update #134</name>
+    <name>text update #90</name>
     <pv_name>$(P)$(M)_BISSLEVEL_STATUS</pv_name>
     <x>278</x>
     <y>201</y>
@@ -570,7 +366,7 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>text update #138</name>
+    <name>text update #94</name>
     <pv_name>$(P)$(M)_BISSDATA1_MON</pv_name>
     <x>278</x>
     <y>281</y>
@@ -589,7 +385,7 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="textentry" version="3.0.0">
-    <name>text entry #142</name>
+    <name>text entry #98</name>
     <pv_name>$(P)$(M)_BISSDATA1_SP</pv_name>
     <x>154</x>
     <y>277</y>
@@ -608,7 +404,7 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>text #146</name>
+    <name>text #102</name>
     <text>BISS Data 1</text>
     <x>12</x>
     <y>277</y>
@@ -617,7 +413,7 @@
     <auto_size>true</auto_size>
   </widget>
   <widget type="textentry" version="3.0.0">
-    <name>text entry #149</name>
+    <name>text entry #105</name>
     <pv_name>$(P)$(M)_BISSDATA2_SP</pv_name>
     <x>154</x>
     <y>295</y>
@@ -636,7 +432,7 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>text update #153</name>
+    <name>text update #109</name>
     <pv_name>$(P)$(M)_BISSDATA2_MON</pv_name>
     <x>278</x>
     <y>299</y>
@@ -655,7 +451,7 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>text #157</name>
+    <name>text #113</name>
     <text>BISS Data 2</text>
     <x>12</x>
     <y>295</y>
@@ -664,7 +460,7 @@
     <auto_size>true</auto_size>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>text #160</name>
+    <name>text #116</name>
     <text>BISS Zero padding</text>
     <x>12</x>
     <y>313</y>
@@ -673,7 +469,7 @@
     <auto_size>true</auto_size>
   </widget>
   <widget type="textentry" version="3.0.0">
-    <name>text entry #163</name>
+    <name>text entry #119</name>
     <pv_name>$(P)$(M)_BISSZP_SP</pv_name>
     <x>154</x>
     <y>313</y>
@@ -692,7 +488,7 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>text update #167</name>
+    <name>text update #123</name>
     <pv_name>$(P)$(M)_BISSZP_MON</pv_name>
     <x>278</x>
     <y>317</y>
@@ -711,7 +507,7 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>text #171</name>
+    <name>text #127</name>
     <text>BISS Clk divider</text>
     <x>12</x>
     <y>331</y>
@@ -720,7 +516,7 @@
     <auto_size>true</auto_size>
   </widget>
   <widget type="textentry" version="3.0.0">
-    <name>text entry #174</name>
+    <name>text entry #130</name>
     <pv_name>$(P)$(M)_BISSCD_SP</pv_name>
     <x>154</x>
     <y>331</y>
@@ -739,7 +535,7 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>text update #178</name>
+    <name>text update #134</name>
     <pv_name>$(P)$(M)_BISSCD_MON</pv_name>
     <x>278</x>
     <y>335</y>
@@ -758,7 +554,7 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="rectangle" version="2.0.0">
-    <name>rectangle #182</name>
+    <name>rectangle #138</name>
     <x>4</x>
     <y>3</y>
     <width>392</width>
@@ -773,5 +569,229 @@
       </color>
     </background_color>
     <transparent>true</transparent>
+  </widget>
+  <widget type="multi_state_led" version="2.0.0">
+    <name>rectangle #141</name>
+    <pv_name>=highestSeverity(`$(P)$(M)_BISSSTAT_TIMEOUT`)</pv_name>
+    <x>36</x>
+    <y>131</y>
+    <width>15</width>
+    <height>15</height>
+    <line_color>
+      <color name="Transparent" red="255" green="255" blue="255" alpha="0">
+      </color>
+    </line_color>
+    <square>true</square>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+    <states>
+      <state>
+        <value>0</value>
+        <label></label>
+        <color>
+          <color name="OK" red="0" green="255" blue="0">
+          </color>
+        </color>
+      </state>
+      <state>
+        <value>1</value>
+        <label></label>
+        <color>
+          <color name="MINOR" red="255" green="128" blue="0">
+          </color>
+        </color>
+      </state>
+      <state>
+        <value>2</value>
+        <label></label>
+        <color>
+          <color name="MAJOR" red="255" green="0" blue="0">
+          </color>
+        </color>
+      </state>
+      <state>
+        <value>3</value>
+        <label></label>
+        <color>
+          <color name="INVALID" red="255" green="0" blue="255">
+          </color>
+        </color>
+      </state>
+      <state>
+        <value>4</value>
+        <label></label>
+        <color>
+          <color name="DISCONNECTED" red="200" green="0" blue="200" alpha="200">
+          </color>
+        </color>
+      </state>
+    </states>
+  </widget>
+  <widget type="multi_state_led" version="2.0.0">
+    <name>rectangle #145</name>
+    <pv_name>=highestSeverity(`$(P)$(M)_BISSSTAT_CRC`)</pv_name>
+    <x>100</x>
+    <y>131</y>
+    <width>15</width>
+    <height>15</height>
+    <line_color>
+      <color name="Transparent" red="255" green="255" blue="255" alpha="0">
+      </color>
+    </line_color>
+    <square>true</square>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+    <states>
+      <state>
+        <value>0</value>
+        <label></label>
+        <color>
+          <color name="OK" red="0" green="255" blue="0">
+          </color>
+        </color>
+      </state>
+      <state>
+        <value>1</value>
+        <label></label>
+        <color>
+          <color name="MINOR" red="255" green="128" blue="0">
+          </color>
+        </color>
+      </state>
+      <state>
+        <value>2</value>
+        <label></label>
+        <color>
+          <color name="MAJOR" red="255" green="0" blue="0">
+          </color>
+        </color>
+      </state>
+      <state>
+        <value>3</value>
+        <label></label>
+        <color>
+          <color name="INVALID" red="255" green="0" blue="255">
+          </color>
+        </color>
+      </state>
+      <state>
+        <value>4</value>
+        <label></label>
+        <color>
+          <color name="DISCONNECTED" red="200" green="0" blue="200" alpha="200">
+          </color>
+        </color>
+      </state>
+    </states>
+  </widget>
+  <widget type="multi_state_led" version="2.0.0">
+    <name>rectangle #149</name>
+    <pv_name>=highestSeverity(`$(P)$(M)_BISSSTAT_WARN`)</pv_name>
+    <x>251</x>
+    <y>131</y>
+    <width>15</width>
+    <height>15</height>
+    <line_color>
+      <color name="Transparent" red="255" green="255" blue="255" alpha="0">
+      </color>
+    </line_color>
+    <square>true</square>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+    <states>
+      <state>
+        <value>0</value>
+        <label></label>
+        <color>
+          <color name="OK" red="0" green="255" blue="0">
+          </color>
+        </color>
+      </state>
+      <state>
+        <value>1</value>
+        <label></label>
+        <color>
+          <color name="MINOR" red="255" green="128" blue="0">
+          </color>
+        </color>
+      </state>
+      <state>
+        <value>2</value>
+        <label></label>
+        <color>
+          <color name="MAJOR" red="255" green="0" blue="0">
+          </color>
+        </color>
+      </state>
+      <state>
+        <value>3</value>
+        <label></label>
+        <color>
+          <color name="INVALID" red="255" green="0" blue="255">
+          </color>
+        </color>
+      </state>
+      <state>
+        <value>4</value>
+        <label></label>
+        <color>
+          <color name="DISCONNECTED" red="200" green="0" blue="200" alpha="200">
+          </color>
+        </color>
+      </state>
+    </states>
+  </widget>
+  <widget type="multi_state_led" version="2.0.0">
+    <name>rectangle #153</name>
+    <pv_name>=highestSeverity(`$(P)$(M)_BISSSTAT_ERROR`)</pv_name>
+    <x>327</x>
+    <y>131</y>
+    <width>15</width>
+    <height>15</height>
+    <line_color>
+      <color name="Transparent" red="255" green="255" blue="255" alpha="0">
+      </color>
+    </line_color>
+    <square>true</square>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+    <states>
+      <state>
+        <value>0</value>
+        <label></label>
+        <color>
+          <color name="OK" red="0" green="255" blue="0">
+          </color>
+        </color>
+      </state>
+      <state>
+        <value>1</value>
+        <label></label>
+        <color>
+          <color name="MINOR" red="255" green="128" blue="0">
+          </color>
+        </color>
+      </state>
+      <state>
+        <value>2</value>
+        <label></label>
+        <color>
+          <color name="MAJOR" red="255" green="0" blue="0">
+          </color>
+        </color>
+      </state>
+      <state>
+        <value>3</value>
+        <label></label>
+        <color>
+          <color name="INVALID" red="255" green="0" blue="255">
+          </color>
+        </color>
+      </state>
+      <state>
+        <value>4</value>
+        <label></label>
+        <color>
+          <color name="DISCONNECTED" red="200" green="0" blue="200" alpha="200">
+          </color>
+        </color>
+      </state>
+    </states>
   </widget>
 </display>

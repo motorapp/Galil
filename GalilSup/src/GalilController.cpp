@@ -431,11 +431,9 @@
 //                  Add GalilDummy.cpp to create the GalilSupport registrar entry for systems without C++11
 //                  Changed src/Makefile to build the real driver if HAVE_C++11 is true (the default) and the dummy driver if it is false.
 //                  Added CONFIG_SITE.Common.$(EPICS_HOST_ARCH) for a few systems that don't have C++11
-// 
 // 13/01/2025 M.Clift
 //                  Add acceleration capped at controller maximum for independent moves
 //                  Rename config/GALILRELEASE to config/RELEASE.local
-//
 // 16/01/2025 M.Clift
 //                  Fix unknown amplifier messages at ioc start when no controller
 // 17/01/2025 M.Clift
@@ -453,6 +451,20 @@
 //                  Fix multi-thread access condition causing segfault during controller reconnect in UDP mode
 // 06/05/2025 M.Clift, JHopkins
 //                  Add missing config/RELEASE.local
+// 27/09/2025 M.Clift, M.Rivers
+//                  Add internal amplifier status and fault reset
+// 27/09/2025 M.Clift
+//                  Add several stop code cases to internal stop mechanism
+//                  Minor optimizations to GalilController::getStatus
+// 05/10/2025 M.Rivers
+//                  Fix data record decoding of amplifier fault status
+//                  Update internal amplifer MEDM screen
+// 12/10/2025 M.Clift
+//                  Add block ST command through command console preventing accidental kill of all controller threads 
+//                  Fix some characters missing from unsolicited messages
+// 30/10/2025 M.Clift
+//                  Move config/RELEASE.local to configure/.  Remove config folder
+//                  Fault status colors altered (eg. moving, limits)
 
 #include <stdio.h>
 #include <math.h>
@@ -492,7 +504,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "4-0-22";
+static const char *driverVersion = "4-1-09";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);
@@ -641,6 +653,7 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilUserArrayUploadString, asynParamInt32, &GalilUserArrayUpload_);
   createParam(GalilUserArrayString, asynParamFloat64Array, &GalilUserArray_);
   createParam(GalilUserArrayNameString, asynParamOctet, &GalilUserArrayName_);
+  createParam(GalilClearAmpFaultsString, asynParamInt32, &GalilClearAmpFaults_);
 
   createParam(GalilOutputCompare1AxisString, asynParamInt32, &GalilOutputCompareAxis_);
   createParam(GalilOutputCompare1StartString, asynParamFloat64, &GalilOutputCompareStart_);
@@ -773,6 +786,14 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilAxisString, asynParamInt32, &GalilAxis_);
   createParam(GalilMotorVelocityEGUString, asynParamFloat64, &GalilMotorVelocityEGU_);
   createParam(GalilMotorVelocityRAWString, asynParamFloat64, &GalilMotorVelocityRAW_);
+
+  createParam(GalilMotorHallErrorStatusString, asynParamInt32, &GalilMotorHallErrorStatus_);
+  createParam(GalilMotorAtTorqueLimitStatusString, asynParamInt32, &GalilMotorAtTorqueLimitStatus_);
+  createParam(GalilAmpOverCurrentStatusString, asynParamInt32, &GalilAmpOverCurrentStatus_);
+  createParam(GalilAmpUnderVoltageStatusString, asynParamInt32, &GalilAmpUnderVoltageStatus_);
+  createParam(GalilAmpOverVoltageStatusString, asynParamInt32, &GalilAmpOverVoltageStatus_);
+  createParam(GalilAmpOverTemperatureStatusString, asynParamInt32, &GalilAmpOverTemperatureStatus_);
+  createParam(GalilAmpELOStatusString, asynParamInt32, &GalilAmpELOStatus_);
 
   createParam(GalilUserCmdString, asynParamFloat64, &GalilUserCmd_);
   createParam(GalilUserOctetString, asynParamOctet, &GalilUserOctet_);
@@ -1142,6 +1163,21 @@ void GalilController::setParamDefaults(void)
   //Default all forward kinematics to null strings
   for (i = MAX_GALIL_CSAXES; i < MAX_GALIL_AXES + MAX_GALIL_CSAXES; i++)
      setStringParam(i, GalilCSMotorForward_, "");
+
+  //Amplifier faults are yet to be acquired
+  for (i = 0; i < 2; i++) {
+     //Set the AD amplifier overcurrent status
+     setIntegerParam(i, GalilAmpOverCurrentStatus_, 0);
+     //Set the AD amplifier overvoltage status
+     setIntegerParam(i, GalilAmpOverVoltageStatus_, 0);
+     //Set the AD amplifier overtemperature status
+     setIntegerParam(i, GalilAmpOverTemperatureStatus_, 0);
+     //Set the AD amplifier overtemperature status
+     setIntegerParam(i, GalilAmpUnderVoltageStatus_, 0);
+     //Set the AD amplifier ELO status
+     setIntegerParam(i, GalilAmpELOStatus_, 0);
+  }
+
   //Default controller error message to null string
   setStringParam(0, GalilCtrlError_, "");
 }
@@ -4406,6 +4442,22 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
         pAxis->home(0, hvel, acceleration, (function == GalilHomr_) ? 0 : 1);
      }
   }
+  else if (function == GalilClearAmpFaults_) {
+     //Controller must be 40xx or 41xx series
+     if (model_[3] == '4' && (model_[4] == '0' || model_[4] == '1')) {
+        //Clear all latched amplifier errors
+        strcpy(cmd_, "AZ1");
+        status = sync_writeReadController();
+        if (asynSuccess != status) {
+           //Command failed, get error message from controller
+           strcpy(cmd_, "TC1");
+           if (asynSuccess == (status = sync_writeReadController())) {
+              //Set error message
+              setCtrlError(resp_);
+           }
+        }
+     }
+  }
   else {
      /* Call base class method */
      status = asynMotorController::writeInt32(pasynUser, value);
@@ -4569,6 +4621,7 @@ asynStatus GalilController::writeOctet(asynUser *pasynUser, const char*  value, 
   string mesg;					//Controller mesg
   GalilCSAxis *pCSAxis;				//Pointer to CSAxis instance
   int addr=0;					//Address requested
+  char *endptr;					//String to double conversion
 
   //Just return if shutting down
   if (shuttingDown_)
@@ -4597,36 +4650,46 @@ asynStatus GalilController::writeOctet(asynUser *pasynUser, const char*  value, 
         //Increase timeout for user command
         timeout_ = 3;
      }
-     //Send the user command	
-     epicsSnprintf(cmd_, sizeof(cmd_), "%s", value_s.c_str());
-     status = sync_writeReadController();
-     //User command complete, set timeout back to default 1
-     timeout_ = 1;
-     if (status == asynSuccess)
+
+     //Ensure operator doesn't accidently kill all threads
+     if (value_s.find("ST") == string::npos)
         {
-        //Set readback value(s) = response from controller
-        //String monitor
-        setStringParam(GalilUserOctet_, resp_);
-        //ai monitor
-        aivalue = atof(resp_);
-        setDoubleParam(0, GalilUserOctetVal_, aivalue);
-        //Determine if custom command had potential to alter controller time base
-        if (value_s.find("TM ") != string::npos)
+        //Send the user command
+        epicsSnprintf(cmd_, sizeof(cmd_), "%s", value_s.c_str());
+        status = sync_writeReadController();
+
+        //User command complete, set timeout back to default 1
+        timeout_ = 1;
+        if (status == asynSuccess)
            {
-           //Retrieve controller time base
-           sprintf(cmd_, "MG _TM");
-           if (sync_writeReadController() == asynSuccess)
-              timeMultiplier_ = DEFAULT_TIME / atof(resp_);
-           }
-        }
-     else
-        {
-        //User command failed, get error message from controller
-        strcpy(cmd_, "TC1");
-        if ( (status = sync_writeReadController()) == asynSuccess )
-           {
-           //Set readback value = response from controller
+           //Set readback value(s) = response from controller
+           //String monitor
            setStringParam(GalilUserOctet_, resp_);
+           //ai monitor
+           aivalue = strtod(resp_, &endptr);
+           //Check for conversion error
+           if (errno == 0 && *endptr == '\0') {
+              //Conversion ok, pass value on
+              setDoubleParam(0, GalilUserOctetVal_, aivalue);
+           }
+           //Determine if custom command had potential to alter controller time base
+           if (value_s.find("TM ") != string::npos)
+              {
+              //Retrieve controller time base
+              sprintf(cmd_, "MG _TM");
+              if (sync_writeReadController() == asynSuccess)
+                 timeMultiplier_ = DEFAULT_TIME / atof(resp_);
+              }
+           }
+        else
+           {
+           //User command failed, get error message from controller
+           strcpy(cmd_, "TC1");
+           if ( (status = sync_writeReadController()) == asynSuccess )
+              {
+              //Set readback value = response from controller
+              setStringParam(GalilUserOctet_, resp_);
+              }
            }
         }
      }
@@ -5172,7 +5235,8 @@ void GalilController::processUnsolicitedMesgs(void)
 //Return status of GalilController data record acquisition
 void GalilController::getStatus(void)
 {
-   char src[MAX_GALIL_STRING_SIZE];		//data source to retrieve
+   char src1[MAX_GALIL_STRING_SIZE];		//data source to retrieve
+   char src2[MAX_GALIL_STRING_SIZE];		//Two data sources per loop supported
    int addr;					//addr or byte of IO
    int start, end;				//start, and end of analog numbering for this controller
    double paramDouble;				//For passing asynFloat64 to ParamList
@@ -5187,20 +5251,23 @@ void GalilController::getStatus(void)
 
       //DMC30000 series only.
       if (model_[3] == '3') {
+         //Specify data source 1, digital input bit
+         strcpy(src1, "@IN[x]");
+         //Specify data source 2, digital output bit
+         strcpy(src2, "@OUT[x]");
          //First 8 input, and first 4 output bits only
          for (i = 1; i <= 8; i++) {
-            //Digital input bit
-            strcpy(src, "@IN[x]");
-            src[4] = i + ZEROASCII;
-            paramUDig = (unsigned)sourceValue(recdata_, src);
+            //Specify input bit
+            src1[4] = i + ZEROASCII;
+            paramUDig = (unsigned)sourceValue(recdata_, src1);
             in += paramUDig << (i - 1);
             //Digital output bits
             if (i <= 4) {
                //Database records are arranged by word
                //ValueMask = 0xFFFF because a word is 16 bits
-               strcpy(src, "@OUT[x]");
-               src[5] = i + ZEROASCII;
-               paramUDig = (unsigned)sourceValue(recdata_, src);
+               //Specify output bit
+               src2[5] = i + ZEROASCII;
+               paramUDig = (unsigned)sourceValue(recdata_, src2);
                out += paramUDig << (i - 1);
             }
          }//For
@@ -5225,10 +5292,12 @@ void GalilController::getStatus(void)
       else {
          //for all models except DMC30000 series
          //digital inputs in banks of 8 bits for all models except DMC30000 series
+         //Specify source 1, digital input byte
+         strcpy(src1, "_TIx");
          for (addr=0;addr<BINARYIN_BYTES;addr++) {
-            strcpy(src, "_TIx");
-            src[3] = addr + ZEROASCII;
-            paramUDig = (unsigned)sourceValue(recdata_, src);
+            //Specify byte
+            src1[3] = addr + ZEROASCII;
+            paramUDig = (unsigned)sourceValue(recdata_, src1);
             //ValueMask = 0xFF because a byte is 8 bits
             if (!digInitialUpdate_) {
                //Forced callbacks even if no value change
@@ -5240,10 +5309,12 @@ void GalilController::getStatus(void)
             }
          }//For
 	 //data record has digital outputs in banks of 16 bits for dmc, 8 bits for rio
+         //Specify source 1, digital output byte
+         strcpy(src1, "_OPx");
 	 for (addr=0;addr<BINARYOUT_WORDS;addr++) {
-            strcpy(src, "_OPx");
-            src[3] = addr + ZEROASCII;
-            paramUDig = (unsigned)sourceValue(recdata_, src);
+	    //Specify byte
+            src1[3] = addr + ZEROASCII;
+            paramUDig = (unsigned)sourceValue(recdata_, src1);
             if (!digInitialUpdate_) {
                //Forced callbacks even if no value change
                setUIntDigitalParam(addr, GalilBinaryOutRBV_, paramUDig, 0xFFFF, 0xFFFF );
@@ -5264,20 +5335,22 @@ void GalilController::getStatus(void)
       start = (rio_) ? 0 : 1;
       end = ANALOG_PORTS + start;
 
+      //Specify source 1, analog input
+      strcpy(src1, "@AN[x]");
+      //Specify source 2, analog output readback
+      strcpy(src2, "@AO[x]");
       for (addr = start;addr < end;addr++) {
-         //Analog inputs
-         strcpy(src, "@AN[x]");
-         src[4] = addr + ZEROASCII;
-         paramDouble = (double)sourceValue(recdata_, src);
+         //Specify analog input number
+         src1[4] = addr + ZEROASCII;
+         paramDouble = (double)sourceValue(recdata_, src1);
          if ((paramDouble < (analogInPosted_[addr] - analogIndeadb_[addr])) || (paramDouble > (analogInPosted_[addr] + analogIndeadb_[addr]))) {
             setDoubleParam(addr, GalilAnalogIn_, paramDouble);
             analogInPosted_[addr] = paramDouble;
          }
          if (rio_ || model_[3] == '3') {
-            //Analog output readbacks
-            strcpy(src, "@AO[x]");
-            src[4] = addr + ZEROASCII;
-            paramDouble = (double)sourceValue(recdata_, src);
+            //Specify analog output number
+            src2[4] = addr + ZEROASCII;
+            paramDouble = (double)sourceValue(recdata_, src2);
             if ((paramDouble < (analogOutRbvPosted_[addr] - analogOutRBVdeadb_[addr])) || (paramDouble > (analogOutRbvPosted_[addr] + analogOutRBVdeadb_[addr]))) {
                setDoubleParam(addr, GalilAnalogOutRBV_, paramDouble);
                analogOutRbvPosted_[addr] = paramDouble;
@@ -5289,17 +5362,42 @@ void GalilController::getStatus(void)
       processUnsolicitedMesgs();
 
       //Coordinate system status
+      //Specify source 1, coordinate system move status
+      strcpy(src1, "_BGx");
+      //Specify source 2, coordinate system segment count
+      strcpy(src2, "_CSx");
       for (addr=0;addr<COORDINATE_SYSTEMS;addr++) {
-         //Move/done status
-         strcpy(src, "_BGx");
-         src[3] = (addr) ? 'T' : 'S';
-         setIntegerParam(addr, GalilCoordSysMoving_, (int)sourceValue(recdata_, src));
-
-         //Segment count
-         strcpy(src, "_CSx");
-         src[3] = (addr) ? 'T' : 'S';
-         setIntegerParam(addr, GalilCoordSysSegments_, (int)sourceValue(recdata_, src));
+         //Specify coordinate system S or T to acquire move status from
+         src1[3] = (addr) ? 'T' : 'S';
+         setIntegerParam(addr, GalilCoordSysMoving_, (int)sourceValue(recdata_, src1));
+         //Specify coordinate system S or T to acquire segment count from
+         src2[3] = (addr) ? 'T' : 'S';
+         setIntegerParam(addr, GalilCoordSysSegments_, (int)sourceValue(recdata_, src2));
       } //For
+
+      //40xx and 41xx series, obtain internal amplifier fault status
+      if (model_[3] == '4' && (model_[4] == '0' || model_[4] == '1')) {
+         //Set the AD amplifier overcurrent status
+         setIntegerParam(0, GalilAmpOverCurrentStatus_, (int)sourceValue(recdata_, "TA00"));
+         //Set the AD amplifier overvoltage status
+         setIntegerParam(0, GalilAmpOverVoltageStatus_, (int)sourceValue(recdata_, "TA01"));
+         //Set the AD amplifier overtemperature status
+         setIntegerParam(0, GalilAmpOverTemperatureStatus_, (int)sourceValue(recdata_, "TA02"));
+         //Set the AD amplifier overtemperature status
+         setIntegerParam(0, GalilAmpUnderVoltageStatus_, (int)sourceValue(recdata_, "TA03"));
+         //Set the AD amplifier overcurrent status
+         setIntegerParam(1, GalilAmpOverCurrentStatus_, (int)sourceValue(recdata_, "TA04"));
+         //Set the AD amplifier overvoltage status
+         setIntegerParam(1, GalilAmpOverVoltageStatus_, (int)sourceValue(recdata_, "TA05"));
+         //Set the AD amplifier overtemperature status
+         setIntegerParam(1, GalilAmpOverTemperatureStatus_, (int)sourceValue(recdata_, "TA06"));
+         //Set the AD amplifier overtemperature status
+         setIntegerParam(1, GalilAmpUnderVoltageStatus_, (int)sourceValue(recdata_, "TA07"));
+         //Set the AD amplifier ELO status
+         setIntegerParam(0, GalilAmpELOStatus_, (int)sourceValue(recdata_, "TA3AD"));
+         //Set the EH amplifier ELO status
+         setIntegerParam(1, GalilAmpELOStatus_, (int)sourceValue(recdata_, "TA3EH"));
+      }
    } //connected_
 }
 
@@ -5333,13 +5431,14 @@ asynStatus GalilController::sendUnsolicitedMessage(char *mesg)
 }
 
 //Below function supplied for Cygwin, MingGw
-bool GalilController::my_isascii(int c)
+bool GalilController::isprintable(int c)
 {
-   if (c == 10 || c == 13 || (c >= 48 && c <= 57) || (c >= 65 && c <= 90) ||
-       (c >= 97 && c <= 122) || c == 32 || c == 46)
+   if ((10 == c) || (13 == c) || (0 != isprint(c))) {
+      //Character is printable
       return true;
-   else
-      return false;
+   }
+   //Character not printable
+   return false;
 }
 
 /** Reads a binary data record from the controller
@@ -5425,7 +5524,7 @@ asynStatus GalilController::readDataRecord(char *input, unsigned bytesize)
                  {
                  //Extract unsolictied message
                  value = (unsigned char)(input[i] - 0x80);
-                 if (((input[i] & 0x80) == 0x80) && (my_isascii((int)value)))
+                 if (((input[i] & 0x80) == 0x80) && (isprintable((int)value)))
                     {
                     //Byte looks like an unsolicited packet
                     //Check for overrun
@@ -5660,7 +5759,7 @@ asynStatus GalilController::sync_writeReadController(const char *output, char *i
               //Split received byte stream into solicited, and unsolicited messages
               //Unsolicited messages are received here only in synchronous mode
               value = (unsigned char)buf[i] - 128;
-              if (((buf[i] & 0x80) == 0x80) && (my_isascii((int)value)))
+              if (((buf[i] & 0x80) == 0x80) && (isprintable((int)value)))
                  {
                  //Byte looks like an unsolicited packet
                  //Check for overrun
@@ -7228,35 +7327,35 @@ void GalilController::Init4000(int axes)
 	map["NO7"] = Source(51, "UB", 7, "Boolean", "Thread 7 running");
 
 	//Amplifier error status
-	map["TA00"] = Source(52, "UB", 0, "Boolean", "Axis A-D over current");
-	map["TA01"] = Source(52, "UB", 1, "Boolean", "Axis A-D over voltage");
-	map["TA02"] = Source(52, "UB", 2, "Boolean", "Axis A-D over temperature");
-	map["TA03"] = Source(52, "UB", 3, "Boolean", "Axis A-D under voltage");
-	map["TA04"] = Source(52, "UB", 4, "Boolean", "Axis E-H over current");
-	map["TA05"] = Source(52, "UB", 5, "Boolean", "Axis E-H over voltage");
-	map["TA06"] = Source(52, "UB", 6, "Boolean", "Axis E-H over temperature");
-	map["TA07"] = Source(52, "UB", 7, "Boolean", "Axis E-H under voltage");
+	map["TA3AD"] = Source(52, "UB", 0, "Boolean", "Axis A-D ELO active");
+	map["TA3EH"] = Source(52, "UB", 1, "Boolean", "Axis E-H ELO active");
 
-	map["TA1A"] = Source(53, "UB", 0, "Boolean", "Axis A hall error");
-	map["TA1B"] = Source(53, "UB", 1, "Boolean", "Axis B hall error");
-	map["TA1C"] = Source(53, "UB", 2, "Boolean", "Axis C hall error");
-	map["TA1D"] = Source(53, "UB", 3, "Boolean", "Axis D hall error");
-	map["TA1E"] = Source(53, "UB", 4, "Boolean", "Axis E hall error");
-	map["TA1F"] = Source(53, "UB", 5, "Boolean", "Axis F hall error");
-	map["TA1G"] = Source(53, "UB", 6, "Boolean", "Axis G hall error");
-	map["TA1H"] = Source(53, "UB", 7, "Boolean", "Axis H hall error");
+	map["TA2A"] = Source(53, "UB", 0, "Boolean", "Axis A at _TKA peak current");
+	map["TA2B"] = Source(53, "UB", 1, "Boolean", "Axis B at _TKB peak current");
+	map["TA2C"] = Source(53, "UB", 2, "Boolean", "Axis C at _TVC peak current");
+	map["TA2D"] = Source(53, "UB", 3, "Boolean", "Axis D at _TKD peak current");
+	map["TA2E"] = Source(53, "UB", 4, "Boolean", "Axis E at _TKE peak current");
+	map["TA2F"] = Source(53, "UB", 5, "Boolean", "Axis F at _TKF peak current");
+	map["TA2G"] = Source(53, "UB", 6, "Boolean", "Axis G at _TKG peak current");
+	map["TA2H"] = Source(53, "UB", 7, "Boolean", "Axis H at _TKH peak current");
 
-	map["TA2A"] = Source(54, "UB", 0, "Boolean", "Axis A at _TKA peak current");
-	map["TA2B"] = Source(54, "UB", 1, "Boolean", "Axis B at _TKB peak current");
-	map["TA2C"] = Source(54, "UB", 2, "Boolean", "Axis C at _TVC peak current");
-	map["TA2D"] = Source(54, "UB", 3, "Boolean", "Axis D at _TKD peak current");
-	map["TA2E"] = Source(54, "UB", 4, "Boolean", "Axis E at _TKE peak current");
-	map["TA2F"] = Source(54, "UB", 5, "Boolean", "Axis F at _TKF peak current");
-	map["TA2G"] = Source(54, "UB", 6, "Boolean", "Axis G at _TKG peak current");
-	map["TA2H"] = Source(54, "UB", 7, "Boolean", "Axis H at _TKH peak current");
+	map["TA1A"] = Source(54, "UB", 0, "Boolean", "Axis A hall error");
+	map["TA1B"] = Source(54, "UB", 1, "Boolean", "Axis B hall error");
+	map["TA1C"] = Source(54, "UB", 2, "Boolean", "Axis C hall error");
+	map["TA1D"] = Source(54, "UB", 3, "Boolean", "Axis D hall error");
+	map["TA1E"] = Source(54, "UB", 4, "Boolean", "Axis E hall error");
+	map["TA1F"] = Source(54, "UB", 5, "Boolean", "Axis F hall error");
+	map["TA1G"] = Source(54, "UB", 6, "Boolean", "Axis G hall error");
+	map["TA1H"] = Source(54, "UB", 7, "Boolean", "Axis H hall error");
 
-	map["TA3AD"] = Source(55, "UB", 0, "Boolean", "Axis A-D ELO active");
-	map["TA3EH"] = Source(55, "UB", 1, "Boolean", "Axis E-H ELO active");
+	map["TA00"] = Source(55, "UB", 0, "Boolean", "Axis A-D over current");
+	map["TA01"] = Source(55, "UB", 1, "Boolean", "Axis A-D over voltage");
+	map["TA02"] = Source(55, "UB", 2, "Boolean", "Axis A-D over temperature");
+	map["TA03"] = Source(55, "UB", 3, "Boolean", "Axis A-D under voltage");
+	map["TA04"] = Source(55, "UB", 4, "Boolean", "Axis E-H over current");
+	map["TA05"] = Source(55, "UB", 5, "Boolean", "Axis E-H over voltage");
+	map["TA06"] = Source(55, "UB", 6, "Boolean", "Axis E-H over temperature");
+	map["TA07"] = Source(55, "UB", 7, "Boolean", "Axis E-H under voltage");
 
 	//contour mode
 	map["CD"] = Source(56, "UL", -1, "segments", "Contour segment count");

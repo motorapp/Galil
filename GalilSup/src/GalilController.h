@@ -111,6 +111,8 @@
 #define GalilUserArrayString		"CONTROLLER_UARRAY"
 #define GalilUserArrayNameString	"CONTROLLER_UARRAY_NAME"
 
+#define GalilClearAmpFaultsString       "CONTROLLER_CLEARAMPFAULTS"
+
 #define GalilOutputCompare1AxisString	"OUTPUT_COMPARE_AXIS"
 #define GalilOutputCompare1StartString	"OUTPUT_COMPARE_START"
 #define GalilOutputCompare1IncrString	"OUTPUT_COMPARE_INCR"
@@ -229,6 +231,15 @@
 #define GalilAxisString			"MOTOR_AXIS"
 #define GalilMotorVelocityEGUString  	"MOTOR_VELOCITY_EGU"
 #define GalilMotorVelocityRAWString  	"MOTOR_VELOCITY_RAW"
+
+#define GalilMotorHallErrorStatusString "MOTOR_HALLERROR_STATUS"
+#define GalilMotorAtTorqueLimitStatusString "MOTOR_ATTORQUELIMIT_STATUS"
+
+#define GalilAmpOverCurrentStatusString     "AMP_OVERCURRENT_STATUS"
+#define GalilAmpUnderVoltageStatusString    "AMP_UNDERVOLTAGE_STATUS"
+#define GalilAmpOverVoltageStatusString     "AMP_OVERVOLTAGE_STATUS"
+#define GalilAmpOverTemperatureStatusString "AMP_OVERTEMPERATURE_STATUS"
+#define GalilAmpELOStatusString             "AMP_ELO_STATUS"
 
 #define GalilUserCmdString		"USER_CMD"
 #define GalilUserOctetString		"USER_OCTET"
@@ -367,7 +378,7 @@ public:
   asynStatus sync_writeReadController(bool testQuery = false, bool logCommand = true);
 
   asynStatus sendUnsolicitedMessage(char *mesg);
-  bool my_isascii(int c);
+  bool isprintable(int c);
   asynStatus arrayUpload(void);
   asynStatus programUpload(string *prog);
   asynStatus programDownload(const string prog);
@@ -528,6 +539,7 @@ protected:
   int GalilUserArrayUpload_;
   int GalilUserArray_;
   int GalilUserArrayName_;
+  int GalilClearAmpFaults_;
 
   int GalilOutputCompareAxis_;
   int GalilOutputCompareStart_;
@@ -643,6 +655,14 @@ protected:
   int GalilAxis_;
   int GalilMotorVelocityEGU_;
   int GalilMotorVelocityRAW_;
+  int GalilMotorHallErrorStatus_;
+  int GalilMotorAtTorqueLimitStatus_;
+  int GalilAmpOverCurrentStatus_;
+  int GalilAmpUnderVoltageStatus_;
+  int GalilAmpOverVoltageStatus_;
+  int GalilAmpOverTemperatureStatus_;
+  int GalilAmpELOStatus_;
+
   int GalilUserCmd_;
   int GalilUserOctet_;
   int GalilUserOctetVal_;
@@ -676,7 +696,7 @@ private:
   int digvalues_;			//Digital port interrupt values
   bool digInitialUpdate_;		//Digital port initial update
 
-  int ampModel_[2];                     // Model number of amplifier on channels A-D [0] and A-H [1]
+  int ampModel_[2];                     // Model number of amplifier on channels A-D [0] and E-H [1]
 
   bool rio_;				//Is controller a RIO
   char code_file_[MAX_FILENAME_LEN];	//Code file(s) that user gave to GalilStartController
