@@ -462,6 +462,9 @@
 // 12/10/2025 M.Clift
 //                  Add block ST command through command console preventing accidental kill of all controller threads 
 //                  Fix some characters missing from unsolicited messages
+// 30/10/2025 M.Clift
+//                  Move config/RELEASE.local to configure/.  Remove config folder
+//                  Fault status colors altered (eg. moving, limits)
 
 #include <stdio.h>
 #include <math.h>
@@ -501,7 +504,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "4-1-07";
+static const char *driverVersion = "4-1-09";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);
