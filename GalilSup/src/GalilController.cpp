@@ -465,6 +465,8 @@
 // 30/10/2025 M.Clift
 //                  Move config/RELEASE.local to configure/.  Remove config folder
 //                  Fault status colors altered (eg. moving, limits)
+// 01/11/2025 M.Rivers
+//                  Fix segmentation fault on controller reconnect
 
 #include <stdio.h>
 #include <math.h>
@@ -504,7 +506,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "4-1-09";
+static const char *driverVersion = "4-1-10";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);
