@@ -3120,8 +3120,8 @@ menuLabel {
   2 "All extras"
 }
 symbols {
-  0 "P=$(DMC),M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8)"
-  1 "P=$(DMC),M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8)"
+  0 "P=$(DMC),M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8),AMP1=$(AMP1),AMP2=$(AMP2)"
+  1 "P=$(DMC),M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8),AMP1=$(AMP1),AMP2=$(AMP2)"
   2 "P=$(DMC),M1=$(M1),M2=$(M2),M3=$(M3),M4=$(M4),M5=$(M5),M6=$(M6),M7=$(M7),M8=$(M8)"
 }
 replaceSymbols {
