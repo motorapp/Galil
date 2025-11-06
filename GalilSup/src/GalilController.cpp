@@ -5050,9 +5050,9 @@ void GalilController::enumRowCallback(unsigned ampNum, int reason, const enumStr
   char *strings[MAX_ENUM_ROWS];
   int values[MAX_ENUM_ROWS];
   int severities[MAX_ENUM_ROWS];
-  // Tranlate pEnum enumStruct_t into strings, values, severities for callback
+  // Translate pEnum enumStruct_t into arrays of strings, values, severities for callback
   for (i = 0; ((i < nElements) && (i < MAX_ENUM_ROWS)); i++) {
-    strings[i] = epicsStrDup(pEnum[i].enumString);
+    strings[i] = (char *)pEnum[i].enumString;
     values[i] = pEnum[i].enumValue;
     severities[i] = 0;
   }
