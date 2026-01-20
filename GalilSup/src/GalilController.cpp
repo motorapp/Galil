@@ -469,6 +469,8 @@
 //                  Fix segmentation fault on controller reconnect
 // 06/11/2025 M.Rivers
 //                  Improve fix segmentation fault on controller reconnect
+// 20/01/2026 M.Clift
+//                  Update screen start scripts.  Update comments in DMC01Configure.cmd and DMC01CreateMonitorSet.cmd
 
 
 #include <stdio.h>
@@ -509,7 +511,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "4-1-11";
+static const char *driverVersion = "4-1-12";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);

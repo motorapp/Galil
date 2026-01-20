@@ -10,7 +10,8 @@ epicsEnvSet("PORT", "DMC01")
 ##################################################################################################
 # Derived configuration settings
 
-# Record prefix derived from asyn port name
+# Record prefix
+# currently derived from asyn port name - but can be changed manually
 epicsEnvSet("P", "$(PORT):")
 
 ##################################################################################################
