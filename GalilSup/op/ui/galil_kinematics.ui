@@ -234,6 +234,9 @@
             <property name="variable" stdset="0">
              <string>$(DMC)$(M9)_FTRANSFORM_SP</string>
             </property>
+            <property name="format" stdset="0">
+             <enum>QE::String</enum>
+            </property>
            </widget>
           </item>
          </layout>
@@ -368,6 +371,9 @@
             </property>
             <property name="variable" stdset="0">
              <string>$(DMC)$(M10)_FTRANSFORM_SP</string>
+            </property>
+            <property name="format" stdset="0">
+             <enum>QE::String</enum>
             </property>
            </widget>
           </item>
@@ -504,6 +510,9 @@
             <property name="variable" stdset="0">
              <string>$(DMC)$(M11)_FTRANSFORM_SP</string>
             </property>
+            <property name="format" stdset="0">
+             <enum>QE::String</enum>
+            </property>
            </widget>
           </item>
          </layout>
@@ -638,6 +647,9 @@
             </property>
             <property name="variable" stdset="0">
              <string>$(DMC)$(M12)_FTRANSFORM_SP</string>
+            </property>
+            <property name="format" stdset="0">
+             <enum>QE::String</enum>
             </property>
            </widget>
           </item>
@@ -774,6 +786,9 @@
             <property name="variable" stdset="0">
              <string>$(DMC)$(M13)_FTRANSFORM_SP</string>
             </property>
+            <property name="format" stdset="0">
+             <enum>QE::String</enum>
+            </property>
            </widget>
           </item>
          </layout>
@@ -908,6 +923,9 @@
             </property>
             <property name="variable" stdset="0">
              <string>$(DMC)$(M14)_FTRANSFORM_SP</string>
+            </property>
+            <property name="format" stdset="0">
+             <enum>QE::String</enum>
             </property>
            </widget>
           </item>
@@ -1044,6 +1062,9 @@
             <property name="variable" stdset="0">
              <string>$(DMC)$(M15)_FTRANSFORM_SP</string>
             </property>
+            <property name="format" stdset="0">
+             <enum>QE::String</enum>
+            </property>
            </widget>
           </item>
          </layout>
@@ -1178,6 +1199,9 @@
             </property>
             <property name="variable" stdset="0">
              <string>$(DMC)$(M16)_FTRANSFORM_SP</string>
+            </property>
+            <property name="format" stdset="0">
+             <enum>QE::String</enum>
             </property>
            </widget>
           </item>
