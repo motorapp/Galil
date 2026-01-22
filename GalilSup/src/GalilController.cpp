@@ -471,7 +471,8 @@
 //                  Improve fix segmentation fault on controller reconnect
 // 20/01/2026 M.Clift
 //                  Update screen start scripts.  Update comments in DMC01Configure.cmd and DMC01CreateMonitorSet.cmd
-
+// 22/01/2026 A.Al-Dalleh
+//                  Changed textbox format to string in F and R kinematics UI
 
 #include <stdio.h>
 #include <math.h>
@@ -511,7 +512,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "4-1-12";
+static const char *driverVersion = "4-1-13";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);
