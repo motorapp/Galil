@@ -138,6 +138,9 @@
          <property name="variable" stdset="0">
           <string>$(DMC)$(M)_RTRANSFORM$(M1)_SP</string>
          </property>
+         <property name="format" stdset="0">
+          <enum>QE::String</enum>
+         </property>
         </widget>
        </item>
       </layout>
@@ -260,6 +263,9 @@
          </property>
          <property name="variable" stdset="0">
           <string>$(DMC)$(M)_RTRANSFORM$(M2)_SP</string>
+         </property>
+         <property name="format" stdset="0">
+          <enum>QE::String</enum>
          </property>
         </widget>
        </item>
@@ -384,6 +390,9 @@
          <property name="variable" stdset="0">
           <string>$(DMC)$(M)_RTRANSFORM$(M3)_SP</string>
          </property>
+         <property name="format" stdset="0">
+          <enum>QE::String</enum>
+         </property>
         </widget>
        </item>
       </layout>
@@ -506,6 +515,9 @@
          </property>
          <property name="variable" stdset="0">
           <string>$(DMC)$(M)_RTRANSFORM$(M4)_SP</string>
+         </property>
+         <property name="format" stdset="0">
+          <enum>QE::String</enum>
          </property>
         </widget>
        </item>
@@ -630,6 +642,9 @@
          <property name="variable" stdset="0">
           <string>$(DMC)$(M)_RTRANSFORM$(M5)_SP</string>
          </property>
+         <property name="format" stdset="0">
+          <enum>QE::String</enum>
+         </property>
         </widget>
        </item>
       </layout>
@@ -752,6 +767,9 @@
          </property>
          <property name="variable" stdset="0">
           <string>$(DMC)$(M)_RTRANSFORM$(M6)_SP</string>
+         </property>
+         <property name="format" stdset="0">
+          <enum>QE::String</enum>
          </property>
         </widget>
        </item>
@@ -876,6 +894,9 @@
          <property name="variable" stdset="0">
           <string>$(DMC)$(M)_RTRANSFORM$(M7)_SP</string>
          </property>
+         <property name="format" stdset="0">
+          <enum>QE::String</enum>
+         </property>
         </widget>
        </item>
       </layout>
@@ -998,6 +1019,9 @@
          </property>
          <property name="variable" stdset="0">
           <string>$(DMC)$(M)_RTRANSFORM$(M8)_SP</string>
+         </property>
+         <property name="format" stdset="0">
+          <enum>QE::String</enum>
          </property>
         </widget>
        </item>
