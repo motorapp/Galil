@@ -4122,7 +4122,7 @@ border-radius: 2px;
                 <string>motor8x.ui ;galil_amp_8.ui ;galil_extras_8.ui </string>
             </property>
             <property name="args">
-                <string>P=$(DMC), M1=$(M1), M2=$(M2), M3=$(M3), M4=$(M4), M5=$(M5), M6=$(M6), M7=$(M7), M8=$(M8);P=$(DMC), M1=$(M1), M2=$(M2), M3=$(M3), M4=$(M4), M5=$(M5), M6=$(M6), M7=$(M7), M8=$(M8);P=$(DMC), M1=$(M1), M2=$(M2), M3=$(M3), M4=$(M4), M5=$(M5), M6=$(M6), M7=$(M7), M8=$(M8)</string>
+                <string>P=$(DMC), M1=$(M1), M2=$(M2), M3=$(M3), M4=$(M4), M5=$(M5), M6=$(M6), M7=$(M7), M8=$(M8), AMP1=$(AMP1), AMP2=$(AMP2);P=$(DMC), M1=$(M1), M2=$(M2), M3=$(M3), M4=$(M4), M5=$(M5), M6=$(M6), M7=$(M7), M8=$(M8), AMP1=$(AMP1), AMP2=$(AMP2);P=$(DMC), M1=$(M1), M2=$(M2), M3=$(M3), M4=$(M4), M5=$(M5), M6=$(M6), M7=$(M7), M8=$(M8)</string>
             </property>
             <property name="removeParent">
                 <string>false;false;false</string>
