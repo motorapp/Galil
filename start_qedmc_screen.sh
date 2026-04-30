@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #From config/MASTER_RELEASE extract paths to modules that provide qegui screens
-export galilpath=`grep "GALIL" config/RELEASE.local | cut -d'=' -f2`
+export galilpath=`grep "GALIL" configure/RELEASE.local | cut -d'=' -f2`
 
 #From module top, add offset path to qegui screens
 export galilpath=$galilpath/GalilSup/op/ui

@@ -3,6 +3,10 @@
 
 ASYN based EPICS driver for Galil products
 
+# Galil EPICS IOC User's Guide
+
+https://als-controls.github.io/galil-epics-ioc-guide/
+
 # Notes
 
 ### Firmware requirements
