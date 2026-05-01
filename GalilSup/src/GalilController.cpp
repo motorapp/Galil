@@ -1578,7 +1578,7 @@ bool GalilController::motorsAtStart(double startp[])
      //Calculate readback in user coordinates
      readback = (ueip) ? (epos * eres * dirm) + off : (mpos * mres * dirm) + off;
      //Calculate the motor start position in user coordinates
-     start = (startp[axisNo] * mres * dirm) + off;
+     start = (startp[i] * mres * dirm) + off;
      //Determine result
      if ((!moving && dmov && (readback < (start - rdbd))) || (!moving && dmov && (readback > (start + rdbd))) ||
          (!moving && (rev || fwd))) {

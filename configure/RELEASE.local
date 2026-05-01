@@ -1,10 +1,14 @@
-EPICS_BASE=/epics/base-7.0.6.1
-AUTOSAVE=/epics/autosave-R5-11
-SNCSEQ=/epics/sequencer-R2-2-9
-SSCAN=/epics/sscan-R2-11-6
-CALC=/epics/calc-R3-7-5
-ASYN=/epics/asyn-R4-44-2
-BUSY=/epics/busy-R1-7-4
-MOTOR=/epics/motor-R7-3-1
-GALIL=/home/ics/git/Galil
-IPAC=/epics/ipac-2-16
+EPICS_BASE=/corvette/usr/local/epics/base-7.0.10
+SUPPORT=/corvette/home/epics/support
+AUTOSAVE=$(SUPPORT)/autosave-5-10-2
+SNCSEQ=$(SUPPORT)/seq-2-2-9
+SSCAN=$(SUPPORT)/sscan-2-11-5
+CALC=$(SUPPORT)/calc-3-7-4
+ASYN=$(SUPPORT)/asyn-4-44-2
+BUSY=$(SUPPORT)/busy-1-7-3
+MOTOR=$(SUPPORT)/motor-7-3
+GALIL=$(SUPPORT)/Galil-4-0-2
+IPAC=$(SUPPORT)/ipac-2-16
+-include $(TOP)/../RELEASE.local
+-include $(TOP)/../RELEASE.$(EPICS_HOST_ARCH).local
+
