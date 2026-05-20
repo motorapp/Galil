@@ -1584,14 +1584,16 @@ asynStatus GalilAxis::setBrake(bool enable)
   status = pC_->getIntegerParam(axisNo_, pC_->GalilBrakePort_, &brakeport);
   //Enable or disable motor brake
   if (axisReady_ && brakeport > 0 && !status)
-     {
-     if (!enable)
-        sprintf(pC_->cmd_, "SB %d", brakeport);
-     else
-        sprintf(pC_->cmd_, "CB %d", brakeport);
-     //Write setting to controller
-     status = pC_->sync_writeReadController();
-     }
+  {
+    // If the motor is disconnected (both limits are active), do not release the brake.
+    if (!enable && !(fwd_ && rev_))
+      sprintf(pC_->cmd_, "SB %d", brakeport);
+    else
+      sprintf(pC_->cmd_, "CB %d", brakeport);
+      
+      //Write setting to controller
+      status = pC_->sync_writeReadController();
+  }
   return status;
 }
 
