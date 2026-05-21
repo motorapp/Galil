@@ -1579,19 +1579,29 @@ asynStatus GalilAxis::initializeProfile(size_t maxProfilePoints)
 asynStatus GalilAxis::setBrake(bool enable)
 {
   asynStatus status = asynSuccess;
-  int brakeport;
-  //Retrieve the digital port used to actuate this axis brake
+  int brakeport = 0;
+  int motorConnected = 0;
+  
+  // Retrieve the digital port used to actuate this axis brake
   status = pC_->getIntegerParam(axisNo_, pC_->GalilBrakePort_, &brakeport);
-  //Enable or disable motor brake
-  if (axisReady_ && brakeport > 0 && !status)
+  if (status != asynSuccess)
+	return status;
+
+  // Retrieve the axis connected status;
+  status = pC_->getIntegerParam(axisNo_, pC_->GalilMotorConnected_, &motorConnected);
+  if (status != asynSuccess)
+	return status;
+
+  // Enable or disable motor brake
+  if (axisReady_ && brakeport > 0)
   {
-    // If the motor is disconnected (both limits are active), do not release the brake.
-    if (!enable && !(fwd_ && rev_))
+	// Check if motorConnected to release the brake.
+    if (!enable && motorConnected)
       sprintf(pC_->cmd_, "SB %d", brakeport);
     else
       sprintf(pC_->cmd_, "CB %d", brakeport);
       
-      //Write setting to controller
+      // Write setting to controller
       status = pC_->sync_writeReadController();
   }
   return status;
