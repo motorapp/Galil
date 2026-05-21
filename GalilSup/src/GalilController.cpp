@@ -473,6 +473,10 @@
 //                  Update screen start scripts.  Update comments in DMC01Configure.cmd and DMC01CreateMonitorSet.cmd
 // 22/01/2026 A.Al-Dalleh
 //                  Changed textbox format to string in F and R kinematics UI
+// 01/05/2026 M. Rivers
+//                  Fix motorsAtStart startp index.  motorsAtStart was looking at the wrong index when checking if motors were at start
+// 21/05/2026 A.Al-Dalleh
+//                  Alter GalilAxis::setBrake so the brake is only released on connected motors
 
 #include <stdio.h>
 #include <math.h>
@@ -512,7 +516,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "4-1-13";
+static const char *driverVersion = "4-1-15";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);
