@@ -82,9 +82,9 @@ GalilCreateController("$(PORT)", "$(ADDRESS)", "$(UPDPERIOD)")
 # GalilCreateAxis command parameters are:
 #
 # 1. char *portName Asyn port for controller
-# 2. char  axis A-H,
+# 2. char  axis A-H
 # 3. char  *Motor interlock digital port number 1 to 8 eg. "1,2,4".  1st 8 bits are supported
-# 4. int   Interlock switch type 0 active when opto active, all other values switch type active when opto inactive
+# 4. int   Interlock switch type 0 normally open, all other values is normally closed interlock switch type
 
 # Create the axis
 GalilCreateAxis("$(PORT)","A","",1)
