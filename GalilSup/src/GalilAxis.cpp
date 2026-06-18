@@ -2046,6 +2046,8 @@ void GalilAxis::checkEncoder(void)
             double sc_code = getGalilAxisVal("_SC");
             // get axis moving state
             double bg_code = getGalilAxisVal("_BG");
+            // in case we are homing record hjog
+            int hjog_code = getGalilAxisVal("hjog");
             //Pass stall status to higher layers
             setIntegerParam(pC_->motorStatusSlip_, 1);
             //Set the stop reason so limit deceleration is applied during stop
@@ -2058,7 +2060,7 @@ void GalilAxis::checkEncoder(void)
             sprintf(message, "Encoder stall stop motor %c", axisName_);
             //Set controller error mesg monitor
             pC_->setCtrlError(message);
-            std::cerr << "STALL: pestall_time=" << pestall_time << " (>" << estall_time << ") encoderMove_=" << encoderMove_ << " encDirOk_=" << encDirOk_ << " _SC" << axisName_ << "=" << sc_code << " [" << lookupStopCode((int)sc_code) << "] _BG" << axisName_ << "=" << bg_code << std::endl;
+            std::cerr << "STALL: pestall_time=" << pestall_time << " (>" << estall_time << ") encoderMove_=" << encoderMove_ << " encDirOk_=" << encDirOk_ << " _SC" << axisName_ << "=" << sc_code << " [" << lookupStopCode((int)sc_code) << "] _BG" << axisName_ << "=" << bg_code << " hjog" << axisName_ << "=" << hjog_code << std::endl;
             }
          }
       }
