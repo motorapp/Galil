@@ -101,22 +101,14 @@ GalilCreateAxis("$(PORT)","H","",1)
 # 1. char *portName Asyn port for controller
 # 2. int section = code section to add custom code into 0 = card code, 1 = thread code, 2 = limits code, 3 = digital code
 # 3. char *code_file custom code file
-<<<<<<<< HEAD:iocBoot/iocGalilTest/galil.cmd
-# GalilAddCode("Galil", 1, "customcode.dmc")
-========
 # GalilAddCode("$(PORT)", 1, "customcode.dmc")
->>>>>>>> V4-1-15:iocBoot/iocGalilTest/DMC01Configure.cmd
 
 # GalilReplaceHomeCode command parameters are:
 # Replace generated axis home code with custom code
 # 1. char *portName Asyn port for controller
 # 2. char *Axis A-H
 # 3. char *code_file custom code file
-<<<<<<<< HEAD:iocBoot/iocGalilTest/galil.cmd
-# GalilReplaceHomeCode("Galil", "C", "customhoming.dmc")
-========
 # GalilReplaceHomeCode("$(PORT)", "A", "homeA.dmc")
->>>>>>>> V4-1-15:iocBoot/iocGalilTest/DMC01Configure.cmd
 
 # GalilCreateCSAxes command parameters are:
 #
@@ -143,14 +135,7 @@ GalilStartController("$(PORT)", "", 1, 0)
 
 # Start the controller
 # Example using homing routine template assembly
-<<<<<<<< HEAD:iocBoot/iocGalilTest/galil.cmd
-#GalilStartController("Galil", "$(GALIL)/GalilSup/Db/galil_Default_Header.dmc;$(GALIL)/GalilSup/Db/galil_Home_RevLimit.dmc!$(GALIL)/GalilSup/Db/galil_Home_ForwLimit.dmc!$(GALIL)/GalilSup/Db/galil_Home_Home.dmc!$(GALIL)/GalilSup/Db/galil_Home_ForwLimit.dmc!$(GALIL)/GalilSup/Db/galil_Piezo_Home.dmc!$(GALIL)/GalilSup/Db/galil_Piezo_Home.dmc!$(GALIL)/GalilSup/Db/galil_Piezo_Home.dmc!$(GALIL)/GalilSup/Db/galil_Piezo_Home.dmc;$(GALIL)/GalilSup/Db/galil_Default_Footer.dmc", 0, 0, 3)
-
-# Start the controller
-GalilStartController("RIO", "rio.dmc", 1, 0)
-========
 #GalilStartController("$(PORT)", "$(GALIL)/GalilSup/Db/galil_Default_Header.dmc;$(GALIL)/GalilSup/Db/galil_Home_RevLimit.dmc!$(GALIL)/GalilSup/Db/galil_Home_ForwLimit.dmc!$(GALIL)/GalilSup/Db/galil_Home_Home.dmc!$(GALIL)/GalilSup/Db/galil_Home_ForwLimit.dmc!$(GALIL)/GalilSup/Db/galil_Piezo_Home.dmc!$(GALIL)/GalilSup/Db/galil_Piezo_Home.dmc!$(GALIL)/GalilSup/Db/galil_Piezo_Home.dmc!$(GALIL)/GalilSup/Db/galil_Piezo_Home.dmc;$(GALIL)/GalilSup/Db/galil_Default_Footer.dmc", 0, 0, 3)
->>>>>>>> V4-1-15:iocBoot/iocGalilTest/DMC01Configure.cmd
 
 # GalilCreateProfile command parameters are:
 #
