@@ -111,6 +111,8 @@
 #define GalilUserArrayString		"CONTROLLER_UARRAY"
 #define GalilUserArrayNameString	"CONTROLLER_UARRAY_NAME"
 
+#define GalilClearAmpFaultsString       "CONTROLLER_CLEARAMPFAULTS"
+
 #define GalilOutputCompare1AxisString	"OUTPUT_COMPARE_AXIS"
 #define GalilOutputCompare1StartString	"OUTPUT_COMPARE_START"
 #define GalilOutputCompare1IncrString	"OUTPUT_COMPARE_INCR"
@@ -137,6 +139,7 @@
 #define GalilStepSmoothString		"MOTOR_STEPSMOOTH"
 #define GalilITCSmoothString		"MOTOR_ITCSMOOTH"
 #define GalilMotorTypeString		"MOTOR_TYPE"
+#define GalilBrushTypeString		"BRUSH_TYPE"
 
 #define GalilHomingRoutineAString	"HMRNAM_A"
 #define GalilHomingRoutineBString	"HMRNAM_B"
@@ -167,6 +170,7 @@
 #define GalilStopPauseMoveGoString	"MOTOR_SPMG"
 #define GalilPremString			"MOTOR_PREM"
 #define GalilPostString			"MOTOR_POST"
+#define GalilUseLimitsAsHomeString	"MOTOR_USELIMITASHOME"
 #define GalilUseSwitchString 		"MOTOR_USESWITCH"
 #define GalilUseIndexString		"MOTOR_USEINDEX"
 #define GalilJogAfterHomeString		"MOTOR_JOG_AHOME"
@@ -181,6 +185,7 @@
 #define GalilHomeAllowedString		"MOTOR_HOME_ALLOWED"
 #define GalilStopDelayString		"MOTOR_STOP_DELAY"
 #define GalilMicrostepString		"MOTOR_MICROSTEP"
+#define GalilAmpModelString		"MOTOR_AMP_MODEL"
 #define GalilAmpGainString		"MOTOR_AMP_GAIN"
 #define GalilAmpCurrentLoopGainString	"MOTOR_AMP_CURRENTLOOP_GAIN"
 #define GalilAmpLowCurrentString	"MOTOR_AMP_LOWCURRENT"
@@ -240,6 +245,15 @@
 #define GalilAxisString			"MOTOR_AXIS"
 #define GalilMotorVelocityEGUString  	"MOTOR_VELOCITY_EGU"
 #define GalilMotorVelocityRAWString  	"MOTOR_VELOCITY_RAW"
+
+#define GalilMotorHallErrorStatusString "MOTOR_HALLERROR_STATUS"
+#define GalilMotorAtTorqueLimitStatusString "MOTOR_ATTORQUELIMIT_STATUS"
+
+#define GalilAmpOverCurrentStatusString     "AMP_OVERCURRENT_STATUS"
+#define GalilAmpUnderVoltageStatusString    "AMP_UNDERVOLTAGE_STATUS"
+#define GalilAmpOverVoltageStatusString     "AMP_OVERVOLTAGE_STATUS"
+#define GalilAmpOverTemperatureStatusString "AMP_OVERTEMPERATURE_STATUS"
+#define GalilAmpELOStatusString             "AMP_ELO_STATUS"
 
 #define GalilUserCmdString		"USER_CMD"
 #define GalilUserOctetString		"USER_OCTET"
@@ -312,6 +326,28 @@ static const enumStruct_t ampGain_43140[] = {
   {"0.10 A",   0},
 };
 
+static const enumStruct_t ampServoGain_43547[] = {
+  {"0.40 A/V",   0},
+  {"0.80 A/V",   1},
+  {"1.60 A/V",   2},
+};
+
+static const enumStruct_t ampCurrentLoopGain_43547[] = {
+  {"9",     9},
+  {"10",   10},
+  {"11",   11},
+  {"12",   12},
+};
+
+
+static const enumStruct_t ampStepperGain_43547[] = {
+  {"0.75 A",   0},
+  {"1.50 A",   1},
+  {"3.00 A",   2},
+  {"6.00 A",   3},
+};
+
+
 static const enumStruct_t microstep_43547[] = {
   {"256",   256},
 };
@@ -361,7 +397,7 @@ public:
   asynStatus sync_writeReadController(bool testQuery = false, bool logCommand = true);
 
   asynStatus sendUnsolicitedMessage(char *mesg);
-  bool my_isascii(int c);
+  bool isprintable(int c);
   asynStatus arrayUpload(void);
   asynStatus programUpload(string *prog);
   asynStatus programDownload(const string prog);
@@ -466,6 +502,8 @@ public:
   asynStatus updateAmpInfo();
   //Enum row callback
   void enumRowCallback(unsigned ampNum, int reason, const enumStruct_t *pEnum, size_t nElements);
+  //Callback for amplifier gains when motor type changes
+  void ampGainCallback(int axis, int motorType);
 
   void InitializeDataRecord(void);
   double sourceValue(const std::vector<char>& record, const std::string& source);
@@ -522,6 +560,7 @@ protected:
   int GalilUserArrayUpload_;
   int GalilUserArray_;
   int GalilUserArrayName_;
+  int GalilClearAmpFaults_;
 
   int GalilOutputCompareAxis_;
   int GalilOutputCompareStart_;
@@ -546,6 +585,7 @@ protected:
   int GalilEStallTime_;
   int GalilStepSmooth_;
   int GalilMotorType_;
+  int GalilBrushType_;
 
   int GalilEtherCatCapable_;
   int GalilEtherCatNetwork_;
@@ -564,6 +604,7 @@ protected:
   int GalilStopPauseMoveGo_;
   int GalilPrem_;
   int GalilPost_;
+  int GalilUseLimitsAsHome_;
   int GalilUseSwitch_;
   int GalilUseIndex_;
   int GalilJogAfterHome_;
@@ -578,6 +619,7 @@ protected:
   int GalilHomeAllowed_;
   int GalilStopDelay_;
   int GalilMicrostep_;
+  int GalilAmpModel_;
   int GalilAmpGain_;
   int GalilAmpCurrentLoopGain_;
   int GalilAmpLowCurrent_;
@@ -634,6 +676,14 @@ protected:
   int GalilAxis_;
   int GalilMotorVelocityEGU_;
   int GalilMotorVelocityRAW_;
+  int GalilMotorHallErrorStatus_;
+  int GalilMotorAtTorqueLimitStatus_;
+  int GalilAmpOverCurrentStatus_;
+  int GalilAmpUnderVoltageStatus_;
+  int GalilAmpOverVoltageStatus_;
+  int GalilAmpOverTemperatureStatus_;
+  int GalilAmpELOStatus_;
+
   int GalilUserCmd_;
   int GalilUserOctet_;
   int GalilUserOctetVal_;
@@ -683,7 +733,7 @@ private:
   int digvalues_;			//Digital port interrupt values
   bool digInitialUpdate_;		//Digital port initial update
 
-  int ampModel_[2];                     // Model number of amplifier on channels A-D [0] and A-H [1]
+  int ampModel_[2];                     // Model number of amplifier on channels A-D [0] and E-H [1]
 
   bool rio_;				//Is controller a RIO
   char code_file_[MAX_FILENAME_LEN];	//Code file(s) that user gave to GalilStartController

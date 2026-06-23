@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 689
-y 188
+x 679
+y 180
 w 400
 h 360
 font "helvetica-medium-r-18.0"
@@ -302,234 +302,6 @@ useDisplayBg
 value {
   "Error"
 }
-endObjectProperties
-
-endGroup
-
-endObjectProperties
-
-
-# (Group)
-object activeGroupClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 36
-y 131
-w 15
-h 15
-
-beginGroup
-
-# (Rectangle)
-object activeRectangleClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 36
-y 131
-w 14
-h 14
-lineColor rgb 64768 0 0
-fill
-fillColor rgb 64768 0 0
-lineWidth 0
-visPv "CALC\\\{(A)\}($(P)$(M)_BISSSTAT_TIMEOUT)"
-visMin 0
-visMax 1
-endObjectProperties
-
-# (Rectangle)
-object activeRectangleClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 36
-y 131
-w 14
-h 14
-lineColor rgb 0 55296 0
-fill
-fillColor rgb 0 55296 0
-lineWidth 0
-visPv "CALC\\\{(A)\}($(P)$(M)_BISSSTAT_TIMEOUT)"
-visInvert
-visMin 0
-visMax 1
-endObjectProperties
-
-endGroup
-
-endObjectProperties
-
-
-# (Group)
-object activeGroupClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 100
-y 131
-w 15
-h 15
-
-beginGroup
-
-# (Rectangle)
-object activeRectangleClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 100
-y 131
-w 14
-h 14
-lineColor rgb 64768 0 0
-fill
-fillColor rgb 64768 0 0
-lineWidth 0
-visPv "CALC\\\{(A)\}($(P)$(M)_BISSSTAT_CRC)"
-visMin 0
-visMax 1
-endObjectProperties
-
-# (Rectangle)
-object activeRectangleClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 100
-y 131
-w 14
-h 14
-lineColor rgb 0 55296 0
-fill
-fillColor rgb 0 55296 0
-lineWidth 0
-visPv "CALC\\\{(A)\}($(P)$(M)_BISSSTAT_CRC)"
-visInvert
-visMin 0
-visMax 1
-endObjectProperties
-
-endGroup
-
-endObjectProperties
-
-
-# (Group)
-object activeGroupClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 251
-y 131
-w 15
-h 15
-
-beginGroup
-
-# (Rectangle)
-object activeRectangleClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 251
-y 131
-w 14
-h 14
-lineColor rgb 64768 0 0
-fill
-fillColor rgb 64768 0 0
-lineWidth 0
-visPv "CALC\\\{(A)\}($(P)$(M)_BISSSTAT_WARN)"
-visMin 0
-visMax 1
-endObjectProperties
-
-# (Rectangle)
-object activeRectangleClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 251
-y 131
-w 14
-h 14
-lineColor rgb 0 55296 0
-fill
-fillColor rgb 0 55296 0
-lineWidth 0
-visPv "CALC\\\{(A)\}($(P)$(M)_BISSSTAT_WARN)"
-visInvert
-visMin 0
-visMax 1
-endObjectProperties
-
-endGroup
-
-endObjectProperties
-
-
-# (Group)
-object activeGroupClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 327
-y 131
-w 15
-h 15
-
-beginGroup
-
-# (Rectangle)
-object activeRectangleClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 327
-y 131
-w 14
-h 14
-lineColor rgb 64768 0 0
-fill
-fillColor rgb 64768 0 0
-lineWidth 0
-visPv "CALC\\\{(A)\}($(P)$(M)_BISSSTAT_ERROR)"
-visMin 0
-visMax 1
-endObjectProperties
-
-# (Rectangle)
-object activeRectangleClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 327
-y 131
-w 14
-h 14
-lineColor rgb 0 55296 0
-fill
-fillColor rgb 0 55296 0
-lineWidth 0
-visPv "CALC\\\{(A)\}($(P)$(M)_BISSSTAT_ERROR)"
-visInvert
-visMin 0
-visMax 1
 endObjectProperties
 
 endGroup
@@ -1025,6 +797,82 @@ lineColor rgb 0 0 0
 fillColor rgb 0 0 0
 lineWidth 0
 endObjectProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 36
+y 131
+w 14
+h 14
+lineColor rgb 0 55296 0
+fill
+fillColor rgb 0 55296 0
+lineWidth 0
+fillAlarm
+lineAlarm
+alarmPv "$(P)$(M)_BISSSTAT_TIMEOUT"
+endObjectProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 100
+y 131
+w 14
+h 14
+lineColor rgb 0 55296 0
+fill
+fillColor rgb 0 55296 0
+lineWidth 0
+fillAlarm
+lineAlarm
+alarmPv "$(P)$(M)_BISSSTAT_CRC"
+endObjectProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 251
+y 131
+w 14
+h 14
+lineColor rgb 0 55296 0
+fill
+fillColor rgb 0 55296 0
+lineWidth 0
+fillAlarm
+lineAlarm
+alarmPv "$(P)$(M)_BISSSTAT_WARN"
+endObjectProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 327
+y 131
+w 14
+h 14
+lineColor rgb 0 55296 0
+fill
+fillColor rgb 0 55296 0
+lineWidth 0
+fillAlarm
+lineAlarm
+alarmPv "$(P)$(M)_BISSSTAT_ERROR"
+endObjectProperties
 # (Group)
 object activeGroupClass
 beginObjectProperties
@@ -1035,74 +883,6 @@ x 23
 y 114
 w 366
 h 13
-
-beginGroup
-
-endGroup
-
-endObjectProperties
-
-# (Group)
-object activeGroupClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 36
-y 131
-w 15
-h 15
-
-beginGroup
-
-endGroup
-
-endObjectProperties
-
-# (Group)
-object activeGroupClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 100
-y 131
-w 15
-h 15
-
-beginGroup
-
-endGroup
-
-endObjectProperties
-
-# (Group)
-object activeGroupClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 251
-y 131
-w 15
-h 15
-
-beginGroup
-
-endGroup
-
-endObjectProperties
-
-# (Group)
-object activeGroupClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 327
-y 131
-w 15
-h 15
 
 beginGroup
 

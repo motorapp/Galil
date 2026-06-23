@@ -85,7 +85,7 @@ public:
   //Also poll thread doesnt have a lock and is not allowed to call writeReadController
   void pollServices(void);
   //Driver internal version of CSAxis stop, prevents backlash, retries till dmov
-  asynStatus stopInternal(bool emergencyStop = true);
+  asynStatus stopInternal(void);
   //Driver to motor record stop.  Stops backlash, retries.
   asynStatus stopMotorRecord(void);
   //Thread to start CSAxis moves when moveDeferred set false

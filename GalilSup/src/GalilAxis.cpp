@@ -59,7 +59,6 @@ static const char* lookupStopCode(int sc);
   */
 GalilAxis::GalilAxis(class GalilController *pC, //Pointer to controller instance
 		     char *axisname,		//axisname A-H
-		     int limit_as_home,		//0=no, 1=yes. Using a limit switch as home
 		     char *enables_string,	//digital input(s) to use for motor enable/disable function
 		     int switch_type)		//motor enable/disable switch type
   : asynMotorAxis(pC, (toupper(axisname[0]) - AASCII)),
@@ -101,7 +100,7 @@ GalilAxis::GalilAxis(class GalilController *pC, //Pointer to controller instance
   eventMonitorDone_ = epicsEventMustCreate(epicsEventEmpty);
 
   //store settings, and set defaults
-  setDefaults(limit_as_home, enables_string, switch_type);
+  setDefaults(enables_string, switch_type);
   //store the motor enable/disable digital IO setup
   store_motors_enable();
 
@@ -192,7 +191,7 @@ GalilAxis::~GalilAxis()
 /* Store settings, set defaults for motor */
 /*--------------------------------------------------------------------------------*/
 
-asynStatus GalilAxis::setDefaults(int limit_as_home, char *enables_string, int switch_type)
+asynStatus GalilAxis::setDefaults(char *enables_string, int switch_type)
 {
    //const char *functionName = "GalilAxis::setDefaults";
 
@@ -217,9 +216,6 @@ asynStatus GalilAxis::setDefaults(int limit_as_home, char *enables_string, int s
    requestedTimeout_ = BEGIN_TIMEOUT * multiplier;
 
    homingRoutineName = "";
-
-   //Store limits as home setting						       
-   limit_as_home_ = (limit_as_home > 0) ? 1 : 0;
 
    //Store switch type setting for motor enable/disable function			       
    switch_type_ = (switch_type > 0) ? 1 : 0;
@@ -312,17 +308,21 @@ asynStatus GalilAxis::setDefaults(int limit_as_home, char *enables_string, int s
 
    //Default motor record stop
    pC_->setIntegerParam(axisNo_, pC_->GalilMotorRecordStop_, 0);
-   
+
    //Default related csaxes list
    csaxesList_[0] = '\0';
 
    //Default softLimits
    lowLimit_ = 0.0;
    highLimit_ = 0.0;
-   
+
    //Operator has not used MR SET field yet
    setPositionIn_ = false;
    setPositionOut_ = false;
+
+   //Default motor/axis related amplifier statuses
+   setIntegerParam(pC_->GalilMotorHallErrorStatus_, 0);
+   setIntegerParam(pC_->GalilMotorAtTorqueLimitStatus_, 0);
 
    return asynSuccess;
 }
@@ -596,6 +596,7 @@ asynStatus GalilAxis::setAccelVelocity(double acceleration, double velocity, boo
    cmd += ";hjgdc" + string(1, c) + "=" + tsp(limdc_, 0);  // for old homing code
    //Set normal deceleration galil code variable
    cmd += ";nrmdc" + string(1, c) + "=" + tsp(accel, 0);
+   
    //Write the command
    strcpy(pC_->cmd_, cmd.c_str());
    status = pC_->sync_writeReadController();
@@ -796,6 +797,7 @@ asynStatus GalilAxis::setupHome(double maxVelocity, int forwards)
    int useSwitch;       //Jog toward switch
    int useIndex;        //Find encoder index
    int useEncoder;      //Use encoder if present
+   int ulah;            //Use limits as home
 
    //Calculate direction of home jog
    home_direction = (forwards == 0) ? 1 : -1;
@@ -816,8 +818,10 @@ asynStatus GalilAxis::setupHome(double maxVelocity, int forwards)
    sprintf(pC_->cmd_, "hsedge=%d\n", homeEdge);
    pC_->sync_writeReadController();
 
+   //Retrieve axis use limits as home (ulah)
+   pC_->getIntegerParam(axisNo_, pC_->GalilUseLimitsAsHome_, &ulah);
    //Set use limits as home (ulah) parameter
-   sprintf(pC_->cmd_, "ulah%c=%d\n", axisName_, limit_as_home_);
+   sprintf(pC_->cmd_, "ulah%c=%d\n", axisName_, ulah);
    pC_->sync_writeReadController();
 
    //Calculate home jog speed, direction that controller home program will use
@@ -891,6 +895,7 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
   int ssiconnect;		//SSI connect status
   int bissInput;		//BISS input register
   int bissCapable;		//BISS capable
+  int ulah;			//Use limit as home
   int useSwitch;		//Use switch when homing
   int limitDisable;		//Limit disable setting
   string mesg;			//Controller mesg
@@ -902,6 +907,7 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
   pC_->getIntegerParam(axisNo_, pC_->GalilSSIConnected_, &ssiconnect);
   pC_->getIntegerParam(axisNo_, pC_->GalilHomeAllowed_, &homeAllowed);
   pC_->getIntegerParam(axisNo_, pC_->GalilUseSwitch_, &useSwitch);
+  pC_->getIntegerParam(axisNo_, pC_->GalilUseLimitsAsHome_, &ulah);
   pC_->getIntegerParam(axisNo_, pC_->GalilBISSInput_, &bissInput);
   pC_->getIntegerParam(pC_->GalilBISSCapable_, &bissCapable);
   pC_->getIntegerParam(axisNo_, pC_->GalilLimitDisable_, &limitDisable);
@@ -923,7 +929,7 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
   //Check if requested home type valid given limit disable setting
   //Construct controller type convenience variable
   ctrlType = (bool)(pC_->model_[3] != '2' && pC_->model_[3] != '1') ? true : false;
-  if (!customHome_ && limit_as_home_ && ctrlType) {
+  if (!customHome_ && ulah && ctrlType) {
      if (useSwitch && forwards && (limitDisable == 1 || limitDisable ==3)) {
         mesg = string(functionName) + ": " + string(1, axisName_) + " ";
         mesg += "axis can't home to fwd limit as fwd limit is disabled";
@@ -1276,30 +1282,29 @@ asynStatus GalilAxis::stop(double acceleration)
            if (pCSAxis->revaxes_[j] == axisName_)
               found = true;
         }
-        //Stop the CSAxis that is moving, and contains this axis
-        //Using coordinated stop
-        pCSAxis->stopSent_ = true;
-        pCSAxis->stop_reason_ = stop_reason_;
-        if (found && !pCSAxis->done_ && pCSAxis->move_started_ && (stop_reason_ == MOTOR_STOP_ONWLP || stop_reason_ == MOTOR_STOP_ONSTALL))
-           pCSAxis->stopInternal(); //WLP or encoder stall are emergency stop
-        else if (found && !pCSAxis->done_  && pCSAxis->move_started_ && stop_reason_ != MOTOR_STOP_ONWLP && stop_reason_ != MOTOR_STOP_ONSTALL)
-           pCSAxis->stopInternal(false); //Normal stop (eg. spmg)
+        //Stop a CSAxis that is moving, and contains this axis
+        if (found && !pCSAxis->done_ && pCSAxis->move_started_) {
+           //Use coordinated stop
+           pCSAxis->stopSent_ = true;
+           pCSAxis->stop_reason_ = stop_reason_;
+           pCSAxis->stopInternal();
+        }
      }
   }
   else {
      //Stop this axis independently
      //cancel any home, and home switch jog off operations that may be underway
-     // we do not check homing_ as we may have resrtred when one was in progress?
+     // we do not check homing_ as we may have restared when one was in progress?
      // but we may stop on startup anyway?
-     if (customHome_) {
-          // hjog=0 not needed, might be a race condition if it is set (reexecute hjog==0 section)
-         sprintf(pC_->cmd_, "home%c=0", axisName_);
-     }
-     else {
-         sprintf(pC_->cmd_, "home%c=0;hjog%c=0", axisName_, axisName_);
-     }
+     sprintf(pC_->cmd_, "home%c=0", axisName_);
      pC_->sync_writeReadController();
      //Cancel limit/home switch jog off operations that may be underway
+     // hjog=0 not needed for custom home, might be a race condition if it is set (reexecute hjog==0 section)
+     if (!customHome_) {
+          // hjog=0 not needed, might be a race condition if it is set (reexecute hjog==0 section)
+         sprintf(pC_->cmd_, "hjog%c=0", axisName_);
+         pC_->sync_writeReadController();
+     }
      //Set deceleration back to normal
      sprintf(pC_->cmd_, "DC%c=nrmdc%c", axisName_, axisName_);
      pC_->sync_writeReadController();
@@ -1750,19 +1755,31 @@ asynStatus GalilAxis::initializeProfile(size_t maxProfilePoints)
 asynStatus GalilAxis::setBrake(bool enable)
 {
   asynStatus status = asynSuccess;
-  int brakeport;
-  //Retrieve the digital port used to actuate this axis brake
+  int brakeport = 0;
+  int motorConnected = 0;
+  
+  // Retrieve the digital port used to actuate this axis brake
   status = pC_->getIntegerParam(axisNo_, pC_->GalilBrakePort_, &brakeport);
-  //Enable or disable motor brake
-  if (axisReady_ && brakeport > 0 && !status)
-     {
-     if (!enable)
-        sprintf(pC_->cmd_, "SB %d", brakeport);
-     else
-        sprintf(pC_->cmd_, "CB %d", brakeport);
-     //Write setting to controller
-     status = pC_->sync_writeReadController();
-     }
+  if (status != asynSuccess)
+    return status;
+
+  // Retrieve the axis connected status;
+  status = pC_->getIntegerParam(axisNo_, pC_->GalilMotorConnected_, &motorConnected);
+  if (status != asynSuccess)
+    return status;
+
+  // Enable or disable motor brake
+  if (axisReady_ && brakeport > 0)
+  {
+    // Check if motorConnected to release the brake.
+    if (!enable && motorConnected)
+      sprintf(pC_->cmd_, "SB %d", brakeport);
+    else
+      sprintf(pC_->cmd_, "CB %d", brakeport);
+      
+    // Write setting to controller
+    status = pC_->sync_writeReadController();
+  }
   return status;
 }
 
@@ -1934,6 +1951,20 @@ asynStatus GalilAxis::getStatus(void)
          strcpy(src, "_HMx");
          src[3] = axisName_;
          home_ = (bool)(pC_->sourceValue(pC_->recdata_, src) == pC_->hswact_) ? 1 : 0;
+
+         //40xx and 41xx series, obtain internal amplifier fault status
+         if (pC_->model_[3] == '4' && (pC_->model_[4] == '0' || pC_->model_[4] == '1')) {
+            //Amplifier Hall Error Status
+            strcpy(src, "TA1x");
+            src[3] = axisName_;
+            setIntegerParam(pC_->GalilMotorHallErrorStatus_, (int)pC_->sourceValue(pC_->recdata_, src));
+
+            //Amplifier At Torque Limit Status
+            strcpy(src, "TA2x");
+            src[3] = axisName_;
+            setIntegerParam(pC_->GalilMotorAtTorqueLimitStatus_, (int)pC_->sourceValue(pC_->recdata_, src));
+         }
+
          //User data
          strcpy(src, "_ZAx");
          src[3] = axisName_;
@@ -2076,6 +2107,25 @@ void GalilAxis::checkEncoder(void)
       //Leave ParamList values un-changed until user attempts to move again
       pestall_detected_ = false;
       }
+}
+
+//Called by poll without lock
+//When axis problem detected
+//May stop motor via pollServices thread
+void GalilAxis::checkStopCode(void)
+{
+   int sc = stop_code_;  //Conveniance variable
+   if (!done_ && !deferredMove_ && !stopSent_) {
+      if (MOTOR_STOP_ONERR == sc || MOTOR_STOP_SABORT == sc || MOTOR_STOP_ENC == sc || MOTOR_STOP_AMP == sc ||
+          MOTOR_STOP_ECATCOMM == sc || MOTOR_STOP_ECATAMP == sc) {
+         //Set the stop reason so limit deceleration is applied during stop
+         stop_reason_ = sc;
+         //stop the motor
+         pollRequest_.send((void*)&MOTOR_STOP, sizeof(int));
+         //Flag the motor has been stopped
+         stopSent_ = true;
+      }
+   }
 }
 
 //Called by poll without lock
@@ -2678,21 +2728,19 @@ asynStatus GalilAxis::beginMotion(const char *caller, double position, bool rela
       return asynSuccess;
 
    //Check position at last possible moment prior to move
-   if (checkpos)
-      {
+   if (checkpos) {
       //Relative moves
       if (relative && position == 0)
          return asynSuccess;//Nothing to do
       //Absolute moves
-      if (!relative)
-         {
+      if (!relative) {
          //Retrieve readback
          readback = (motorIsServo_) ? encoder_position_ : motor_position_;
          //If new position differs from readback, then write new position
          if ((long long) position == (long long) readback)
             return asynSuccess;//Nothing to do
-         }
       }
+   }
 
    //Begin the move
    sprintf(pC_->cmd_, "BG%c", axisName_);
@@ -2948,6 +2996,7 @@ double GalilAxis::getGalilAxisVal(const char* name)
 asynStatus GalilAxis::poller(bool& moving)
 {
    //static const char *functionName = "GalilAxis::poll";
+   int ulah;			//Use limits as home
    int dmov;			//Motor record dmov
    bool csdmov;			//Related CSAxis dmov And'd together
    int home;			//Home status to give to motorRecord
@@ -2969,6 +3018,7 @@ asynStatus GalilAxis::poller(bool& moving)
    status |= pC_->getIntegerParam(axisNo_, pC_->GalilDmov_, &dmov);
    status |= pC_->getDoubleParam(axisNo_, pC_->GalilStopDelay_, &stopDelay);
    status |= pC_->getIntegerParam(axisNo_, pC_->GalilUseReadback_, &urip);
+   status |= pC_->getIntegerParam(axisNo_, pC_->GalilUseLimitsAsHome_, &ulah);
 
    //Are all related CSAxis done (includes retries, backlash)
    //Used for auto amp off, and auto brake on for this axis
@@ -2983,6 +3033,9 @@ asynStatus GalilAxis::poller(bool& moving)
 
    //Set motor stop time
    setStopTime();
+
+   //Check axis stop code
+   checkStopCode();
 
    //Check motor direction/limits consistency
    checkMotorLimitConsistency();
@@ -3010,15 +3063,15 @@ asynStatus GalilAxis::poller(bool& moving)
    set_ssi_connectflag();
 
    //Check home switch
-   if (home_ && !limit_as_home_)
+   if (home_ && !ulah)
       home = 1;
 
    /*If Rev switch is on and we are using it as a home, set the appropriate flag*/
-   if (rev_ && limit_as_home_)
+   if (rev_ && ulah)
       home = 1;
 
    /*If fwd switch is on and we are using it as a home, set the appropriate flag*/
-   if (fwd_ && limit_as_home_)
+   if (fwd_ && ulah)
       home = 1;
 
    //Reset homing status that includes JAH

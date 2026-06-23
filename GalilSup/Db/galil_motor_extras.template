@@ -227,6 +227,33 @@ record(bi,"$(P)$(M)_MCONN_STATUS")
 	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_MCONN")
 }
 
+record(bi,"$(P)$(M)_ULAH_STATUS")
+{
+	field(DESC, "use limits as home")
+	field(PINI, "YES")
+	field(DTYP, "asynInt32")
+	field(SCAN, "$(SCAN)")
+	field(ZNAM, "No")
+	field(ZSV,  "NO_ALARM")
+	field(ONAM, "Yes")
+	field(OSV,  "NO_ALARM")
+	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_USELIMITASHOME")
+}
+
+record(bo,"$(P)$(M)_ULAH_CMD")
+{
+	field(DESC,"use limits as home")
+	field(DTYP,"asynInt32")
+	field(VAL, "1")
+	field(PINI,"YES")
+	field(ZNAM,"No")
+	field(ZSV, "NO_ALARM")
+	field(ONAM,"Yes")
+	field(OSV, "NO_ALARM")
+	field(OUT, "@asyn($(PORT),$(ADDR))MOTOR_USELIMITASHOME")
+	field(FLNK,"$(P)$(M)_ULAH_STATUS")
+}
+
 record(bi,"$(P)$(M)_UINDEX_STATUS")
 {
 	field(DESC, "use index")
@@ -935,6 +962,15 @@ record(mbbi,"$(P)$(M)_MICROSTEP_STATUS")
 	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_MICROSTEP")
 }
 
+record(longin,"$(P)$(M)_AMPMODEL_STATUS")
+{
+	field(DESC, "Amp model")
+	field(PINI, "YES")
+	field(DTYP, "asynInt32")
+	field(VAL,  "0")
+	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_AMP_MODEL")
+}
+
 record(mbbo,"$(P)$(M)_AMPGAIN_CMD")
 {
 	field(DESC, "Amp gain")
@@ -1241,6 +1277,38 @@ record(mbbi,"$(P)$(M)_MTRTYPE_STATUS")
 	field(TVVL, "12")
 	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_TYPE")
 }
+
+record(mbbo,"$(P)$(M)_BRTYPE_CMD")
+{
+	field(DESC, "brush type")
+	field(DTYP, "asynInt32")
+	field(ZRST, "External Drive")
+	field(ONST, "Brushless")
+	field(TWST, "Brush")
+	field(ZRVL, "-1")
+	field(ONVL, "0")
+	field(TWVL, "1")
+	field(VAL,  "2")
+	field(PINI, "YES")
+	field(OUT,  "@asyn($(PORT),$(ADDR))BRUSH_TYPE")
+	field(FLNK, "$(P)$(M)_BRTYPE_STATUS")
+}
+
+record(mbbi,"$(P)$(M)_BRTYPE_STATUS")
+{
+	field(DESC, "brush type")
+	field(PINI, "YES")
+	field(SCAN, "$(SCAN)")
+	field(DTYP, "asynInt32")
+	field(ZRST, "External Drive")
+	field(ONST, "Brushless")
+	field(TWST, "Brush")
+	field(ZRVL, "-1")
+	field(ONVL, "0")
+	field(TWVL, "1")
+	field(INP,  "@asyn($(PORT),$(ADDR))BRUSH_TYPE")
+}
+
 
 record(mbbo,"$(P)$(M)_MENCTYPE_CMD")
 {
@@ -1597,15 +1665,41 @@ record(calcout,"$(P)$(M)_EDEL_MON_")
 
 ####
 
+# Internal Galil amplifier hall error status
+record(bi,"$(P)$(M)_HALLERROR_STATUS")
+{
+	field(DESC, "Hall error status")
+	field(DTYP, "asynInt32")
+	field(SCAN, "I/O Intr")
+	field(ZNAM, "OK")
+	field(ZSV,  "NO_ALARM")
+	field(ONAM, "HallError")
+	field(OSV,  "MAJOR")
+	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_HALLERROR_STATUS")
+}
+
+# Internal Galil amplifier at torque limit status
+record(bi,"$(P)$(M)_ATTORQUELIMIT_STATUS")
+{
+	field(DESC, "At torque limit status")
+	field(DTYP, "asynInt32")
+	field(SCAN, "I/O Intr")
+	field(ZNAM, "OK")
+	field(ZSV,  "NO_ALARM")
+	field(ONAM, "TorqueLimit")
+	field(OSV,  "MAJOR")
+	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_ATTORQUELIMIT_STATUS")
+}
+
 record(bi,"$(P)$(M)_ON_STATUS")
 {
 	field(DESC, "Mtr on status")
 	field(DTYP, "asynInt32")
 	field(SCAN, "I/O Intr")
 	field(ZNAM, "Off")
-   	field(ZSV,  "MINOR")
+   	field(ZSV,  "NO_ALARM")
   	field(ONAM, "On")
-  	field(OSV,  "NO_ALARM")
+  	field(OSV,  "MINOR")
    	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_STATUS_POWERED")
 }
 

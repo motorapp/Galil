@@ -264,6 +264,17 @@ record(bi,"$(P)START_STATUS")
    	field(INP,  "@asyn($(PORT),0)CONTROLLER_START")
 }
 
+record(bo,"$(P)CLEARAMPFAULTS_CMD")
+{
+	field(DESC, "Clear amp faults")
+	field(DTYP, "asynInt32")
+	field(ZNAM, "CLEAR")
+	field(ZSV,  "NO_ALARM")
+	field(ONAM, "CLEAR")
+	field(OSV,  "NO_ALARM")
+	field(OUT,  "@asyn($(PORT),0)CONTROLLER_CLEARAMPFAULTS")
+}
+
 #Defered moves support
 record(bi,"$(P)DEFER_STATUS")
 {

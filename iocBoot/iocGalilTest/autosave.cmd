@@ -3,7 +3,7 @@
 save_restoreSet_Debug(0)
 
 # status-PV prefix, so save_restore can find its status PV's.
-save_restoreSet_status_prefix("IOC01:")
+save_restoreSet_status_prefix("$(IOCPREFIX)")
 
 # Ok to save/restore save sets with missing values (no CA connection to PV)?  
 save_restoreSet_IncompleteSetsOk(1)
@@ -31,16 +31,9 @@ set_requestfile_path("${MOTOR}/motorApp/Db", "")
 set_requestfile_path("${SSCAN}/sscanApp/Db", "")
 set_requestfile_path("${TOP}/iocBoot/${IOC}", "")
 
-dbLoadRecords("$(AUTOSAVE)/asApp/Db/save_restoreStatus.db","P=IOC01:")
+dbLoadRecords("$(AUTOSAVE)/asApp/Db/save_restoreStatus.db","P=$(IOCPREFIX)")
 
 save_restoreSet_CAReconnect(1)
-
-# restore settings in pass 0 so encoder ratio is set correctly for position restore in device support init
-set_pass0_restoreFile("GalilTest_settings.sav")
-# restore positions in pass 0 so motors don't move
-set_pass0_restoreFile("GalilTest_positions.sav")
-# restore kinematic equation character arrays in pass 1
-set_pass1_restoreFile("GalilTest_kinematics.sav")
 
 ## End of autosave set-up
 ####################################################

@@ -1,0 +1,21 @@
+# this is nedeed for linking asyn statically on windows if asyn has vxi11 support
+ONCRPC=$(SUPPORT)/oncrpc/master
+
+AUTOSAVE=$(SUPPORT)/autosave/master
+SSCAN=$(SUPPORT)/sscan/master
+CALC=$(SUPPORT)/calc/master
+ASYN=$(SUPPORT)/asyn/master
+BUSY=$(SUPPORT)/busy/master
+MOTOR=$(SUPPORT)/motor/master
+IPAC=$(SUPPORT)/ipac/master
+SNCSEQ=$(SUPPORT)/seq/master
+GALIL=$(SUPPORT)/galil/master
+
+# optional extra local definitions here
+-include $(TOP)/configure/RELEASE.private
+
+-include $(TOP)/../RELEASE.local
+-include $(TOP)/../RELEASE.$(EPICS_HOST_ARCH).local
+
+include $(TOP)/../../../ISIS_CONFIG
+-include $(TOP)/../../../ISIS_CONFIG.$(EPICS_HOST_ARCH)

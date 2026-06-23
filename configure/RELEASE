@@ -1,52 +1,10 @@
 ## configure/RELEASE: Location of external products
 
--include $(TOP)/config/GALILRELEASE
-
 TEMPLATE_TOP=$(EPICS_BASE)/templates/makeBaseApp/top
-
-# this is nedeed for linking asyn statically on windows if asyn has vxi11 support
-ONCRPC=$(SUPPORT)/oncrpc/master
-
-AUTOSAVE=$(SUPPORT)/autosave/master
-SSCAN=$(SUPPORT)/sscan/master
-CALC=$(SUPPORT)/calc/master
-ASYN=$(SUPPORT)/asyn/master
-BUSY=$(SUPPORT)/busy/master
-MOTOR=$(SUPPORT)/motor/master
-GALIL=$(SUPPORT)/galil/master
-IPAC=$(SUPPORT)/ipac/master
-SNCSEQ=$(SUPPORT)/seq/master
-#ASUBFUNCTIONS=$(SUPPORT)/asubFunctions/master
-#AUTOSAVE=$(SUPPORT)/autosave/master
-#BUSY=$(SUPPORT)/busy/master
-#MOTOR=$(SUPPORT)/motor/master
-#CALC=$(SUPPORT)/calc/master
-#CAPUTLOG=$(SUPPORT)/caPutLog/master
-#DEVIOCSTATS=$(SUPPORT)/devIocStats/master
-#ICPCONFIG=$(SUPPORT)/icpconfig/master
-#GALIL=$(SUPPORT)/galil/master
-#MYSQL=$(SUPPORT)/MySQL/master
-#ONCRPC=$(SUPPORT)/oncrpc/master
-#PCRE=$(SUPPORT)/pcre/master
-#PUGIXML=$(SUPPORT)/pugixml/master
-#PVCOMPLETE=$(SUPPORT)/pvcomplete/master
-#PVDUMP=$(SUPPORT)/pvdump/master
-#SQLITE=$(SUPPORT)/sqlite/master
-#SNCSEQ=$(SUPPORT)/seq/master
-#SSCAN=$(SUPPORT)/sscan/master
-#STD=$(SUPPORT)/std/master
-#UTILITIES=$(SUPPORT)/utilities/master
-
-# optional extra local definitions here
--include $(TOP)/configure/RELEASE.private
 
 # These allow developers to override the RELEASE variable settings
 # without having to modify the configure/RELEASE file itself.
--include $(TOP)/config/RELEASE.local
 -include $(TOP)/../RELEASE.local
 -include $(TOP)/../configure/RELEASE.local
 -include $(TOP)/RELEASE.local
 -include $(TOP)/configure/RELEASE.local
-
-include $(TOP)/../../../ISIS_CONFIG
--include $(TOP)/../../../ISIS_CONFIG.$(EPICS_HOST_ARCH)
