@@ -564,6 +564,16 @@ static void signalHandler(int sig)
    }
 }
 
+static std::string rawToEscapedString(const char* inbuf, size_t inlen)
+{
+    size_t outlen = epicsStrnEscapedFromRawSize(inbuf, inlen);
+    char* outbuf = new char[outlen + 1];
+    epicsStrnEscapedFromRaw(outbuf, outlen, inbuf, inlen);
+    std::string s(outbuf);
+    delete[] outbuf;
+    return s;
+}
+
 //EPICS shutdown handler
 static void shutdownCallback(void *pPvt)
 {
@@ -1027,6 +1037,7 @@ void GalilController::connect(void)
         address_string = address.substr(0, n);
         baud = atoi(address.substr(n).c_str());
      }
+     std::cerr << "Connecting asyn port \"" << syncPort_ << "\" to serial device " << address_string << std::endl;
      drvAsynSerialPortConfigure(syncPort_, (const char *)address_string.c_str(), epicsThreadPriorityMax, 0, 1);
      if (baud != 0)
      {
@@ -1035,12 +1046,17 @@ void GalilController::connect(void)
          asynSetOption(syncPort_, 0, "bits", "8");
          asynSetOption(syncPort_, 0, "parity", "none");
          asynSetOption(syncPort_, 0, "stop", "1");
+         asynSetOption(syncPort_, 0, "clocal", "Y");
          // disable XON/XOFF flow control. This seemed to be required in the old driver that used the GalilTools DLL
          // but here it seems to lead to parts of the data record being interpreted as XOFF and getting dropped
          // from the readback particularly when a motor is moving. It was only enabled in the old version as otherwise
          // download of the homing programs timed out, but that doesn't seem to be an issue here
+         std::cerr << syncPort_ << ": disabling software flow control (XON/XOFF) - check this dip switch (if present) on galil controller is OFF" << std::endl;
+         std::cerr << syncPort_ << ": enabling hardware flow control (RTS/CTS) - check Handshake dip switch (if present) on galil controller is ON" << std::endl;
          asynSetOption(syncPort_, 0, "ixon", "N");
          asynSetOption(syncPort_, 0, "ixoff", "N");
+//         asynSetOption(syncPort_, 0, "crtscts", "Y");
+         asynSetOption(syncPort_, 0, "crtscts", "N");
      }
      //Flag try_async_ records false for serial connections
      try_async_ = false;
@@ -1317,7 +1333,7 @@ void GalilController::connected(void)
         numAxesMax_ = model_[6] - ZEROASCII;
      else if (model_[3] == '3') //DMC30000 series
         numAxesMax_ = 1;
-     else //DMC21x3, DMC41x3, DMC40x0
+     else //DMC21x3, DMC41x3, DMC40x0, DMC42x0
         numAxesMax_ = model_[5] - ZEROASCII;
      }
   else //RIO PLC
@@ -5374,7 +5390,7 @@ void GalilController::processUnsolicitedMesgs(void)
                //Unknown message
                //Display message in controller console
                rawbufOriginal.erase(rawbufOriginal.find_last_not_of(" \n\r\t:")+1);
-               setCtrlError(rawbufOriginal);
+               setCtrlError(std::string("Unknown unsolicited message: ") + rawbufOriginal);
                callParamCallbacks();
                //All complete
                break;
@@ -5611,7 +5627,7 @@ bool GalilController::isprintable(int c)
 asynStatus GalilController::readDataRecord(char *input, unsigned bytesize)
 {
   asynStatus status;	//Asyn status
-  size_t nread = 0;	//Asyn read bytes
+  size_t nread;	//Asyn read bytes
   int eomReason;	//Asyn end of message reason
   char buf[MAX_GALIL_DATAREC_SIZE];//Temporary buffer to hold data record in some circumstances
   char mesg[MAX_GALIL_STRING_SIZE] = {0x0};//Unsolicited mesg buffer
@@ -5626,19 +5642,20 @@ asynStatus GalilController::readDataRecord(char *input, unsigned bytesize)
 
   for (;;)
      {
+     nread = 0;
      //Read bytesize using octet interface and user supplied buffer
      if (async_records_)
         status = pAsyncOctet_->read(pAsyncOctetPvt_, pasynUserAsyncGalil_, input, readsize, &nread, &eomReason);
      else
         status = pSyncOctet_->read(pSyncOctetPvt_, pasynUserSyncGalil_, input, readsize, &nread, &eomReason);
 
-     //Serial mode characters arrive with nread = 1
+     //Serial mode characters can arrive with nread = 1 but also with nread > 1 but less than readsize
      //UDP async mode unsolicited mesg always cause read (above) to return with nread set to mesg length
      //TCP sync mode unsolicited mesg sometimes cause read to return with nread set to mesg length
      //TCP sync mode unsolicited mesg mostly cause read to return with nread = readsize
      //Readsize varies when reading data record tail in tcp sync with unsolicited message
 
-     if (nread == bytesize && eomReason == ASYN_EOM_CNT)
+     if (!status && nread == bytesize && eomReason == ASYN_EOM_CNT)
         {
         //Read returned ok, with expected bytes
         //Look for record header at expected location in buffer
@@ -5647,8 +5664,12 @@ asynStatus GalilController::readDataRecord(char *input, unsigned bytesize)
         //Record header cannot be found here in rs232 mode
         check = (unsigned char)input[3] << 8;
         check = (unsigned char)input[2] + check;
-        if (check == datarecsize_)
+        if (input[1] & 0x80 != 0 && check == datarecsize_) {
+           if (j > 0) {
+               std::cerr << "readDataRecord(): discarding message " << mesg << " length " << j << std::endl;
+           }
            return status;//Found record at expected location, job done
+        }
         }
 
      if (!status && nread > 0)
@@ -5672,15 +5693,13 @@ asynStatus GalilController::readDataRecord(char *input, unsigned bytesize)
                  {
                  //Detected record header
                  recstart = true;
-                 if (nread == bytesize && eomReason == ASYN_EOM_CNT)
-                    {
-                    //Received expected number of bytes, but didn't find header at expected location
-                    //Not a serial connection, so it must be synchronous tcp
-                    //This means the header is not at expected location due to unsolicited message
-                    //Store buffer index where datarecord header starts
-                    //Which is also number of data record bytes remaining (tail) to read
-                    readsize = i - HEADER_BYTES + 1;
-                    }
+                 //either Received expected number of bytes, but didn't find header at expected location
+                 //or read less bytes than expected. need to queue an extra read for later after prcoessing these bytes
+                 //This means the header is not at expected location due to unsolicited message
+                 // we read  nread  and  header started at offset (i - HEADER_BYTES + 1)
+                 int offset_to_header = i - HEADER_BYTES + 1; // location of found header in current input buffer
+                 readsize = bytesize + offset_to_header; // nread will be subtracted later
+                 memcpy(buf, input + offset_to_header, HEADER_BYTES);
                  }
               if (!recstart)
                  {
@@ -5723,6 +5742,12 @@ asynStatus GalilController::readDataRecord(char *input, unsigned bytesize)
                  //Data record read complete
                  //Copy data record into user supplied buffer
                  memcpy(input, buf, bytesize);
+                 if (j > 0) {
+                     std::cerr << "readDataRecord(): discarding message " << mesg << " length " << j << std::endl;
+                     }
+                 if (i != nread-1) {
+                     std::cerr << "readDataRecord(): i error" << std::endl;
+                     }
                  return status;
                  }
               }
@@ -5732,8 +5757,13 @@ asynStatus GalilController::readDataRecord(char *input, unsigned bytesize)
         previous = input[nread - 1];
         //Loop back and keep reading until we get the data record or error
         }
-     else
-        return asynError;//Stop if any asyn error
+     else {
+         if (j > 0) {
+             std::cerr << "readDataRecord(): discarding message " << mesg << " length " << j << std::endl;
+             }
+         return asynError;//Stop if any asyn error
+     }
+     readsize -= nread;
      }
 }
 
@@ -5759,8 +5789,15 @@ void GalilController::acquireDataRecord(void)
         strcpy(cmd_, "QR\r");
         //Write the QR query to controller
         recstatus_ = pSyncOctet_->write(pSyncOctetPvt_, pasynUserSyncGalil_, cmd_, 3, &nwrite);
-        if (!recstatus_) //Solicited data record includes an extra colon at the end
+        if (!recstatus_) {//Solicited data record includes an extra colon at the end
+            if (true /*rand() % 100 != 0*/) {
            recstatus_ = readDataRecord(resp_, datarecsize_ + 1); //Get the record
+            } else {
+                recstatus_ = asynTimeout;
+            }
+        } else {
+           std::cerr << "acquireDataRecord: failed to send QR" << std::endl;
+        }
         unlock();
         }
      else //Asynchronous poll
@@ -5775,8 +5812,10 @@ void GalilController::acquireDataRecord(void)
      }
 
   //Track timeouts
-  if (recstatus_ != asynSuccess)
+  if (recstatus_ != asynSuccess) {
      consecutive_acquire_timeouts_++;
+     std::cerr << "acquireDataRecord: data record acquire timeout number " << consecutive_acquire_timeouts_ << std::endl;
+  }
 
   //Force disconnect if any errors
   if (consecutive_acquire_timeouts_ > ALLOWED_TIMEOUTS) {
@@ -5805,7 +5844,7 @@ void GalilController::acquireDataRecord(void)
 asynStatus GalilController::sync_writeReadController(bool testQuery, bool logCommand)
 {
   const char *functionName="sync_writeReadController";
-  size_t nread;
+  size_t nread = 0;
   int status;
   size_t len;
   static const char* debug_file_name = macEnvExpand("$(GALIL_DEBUG_FILE=)");
@@ -5874,12 +5913,14 @@ asynStatus GalilController::sync_writeReadController(const char *output, char *i
   unsigned i = 0;	//Number of raw bytes received, general counting
   unsigned j = 0;	//Number of unsolicited bytes received
   unsigned k = 0;	//Number of solicited bytes received
-  size_t nwrite;	//Bytes written
+  unsigned m = 0;	//Number of discarded bytes received
+  size_t nwrite = 0;	//Bytes written
   asynStatus status = asynSuccess;//Asyn status
   int eomReason;	//End of message reason
   char buf[MAX_GALIL_DATAREC_SIZE] = "";	//Receive buffer
   char mesg[MAX_GALIL_DATAREC_SIZE] = "";	//Unsolicited buffer
   char resp[MAX_GALIL_DATAREC_SIZE] = "";	//Solicited buffer
+  char discard[MAX_GALIL_DATAREC_SIZE] = "";	//discard buffer
   string inp = "";                          //Solicited data concatenated over multiple reads				
 				//Sometimes caller puts many commands on one line separated by ; so we must
   string out_string = output;	//Determine number of output terminators to search for from requested command
@@ -5887,7 +5928,10 @@ asynStatus GalilController::sync_writeReadController(const char *output, char *i
   int found_terminators = 0;	//Terminator characters found so far
   unsigned char value;		//Used to identify unsolicited traffic
   bool done = false;		//Read complete?
+  bool term_done = false;   // found all terminators?
+  size_t this_nread;
 
+  *nread = 0;
   //Null user supplied input buffer
   strcpy(input, "");
   //Set timeout for Sync connection
@@ -5900,12 +5944,13 @@ asynStatus GalilController::sync_writeReadController(const char *output, char *i
      while (!done)
         {
         //Read any response
-        status = pSyncOctet_->read(pSyncOctetPvt_, pasynUserSyncGalil_, buf, MAX_GALIL_DATAREC_SIZE, nread, &eomReason);
+        this_nread = 0;
+        status = pSyncOctet_->read(pSyncOctetPvt_, pasynUserSyncGalil_, buf, MAX_GALIL_DATAREC_SIZE, &this_nread, &eomReason);
         //If read successful, search for terminator characters
-        if (!status && *nread > 0)
+        if (!status && this_nread > 0)
            {
            //Search for terminating characters
-           for (i = 0; i < *nread; i++)
+           for (i = 0; i < this_nread; i++)
               {
               //Controller responds with ? or : for each command separated by ;
               if (buf[i] == '?')
@@ -5931,35 +5976,72 @@ asynStatus GalilController::sync_writeReadController(const char *output, char *i
                  mesg[j++] = (unsigned char)value;
                  //Terminate the buffers
                  mesg[j] = '\0';
+                 //Send unsolicited message if last char was line feed
+                 if (mesg[j - 1] == '\n')
+                       {
+                       sendUnsolicitedMessage(mesg);
+                       mesg[0] = '\0';
+                       j = 0;
+                       }
                  }
               else
                  {
                  //Byte looks like a solicited packet
-                 //Check for overrun
-                 if (k > MAX_GALIL_DATAREC_SIZE - 2)
-                    return asynError;//No solicited message should be this long return error
-                 resp[k++] = buf[i];//Byte is part of solicited message
-                 //Terminate the buffer
-                 resp[k] = '\0';
+                if (!term_done)
+                  {
+                   //Check for overrun
+                   if (k > MAX_GALIL_DATAREC_SIZE - 2)
+                      return asynError;//No solicited message should be this long return error
+                   resp[k++] = buf[i];//Byte is part of solicited message
+                   //Terminate the buffer
+                   resp[k] = '\0';
+                  } else {
+                      discard[m++] = buf[i];
+                      discard[m] = '\0';
+                  }
+                  if (found_terminators == target_terminators) {
+                      term_done = true;
+                  }
+                 }
+              }
+              if (found_terminators > target_terminators)
+                 {
+                 std::cerr << "sync_writeReadController(): Found " << found_terminators - target_terminators << " more terminators than expected" << std::endl;
                  }
               //If received all expected terminators, read is complete
-              if (found_terminators == target_terminators)
+              if (term_done)
                  {
                  //Don't attempt any more reads
                  done = true;
                  //stop searching this read, and return the resp, then send unsolicited mesg
                  break;
                  }
-              }
            }
         else //Stop read if any asyn error
+        {
+         if (j != 0) {
+             std::cerr << "sync_writeReadController(): after error - Discarded unsolicited message: " << mesg << " length " << j << std::endl;
+             }
+         if (m != 0) {
+             std::cerr << "sync_writeReadController(): after error - Discarded bytes: " << rawToEscapedString(discard, m) << " length " << m << std::endl;
+             }
            return asynError;
+        }
         }//while (!done)
      //Copy solicited response into user supplied buffer
      strcpy(input, resp);
-     //Send unsolicited mesg to queue
-     if (j != 0)
-        sendUnsolicitedMessage(mesg);
+     *nread = strlen(resp);
+     //Check for any remaining unsolicited messages
+     //Any here did not end in a \n - discard or send anyway?
+     if (j != 0) {
+         std::cerr << "sync_writeReadController(): after success - Discarded unsolicited message: " << mesg << " length " << j << std::endl;
+         //std::cerr << "\"" << output << "\" \"" << input << "\"" << std::endl;
+         //sendUnsolicitedMessage(mesg);
+     }
+     if (m != 0) {
+         std::cerr << "sync_writeReadController(): after success - Discarded bytes: " << rawToEscapedString(discard, m) << " length " << m << std::endl;
+         //std::cerr << "\"" << output << "\" \"" << input << "\"" << std::endl;
+     }
      }//write ok
   return status;
 }
@@ -6788,9 +6870,9 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
       timeout_ = 10;
       //Upload code currently in controller for comparison to generated/user code
       status = programUpload(&uc);
-      if (status) //Upload failed
-         errlogPrintf("\nError uploading code model %s, address %s\n",model_.c_str(), address_.c_str());
-
+      if (status) { //Upload failed
+         errlogPrintf("\nError uploading code for comparison, model %s, address %s\nWill assume any on controller code is outdated\n",model_.c_str(), address_.c_str());
+      }
       if ((display_code == 2) || (display_code == 3)) {
          //Print out the uploaded code from the controller
          printf("\nUploaded code is\n\n");
@@ -6884,7 +6966,7 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
                uc.push_back('\r');
          }
          else {
-            errlogPrintf("\nError uploading code model %s, address %s\n",model_.c_str(), address_.c_str());
+            errlogPrintf("\nError uploading code after transfer to verify, model %s, address %s\n",model_.c_str(), address_.c_str());
          }
 
          //Start thread 0 if code on controller matches what was downloaded
@@ -7363,6 +7445,7 @@ void GalilController::InitializeDataRecord(void)
      axis_b = atoi(charstr);
      //Store the data record size
      datarecsize_ = HEADER_BYTES + (axes * axis_b) + general_b + coord_b;
+     std::cerr << "Galil data record is " << datarecsize_ << " bytes in size" << std::endl;
      //DMC300x0 returns 1 18 16 36, search for "DMC31" in model string to determine 16bit ADC
      if (general_b == 18) return Init30010(model.find("DMC31") != string::npos);
      //DMC40x0/DMC41x3/DMC50000         8 52 26 36

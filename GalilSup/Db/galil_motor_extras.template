@@ -298,7 +298,7 @@ record(bo,"$(P)$(M)_USWITCH_CMD")
 {
 	field(DESC,"use switch")
 	field(DTYP,"asynInt32")
-	field(VAL, "1")
+	field(VAL, "0")
 	field(PINI,"YES")
 	field(ZNAM,"No")
 	field(ZSV, "NO_ALARM")

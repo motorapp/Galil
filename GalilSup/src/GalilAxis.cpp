@@ -63,7 +63,7 @@ GalilAxis::GalilAxis(class GalilController *pC, //Pointer to controller instance
 		     int switch_type)		//motor enable/disable switch type
   : asynMotorAxis(pC, (toupper(axisname[0]) - AASCII)),
     pC_(pC), last_encoder_position_(0), smoothed_encoder_position_(0), encoder_smooth_factor_(0.0), motor_dly_(0.0),
-    first_poll_(true),encDirOk_(true), pollRequest_(10, sizeof(int))
+    first_poll_(true),encDirOk_(true), last_done_(1), pollRequest_(10, sizeof(int))
 {
   string limit_code;				//Code generated for limits interrupt on this axis
   string digital_code;				//Code generated for digital interrupt related to this axis
@@ -2079,6 +2079,8 @@ void GalilAxis::checkEncoder(void)
             double sc_code = getGalilAxisVal("_SC");
             // get axis moving state
             double bg_code = getGalilAxisVal("_BG");
+            // in case we are homing record hjog
+            int hjog_code = getGalilAxisVal("hjog");
             //Pass stall status to higher layers
             setIntegerParam(pC_->motorStatusSlip_, 1);
             //Set the stop reason so limit deceleration is applied during stop
@@ -2091,7 +2093,7 @@ void GalilAxis::checkEncoder(void)
             sprintf(message, "Encoder stall stop motor %c", axisName_);
             //Set controller error mesg monitor
             pC_->setCtrlError(message);
-            std::cerr << "STALL: pestall_time=" << pestall_time << " (>" << estall_time << ") encoderMove_=" << encoderMove_ << " encDirOk_=" << encDirOk_ << " _SC" << axisName_ << "=" << sc_code << " [" << lookupStopCode((int)sc_code) << "] _BG" << axisName_ << "=" << bg_code << std::endl;
+            std::cerr << "STALL: pestall_time=" << pestall_time << " (>" << estall_time << ") encoderMove_=" << encoderMove_ << " encDirOk_=" << encDirOk_ << " _SC" << axisName_ << "=" << sc_code << " [" << lookupStopCode((int)sc_code) << "] _BG" << axisName_ << "=" << bg_code << " hjog" << axisName_ << "=" << hjog_code << std::endl;
             }
          }
       }
@@ -2232,7 +2234,7 @@ void GalilAxis::checkHoming(void)
 
    // ISIS: need to confirm limits high/low limit behaviour
    bool home_timeout = homing_ && (stoppedTime_ >= homing_timeout) && !cancelHomeSent_;
-   bool home_soft_limits_hit = (((readback > highLimit_ && softlimits) || (readback < lowLimit_ && softlimits)) && homing_ && !cancelHomeSent_ && done_);
+   bool home_soft_limits_hit = (((readback > highLimit_ && softlimits) || (readback < lowLimit_ && softlimits)) && home_timeout && done_);
    if (home_timeout || home_soft_limits_hit)
       {
       sprintf(pC_->cmd_, "MG homed%c\n", axisName_);
@@ -2241,7 +2243,7 @@ void GalilAxis::checkHoming(void)
       
       if (homed == 1)
       {
-            std::cerr << "Looks like homing axis " <<  axisName_ << " completed OK but unsolicited message from controller for axis was lost" << std::endl;
+            std::cerr << "Looks like homing axis " <<  axisName_ << " completed OK but unsolicited message from controller was lost" << std::endl;
             // execute logic as per GalilController::processUnsolicitedMesgs
             this->homedExecuted_ = false;
             this->pollRequest_.send((void*)&MOTOR_HOMED, sizeof(int));
@@ -3022,7 +3024,10 @@ asynStatus GalilAxis::poller(bool& moving)
 
    //Extract axis motion data from controller datarecord, and load into GalilAxis instance
    status |= getStatus();
-   if (status) goto skip;
+   if (status) {
+       done_ = last_done_;
+       goto skip;
+   }
 
    //Set poll variables in GalilAxis based on data record info
    setStatus(&moving);
@@ -3095,7 +3100,6 @@ asynStatus GalilAxis::poller(bool& moving)
        smoothed_encoder_position_ = (1.0 - encoder_smooth_factor_) * encoder_position_ +
                                encoder_smooth_factor_ * smoothed_encoder_position_;
    }
-skip:
    //Save encoder position, and done for next poll cycle
    last_encoder_position_ = encoder_position_;
    last_done_ = done_;
@@ -3105,7 +3109,7 @@ skip:
    //By this driver during homing
    revlast_ = rev_;
    fwdlast_ = fwd_;
-
+skip:
    //Set status
    if (encoder_smooth_factor_ != 0.0)
    {

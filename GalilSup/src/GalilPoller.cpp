@@ -225,6 +225,9 @@ void GalilPoller::wakePoller(bool restart_async)
          //Set most signficant bit for unsolicited bytes
          strcpy(pC_->cmd_, "CW 1");
          status = pC_->sync_writeReadController();
+         // set program behaviour on fifo full
+         strcpy(pC_->cmd_, "CW ,0");
+         status = pC_->sync_writeReadController();
       }
    }
 }
