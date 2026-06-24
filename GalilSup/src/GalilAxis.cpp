@@ -2427,24 +2427,15 @@ void GalilAxis::pollServices(void)
                          std::cerr << "Poll services: STOP " << axisName_ << std::endl;
                          break;
         case MOTOR_POST: status = pC_->getStringParam(axisNo_, pC_->GalilPost_, (int)sizeof(post), post);
-                         if (!status) { 
+                         if (!status)
+                            { 
                             //Copy post field into cmd 
-                            if (strcmp(post, ""))
-                            {                                
-                                strcpy(pC_->cmd_, post);
-                                //Write command to controller
-                                pC_->sync_writeReadController();
-                                std::cerr << "Poll services: POST " << axisName_ << " " << post << std::endl;
+                            strcpy(pC_->cmd_, post);
+                            //Write command to controller
+                            pC_->sync_writeReadController();
+                            std::cerr << "Poll services: POST " << axisName_ << " " << post << std::endl;
                             }
-                         }
                          //Motor post complete
-                         {
-                         double lf = getGalilAxisVal("_LF");
-                         double lr = getGalilAxisVal("_LR");
-                         double sc_code = getGalilAxisVal("_SC");
-                         std::cerr << "Motion Complete: _SC" << axisName_ << "=" << sc_code << " [" << lookupStopCode((int)sc_code) << "] " <<
-                                 "fwdLS=" << (lf == 0.0 ? "ENGAGED" : "OK") << " revLS=" << (lr == 0.0 ? "ENGAGED" : "OK") << std::endl;
-                         }
                          postExecuted_ = true;
                          break;
         case MOTOR_OFF:  //Block auto motor off if again inmotion_
@@ -2585,13 +2576,16 @@ void GalilAxis::executeAutoOnDelay(void)
 void GalilAxis::executePost(int dmov)
 {
   int homing;				//Homing status that includes JAH
-  int status = 0;				//Asyn paramlist status
+  char post[MAX_GALIL_STRING_SIZE];	//Motor record post field
+  int status;				//Asyn paramlist status
 
+  //Retrieve required params
+  status = pC_->getStringParam(axisNo_, pC_->GalilPost_, (int)sizeof(post), post);
   //Homing status that includes JAH
   status |= pC_->getIntegerParam(axisNo_, pC_->GalilHoming_, &homing);
 
   //Execute post when required
-  if (dmov && !status && !homing_ && !homing && !homedSent_ && !postSent_) {
+  if (strcmp(post, "") && dmov && !status && !homing_ && !homing && !homedSent_ && !postSent_) {
      //Send the post command
      pollRequest_.send((void*)&MOTOR_POST, sizeof(int));
      //Set post flags
@@ -3175,6 +3169,14 @@ skip:
    //Status delivered to MR, now send events to waiting threads
    sendAxisEvents();
    //Always return success. Dont need more error mesgs
+   
+   if (dmov && done_ && last_done_) {
+        double lf = getGalilAxisVal("_LF");
+        double lr = getGalilAxisVal("_LR");
+        double sc_code = getGalilAxisVal("_SC");
+        std::cerr << "Motion Complete: _SC" << axisName_ << "=" << sc_code << " [" << lookupStopCode((int)sc_code) << "] " <<
+                     "fwdLS=" << (lf == 0.0 ? "ENGAGED" : "OK") << " revLS=" << (lr == 0.0 ? "ENGAGED" : "OK") << std::endl;
+   }
    return asynSuccess;
 }
 
