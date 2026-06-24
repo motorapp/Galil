@@ -24,7 +24,6 @@
 # Mark Clift
 # email: padmoz@tpg.com.au
 
-
 record(bi,"$(P)$(M)_SCONN_STATUS")
 {
 	field(DESC, "SSI connection status")

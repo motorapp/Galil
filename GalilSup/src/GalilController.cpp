@@ -4846,24 +4846,25 @@ asynStatus GalilController::writeOctet(asynUser *pasynUser, const char*  value, 
               }
            }
         else
-        {
-        //User command failed, get error message from controller
-        strcpy(cmd_, "TC1");
-        if ( (status = sync_writeReadController()) == asynSuccess )
            {
-           //Set readback value = response from controller
-           setStringParam(GalilUserOctet_, resp_);
+           //User command failed, get error message from controller
+           strcpy(cmd_, "TC1");
+           if ( (status = sync_writeReadController()) == asynSuccess )
+              {
+              //Set readback value = response from controller
+              setStringParam(GalilUserOctet_, resp_);
+              }
            }
         }
      }
-  }
-  else if (function >= GalilHomingRoutineA_ && function <= GalilHomingRoutineH_) {
+  else if (function >= GalilHomingRoutineA_ && function <= GalilHomingRoutineH_)
+     {
       GalilAxis* pAxis = getAxis(pasynUser);	//Retrieve the axis instance
       if (pAxis != nullptr) {
           std::string homingRoutineName = pAxis->homingRoutineName;
           setStringParam(function, homingRoutineName);
       }
-  }
+     }
   else if (function >= GalilCSMotorForward_ && function <= GalilCSMotorReverseH_)
      {
      //User has entered a new kinematic transform equation
@@ -8261,7 +8262,6 @@ extern "C" int GalilCreateController(const char *portName, const char *address, 
   */
 extern "C" asynStatus GalilCreateAxis(const char *portName,        	/*specify which controller by port name */
                          	      char *axisname,                  	/*axis name A-H */
-                      int limit_as_home,		/*IGNORED, only present for backward compatibility with old st.cmd - option now set in galil_motor_extras.template */
 				      char *enables_string,		/*digital input(s) to use to enable/inhibit motor*/
 				      int switch_type)		  	/*digital input switch type for enable/inhbit function*/
 {
@@ -8446,7 +8446,7 @@ static void GalilCreateContollerCallFunc(const iocshArgBuf *args)
 //GalilCreateAxis iocsh function
 static const iocshArg GalilCreateAxisArg0 = {"Controller Port name", iocshArgString};
 static const iocshArg GalilCreateAxisArg1 = {"Specified Axis Name", iocshArgString};
-static const iocshArg GalilCreateAxisArg2 = {"IGNORED old limit_as_home", iocshArgInt};
+static const iocshArg GalilCreateAxisArg2 = {"IGNORED limit_as_home", iocshArgInt}; //IGNORED, only present for backward compatibility with old st.cmd - option now set in galil_motor_extras.template 
 static const iocshArg GalilCreateAxisArg3 = {"Motor enable string", iocshArgString};
 static const iocshArg GalilCreateAxisArg4 = {"Motor enable switch type", iocshArgInt};
 
@@ -8460,7 +8460,8 @@ static const iocshFuncDef GalilCreateAxisDef = {"GalilCreateAxis", 5, GalilCreat
 
 static void GalilCreateAxisCallFunc(const iocshArgBuf *args)
 {
-  GalilCreateAxis(args[0].sval, args[1].sval, args[2].ival, args[3].sval, args[4].ival);
+  GalilCreateAxis(args[0].sval, args[1].sval, args[3].sval, args[4].ival); // limit_as_home not passed
+
 }
 
 //GalilCreateVAxis iocsh function
@@ -8522,7 +8523,7 @@ static void GalilAddCodeCallFunc(const iocshArgBuf *args)
 static const iocshArg GalilStartControllerArg0 = {"Controller Port name", iocshArgString};
 static const iocshArg GalilStartControllerArg1 = {"Code file", iocshArgString};
 static const iocshArg GalilStartControllerArg2 = {"Burn program", iocshArgInt};
-static const iocshArg GalilStartControllerArg3 = {"Display Code", iocshArgInt}; // ignored by driver, left here for compatibility with existing .cmd files
+static const iocshArg GalilStartControllerArg3 = {"IGNORED Display Code", iocshArgInt}; // ignored by driver, left here for compatibility with existing .cmd files
 static const iocshArg GalilStartControllerArg4 = {"Thread mask", iocshArgInt};
 static const iocshArg * const GalilStartControllerArgs[] = {&GalilStartControllerArg0,
                                                             &GalilStartControllerArg1,
