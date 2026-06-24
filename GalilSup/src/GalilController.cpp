@@ -8161,7 +8161,7 @@ void GalilController::dq_analog(int byte, int input_num)
   * \param[in] address      	 The name or address to provide to Galil communication library
   * \param[in] updatePeriod	     The time in ms between datarecords.  Async if controller + bus supports it, otherwise is polled/synchronous.
   *                              If (updatePeriod < 0), polled/synchronous at abs(updatePeriod) is done regardless of bus type
-  * \param[in] quietStart	 Don't stop threads and motors if control code is unchanged.
+  * \param[in] quietStart	     Don't stop threads and motors if control code is unchanged.
   */
 extern "C" int GalilCreateController(const char *portName, const char *address, int updatePeriod, int quietStart)
 {
@@ -8178,6 +8178,7 @@ extern "C" int GalilCreateController(const char *portName, const char *address, 
   */
 extern "C" asynStatus GalilCreateAxis(const char *portName,        	/*specify which controller by port name */
                          	      char *axisname,                  	/*axis name A-H */
+                      int limit_as_home,		/*IGNORED, only present for backward compatibility with old st.cmd - option now set in galil_motor_extras.template */
 				      char *enables_string,		/*digital input(s) to use to enable/inhibit motor*/
 				      int switch_type)		  	/*digital input switch type for enable/inhbit function*/
 {
@@ -8362,19 +8363,21 @@ static void GalilCreateContollerCallFunc(const iocshArgBuf *args)
 //GalilCreateAxis iocsh function
 static const iocshArg GalilCreateAxisArg0 = {"Controller Port name", iocshArgString};
 static const iocshArg GalilCreateAxisArg1 = {"Specified Axis Name", iocshArgString};
-static const iocshArg GalilCreateAxisArg2 = {"Motor enable string", iocshArgString};
-static const iocshArg GalilCreateAxisArg3 = {"Motor enable switch type", iocshArgInt};
+static const iocshArg GalilCreateAxisArg2 = {"IGNORED old limit_as_home", iocshArgInt};
+static const iocshArg GalilCreateAxisArg3 = {"Motor enable string", iocshArgString};
+static const iocshArg GalilCreateAxisArg4 = {"Motor enable switch type", iocshArgInt};
 
 static const iocshArg * const GalilCreateAxisArgs[] =  {&GalilCreateAxisArg0,
                                                         &GalilCreateAxisArg1,
 							&GalilCreateAxisArg2,
-							&GalilCreateAxisArg3};
+							&GalilCreateAxisArg3,
+							&GalilCreateAxisArg4};
 
-static const iocshFuncDef GalilCreateAxisDef = {"GalilCreateAxis", 4, GalilCreateAxisArgs};
+static const iocshFuncDef GalilCreateAxisDef = {"GalilCreateAxis", 5, GalilCreateAxisArgs};
 
 static void GalilCreateAxisCallFunc(const iocshArgBuf *args)
 {
-  GalilCreateAxis(args[0].sval, args[1].sval, args[2].sval, args[3].ival);
+  GalilCreateAxis(args[0].sval, args[1].sval, args[2].ival, args[3].sval, args[4].ival);
 }
 
 //GalilCreateVAxis iocsh function
