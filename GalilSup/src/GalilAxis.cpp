@@ -2412,8 +2412,8 @@ void GalilAxis::pollServices(void)
      {
      //Wait for poll to request a service
      pollRequest_.receive(&request, sizeof(int));
-     if (pC_->shuttingDown_)
-         break;
+     //if (pC_->shuttingDown_)
+     //    break;
      //Obtain the lock
      pC_->lock();
      //What did poll request
@@ -2427,8 +2427,8 @@ void GalilAxis::pollServices(void)
                          std::cerr << "Poll services: STOP " << axisName_ << std::endl;
                          break;
         case MOTOR_POST: status = pC_->getStringParam(axisNo_, pC_->GalilPost_, (int)sizeof(post), post);
-                         if (!status)
-                            { 
+                         if (!status) 
+                            {
                             //Copy post field into cmd 
                             strcpy(pC_->cmd_, post);
                             //Write command to controller
@@ -2441,7 +2441,7 @@ void GalilAxis::pollServices(void)
         case MOTOR_OFF:  //Block auto motor off if again inmotion_
                          if (!inmotion_)
                          {
-                            setClosedLoop(false);	//Execute the motor off command
+                            setClosedLoop(false);//Execute the motor off command
                             std::cerr << "Poll services: MOTOR OFF " << axisName_ << std::endl;
                          }
                          break;
