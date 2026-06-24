@@ -1172,13 +1172,12 @@ void GalilController::shutdownController()
       if (async_records_)
          {
          //Close all udp async connections
-         strcpy(cmd_, "DR0");// stop udp data record
-         sync_writeReadController();
-         strcpy(cmd_, "IHT=>-1"); // udp handles
-         sync_writeReadController();
-         strcpy(cmd_, "IHT=>-2"); // tcp handles
+         strcpy(cmd_, "IHT=>-1");
          sync_writeReadController();
          }
+      // also close all tcp connections?
+      //strcpy(cmd_, "IHT=>-2");
+      //sync_writeReadController();
 
       //Asyn exit handler will disconnect sync connection from here
       //We just print message to tell user Asyn epicsAtExit callback is running (next) and will close connection

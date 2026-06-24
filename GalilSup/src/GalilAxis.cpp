@@ -854,7 +854,7 @@ asynStatus GalilAxis::setupHome(double maxVelocity, int forwards)
    if (customHome_) {
        // we do not want to change hjog, it needs to be left at 0 at start for custom home code
        // and should already be zero from how home routine works
-       std::cerr << "Using custom home code" << std::endl;
+       std::cerr << "Using custom home code - no jog started" << std::endl;
    }
    else if (useSwitch) {
      //Driver will start jog toward switch
@@ -862,9 +862,8 @@ asynStatus GalilAxis::setupHome(double maxVelocity, int forwards)
      //calculate jog toward switch speed, direction
      hvel = maxVelocity * home_direction * -1;
 
-     ///@todo we disabled this previously
-     //sprintf(pC_->cmd_, "JG%c=%.0lf", axisName_, hvel);
-     //pC_->sync_writeReadController();
+     sprintf(pC_->cmd_, "JG%c=%.0lf", axisName_, hvel);
+     pC_->sync_writeReadController();
      //Tell controller home program that jog off switch is necessary
      sprintf(pC_->cmd_, "hjog%c=0", axisName_);
      pC_->sync_writeReadController();
@@ -1293,26 +1292,29 @@ asynStatus GalilAxis::stop(double acceleration)
   }
   else {
      //Stop this axis independently
-     //cancel any home, and home switch jog off operations that may be underway
-     // we do not check homing_ as we may have restared when one was in progress?
-     // but we may stop on startup anyway?
-     sprintf(pC_->cmd_, "home%c=0", axisName_);
-     pC_->sync_writeReadController();
-     //Cancel limit/home switch jog off operations that may be underway
-     // hjog=0 not needed for custom home, might be a race condition if it is set (reexecute hjog==0 section)
-     if (!customHome_) {
-          // hjog=0 not needed, might be a race condition if it is set (reexecute hjog==0 section)
-         sprintf(pC_->cmd_, "hjog%c=0", axisName_);
-         pC_->sync_writeReadController();
+     //we do not check homing_ as we may have restared ioc when one was in progress?
+     //but we may stop everything on startup anyway?
+     //Check if axis homing
+     if (true /*homing_*/) {
+        //cancel any home operation
+        sprintf(pC_->cmd_, "home%c=0", axisName_);
+        pC_->sync_writeReadController();
+        //Cancel limit/home switch jog off operations that may be underway
+        // hjog=0 not needed for custom home, might be a race condition if it is set (reexecute hjog==0 section)
+        if (!customHome_) {
+            // hjog=0 not needed, might be a race condition if it is set (reexecute hjog==0 section)
+            sprintf(pC_->cmd_, "hjog%c=0", axisName_);
+            pC_->sync_writeReadController();
+        }
+        //Set deceleration back to normal
+        sprintf(pC_->cmd_, "DC%c=nrmdc%c", axisName_, axisName_);
+        pC_->sync_writeReadController();
+        //Set homing flag false
+        //This flag does not include JAH
+        homing_ = false;
+        //This flag does include JAH
+        setIntegerParam(pC_->GalilHoming_, 0);
      }
-     //Set deceleration back to normal
-     sprintf(pC_->cmd_, "DC%c=nrmdc%c", axisName_, axisName_);
-     pC_->sync_writeReadController();
-     //Set homing flag false
-     //This flag does not include JAH
-     homing_ = false;
-     //This flag does include JAH
-     setIntegerParam(pC_->GalilHoming_, 0);
      //For internal stop, prevent backlash, retries from this axis motor record
      stopMotorRecord();
      //Stop the axis
@@ -2419,14 +2421,8 @@ void GalilAxis::pollServices(void)
         {
         //Poll will make upper layers wait for POST, Sync encoded stepper at stop, and HOMED completion by setting moving true
         //Poll will not make upper layers wait for other services to complete
-        case MOTOR_CANCEL_HOME: sprintf(pC_->cmd_, "home%c=0\n", axisName_);
-                                epicsThreadSleep(.2);  //Wait as controller may still issue move upto this time after
-                                errlogSevPrintf(errlogInfo, "Poll services: MOTOR CANCEL HOME %c\n", axisName_);
-                                                       //Setting home to 0 (cancel home)
-                                stopSent_ = true;
-                                stop_reason_ = MOTOR_STOP_ONSTALL;
-                                setIntegerParam(pC_->motorStatusSlip_, 1);
-                                //break; Delibrate fall through to MOTOR_STOP
+        case MOTOR_CANCEL_HOME: //break; Delibrate fall through to MOTOR_STOP
+                         std::cerr << "Poll services: MOTOR CANCEL HOME " << axisName_ << std::endl;
         case MOTOR_STOP: stopInternal(limdc_);
                          std::cerr << "Poll services: STOP " << axisName_ << std::endl;
                          break;
