@@ -2241,7 +2241,7 @@ void GalilAxis::checkHoming(void)
       
       if (homed == 1)
       {
-            std::cerr << "Looks like homing completed OK but unsolicited message from controller got lost" << std::endl;
+            std::cerr << "Looks like homing axis " <<  axisName_ << " completed OK but unsolicited message from controller for axis was lost" << std::endl;
             // execute logic as per GalilController::processUnsolicitedMesgs
             this->homedExecuted_ = false;
             this->pollRequest_.send((void*)&MOTOR_HOMED, sizeof(int));
@@ -2585,9 +2585,15 @@ void GalilAxis::executePost(int dmov)
   status |= pC_->getIntegerParam(axisNo_, pC_->GalilHoming_, &homing);
 
   //Execute post when required
-  if (strcmp(post, "") && dmov && !status && !homing_ && !homing && !homedSent_ && !postSent_) {
+  if (dmov && !status && !homing_ && !homing && !homedSent_ && !postSent_) {
      //Send the post command
-     pollRequest_.send((void*)&MOTOR_POST, sizeof(int));
+     if (strcmp(post, "")) 
+         pollRequest_.send((void*)&MOTOR_POST, sizeof(int));
+      double lf = getGalilAxisVal("_LF");
+      double lr = getGalilAxisVal("_LR");
+      double sc_code = getGalilAxisVal("_SC");
+      std::cerr << "Motion Complete: _SC" << axisName_ << "=" << sc_code << " [" << lookupStopCode((int)sc_code) << "] " <<
+                   "fwdLS=" << (lf == 0.0 ? "ENGAGED" : "OK") << " revLS=" << (lr == 0.0 ? "ENGAGED" : "OK") << std::endl;
      //Set post flags
      postSent_ = true;
   }
@@ -3170,13 +3176,6 @@ skip:
    sendAxisEvents();
    //Always return success. Dont need more error mesgs
    
-   if (dmov && done_ && last_done_) {
-        double lf = getGalilAxisVal("_LF");
-        double lr = getGalilAxisVal("_LR");
-        double sc_code = getGalilAxisVal("_SC");
-        std::cerr << "Motion Complete: _SC" << axisName_ << "=" << sc_code << " [" << lookupStopCode((int)sc_code) << "] " <<
-                     "fwdLS=" << (lf == 0.0 ? "ENGAGED" : "OK") << " revLS=" << (lr == 0.0 ? "ENGAGED" : "OK") << std::endl;
-   }
    return asynSuccess;
 }
 
