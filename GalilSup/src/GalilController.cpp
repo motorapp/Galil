@@ -633,7 +633,7 @@ GalilController::GalilController(const char *portName, const char *address, doub
                          (int)(ASYN_CANBLOCK | ASYN_MULTIDEVICE),
                          (int)1, // autoconnect
                          (int)0, (int)0),  // Default priority and stack size
-  numAxes_(0), unsolicitedQueue_(MAX_GALIL_AXES, MAX_GALIL_STRING_SIZE), shutdown_requested_(false)
+  numAxes_(0), unsolicitedQueue_(MAX_GALIL_AXES, MAX_GALIL_STRING_SIZE)
 {
   struct Galilmotor_enables *motor_enables = NULL;	//Convenience pointer to GalilController motor_enables[digport]
   string mesg;              //Controller mesg
@@ -1103,11 +1103,6 @@ void GalilController::shutdownController()
    unsigned i;
    GalilAxis *pAxis;
    GalilCSAxis *pCSAxis;
-   shutdown_requested_ = true;
-
-   // wake these threads, which should then check shutdown_requested_ and exit
-   epicsEventSignal(arrayUploadEvent_);
-   epicsEventSignal(profileExecuteEvent_);
 
    //Set shutdown flag
    shuttingDown_ = true;
@@ -4835,8 +4830,7 @@ asynStatus GalilController::writeOctet(asynUser *pasynUser, const char*  value, 
                  timeMultiplier_ = DEFAULT_TIME / atof(resp_);
               }
            }
-        }
-     else
+        else
         {
         //User command failed, get error message from controller
         strcpy(cmd_, "TC1");
@@ -4847,6 +4841,7 @@ asynStatus GalilController::writeOctet(asynUser *pasynUser, const char*  value, 
            }
         }
      }
+  }
   else if (function >= GalilHomingRoutineA_ && function <= GalilHomingRoutineH_) {
       GalilAxis* pAxis = getAxis(pasynUser);	//Retrieve the axis instance
       if (pAxis != nullptr) {
@@ -5326,7 +5321,7 @@ void GalilController::processUnsolicitedMesgs(void)
                   if (value)
                      {
                      //Send homed message to pollServices
-                     // logical also replicated in GalilAxis::checkHoming()
+                     // logic also replicated in GalilAxis::checkHoming()
                      pAxis->homedExecuted_ = false;
                      pAxis->pollRequest_.send((void*)&MOTOR_HOMED, sizeof(int));
                      pAxis->homedSent_ = true;
@@ -5785,13 +5780,12 @@ void GalilController::acquireDataRecord(void)
      consecutive_acquire_timeouts_++;
 
   //Force disconnect if any errors
-  if (consecutive_acquire_timeouts_ > ALLOWED_TIMEOUTS)
-     {
+  if (consecutive_acquire_timeouts_ > ALLOWED_TIMEOUTS) {
      //Disconnect
      disconnect();
      //Due to error, put poller to sleep at end of this cycle
      poller_->sleepPoller(false);
-     }
+  }
 
   //If no errors, copy the data
   if (!recstatus_ && connected_)
@@ -6078,41 +6072,6 @@ bool GalilController::checkGalilThreads()
         }
     }
     return result;
-}
-
-/*--------------------------------------------------------------*/
-/* Find and replace text in string                              */
-/*--------------------------------------------------------------*/
-void GalilController::findReplace(string& s, const string &toReplace, const string &replaceWith)
-{
-    while(s.find(toReplace) != std::string::npos) {
-        s.replace(s.find(toReplace), toReplace.length(), replaceWith);
-    }
-}
-
-/*--------------------------------------------------------------*/
-/* Remove non-functional elements from the code                 */
-/*--------------------------------------------------------------*/
-void GalilController::compressCode(string& code){
-    findReplace(code, "\r ", "");
-    // Tabs to space
-    findReplace(code, "\t", "    ");
-    // Trailing whitespace
-    findReplace(code, " \n", "\n");
-    // Leading whitespace
-    findReplace(code, "\n ", "\n");
-    // Blank lines
-    findReplace(code, "\n\n", "\n");
-}
-
-/*--------------------------------------------------------------*/
-/* Compare old code to new code                                 */
-/*--------------------------------------------------------------*/
-int GalilController::compareCode(string dc, string uc)
-{
-    compressCode(dc);
-    compressCode(uc);
-    return dc.compare(uc);
 }
 
 /*--------------------------------------------------------------*/

@@ -526,7 +526,6 @@ public:
   asynStatus prepSyncStartOnlyMoves(void);
 
   void shutdownController();
-  bool shutdownRequested() { return shutdown_requested_; }
   virtual ~GalilController();
 
 protected:
@@ -786,14 +785,9 @@ private:
   string card_code_ = "";
   string user_code_ = "";
   
-  static int compareCode(std::string dc, std::string uc);
-  static void compressCode(std::string& s);
-  static void findReplace(std::string& s, const std::string& toFind, const std::string& toReplace);
-  
   void stopThreads();
   void stopAxes();
   int quiet_start_;
-  bool shutdown_requested_;
   epicsEvent motion_started_;
   epicsMutex pollLock_;
 

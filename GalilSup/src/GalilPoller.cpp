@@ -176,7 +176,6 @@ GalilPoller::~GalilPoller()
 }
 
 //Put poller in sleep mode, and stop async records if needed
-//Put poller in sleep mode, and stop async records if needed
 //Must be called without lock so sync poller can be put to sleep
 void GalilPoller::sleepPoller(bool waitTillSleep)
 {
