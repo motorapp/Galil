@@ -1027,15 +1027,27 @@ void GalilController::connect(void)
   else
      {
      //Connect to the device, we don't want end of string processing
-     //on windows address may be "COM32 115200" for COM32 at baud rate of 115200, this syntax used in original GalilTools library
+     //on windows address may be "COM32 115200" for port COM32 at baud rate of 115200, this syntax used in original GalilTools library
      //extended syntax only needed if COM port is not already configured with appropriate serial parameters
+     // "COM32 115200 CRTSCTS" to enable hardware handshake on serial line. 
      size_t n = address.find(" ");
      int baud = 0;
+     bool crtscts = false, xonxoff = false;
      if (n == string::npos) {
         address_string = address;
      } else {
         address_string = address.substr(0, n);
-        baud = atoi(address.substr(n).c_str());
+        size_t m = address.find(" ", n + 1);
+        if (m != string::npos) {
+            baud = atoi(address.substr(n, m - n).c_str());
+            std::string opts_str = address.substr(m + 1);
+            std::transform(opts_str.begin(), opts_str.end(), opts_str.begin(),
+                   [](unsigned char c){ return std::tolower(c); });
+            crtscts = (opts_str.find("crtscts") != std::string::npos ? true : false);
+            xonxoff = (opts_str.find("xonxoff") != std::string::npos ? true : false);
+        } else {
+            baud = atoi(address.substr(n).c_str());
+        }
      }
      std::cerr << "Connecting asyn port \"" << syncPort_ << "\" to serial device " << address_string << std::endl;
      drvAsynSerialPortConfigure(syncPort_, (const char *)address_string.c_str(), epicsThreadPriorityMax, 0, 1);
@@ -1047,16 +1059,15 @@ void GalilController::connect(void)
          asynSetOption(syncPort_, 0, "parity", "none");
          asynSetOption(syncPort_, 0, "stop", "1");
          asynSetOption(syncPort_, 0, "clocal", "Y");
-         // disable XON/XOFF flow control. This seemed to be required in the old driver that used the GalilTools DLL
+         // usually disable XON/XOFF flow control. This seemed to be required in the old driver that used the GalilTools DLL
          // but here it seems to lead to parts of the data record being interpreted as XOFF and getting dropped
          // from the readback particularly when a motor is moving. It was only enabled in the old version as otherwise
-         // download of the homing programs timed out, but that doesn't seem to be an issue here
-         std::cerr << syncPort_ << ": disabling software flow control (XON/XOFF) - check this dip switch (if present) on galil controller is OFF" << std::endl;
-         std::cerr << syncPort_ << ": enabling hardware flow control (RTS/CTS) - check Handshake dip switch (if present) on galil controller is ON" << std::endl;
-         asynSetOption(syncPort_, 0, "ixon", "N");
-         asynSetOption(syncPort_, 0, "ixoff", "N");
-//         asynSetOption(syncPort_, 0, "crtscts", "Y");
-         asynSetOption(syncPort_, 0, "crtscts", "N");
+         // download of the homing programs timed out, but that doesn't seem to be an issue with this driver
+         std::cerr << syncPort_ << ": " << (xonxoff ? "ENABLING" : "DISABLING") << " software flow control (XON/XOFF) - check this dip switch (if present) on controller is correct" << std::endl;
+         std::cerr << syncPort_ << ": " << (crtscts ? "ENABLING" : "DISABLING") << " hardware flow control (RTS/CTS) - check Handshake dip switch (if present) on controller is correct" << std::endl;
+         asynSetOption(syncPort_, 0, "ixon", (xonxoff ? "Y" : "N"));
+         asynSetOption(syncPort_, 0, "ixoff", (xonxoff ? "Y" : "N"));
+         asynSetOption(syncPort_, 0, "crtscts", (crtscts ? "Y" : "N"));
      }
      //Flag try_async_ records false for serial connections
      try_async_ = false;
