@@ -1,6 +1,8 @@
+# based on iocBoot/iocGalilTest/GalilTest_DMC01Settings.req
+
 # scan and SaveData settings
-#file standardScans_settings.req P=DMC$(CCP):
-#file saveData_settings.req P=DMC$(CCP):
+file standardScans_settings.req P=$(P)DMC$(CCP):
+file saveData_settings.req P=$(P)DMC$(CCP):
 
 # Controller settings that motorRecord does not support
 file "galil_dmc_ctrl.req" P=$(P)DMC$(CCP):
@@ -63,26 +65,6 @@ file "galil_motor_settings.req" P=$(P), M=MTR$(CCP)13
 file "galil_motor_settings.req" P=$(P), M=MTR$(CCP)14
 file "galil_motor_settings.req" P=$(P), M=MTR$(CCP)15
 file "galil_motor_settings.req" P=$(P), M=MTR$(CCP)16
-
-# Kinematics
-# Forward transforms (Readbacks)
-file "galil_forward_transform.req" P=$(P), M=MTR$(CCP)09
-file "galil_forward_transform.req" P=$(P), M=MTR$(CCP)10
-file "galil_forward_transform.req" P=$(P), M=MTR$(CCP)11
-file "galil_forward_transform.req" P=$(P), M=MTR$(CCP)12
-file "galil_forward_transform.req" P=$(P), M=MTR$(CCP)13
-file "galil_forward_transform.req" P=$(P), M=MTR$(CCP)14
-file "galil_forward_transform.req" P=$(P), M=MTR$(CCP)15
-file "galil_forward_transform.req" P=$(P), M=MTR$(CCP)16
-# Reverse transforms (Setpoints)
-file "galil_reverse_transforms.req" P=$(P), M=MTR$(CCP)09
-file "galil_reverse_transforms.req" P=$(P), M=MTR$(CCP)10
-file "galil_reverse_transforms.req" P=$(P), M=MTR$(CCP)11
-file "galil_reverse_transforms.req" P=$(P), M=MTR$(CCP)12
-file "galil_reverse_transforms.req" P=$(P), M=MTR$(CCP)13
-file "galil_reverse_transforms.req" P=$(P), M=MTR$(CCP)14
-file "galil_reverse_transforms.req" P=$(P), M=MTR$(CCP)15
-file "galil_reverse_transforms.req" P=$(P), M=MTR$(CCP)16
 
 # Digital inputs
 #file "galil_digital_in_bit.req" P=DMC$(CCP):, R=Galil0Bi0

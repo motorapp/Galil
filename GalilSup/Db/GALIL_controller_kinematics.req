@@ -1,5 +1,5 @@
 # Kinematics
-
+# based on iocBoot/iocGalilTest/GalilTest_DMC01Kinematics.req
 # Forward transforms (Readbacks)
 file "galil_forward_transform.req" P=$(P), M=MTR$(CCP)09
 file "galil_forward_transform.req" P=$(P), M=MTR$(CCP)10
@@ -9,7 +9,6 @@ file "galil_forward_transform.req" P=$(P), M=MTR$(CCP)13
 file "galil_forward_transform.req" P=$(P), M=MTR$(CCP)14
 file "galil_forward_transform.req" P=$(P), M=MTR$(CCP)15
 file "galil_forward_transform.req" P=$(P), M=MTR$(CCP)16
-
 # Reverse transforms (Setpoints)
 file "galil_reverse_transforms.req" P=$(P), M=MTR$(CCP)09
 file "galil_reverse_transforms.req" P=$(P), M=MTR$(CCP)10
