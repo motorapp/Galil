@@ -5857,16 +5857,20 @@ asynStatus GalilController::sync_writeReadController(bool testQuery, bool logCom
 {
   const char *functionName="sync_writeReadController";
   size_t nread = 0;
+  static std::atomic<int> call_count = 0;
   int status;
   size_t len;
   static const char* debug_file_name = macEnvExpand("$(GALIL_DEBUG_FILE=)");
   static FILE* debug_file = ( (debug_file_name != NULL && strlen(debug_file_name) > 0) ? fopen(debug_file_name, "at") : NULL);
-
+  if (++call_count > 1) {
+      std::cerr << "sync_writeReadController problem" << std::endl;
+  }
   //Simply return asynSuccess if not connected
   //Asyn module corrupts ram if we try write/read with no connection
   if (!connected_ && !testQuery)
      {
      strcpy(resp_, "");
+     --call_count;
      return asynSuccess;
      }
 
@@ -5881,7 +5885,10 @@ asynStatus GalilController::sync_writeReadController(bool testQuery, bool logCom
      cmd_[len+1] = '\0';
      }
   else //Command too long
-     return asynError;
+  {
+      --call_count;
+      return asynError;
+  }
 
   //Write command, and retrieve response
   status = sync_writeReadController(cmd_, resp_, MAX_GALIL_STRING_SIZE, &nread, timeout_);
@@ -5910,8 +5917,72 @@ asynStatus GalilController::sync_writeReadController(bool testQuery, bool logCom
      fprintf(debug_file, "%s (%d) %s: controller=\"%s\" command=\"%s\", response=\"%s\", status=%s\n", 
 	      time_buffer, getpid(), functionName, address_.c_str(), cmd_, resp_, (status == asynSuccess ? "OK" : "ERROR"));
      }
-
+  --call_count;
   return (asynStatus)status;
+}
+
+asynStatus GalilController::sync_writeReadController(std::string& input, const char* output, ...)
+{
+    const char* functionName = "sync_writeReadController";
+    size_t nread = 0;
+    bool logCommand = true;
+    bool testQuery = false;
+    char output_buffer[MAX_GALIL_STRING_SIZE];
+    char input_buffer[MAX_GALIL_STRING_SIZE];
+    int status;
+    size_t len;
+    static const char* debug_file_name = macEnvExpand("$(GALIL_DEBUG_FILE=)");
+    static FILE* debug_file = ((debug_file_name != NULL && strlen(debug_file_name) > 0) ? fopen(debug_file_name, "at") : NULL);
+    va_list args;
+    va_start(args, output);
+    vsnprintf(output_buffer, sizeof(output_buffer), output, args);
+    va_end(args);
+    //Simply return asynSuccess if not connected
+    //Asyn module corrupts ram if we try write/read with no connection
+    if (!connected_ && !testQuery)
+    {
+        input = "";
+        return asynSuccess;
+    }
+
+    /*asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW,
+            "%s: controller=\"%s\" command=\"%s\"\n", functionName, address_, cmd_);*/
+
+            //Append carriage return to provided cmd
+    len = strlen(output_buffer);
+    if (len < MAX_GALIL_STRING_SIZE - 2)
+    {
+        output_buffer[len] = '\r';
+        output_buffer[len + 1] = '\0';
+    }
+    else //Command too long
+        return asynError;
+
+    //Write command, and retrieve response
+    status = sync_writeReadController(output_buffer, input_buffer, MAX_GALIL_STRING_SIZE, &nread, timeout_);
+
+    //Remove any unwanted characters
+    input = input_buffer;
+    input.erase(input.find_last_not_of(" \n\r\t:") + 1);
+
+    //Debugging
+    /*asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DRIVER,
+           "%s: controller=\"%s\" command=\"%s\", response=\"%s\", status=%s\n",
+            functionName, address_, cmd_, resp_, (status == asynSuccess ? "OK" : "ERROR"));*/
+
+    if (debug_file != NULL && logCommand)
+    {
+        time_t now;
+        //Use line buffering, then flush
+        setvbuf(debug_file, NULL, _IOLBF, BUFSIZ);
+        time(&now);
+        char time_buffer[64];
+        strftime(time_buffer, sizeof(time_buffer), "%Y-%m-%d %H:%M:%S", localtime(&now));
+        fprintf(debug_file, "%s (%d) %s: controller=\"%s\" command=\"%s\", response=\"%s\", status=%s\n",
+            time_buffer, getpid(), functionName, address_.c_str(), output_buffer, input_buffer, (status == asynSuccess ? "OK" : "ERROR"));
+    }
+
+    return (asynStatus)status;
 }
 
 /** Writes a string to the controller and reads a response.
@@ -5943,6 +6014,7 @@ asynStatus GalilController::sync_writeReadController(const char *output, char *i
   bool term_done = false;   // found all terminators?
   size_t this_nread;
 
+  epicsGuard<epicsMutex> _lock(sync_writeReadLock_);
   *nread = 0;
   //Null user supplied input buffer
   strcpy(input, "");

@@ -2980,9 +2980,9 @@ void GalilAxis::sendAxisEvents(void) {
 double GalilAxis::getGalilAxisVal(const char* name)
 {
     static const char *functionName = "GalilAxis::getGalilAxisVal";
-    sprintf(pC_->cmd_, "MG %s%c\n", name, axisName_);
-    pC_->sync_writeReadController();
-    return atof(pC_->resp_);
+    std::string resp;
+    pC_->sync_writeReadController(resp, "MG %s%c\n", name, axisName_);
+    return atof(resp.c_str());
 }
 
 /** Polls the axis.

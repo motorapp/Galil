@@ -1,5 +1,4 @@
 NO*************HEADER*********************
-MG "Galil_Code_Execution_Time",TIME
 #AUTO
 homeA=0;homeB=0;homeC=0;homeD=0
 homeE=0;homeF=0;homeG=0;homeH=0

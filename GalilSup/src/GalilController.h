@@ -395,6 +395,7 @@ public:
 
   asynStatus sync_writeReadController(const char *output, char *input, size_t maxChars, size_t *nread, double timeout);
   asynStatus sync_writeReadController(bool testQuery = false, bool logCommand = true);
+  asynStatus sync_writeReadController(std::string& input, const char* output, ...);
 
   asynStatus sendUnsolicitedMessage(char *mesg);
   bool isprintable(int c);
@@ -717,6 +718,7 @@ private:
 
   char cmd_[MAX_GALIL_STRING_SIZE];	//holds the assembled Galil cmd string
   char resp_[MAX_GALIL_DATAREC_SIZE];	//Response from Galil controller
+  epicsMutex sync_writeReadLock_;
 
   GalilPoller *poller_;			//GalilPoller to acquire a datarecord
   GalilConnector *connector_;		//GalilConnector to manage connection status flags
