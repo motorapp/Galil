@@ -2237,9 +2237,7 @@ void GalilAxis::checkHoming(void)
    bool home_soft_limits_hit = (((readback > highLimit_ && softlimits) || (readback < lowLimit_ && softlimits)) && home_timeout && done_);
    if (home_timeout || home_soft_limits_hit)
       {
-      sprintf(pC_->cmd_, "MG homed%c\n", axisName_);
-      pC_->sync_writeReadController();
-      double homed = atof(pC_->resp_);
+      double homed = getGalilAxisVal("homed");
       
       if (homed == 1)
       {
@@ -2256,26 +2254,16 @@ void GalilAxis::checkHoming(void)
       {
 
       // get last stop code
-      sprintf(pC_->cmd_, "MG _SC%c\n", axisName_);
-      pC_->sync_writeReadController();
-      double sc_code = atof(pC_->resp_);
+      double sc_code = getGalilAxisVal("_SC");
 
       // get axis moving state
-      sprintf(pC_->cmd_, "MG _BG%c\n", axisName_);
-      pC_->sync_writeReadController();
-      double bg_code = atof(pC_->resp_);
+      double bg_code = getGalilAxisVal("_BG");
 
-      sprintf(pC_->cmd_, "MG hjog%c\n", axisName_);
-      pC_->sync_writeReadController();
-      double hjog = atof(pC_->resp_);
+      double hjog = getGalilAxisVal("hjog");
 
       // get limit status
-      sprintf(pC_->cmd_, "MG _LF%c\n", axisName_);
-      pC_->sync_writeReadController();
-      double lf = atof(pC_->resp_);
-      sprintf(pC_->cmd_, "MG _LR%c\n", axisName_);
-      pC_->sync_writeReadController();
-      double lr = atof(pC_->resp_);
+      double lf = getGalilAxisVal("_LF");
+      double lr = getGalilAxisVal("_LR");
 
       epicsSnprintf(message, sizeof(message), "Homing aborted after %f seconds: _BG%c=%.0f _LF%c=%.0f _LR%c=%.0f _SC%c=%.0f [%s] hjog%c=%.0f homed%c=%.0f",
                   stoppedTime_, axisName_, bg_code, axisName_, lf, axisName_, lr,
