@@ -355,6 +355,7 @@ private:
   epicsEventId axisStatusShutRequest_;	//Request axisStatus thread shutdown
 
   std::string homingRoutineName = "";
+  bool inAutoOnWait_;
 
 friend class GalilController;
 friend class GalilCSAxis;

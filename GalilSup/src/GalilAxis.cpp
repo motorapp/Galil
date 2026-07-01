@@ -63,7 +63,7 @@ GalilAxis::GalilAxis(class GalilController *pC, //Pointer to controller instance
 		     int switch_type)		//motor enable/disable switch type
   : asynMotorAxis(pC, (toupper(axisname[0]) - AASCII)),
     pC_(pC), last_encoder_position_(0), smoothed_encoder_position_(0), encoder_smooth_factor_(0.0), motor_dly_(0.0),
-    first_poll_(true),encDirOk_(true), last_done_(1), pollRequest_(10, sizeof(int))
+    first_poll_(true),encDirOk_(true), last_done_(1), pollRequest_(10, sizeof(int)), inAutoOnWait_(false)
 {
   string limit_code;				//Code generated for limits interrupt on this axis
   string digital_code;				//Code generated for digital interrupt related to this axis
@@ -2080,7 +2080,7 @@ void GalilAxis::checkEncoder(void)
             // get axis moving state
             double bg_code = getGalilAxisVal("_BG");
             // in case we are homing record hjog
-            int hjog_code = getGalilAxisVal("hjog");
+            int hjog_code = static_cast<int>(getGalilAxisVal("hjog"));
             //Pass stall status to higher layers
             setIntegerParam(pC_->motorStatusSlip_, 1);
             //Set the stop reason so limit deceleration is applied during stop
@@ -2237,6 +2237,7 @@ void GalilAxis::checkHoming(void)
    bool home_soft_limits_hit = (((readback > highLimit_ && softlimits) || (readback < lowLimit_ && softlimits)) && home_timeout && done_);
    if (home_timeout || home_soft_limits_hit)
       {
+      pC_->lock();
       double homed = getGalilAxisVal("homed");
       
       if (homed == 1)
@@ -2281,6 +2282,7 @@ void GalilAxis::checkHoming(void)
       //Set controller error mesg monitor
       pC_->setCtrlError(message);
       }
+      pC_->unlock();
       }
 }
 
@@ -2397,6 +2399,7 @@ void GalilAxis::pollServices(void)
   char post[MAX_GALIL_STRING_SIZE];	//Motor record post field
   int request = -1; 			//Real service numbers start at 0
   int status;				//Asyn param status
+  //double offdelay;
 
   while (true)
      {
@@ -2429,7 +2432,10 @@ void GalilAxis::pollServices(void)
                          postExecuted_ = true;
                          break;
         case MOTOR_OFF:  //Block auto motor off if again inmotion_
-                         if (!inmotion_)
+                         //Also bock if we have reset stoppedTime whiel message was queued
+                         //status = pC_->getDoubleParam(axisNo_, pC_->GalilAutoOffDelay_, &offdelay);
+                         //if (!status && !inmotion_ && !homing_ && stoppedTime_ >= offdelay)
+                         if (!inmotion_ && !inAutoOnWait_)
                          {
                             setClosedLoop(false);//Execute the motor off command
                             std::cerr << "Poll services: MOTOR OFF " << axisName_ << std::endl;
@@ -2551,9 +2557,11 @@ void GalilAxis::executeAutoOnDelay(void)
   //Wait required on delay if AutoOn did some work
   if (ondelay >= 0.035) {
      //AutoOn delay long enough to justify releasing lock to other threads
+     inAutoOnWait_ = true;
      pC_->unlock();
      epicsThreadSleep(ondelay);
      pC_->lock();
+     inAutoOnWait_ = false;
   }
   else //AutoOn delay too short to bother releasing lock to other threads
      epicsThreadSleep(ondelay);
@@ -2579,9 +2587,11 @@ void GalilAxis::executePost(int dmov)
      //Send the post command
      if (strcmp(post, "")) 
          pollRequest_.send((void*)&MOTOR_POST, sizeof(int));
+      pC_->lock();
       double lf = getGalilAxisVal("_LF");
       double lr = getGalilAxisVal("_LR");
       double sc_code = getGalilAxisVal("_SC");
+      pC_->unlock();
       std::cerr << "Motion Complete: _SC" << axisName_ << "=" << sc_code << " [" << lookupStopCode((int)sc_code) << "] " <<
                    "fwdLS=" << (lf == 0.0 ? "ENGAGED" : "OK") << " revLS=" << (lr == 0.0 ? "ENGAGED" : "OK") << std::endl;
      //Set post flags
@@ -2737,27 +2747,31 @@ asynStatus GalilAxis::beginMotion(const char *caller, double position, bool rela
    }
    else {
       //Controller gave error at begin
-      // get last stop code
+      std::string error_msg;
+      strcpy(pC_->cmd_, "TC1");
+      if (pC_->sync_writeReadController() == asynSuccess) {
+          error_msg = pC_->resp_;
+      }
+      // get axis status
       double sc_code = getGalilAxisVal("_SC");
-      // get axis moving state
       double bg_code = getGalilAxisVal("_BG");
       double bl = getGalilAxisVal("_BL"); // low limit
       double fl = getGalilAxisVal("_FL"); // high limit
       double tp = getGalilAxisVal("_TP"); // current position (from encoder if present)
       double td = getGalilAxisVal("_TD"); // current position (motor steps)
       double rp = getGalilAxisVal("_RP"); // commanded position (motor steps)
+
       // need to check signal of event? need to check how axisEventMonitor above works
-      if (sc_code == 1) {
-      epicsSnprintf(mesg, sizeof(mesg), "%s begin timeout axis %c after %f seconds, however this may be an artifact of a very small move as _SC%c=1: _BG%c=%.0f _SC%c=%.0f [%s] _BL%c=%f _FL%c=%f _TP%c=%f _TD%c=%f _RP%c=%f", caller, axisName_, begin_timeout, axisName_, axisName_, bg_code, axisName_, sc_code, lookupStopCode((int)sc_code), axisName_, bl, axisName_, fl, axisName_, tp, axisName_, td, axisName_, rp);
-      } else {
-      epicsSnprintf(mesg, sizeof(mesg), "%s begin failure axis %c after %f seconds: _BG%c=%.0f _SC%c=%.0f [%s] _BL%c=%f _FL%c=%f _TP%c=%f _TD%c=%f _RP%c=%f", caller, axisName_, begin_timeout, axisName_, bg_code, axisName_, sc_code, lookupStopCode((int)sc_code), axisName_, bl, axisName_, fl, axisName_, tp, axisName_, td, axisName_, rp);
-      // getting these a lot, it it moving to somewhere very near current position?
+      epicsSnprintf(mesg, sizeof(mesg), "%s begin failure axis %c after %f seconds \"%s\" _BG%c=%.0f _SC%c=%.0f [%s] _BL%c=%f _FL%c=%f _TP%c=%f _TD%c=%f _RP%c=%f",
+              caller, axisName_, begin_timeout, error_msg.c_str(), axisName_, bg_code, axisName_, sc_code,
+              lookupStopCode((int)sc_code), axisName_, bl, axisName_, fl, axisName_, tp, axisName_, td, axisName_, rp);
+      // getting these a lot, it it moving to somewhere very near current position? May need to treat sc_code == 1 differently?
       // comment out sending to errlog for now and send to cerr instead
       //Set controller error mesg monitor
       //pC_->setCtrlError(mesg);
-      }
       std::cerr << mesg << std::endl;
-      return (sc_code == 1 ? asynSuccess : asynError);
+      //return (sc_code == 1 ? asynSuccess : asynError);
+      return asynError;
    }
 
    //Success
@@ -2968,9 +2982,15 @@ void GalilAxis::sendAxisEvents(void) {
 double GalilAxis::getGalilAxisVal(const char* name)
 {
     static const char *functionName = "GalilAxis::getGalilAxisVal";
-    std::string resp;
-    pC_->sync_writeReadController(resp, "MG %s%c\n", name, axisName_);
-    return atof(resp.c_str());
+    if (true) {
+        sprintf(pC_->cmd_, "MG %s%c\n", name, axisName_);
+        pC_->sync_writeReadController();
+        return atof(pC_->resp_);
+    } else {
+        std::string resp;
+        pC_->sync_writeReadController(resp, "MG %s%c\n", name, axisName_);
+        return atof(resp.c_str());
+    }
 }
 
 /** Polls the axis.

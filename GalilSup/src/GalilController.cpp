@@ -5862,8 +5862,11 @@ asynStatus GalilController::sync_writeReadController(bool testQuery, bool logCom
   size_t len;
   static const char* debug_file_name = macEnvExpand("$(GALIL_DEBUG_FILE=)");
   static FILE* debug_file = ( (debug_file_name != NULL && strlen(debug_file_name) > 0) ? fopen(debug_file_name, "at") : NULL);
+  if (!this->havelock()) {
+      std::cerr << "sync_writeReadController problem 1" << std::endl;
+  }
   if (++call_count != 1) {
-      std::cerr << "sync_writeReadController problem" << std::endl;
+      std::cerr << "sync_writeReadController problem 2" << std::endl;
   }
   //Simply return asynSuccess if not connected
   //Asyn module corrupts ram if we try write/read with no connection
@@ -6014,7 +6017,7 @@ asynStatus GalilController::sync_writeReadController(const char *output, char *i
   bool term_done = false;   // found all terminators?
   size_t this_nread;
 
-  epicsGuard<epicsMutex> _lock(sync_writeReadLock_);
+  //epicsGuard<epicsMutex> _lock(sync_writeReadLock_);
   *nread = 0;
   //Null user supplied input buffer
   strcpy(input, "");

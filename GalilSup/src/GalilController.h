@@ -718,7 +718,7 @@ private:
 
   char cmd_[MAX_GALIL_STRING_SIZE];	//holds the assembled Galil cmd string
   char resp_[MAX_GALIL_DATAREC_SIZE];	//Response from Galil controller
-  epicsMutex sync_writeReadLock_;
+  //epicsMutex sync_writeReadLock_;
 
   GalilPoller *poller_;			//GalilPoller to acquire a datarecord
   GalilConnector *connector_;		//GalilConnector to manage connection status flags

@@ -202,6 +202,7 @@ void GalilPoller::wakePoller(bool restart_async)
       pollerSleep_ = false;
       epicsEventSignal(pollerWakeEventId_);
       if (pC_->connected_) {
+         pC_->lock();
          //Turn on data record transmission if requested
          if (pC_->try_async_ && restart_async) {
             //Operator requests async UDP
@@ -228,6 +229,7 @@ void GalilPoller::wakePoller(bool restart_async)
          // set program behaviour on fifo full
          strcpy(pC_->cmd_, "CW ,0");
          status = pC_->sync_writeReadController();
+         pC_->unlock();
       }
    }
 }
