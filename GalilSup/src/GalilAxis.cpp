@@ -2435,7 +2435,7 @@ void GalilAxis::pollServices(void)
                          //Also bock if we have reset stoppedTime whiel message was queued
                          //status = pC_->getDoubleParam(axisNo_, pC_->GalilAutoOffDelay_, &offdelay);
                          //if (!status && !inmotion_ && !homing_ && stoppedTime_ >= offdelay)
-                         if (!inmotion_ && !inAutoOnWait_)
+                         if (!inmotion_ && !homing_ && !inAutoOnWait_)
                          {
                             setClosedLoop(false);//Execute the motor off command
                             std::cerr << "Poll services: MOTOR OFF " << axisName_ << std::endl;
