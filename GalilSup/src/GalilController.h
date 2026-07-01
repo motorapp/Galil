@@ -269,6 +269,8 @@
 
 #define GalilStatusPollDelayString	"MOTOR_STATUS_POLL_DELAY"
 
+#define GalilMotorPosSyncTotalString			"MOTOR_POS_SYNC_TOTAL"
+
 //C++ "To String with Precision" static function template
 template <typename T>
 string tsp(const T a_value, const int n = 6);
@@ -700,9 +702,8 @@ protected:
   int GalilUseReadback_;
   int GalilEncoderSmooth_;
   int GalilMotorDly_;
+  int GalilMotorPosSyncTotal_;
 
-  int GalilCommunicationError_;
-  #define LAST_GALIL_PARAM GalilCommunicationError_
   int GalilHomingRoutineA_;
   int GalilHomingRoutineB_;
   int GalilHomingRoutineC_;
@@ -711,6 +712,9 @@ protected:
   int GalilHomingRoutineF_;
   int GalilHomingRoutineG_;
   int GalilHomingRoutineH_;
+
+  int GalilCommunicationError_;
+  #define LAST_GALIL_PARAM GalilCommunicationError_
 
 private:
 

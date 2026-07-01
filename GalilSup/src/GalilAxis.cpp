@@ -1091,11 +1091,11 @@ asynStatus GalilAxis::checkLimits(const char *caller, char callaxis, double posi
    int rev, fwd;		//Motor limit status
    double readback;		//Readback in steps
 
-   if (!checkEncoderMotorSync(true))
-   {
-        pC_->setCtrlError("Encoder and motor registers out of sync - you may need to rehome");
-        // return asynError;  // should we stop move attempts? 
-   }
+//   if (!checkEncoderMotorSync(true))
+//   {
+//        pC_->setCtrlError("Encoder and motor registers out of sync - you may need to rehome");
+//        // return asynError;  // should we stop move attempts? 
+//   }
    //Retrieve needed motor record parameters
    status = pC_->getIntegerParam(axisNo_, pC_->motorStatusLowLimit_, &rev);
    status |= pC_->getIntegerParam(axisNo_, pC_->motorStatusHighLimit_, &fwd);
@@ -1371,6 +1371,7 @@ asynStatus GalilAxis::syncPosition(void)
 {
    int status = 0;
    double eres, mres;	//Encoder, motor resolution
+   double syncPositionTotal;
    sprintf(pC_->cmd_, "MT%c=?", axisName_);
    pC_->sync_writeReadController();
    int motor_type = atoi(pC_->resp_); // servo is -1.5, -1, 1, or 1.5 so abs(int(motor)) is 1 
@@ -1381,8 +1382,14 @@ asynStatus GalilAxis::syncPosition(void)
    {
        return asynSuccess;
    }
+   
+   pC_->getDoubleParam(axisNo_, pC_->GalilMotorPosSyncTotal_, &syncPositionTotal);
+   
    //Calculate step count from existing encoder_position
    double new_motor_pos = encoder_position_ * (eres/mres);
+   double pos_diff_egu = encoder_position_ * eres - motor_position_ * mres;
+   syncPositionTotal += pos_diff_egu;
+   pC_->setDoubleParam(axisNo_, pC_->GalilMotorPosSyncTotal_, syncPositionTotal);
 
    if (abs(motor_type) == 1) // currently servo branch should never get executed, not sure it ever should?
    {
@@ -1396,6 +1403,7 @@ asynStatus GalilAxis::syncPosition(void)
    //Write command to controller
    status = pC_->sync_writeReadController();
    std::cerr << "syncPosition axis " << axisName_ << " changed motor counter from " << motor_position_ << " to " << new_motor_pos << std::endl;
+   std::cerr << "syncPosition axis " << axisName_ << " this is " << pos_diff_egu << " EGU correction, running total " << syncPositionTotal << std::endl;
    return (asynStatus)status;
 }
 

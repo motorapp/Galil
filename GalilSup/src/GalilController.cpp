@@ -844,8 +844,6 @@ GalilController::GalilController(const char *portName, const char *address, doub
 
 //Add new parameters here
 
-  createParam(GalilCommunicationErrorString, asynParamInt32, &GalilCommunicationError_);
-
   createParam(GalilMoveCommandString, asynParamOctet, &GalilMoveCommand_);
   createParam(GalilMotorEncoderSyncTolString, asynParamFloat64, &GalilMotorEncoderSyncTol_);
   createParam(GalilITCSmoothString, asynParamFloat64, &GalilITCSmooth_);
@@ -853,6 +851,9 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilPoleString, asynParamFloat64, &GalilPole_);
   createParam(GalilEncoderSmoothString, asynParamFloat64, &GalilEncoderSmooth_);
   createParam(GalilMotorDlyString, asynParamFloat64, &GalilMotorDly_);
+  createParam(GalilMotorPosSyncTotalString, asynParamFloat64, &GalilMotorPosSyncTotal_);
+
+  createParam(GalilCommunicationErrorString, asynParamInt32, &GalilCommunicationError_);
 
   //Not connected to controller yet
   connected_ = false;

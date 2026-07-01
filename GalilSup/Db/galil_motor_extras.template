@@ -1937,6 +1937,27 @@ record(ao,"$(P)$(M)_DLY_SP") {
     field(EGU, "$(EGU)")
 }
 
+record(ai,"$(P)$(M)_POSSYNC_MON")
+{
+	field(DESC, "Total position sync")
+	field(DTYP, "asynFloat64")
+	field(SCAN, "I/O Intr")
+	field(INP,  "@asyn($(PORT),$(ADDR))MOTOR_POS_SYNC_TOTAL")
+    field(PREC, "$(PREC)")
+    field(EGU, "$(EGU)")
+}
+
+record(ao,"$(P)$(M)_POSSYNC_SP")
+{
+	field(DESC, "Total position sync")
+	field(DTYP, "asynFloat64")
+	field(PINI, "YES")
+	field(VAL,  "0")
+	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_POS_SYNC_TOTAL")
+    field(PREC, "$(PREC)")
+    field(EGU, "$(EGU)")
+}
+
 # Allow setting MRES/ERES as inverse
 
 record(ao, "$(P)$(M):INV_MRES")
