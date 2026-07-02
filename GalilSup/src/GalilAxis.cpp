@@ -1295,7 +1295,7 @@ asynStatus GalilAxis::stop(double acceleration)
      //we do not check homing_ as we may have restared ioc when one was in progress?
      //but we may stop everything on startup anyway?
      //Check if axis homing
-     if (true /*homing_*/) {
+     if (homing_) {
         //cancel any home operation
         sprintf(pC_->cmd_, "home%c=0", axisName_);
         pC_->sync_writeReadController();
