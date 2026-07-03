@@ -1254,6 +1254,7 @@ void GalilController::setParamDefaults(void)
   {
     setStringParam(i, GalilMoveCommand_, "");
     setDoubleParam(i, GalilMotorEncoderSyncTol_, 0.0);
+    setDoubleParam(i, GalilMotorPosSyncTotal_, 0.0);
     //setIntegerParam(i, GalilMotorStopGo_, 3);
   }
   //Output compare is off

@@ -1937,6 +1937,9 @@ record(ao,"$(P)$(M)_DLY_SP") {
     field(EGU, "$(EGU)")
 }
 
+# this is a record of the total amount of
+# position (motor/encoder) synchronisation that has been done
+# since ioc started
 record(ai,"$(P)$(M)_POSSYNC_MON")
 {
 	field(DESC, "Total position sync")
@@ -1947,11 +1950,11 @@ record(ai,"$(P)$(M)_POSSYNC_MON")
     field(EGU, "$(EGU)")
 }
 
+# this is used to reset/initialise the total position sync counter
 record(ao,"$(P)$(M)_POSSYNC_SP")
 {
 	field(DESC, "Total position sync")
 	field(DTYP, "asynFloat64")
-	field(PINI, "YES")
 	field(VAL,  "0")
 	field(OUT,  "@asyn($(PORT),$(ADDR))MOTOR_POS_SYNC_TOTAL")
     field(PREC, "$(PREC)")
