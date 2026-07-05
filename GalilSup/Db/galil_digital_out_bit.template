@@ -33,15 +33,15 @@
 
 record(bi,"$(P)$(R)_STATUS")
 {
-	$(IFNOTSIM=) field(DTYP, "asynUInt32Digital")
-	$(IFNOTSIM=) field(INP,  "@asynMask($(PORT) $(WORD) $(MASK))BINARY_OUTRBV")
-	$(IFNOTSIM=) field(SCAN, "I/O Intr")
+	field(DTYP, "asynUInt32Digital")
+	field(INP,  "@asynMask($(PORT) $(WORD) $(MASK))BINARY_OUTRBV")
+	field(SCAN, "I/O Intr")
 	field(ZNAM, "$(ZNAM=Off)")
 	field(ONAM, "$(ONAM=On)")
 	field(ZSV,  "$(ZSV=NO_ALARM)")
 	field(OSV,  "$(OSV=NO_ALARM)")
-	field(SIML, "$(RECSIM=0)")
-	field(SIOL, "$(P)$(R)_STATUS:SIM")
+	field(SIML, "$(P)$(R)_STATUS:SIM")
+	field(SIOL, "$(P)$(R)_STATUS:SIM:VAL")
 }
 
 record(bo,"$(P)$(R)_CMD")
@@ -51,13 +51,20 @@ record(bo,"$(P)$(R)_CMD")
 	field(ONAM, "$(ONAM=On)")
 	field(ZSV,  "$(ZSV=NO_ALARM)")
 	field(OSV,  "$(OSV=NO_ALARM)")
-	$(IFNOTSIM=) field(DTYP, "asynUInt32Digital")
-	$(IFNOTSIM=) field(OUT,  "@asynMask($(PORT) $(WORD) $(MASK))BINARY_OUT")
-	field(SIML, "$(RECSIM=0)")
-	field(SIOL, "$(P)$(R)_STATUS:SIM")
+	field(DTYP, "asynUInt32Digital")
+	field(OUT,  "@asynMask($(PORT) $(WORD) $(MASK))BINARY_OUT")
+	field(SIML, "$(P)$(R)_STATUS:SIM")
+	field(SIOL, "$(P)$(R)_STATUS:SIM:VAL")
 }
 
 record(bo, "$(P)$(R)_STATUS:SIM") 
+{
+    field(SCAN, "Passive")
+    field(DTYP, "Soft Channel")
+    field(VAL, "$(RECSIM=0)")
+}
+
+record(bo, "$(P)$(R)_STATUS:SIM:VAL")
 {
     field(SCAN, "Passive")
     field(DTYP, "Soft Channel")
