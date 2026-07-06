@@ -1369,41 +1369,43 @@ asynStatus GalilAxis::stopMotorRecord(void) {
 */
 asynStatus GalilAxis::syncPosition(void)
 {
+   static const char *functionName = "GalilAxis::syncPosition";
    int status = 0;
    double eres, mres;	//Encoder, motor resolution
    double syncPositionTotal;
+   double pos_diff_tol = 0.0;  // in physical egu
    sprintf(pC_->cmd_, "MT%c=?", axisName_);
    pC_->sync_writeReadController();
    int motor_type = atoi(pC_->resp_); // servo is -1.5, -1, 1, or 1.5 so abs(int(motor)) is 1 
    //Retrieve needed params
    status = pC_->getDoubleParam(axisNo_, pC_->motorResolution_, &mres);
    status |= pC_->getDoubleParam(axisNo_, pC_->GalilEncoderResolution_, &eres);
-   if (status || abs(motor_type) == 1 || !ueip_)
+   if (status || abs(motor_type) == 1 || !ueip_) // only continue if stepper and using an encoder
    {
        return asynSuccess;
    }
-   
+   pC_->getDoubleParam(axisNo_, pC_->GalilMotorEncoderSyncTol_, &pos_diff_tol);
    pC_->getDoubleParam(axisNo_, pC_->GalilMotorPosSyncTotal_, &syncPositionTotal);
-   
    //Calculate step count from existing encoder_position
    double new_motor_pos = encoder_position_ * (eres/mres);
    double pos_diff_egu = encoder_position_ * eres - motor_position_ * mres;
+   if (pos_diff_tol <= 0.0)
+   {
+       std::cerr << "syncPosition axis " << axisName_ << " Current Encoder - Motor drift: " << pos_diff_egu << std::endl;
+       return asynSuccess;
+   }
+   else if (fabs(pos_diff_egu) < pos_diff_tol)
+   {
+       std::cerr << "syncPosition axis " << axisName_ << " Current Encoder - Motor drift: " << pos_diff_egu << " < " << pos_diff_tol << std::endl;
+       return asynSuccess;
+   }
    syncPositionTotal += pos_diff_egu;
    pC_->setDoubleParam(axisNo_, pC_->GalilMotorPosSyncTotal_, syncPositionTotal);
-
-   if (abs(motor_type) == 1) // currently servo branch should never get executed, not sure it ever should?
-   {
-       sprintf(pC_->cmd_, "DE%c=%.0lf", axisName_, new_motor_pos);  //Servo motor, use aux register for step count
-   }
-   else
-   {
-       sprintf(pC_->cmd_, "DP%c=%.0lf", axisName_, new_motor_pos);  //Stepper motor, main register for step count
-   }
-
+   sprintf(pC_->cmd_, "DP%c=%.0lf", axisName_, new_motor_pos);  //Stepper motor, main register for step count
    //Write command to controller
    status = pC_->sync_writeReadController();
-   std::cerr << "syncPosition axis " << axisName_ << " changed motor counter from " << motor_position_ << " to " << new_motor_pos << std::endl;
-   std::cerr << "syncPosition axis " << axisName_ << " this is " << pos_diff_egu << " EGU correction, running total " << syncPositionTotal << std::endl;
+   std::cerr << "syncPosition axis " << axisName_ << " changed stepper motor counts from " << motor_position_ << " to " << new_motor_pos << std::endl;
+   std::cerr << "syncPosition axis " << axisName_ << " this is " << pos_diff_egu << " EGU correction, running total " << syncPositionTotal << " EGU" << std::endl;
    return (asynStatus)status;
 }
 
@@ -1469,56 +1471,6 @@ asynStatus GalilAxis::setPosition(double position)
 
   //Always return success. Dont need more error mesgs
   return asynSuccess;
-}
-
-// return true if in sync
-// only needed for stepper motors
-bool GalilAxis::checkEncoderMotorSync(bool correct_motor)
-{
-    static const char *functionName = "GalilAxis::checkEncoderMotorSync";
-    double posdiff_tol = 0.0;  // in physical egu
-    asynStatus status = pC_->getDoubleParam(axisNo_, pC_->GalilMotorEncoderSyncTol_, &posdiff_tol);
-    sprintf(pC_->cmd_, "MT%c=?", axisName_);
-    pC_->sync_writeReadController();
-    int motor = atoi(pC_->resp_); // servo is -1.5, -1, 1, or 1.5 so abs(int(motor)) is 1 
-    if ( status != asynSuccess || abs(motor) == 1 || !ueip_ )
-    {
-        return true;
-    }
-    double mres = 0.0, eres = 0.0;				// MotorRecord mres, and eres
-    pC_->getDoubleParam(axisNo_, pC_->GalilEncoderResolution_, &eres);
-    pC_->getDoubleParam(axisNo_, pC_->motorResolution_, &mres);
-    double posdiff_egu = motor_position_ * mres - encoder_position_ * eres;
-    if (posdiff_tol <= 0.0)
-    {
-        std::cerr << "Current Motor - Encoder drift: " << posdiff_egu << " egu" << std::endl;
-        return true;
-    }
-    else if (fabs(posdiff_egu) < posdiff_tol)
-    {
-        std::cerr << "Motor and Encoder are in sync by " << posdiff_egu << " < " << posdiff_tol << " egu" << std::endl;
-        return true;
-    }
-    else
-    {
-        std::cerr << "Motor and Encoder registers are out of sync by " << posdiff_egu << " > " << posdiff_tol << " egu" << std::endl;
-    }
-    if (!correct_motor)
-    {
-        return false;
-    }
-    double new_motor_pos = encoder_position_ * eres / mres;		
-    std::cerr << "Raw motor position corrected from " << motor_position_ << " to " << new_motor_pos << " using encoder for axis " << axisName_ << std::endl;
-    if (abs(motor) == 1) // currently servo branch should never get executed
-    {
-        sprintf(pC_->cmd_, "DE%c=%.0f", axisName_, new_motor_pos);  //Servo motor, use aux register for step count
-    }
-    else
-    {
-        sprintf(pC_->cmd_, "DP%c=%.0f", axisName_, new_motor_pos);  //Stepper motor, main register for step count
-    }
-    pC_->sync_writeReadController();
-    return true;
 }
 
 /** Set the current position of the encoder.
