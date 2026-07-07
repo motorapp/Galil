@@ -643,11 +643,14 @@ GalilController::GalilController(const char *portName, const char *address, doub
                          (int)(ASYN_CANBLOCK | ASYN_MULTIDEVICE),
                          (int)1, // autoconnect
                          (int)0, (int)0),  // Default priority and stack size
-  numAxes_(0), unsolicitedQueue_(MAX_GALIL_AXES, MAX_GALIL_STRING_SIZE)
+  numAxes_(0), unsolicitedQueue_(MAX_GALIL_AXES, MAX_GALIL_STRING_SIZE), default_timeout_(1)
 {
   struct Galilmotor_enables *motor_enables = NULL;	//Convenience pointer to GalilController motor_enables[digport]
   string mesg;              //Controller mesg
   unsigned i;
+  if (getenv("GALIL_DEFAULT_TIMEOUT") != NULL) {
+      default_timeout_ = atoi(getenv("GALIL_DEFAULT_TIMEOUT"));
+  }
 
   // Create controller-specific parameters
   createParam(GalilDriverString, asynParamOctet, &GalilDriver_);
@@ -980,7 +983,7 @@ void GalilController::connect(void)
   string address = address_;		//Convert address into string for easy inspection
 
   //Set default timeout at connect
-  timeout_ = 1;
+  timeout_ = default_timeout_;
 
   //Construct the asyn port name that will be used for synchronous communication
   sprintf(syncPort_, "GALILSYNC%d", controller_number_);
@@ -4836,7 +4839,7 @@ asynStatus GalilController::writeOctet(asynUser *pasynUser, const char*  value, 
         status = sync_writeReadController();
 
         //User command complete, set timeout back to default 1
-        timeout_ = 1;
+        timeout_ = default_timeout_;
         if (status == asynSuccess)
            {
            //Set readback value(s) = response from controller
@@ -5776,7 +5779,7 @@ asynStatus GalilController::readDataRecord(char *input, unsigned bytesize)
              std::cerr << "readDataRecord(): discarding message " << mesg << " length " << j << std::endl;
              }
          if (status == asynTimeout) {
-             std::cerr << "readDataRecord(): timeout after " << (async_records_ ? pasynUserAsyncGalil_->timeout : pasynUserSyncGalil_->timeout) << std::endl;
+             std::cerr << "readDataRecord(): timeout after " << (async_records_ ? pasynUserAsyncGalil_->timeout : pasynUserSyncGalil_->timeout) << " seconds" << std::endl;
          }
          return asynError;//Stop if any asyn error
      }
@@ -5807,11 +5810,7 @@ void GalilController::acquireDataRecord(void)
         //Write the QR query to controller
         recstatus_ = pSyncOctet_->write(pSyncOctetPvt_, pasynUserSyncGalil_, cmd_, 3, &nwrite);
         if (!recstatus_) {//Solicited data record includes an extra colon at the end
-            if (true /*rand() % 100 != 0*/) {
            recstatus_ = readDataRecord(resp_, datarecsize_ + 1); //Get the record
-            } else {
-                recstatus_ = asynTimeout;
-            }
         } else {
            std::cerr << "acquireDataRecord: failed to send QR" << std::endl;
         }
@@ -5867,9 +5866,9 @@ asynStatus GalilController::sync_writeReadController(bool testQuery, bool logCom
   size_t len;
   static const char* debug_file_name = macEnvExpand("$(GALIL_DEBUG_FILE=)");
   static FILE* debug_file = ( (debug_file_name != NULL && strlen(debug_file_name) > 0) ? fopen(debug_file_name, "at") : NULL);
-  if (!this->havelock()) {
-      std::cerr << "sync_writeReadController problem 1" << std::endl;
-  }
+//  if (!this->havelock()) {
+//      std::cerr << "sync_writeReadController problem 1" << std::endl;
+//  }
   if (++call_count != 1) {
       std::cerr << "sync_writeReadController problem 2" << std::endl;
   }
@@ -6027,7 +6026,7 @@ asynStatus GalilController::sync_writeReadController(const char *output, char *i
   //Null user supplied input buffer
   strcpy(input, "");
   //Set timeout for Sync connection
-  pasynUserSyncGalil_->timeout = timeout_;
+  pasynUserSyncGalil_->timeout = timeout;
   //Write the command
   status = pSyncOctet_->write(pSyncOctetPvt_, pasynUserSyncGalil_, output, strlen(output), &nwrite);
   //If write ok
@@ -7101,7 +7100,7 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
          timeMultiplier_ = DEFAULT_TIME / atof(resp_);
 
       //Decrease timeout now finished manipulating controller code
-      timeout_ = 1;
+      timeout_ = default_timeout_;
       //Wake poller, and re-start async records if needed
       poller_->wakePoller();
    }//connected_

@@ -801,6 +801,7 @@ private:
   char asyncresp_[MAX_GALIL_DATAREC_SIZE];	//For asynchronous messages including datarecord
 
   int timeout_;				//Timeout for communications
+  int default_timeout_;				//Default Timeout for communications
   int controller_number_;		//The controller number as counted in GalilCreateController
   epicsMessageQueue unsolicitedQueue_;	//Unsolicted messages recieved are placed here initially
 
