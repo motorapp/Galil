@@ -648,9 +648,9 @@ GalilController::GalilController(const char *portName, const char *address, doub
   struct Galilmotor_enables *motor_enables = NULL;	//Convenience pointer to GalilController motor_enables[digport]
   string mesg;              //Controller mesg
   unsigned i;
-  if (getenv("GALIL_DEFAULT_TIMEOUT") != NULL) {
-      default_timeout_ = atoi(getenv("GALIL_DEFAULT_TIMEOUT"));
-      std::cerr << "Found GALIL_DEFAULT_TIMEOUT environment variable - default communication timeout set to " <<  default_timeout_ << " seconds" << std::endl;
+  if (getenv("GALIL_DEFAULT_COMM_TIMEOUT") != NULL) {
+      default_timeout_ = atoi(getenv("GALIL_DEFAULT_COMM_TIMEOUT"));
+      std::cerr << "Found GALIL_DEFAULT_COMM_TIMEOUT environment variable - default communication timeout set to " <<  default_timeout_ << " seconds" << std::endl;
   }
 
   // Create controller-specific parameters
@@ -4254,8 +4254,7 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 
      //Query motor type before changing setting
      sprintf(cmd_, "MT%c=?", pAxis->axisName_);
-     sync_writeReadController();
-     oldmotor = (float)atof(resp_);
+     status = sync_writeReadController(); // status used after switch statement
 
      //Assemble command to change motor type
      switch (value) {
@@ -4288,7 +4287,12 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
         default: newmtr = 1.0;
                 break;
      } //Switch
-
+     if (status == asynSuccess) {
+         oldmotor = (float)atof(resp_);
+     } else {
+         std::cerr << "Unable to read motor type from controller - assuming no change" << std::endl;
+         oldmotor = newmtr; // to avoid printing messages about servo -> stepper and trying to redefine position if comms failed
+     }
      //Change motor type
      sprintf(cmd_, "MT%c=%1.1f", pAxis->axisName_, newmtr);
      //Write setting to controller

@@ -2779,6 +2779,8 @@ asynStatus GalilAxis::jogAfterHome(void) {
           sprintf(pC_->cmd_, "DP%c=0", axisName_);
           pC_->sync_writeReadController();
           //Program encoder position register
+          // question: should we do this even if ueip is false? If you home an axis with ueip false and then turn on the encoder should it work?
+          // setPosition / setEncoderPosition don't check ueip
           if (ueip_ || motorIsServo_) {
              sprintf(pC_->cmd_, "DE%c=0", axisName_);
              pC_->sync_writeReadController();
