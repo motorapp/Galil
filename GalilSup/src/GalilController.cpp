@@ -650,6 +650,7 @@ GalilController::GalilController(const char *portName, const char *address, doub
   unsigned i;
   if (getenv("GALIL_DEFAULT_TIMEOUT") != NULL) {
       default_timeout_ = atoi(getenv("GALIL_DEFAULT_TIMEOUT"));
+      std::cerr << "Found GALIL_DEFAULT_TIMEOUT environment variable - default communication timeout set to " <<  default_timeout_ << " seconds" << std::endl;
   }
 
   // Create controller-specific parameters
