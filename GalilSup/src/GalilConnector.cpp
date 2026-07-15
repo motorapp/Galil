@@ -82,9 +82,11 @@ void GalilConnector::run(void)
          //Test synchronous communication
          //Query controller for synchronous connection handle
          strcpy(pC_->cmd_, "EO 0"); // first we also turn off echo mode as it really breaks things
-         pC_->sync_writeReadController();
-         strcpy(pC_->cmd_, "WH");
          sync_status = pC_->sync_writeReadController(true);
+         if (!sync_status) {
+             strcpy(pC_->cmd_, "WH");
+             sync_status = pC_->sync_writeReadController(true);
+         }
          //Store the handle controller used for sync
          if (!sync_status) {
             if (strncmp(pC_->resp_, "IH", 2) == 0)
