@@ -1375,10 +1375,10 @@ asynStatus GalilAxis::syncPosition(void)
    double syncPositionTotal;
    double pos_diff_tol = 0.0;  // in physical egu
    sprintf(pC_->cmd_, "MT%c=?", axisName_);
-   pC_->sync_writeReadController();
+   status = pC_->sync_writeReadController();
    int motor_type = atoi(pC_->resp_); // servo is -1.5, -1, 1, or 1.5 so abs(int(motor)) is 1 
    //Retrieve needed params
-   status = pC_->getDoubleParam(axisNo_, pC_->motorResolution_, &mres);
+   status |= pC_->getDoubleParam(axisNo_, pC_->motorResolution_, &mres);
    status |= pC_->getDoubleParam(axisNo_, pC_->GalilEncoderResolution_, &eres);
    if (status || abs(motor_type) == 1 || !ueip_) // only continue if stepper and using an encoder
    {
@@ -1399,13 +1399,15 @@ asynStatus GalilAxis::syncPosition(void)
        std::cerr << "syncPosition axis " << axisName_ << " Current Encoder - Motor drift: " << pos_diff_egu << " < " << pos_diff_tol << std::endl;
        return asynSuccess;
    }
-   syncPositionTotal += fabs(pos_diff_egu);
-   pC_->setDoubleParam(axisNo_, pC_->GalilMotorPosSyncTotal_, syncPositionTotal);
    sprintf(pC_->cmd_, "DP%c=%.0lf", axisName_, new_motor_pos);  //Stepper motor, main register for step count
    //Write command to controller
    status = pC_->sync_writeReadController();
-   std::cerr << "syncPosition axis " << axisName_ << " changed stepper motor counts from " << motor_position_ << " to " << new_motor_pos << std::endl;
-   std::cerr << "syncPosition axis " << axisName_ << " this is " << pos_diff_egu << " EGU correction, running total " << syncPositionTotal << " EGU" << std::endl;
+   if (status == asynSuccess) {
+       syncPositionTotal += fabs(pos_diff_egu);
+       pC_->setDoubleParam(axisNo_, pC_->GalilMotorPosSyncTotal_, syncPositionTotal);
+       std::cerr << "syncPosition axis " << axisName_ << " changed stepper motor counts from " << motor_position_ << " to " << new_motor_pos << std::endl;
+       std::cerr << "syncPosition axis " << axisName_ << " this is " << pos_diff_egu << " EGU correction, running total " << syncPositionTotal << " EGU" << std::endl;
+   }
    return (asynStatus)status;
 }
 
