@@ -1401,12 +1401,12 @@ asynStatus GalilAxis::syncPosition(void)
    double pos_diff_egu = encoder_position_ * eres - motor_position_ * mres;
    if (pos_diff_tol <= 0.0)
    {
-       std::cerr << "syncPosition axis " << axisName_ << " Current Encoder - Motor drift: " << pos_diff_egu << std::endl;
+       std::cerr << "syncPosition axis " << axisName_ << " Current (Encoder - Motor) EGU drift: " << pos_diff_egu << std::endl;
        return asynSuccess;
    }
    else if (fabs(pos_diff_egu) < pos_diff_tol)
    {
-       std::cerr << "syncPosition axis " << axisName_ << " Current Encoder - Motor drift: " << pos_diff_egu << " < " << pos_diff_tol << std::endl;
+       std::cerr << "syncPosition axis " << axisName_ << "OK: Current (Encoder - Motor) EGU drift: " << pos_diff_egu << " < " << pos_diff_tol << " tolerance" << std::endl;
        return asynSuccess;
    }
    sprintf(pC_->cmd_, "DP%c=%.0lf", axisName_, new_motor_pos);  //Stepper motor, main register for step count
