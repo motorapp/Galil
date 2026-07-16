@@ -1399,7 +1399,7 @@ asynStatus GalilAxis::syncPosition(void)
        std::cerr << "syncPosition axis " << axisName_ << " Current Encoder - Motor drift: " << pos_diff_egu << " < " << pos_diff_tol << std::endl;
        return asynSuccess;
    }
-   syncPositionTotal += pos_diff_egu;
+   syncPositionTotal += fabs(pos_diff_egu);
    pC_->setDoubleParam(axisNo_, pC_->GalilMotorPosSyncTotal_, syncPositionTotal);
    sprintf(pC_->cmd_, "DP%c=%.0lf", axisName_, new_motor_pos);  //Stepper motor, main register for step count
    //Write command to controller
