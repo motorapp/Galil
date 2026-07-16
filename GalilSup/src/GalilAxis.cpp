@@ -48,6 +48,16 @@ static void axisStatusThreadC(void *pPvt);
 static void eventMonitorThreadC(void *pPvt);
 static const char* lookupStopCode(int sc);
 
+static const char* yesNo(bool val)
+{
+    return val ? "YES" : "NO";
+}
+
+static const char* yesNo(int val)
+{
+    return yesNo(val != 0);
+}
+
 // These are the GalilAxis methods
 
 /** Creates a new GalilAxis object.
@@ -1406,7 +1416,7 @@ asynStatus GalilAxis::syncPosition(void)
        syncPositionTotal += fabs(pos_diff_egu);
        pC_->setDoubleParam(axisNo_, pC_->GalilMotorPosSyncTotal_, syncPositionTotal);
        std::cerr << "syncPosition axis " << axisName_ << " changed stepper motor counts from " << motor_position_ << " to " << new_motor_pos << std::endl;
-       std::cerr << "syncPosition axis " << axisName_ << " this is " << pos_diff_egu << " EGU correction, running total " << syncPositionTotal << " EGU" << std::endl;
+       std::cerr << "syncPosition axis " << axisName_ << " this is " << pos_diff_egu << " EGU correction, absolute total corrections " << syncPositionTotal << " EGU" << std::endl;
    }
    return (asynStatus)status;
 }
@@ -2055,7 +2065,8 @@ void GalilAxis::checkEncoder(void)
             sprintf(message, "Encoder stall stop motor %c", axisName_);
             //Set controller error mesg monitor
             pC_->setCtrlError(message);
-            std::cerr << "STALL: pestall_time=" << pestall_time << " (>" << estall_time << ") encoderMove_=" << encoderMove_ << " encDirOk_=" << encDirOk_ << " _SC" << axisName_ << "=" << sc_code << " [" << lookupStopCode((int)sc_code) << "] _BG" << axisName_ << "=" << bg_code << " hjog" << axisName_ << "=" << hjog_code << std::endl;
+            std::cerr << "STALL: no position change for " << pestall_time << " seconds (>" << estall_time << ") encoder changing=" << yesNo(encoderMove_) << " encoder direction ok=" << yesNo(encDirOk_)
+                      << " _SC" << axisName_ << "=" << sc_code << " [" << lookupStopCode((int)sc_code) << "] _BG" << axisName_ << "=" << bg_code << " hjog" << axisName_ << "=" << hjog_code << std::endl;
             }
          }
       }
