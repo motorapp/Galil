@@ -1338,7 +1338,7 @@ void GalilController::connected(void)
   //Determine if controller is dmc or rio
   rio_ = (model_.find("RIO") != string::npos) ? true : false;
   //Give connect message
-  mesg = "Connected to " + model_ + " at " + address_;
+  mesg = "Connected to " + model_ + " at " + address_ + (async_records_ ? " (ASYNC)" : " (SYNC)");
   setCtrlError(mesg);
 
   //Determine max number of axes the controller supports
