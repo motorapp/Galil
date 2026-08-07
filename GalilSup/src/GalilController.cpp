@@ -494,6 +494,7 @@
 #include <sstream> //format source keys, string stream
 #include <iomanip> //format source keys
 #include <algorithm> //std::remove_if
+#include <atomic>
 
 using namespace std; //cout ostringstream vector string
 
