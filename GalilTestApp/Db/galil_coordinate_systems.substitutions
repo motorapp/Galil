@@ -21,18 +21,16 @@
 
 # Coordinate system status
 #
-# P    - PV prefix
 # R    - Record Name
-# PORT - Asyn port name
 # ADDR - Hardware port to read
 # SCAN - Scan period for monitor records
 
 file "$(GALIL)/GalilSup/Db/galil_coordinate_system.template"
 { 
-pattern { P,           R,    PORT,    ADDR,  SCAN         }
+pattern { R,    ADDR,  SCAN         }
 
-        { "DMC01:",    "S",  "Galil", "0",   ".1 second"  }
-        { "DMC01:",    "T",  "Galil", "1",   ".1 second"  }
+        { "S",  "0",   ".1 second"  }
+        { "T",  "1",   ".1 second"  }
 }
 
 # end

@@ -389,63 +389,6 @@ value {
 }
 endObjectProperties
 
-# (Group)
-object activeGroupClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 171
-y 131
-w 15
-h 15
-
-beginGroup
-
-# (Rectangle)
-object activeRectangleClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 171
-y 131
-w 14
-h 14
-lineColor rgb 0 55296 0
-fill
-fillColor rgb 0 55296 0
-lineWidth 0
-visPv "CALC\\\{(A)\}($(P)$(M)_ECATFLT_STATUS)"
-visInvert
-visMin 0
-visMax 1
-endObjectProperties
-
-# (Rectangle)
-object activeRectangleClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 171
-y 131
-w 14
-h 14
-lineColor rgb 64768 0 0
-fill
-fillColor rgb 64768 0 0
-lineWidth 0
-visPv "CALC\\\{(A)\}($(P)$(M)_ECATFLT_STATUS)"
-visMin 0
-visMax 1
-endObjectProperties
-
-endGroup
-
-endObjectProperties
-
-
 # (Rectangle)
 object activeRectangleClass
 beginObjectProperties
@@ -459,6 +402,25 @@ h 275
 lineColor rgb 0 0 0
 fillColor rgb 0 0 0
 lineWidth 0
+endObjectProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 171
+y 131
+w 14
+h 14
+lineColor rgb 0 0 0
+fill
+fillColor rgb 0 0 0
+lineWidth 0
+fillAlarm
+lineAlarm
+alarmPv "$(P)$(M)_ECATFLT_STATUS"
 endObjectProperties
 
 # (Message Button)
@@ -485,21 +447,4 @@ offLabel "Fault reset"
 useEnumNumeric
 font "helvetica-medium-r-8.0"
 endObjectProperties
-# (Group)
-object activeGroupClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 171
-y 131
-w 15
-h 15
-
-beginGroup
-
-endGroup
-
-endObjectProperties
-
 

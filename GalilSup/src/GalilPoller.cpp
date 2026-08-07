@@ -142,13 +142,7 @@ void GalilPoller::run(void)
 
       //Kill loop as IOC is shuttingDown
       if (shutdownPoller_)  //Break from loop
-      {
-        //Tell controller to stop async data record
-        if (pC_->async_records_) {
-           //pC_->gco_->recordsStart(0); //  tutn off DR ?
-        }
          break;
-      }
    }//while
 }
 
@@ -175,7 +169,6 @@ GalilPoller::~GalilPoller()
    epicsEventDestroy(pollerWakeEventId_);
 }
 
-//Put poller in sleep mode, and stop async records if needed
 //Put poller in sleep mode, and stop async records if needed
 //Must be called without lock so sync poller can be put to sleep
 void GalilPoller::sleepPoller(bool waitTillSleep)
@@ -209,6 +202,7 @@ void GalilPoller::wakePoller(bool restart_async)
       pollerSleep_ = false;
       epicsEventSignal(pollerWakeEventId_);
       if (pC_->connected_) {
+         pC_->lock();
          //Turn on data record transmission if requested
          if (pC_->try_async_ && restart_async) {
             //Operator requests async UDP
@@ -232,6 +226,10 @@ void GalilPoller::wakePoller(bool restart_async)
          //Set most signficant bit for unsolicited bytes
          strcpy(pC_->cmd_, "CW 1");
          status = pC_->sync_writeReadController();
+         // set program behaviour on fifo full
+         strcpy(pC_->cmd_, "CW ,0");
+         status = pC_->sync_writeReadController();
+         pC_->unlock();
       }
    }
 }

@@ -338,47 +338,6 @@ text {
 	press_msg="1"
 	release_msg="1"
 }
-composite {
-	object {
-		x=171
-		y=131
-		width=15
-		height=15
-	}
-	"composite name"=""
-	children {
-		rectangle {
-			object {
-				x=171
-				y=131
-				width=15
-				height=15
-			}
-			"basic attribute" {
-				clr=15
-			}
-			"dynamic attribute" {
-				vis="if not zero"
-				chan="$(P)$(M)_ECATFLT_STATUS"
-			}
-		}
-		rectangle {
-			object {
-				x=171
-				y=131
-				width=15
-				height=15
-			}
-			"basic attribute" {
-				clr=20
-			}
-			"dynamic attribute" {
-				vis="if zero"
-				chan="$(P)$(M)_ECATFLT_STATUS"
-			}
-		}
-	}
-}
 rectangle {
 	object {
 		x=4
@@ -389,5 +348,20 @@ rectangle {
 	"basic attribute" {
 		clr=14
 		fill="outline"
+	}
+}
+rectangle {
+	object {
+		x=171
+		y=131
+		width=15
+		height=15
+	}
+	"basic attribute" {
+		clr=14
+	}
+	"dynamic attribute" {
+		clr="alarm"
+		chan="$(P)$(M)_ECATFLT_STATUS"
 	}
 }

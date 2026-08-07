@@ -392,6 +392,7 @@
 //                  Alter home switch type, limit switch type PV's to be more general
 //                  Improved generated home routine for home to home switch
 //                  Fix motor acceleration not set issue introduced by $(P)$M)HOMR_CMD/$(P)$M)HOMF_CMD homing PV's
+//                  Moved limits as home option to motor extras with PV $(P)$M)ULAH_CMD/$(P)$M)ULAH_STATUS
 //                  Improved motor limits direction consistency check
 //                  Improved wrong limit protection
 //                  Add alarms states to $(P)$(M)_LIMITCONSISTENT_STATUS
@@ -401,6 +402,7 @@
 //                  Add microstep record to motor extras
 //                  Add microstep record to MEDM screen
 // 28/10/2022 M.Clift
+//                  Split databases, start scripts, autosave setup for DMC and RIO
 //                  Add microstep record to QEGUI screen
 // 02/07/2023 M.Clift
 //                  Fix $(P)OC2AXIS_STATUS record process error when only 1 axis created
@@ -428,11 +430,14 @@
 //                  Add variable initialization in GalilCSAxis to remove compile warnings
 //                  Add GalilDummy.cpp to create the GalilSupport registrar entry for systems without C++11
 //                  Changed src/Makefile to build the real driver if HAVE_C++11 is true (the default) and the dummy driver if it is false.
-//                  Added CONFIG_SITE.Common.$(EPICS_HOST_ARCH) for a few systems that don't have C++11.
+//                  Added CONFIG_SITE.Common.$(EPICS_HOST_ARCH) for a few systems that don't have C++11
 // 13/01/2025 M.Clift
 //                  Add acceleration capped at controller maximum for independent moves
+//                  Rename config/GALILRELEASE to config/RELEASE.local
 // 16/01/2025 M.Clift
 //                  Fix unknown amplifier messages at ioc start when no controller
+// 17/01/2025 M.Clift
+//                  Change user defined record prefix now derived from PORT
 // 24/01/2025 R.Riley, M.Rivers
 //                  Fix DMOV set true whilst controller still outputting step pulses that occurred
 //                  when the step smoothing factor (motor_extras) set higher than controller default
@@ -440,12 +445,38 @@
 //                  Fix GalilAddCode to remove REM lines and replace empty lines in custom code with '
 //                  Fix GalilReplaceHomeCode to remove REM lines and replace empty in custom code lines with '
 //                  Fix GalilStartController to remove REM lines and replace empty in custom code lines with '
-// 10/03/2025 M.Clift
-//                  Fix add rio.dmc code for rio.  Running code on rio makes it stable
 // 27/03/2025 M.Clift
 //                  Change/increase timeout for user console commands known to take a long time
 //                  Add command console monitor PV $(P):SEND_STR_MON will now show controller error strings
 //                  Fix multi-thread access condition causing segfault during controller reconnect in UDP mode
+// 06/05/2025 M.Clift, JHopkins
+//                  Add missing config/RELEASE.local
+// 27/09/2025 M.Clift, M.Rivers
+//                  Add internal amplifier status and fault reset
+// 27/09/2025 M.Clift
+//                  Add several stop code cases to internal stop mechanism
+//                  Minor optimizations to GalilController::getStatus
+// 05/10/2025 M.Rivers
+//                  Fix data record decoding of amplifier fault status
+//                  Update internal amplifer MEDM screen
+// 12/10/2025 M.Clift
+//                  Add block ST command through command console preventing accidental kill of all controller threads 
+//                  Fix some characters missing from unsolicited messages
+// 30/10/2025 M.Clift
+//                  Move config/RELEASE.local to configure/.  Remove config folder
+//                  Fault status colors altered (eg. moving, limits)
+// 01/11/2025 M.Rivers
+//                  Fix segmentation fault on controller reconnect
+// 06/11/2025 M.Rivers
+//                  Improve fix segmentation fault on controller reconnect
+// 20/01/2026 M.Clift
+//                  Update screen start scripts.  Update comments in DMC01Configure.cmd and DMC01CreateMonitorSet.cmd
+// 22/01/2026 A.Al-Dalleh
+//                  Changed textbox format to string in F and R kinematics UI
+// 01/05/2026 M. Rivers
+//                  Fix motorsAtStart startp index.  motorsAtStart was looking at the wrong index when checking if motors were at start
+// 21/05/2026 A.Al-Dalleh
+//                  Alter GalilAxis::setBrake so the brake is only released on connected motors
 
 #include <stdio.h>
 #include <math.h>
@@ -485,7 +516,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "3-6-108";
+static const char *driverVersion = "4-1-15";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);
@@ -531,6 +562,16 @@ static void signalHandler(int sig)
          epicsExit (128 + sig);
          break;
    }
+}
+
+static std::string rawToEscapedString(const char* inbuf, size_t inlen)
+{
+    size_t outlen = epicsStrnEscapedFromRawSize(inbuf, inlen);
+    char* outbuf = new char[outlen + 1];
+    epicsStrnEscapedFromRaw(outbuf, outlen, inbuf, inlen);
+    std::string s(outbuf);
+    delete[] outbuf;
+    return s;
 }
 
 //EPICS shutdown handler
@@ -602,11 +643,15 @@ GalilController::GalilController(const char *portName, const char *address, doub
                          (int)(ASYN_CANBLOCK | ASYN_MULTIDEVICE),
                          (int)1, // autoconnect
                          (int)0, (int)0),  // Default priority and stack size
-  numAxes_(0), unsolicitedQueue_(MAX_GALIL_AXES, MAX_GALIL_STRING_SIZE), shutdown_requested_(false)
+  numAxes_(0), unsolicitedQueue_(MAX_GALIL_AXES, MAX_GALIL_STRING_SIZE), default_timeout_(1)
 {
   struct Galilmotor_enables *motor_enables = NULL;	//Convenience pointer to GalilController motor_enables[digport]
   string mesg;              //Controller mesg
   unsigned i;
+  if (getenv("GALIL_DEFAULT_COMM_TIMEOUT") != NULL) {
+      default_timeout_ = atoi(getenv("GALIL_DEFAULT_COMM_TIMEOUT"));
+      std::cerr << "Found GALIL_DEFAULT_COMM_TIMEOUT environment variable - default communication timeout set to " <<  default_timeout_ << " seconds" << std::endl;
+  }
 
   // Create controller-specific parameters
   createParam(GalilDriverString, asynParamOctet, &GalilDriver_);
@@ -639,6 +684,7 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilUserArrayUploadString, asynParamInt32, &GalilUserArrayUpload_);
   createParam(GalilUserArrayString, asynParamFloat64Array, &GalilUserArray_);
   createParam(GalilUserArrayNameString, asynParamOctet, &GalilUserArrayName_);
+  createParam(GalilClearAmpFaultsString, asynParamInt32, &GalilClearAmpFaults_);
 
   createParam(GalilOutputCompare1AxisString, asynParamInt32, &GalilOutputCompareAxis_);
   createParam(GalilOutputCompare1StartString, asynParamFloat64, &GalilOutputCompareStart_);
@@ -666,6 +712,7 @@ GalilController::GalilController(const char *portName, const char *address, doub
 
   createParam(GalilStepSmoothString, asynParamFloat64, &GalilStepSmooth_);
   createParam(GalilMotorTypeString, asynParamInt32, &GalilMotorType_);
+  createParam(GalilBrushTypeString, asynParamInt32, &GalilBrushType_);
 
   createParam(GalilHomingRoutineAString, asynParamOctet, &GalilHomingRoutineA_);
   createParam(GalilHomingRoutineBString, asynParamOctet, &GalilHomingRoutineB_);
@@ -698,6 +745,7 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilPremString, asynParamOctet, &GalilPrem_);
   createParam(GalilPostString, asynParamOctet, &GalilPost_);
 
+  createParam(GalilUseLimitsAsHomeString, asynParamInt32, &GalilUseLimitsAsHome_);
   createParam(GalilUseSwitchString, asynParamInt32, &GalilUseSwitch_);
   createParam(GalilUseIndexString, asynParamInt32, &GalilUseIndex_);
   createParam(GalilJogAfterHomeString, asynParamInt32, &GalilJogAfterHome_);
@@ -715,6 +763,7 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilStopDelayString, asynParamFloat64, &GalilStopDelay_);
   createParam(GalilMicrostepString, asynParamInt32, &GalilMicrostep_);
 
+  createParam(GalilAmpModelString, asynParamInt32, &GalilAmpModel_);
   createParam(GalilAmpGainString, asynParamInt32, &GalilAmpGain_);
   createParam(GalilAmpCurrentLoopGainString, asynParamInt32, &GalilAmpCurrentLoopGain_);
   createParam(GalilAmpLowCurrentString, asynParamInt32, &GalilAmpLowCurrent_);
@@ -779,6 +828,14 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilMotorVelocityEGUString, asynParamFloat64, &GalilMotorVelocityEGU_);
   createParam(GalilMotorVelocityRAWString, asynParamFloat64, &GalilMotorVelocityRAW_);
 
+  createParam(GalilMotorHallErrorStatusString, asynParamInt32, &GalilMotorHallErrorStatus_);
+  createParam(GalilMotorAtTorqueLimitStatusString, asynParamInt32, &GalilMotorAtTorqueLimitStatus_);
+  createParam(GalilAmpOverCurrentStatusString, asynParamInt32, &GalilAmpOverCurrentStatus_);
+  createParam(GalilAmpUnderVoltageStatusString, asynParamInt32, &GalilAmpUnderVoltageStatus_);
+  createParam(GalilAmpOverVoltageStatusString, asynParamInt32, &GalilAmpOverVoltageStatus_);
+  createParam(GalilAmpOverTemperatureStatusString, asynParamInt32, &GalilAmpOverTemperatureStatus_);
+  createParam(GalilAmpELOStatusString, asynParamInt32, &GalilAmpELOStatus_);
+
   createParam(GalilUserCmdString, asynParamFloat64, &GalilUserCmd_);
   createParam(GalilUserOctetString, asynParamOctet, &GalilUserOctet_);
   createParam(GalilUserOctetValString, asynParamFloat64, &GalilUserOctetVal_);
@@ -791,8 +848,6 @@ GalilController::GalilController(const char *portName, const char *address, doub
 
 //Add new parameters here
 
-  createParam(GalilCommunicationErrorString, asynParamInt32, &GalilCommunicationError_);
-
   createParam(GalilMoveCommandString, asynParamOctet, &GalilMoveCommand_);
   createParam(GalilMotorEncoderSyncTolString, asynParamFloat64, &GalilMotorEncoderSyncTol_);
   createParam(GalilITCSmoothString, asynParamFloat64, &GalilITCSmooth_);
@@ -800,6 +855,9 @@ GalilController::GalilController(const char *portName, const char *address, doub
   createParam(GalilPoleString, asynParamFloat64, &GalilPole_);
   createParam(GalilEncoderSmoothString, asynParamFloat64, &GalilEncoderSmooth_);
   createParam(GalilMotorDlyString, asynParamFloat64, &GalilMotorDly_);
+  createParam(GalilMotorPosSyncTotalString, asynParamFloat64, &GalilMotorPosSyncTotal_);
+
+  createParam(GalilCommunicationErrorString, asynParamInt32, &GalilCommunicationError_);
 
   //Not connected to controller yet
   connected_ = false;
@@ -926,7 +984,7 @@ void GalilController::connect(void)
   string address = address_;		//Convert address into string for easy inspection
 
   //Set default timeout at connect
-  timeout_ = 1;
+  timeout_ = default_timeout_;
 
   //Construct the asyn port name that will be used for synchronous communication
   sprintf(syncPort_, "GALILSYNC%d", controller_number_);
@@ -974,16 +1032,29 @@ void GalilController::connect(void)
   else
      {
      //Connect to the device, we don't want end of string processing
-     //on windows address may be "COM32 115200" for COM32 at baud rate of 115200, this syntax used in original GalilTools library
+     //on windows address may be "COM32 115200" for port COM32 at baud rate of 115200, this syntax used in original GalilTools library
      //extended syntax only needed if COM port is not already configured with appropriate serial parameters
+     // "COM32 115200 CRTSCTS" to enable hardware handshake on serial line. 
      size_t n = address.find(" ");
      int baud = 0;
+     bool crtscts = false, xonxoff = false;
      if (n == string::npos) {
         address_string = address;
      } else {
         address_string = address.substr(0, n);
-        baud = atoi(address.substr(n).c_str());
+        size_t m = address.find(" ", n + 1);
+        if (m != string::npos) {
+            baud = atoi(address.substr(n, m - n).c_str());
+            std::string opts_str = address.substr(m + 1);
+            std::transform(opts_str.begin(), opts_str.end(), opts_str.begin(),
+                   [](unsigned char c){ return std::tolower(c); });
+            crtscts = (opts_str.find("crtscts") != std::string::npos ? true : false);
+            xonxoff = (opts_str.find("xonxoff") != std::string::npos ? true : false);
+        } else {
+            baud = atoi(address.substr(n).c_str());
+        }
      }
+     std::cerr << "Connecting asyn port \"" << syncPort_ << "\" to serial device " << address_string << std::endl;
      drvAsynSerialPortConfigure(syncPort_, (const char *)address_string.c_str(), epicsThreadPriorityMax, 0, 1);
      if (baud != 0)
      {
@@ -992,12 +1063,16 @@ void GalilController::connect(void)
          asynSetOption(syncPort_, 0, "bits", "8");
          asynSetOption(syncPort_, 0, "parity", "none");
          asynSetOption(syncPort_, 0, "stop", "1");
-         // disable XON/XOFF flow control. This seemed to be required in the old driver that used the GalilTools DLL
+         asynSetOption(syncPort_, 0, "clocal", "Y");
+         // usually disable XON/XOFF flow control. This seemed to be required in the old driver that used the GalilTools DLL
          // but here it seems to lead to parts of the data record being interpreted as XOFF and getting dropped
          // from the readback particularly when a motor is moving. It was only enabled in the old version as otherwise
-         // download of the homing programs timed out, but that doesn't seem to be an issue here
-         asynSetOption(syncPort_, 0, "ixon", "N");
-         asynSetOption(syncPort_, 0, "ixoff", "N");
+         // download of the homing programs timed out, but that doesn't seem to be an issue with this driver
+         std::cerr << syncPort_ << ": " << (xonxoff ? "ENABLING" : "DISABLING") << " software flow control (XON/XOFF) - check this dip switch (if present) on controller is correct" << std::endl;
+         std::cerr << syncPort_ << ": " << (crtscts ? "ENABLING" : "DISABLING") << " hardware flow control (RTS/CTS) - check Handshake dip switch (if present) on controller is correct" << std::endl;
+         asynSetOption(syncPort_, 0, "ixon", (xonxoff ? "Y" : "N"));
+         asynSetOption(syncPort_, 0, "ixoff", (xonxoff ? "Y" : "N"));
+         asynSetOption(syncPort_, 0, "crtscts", (crtscts ? "Y" : "N"));
      }
      //Flag try_async_ records false for serial connections
      try_async_ = false;
@@ -1060,11 +1135,6 @@ void GalilController::shutdownController()
    unsigned i;
    GalilAxis *pAxis;
    GalilCSAxis *pCSAxis;
-   shutdown_requested_ = true;
-
-   // wake these threads, which should then check shutdown_requested_ and exit
-   epicsEventSignal(arrayUploadEvent_);
-   epicsEventSignal(profileExecuteEvent_);
 
    //Set shutdown flag
    shuttingDown_ = true;
@@ -1134,13 +1204,12 @@ void GalilController::shutdownController()
       if (async_records_)
          {
          //Close all udp async connections
-         strcpy(cmd_, "DR0");// stop udp data record
-         sync_writeReadController();
-         strcpy(cmd_, "IHT=>-1"); // udp handles
-         sync_writeReadController();
-         strcpy(cmd_, "IHT=>-2"); // tcp handles
+         strcpy(cmd_, "IHT=>-1");
          sync_writeReadController();
          }
+      // also close all tcp connections?
+      //strcpy(cmd_, "IHT=>-2");
+      //sync_writeReadController();
 
       //Asyn exit handler will disconnect sync connection from here
       //We just print message to tell user Asyn epicsAtExit callback is running (next) and will close connection
@@ -1189,6 +1258,7 @@ void GalilController::setParamDefaults(void)
   {
     setStringParam(i, GalilMoveCommand_, "");
     setDoubleParam(i, GalilMotorEncoderSyncTol_, 0.0);
+    setDoubleParam(i, GalilMotorPosSyncTotal_, 0.0);
     //setIntegerParam(i, GalilMotorStopGo_, 3);
   }
   //Output compare is off
@@ -1199,6 +1269,21 @@ void GalilController::setParamDefaults(void)
   //Default all forward kinematics to null strings
   for (i = MAX_GALIL_CSAXES; i < MAX_GALIL_AXES + MAX_GALIL_CSAXES; i++)
      setStringParam(i, GalilCSMotorForward_, "");
+
+  //Amplifier faults are yet to be acquired
+  for (i = 0; i < 2; i++) {
+     //Set the AD amplifier overcurrent status
+     setIntegerParam(i, GalilAmpOverCurrentStatus_, 0);
+     //Set the AD amplifier overvoltage status
+     setIntegerParam(i, GalilAmpOverVoltageStatus_, 0);
+     //Set the AD amplifier overtemperature status
+     setIntegerParam(i, GalilAmpOverTemperatureStatus_, 0);
+     //Set the AD amplifier overtemperature status
+     setIntegerParam(i, GalilAmpUnderVoltageStatus_, 0);
+     //Set the AD amplifier ELO status
+     setIntegerParam(i, GalilAmpELOStatus_, 0);
+  }
+
   //Default controller error message to null string
   setStringParam(0, GalilCtrlError_, "");
 }
@@ -1253,7 +1338,7 @@ void GalilController::connected(void)
   //Determine if controller is dmc or rio
   rio_ = (model_.find("RIO") != string::npos) ? true : false;
   //Give connect message
-  mesg = "Connected to " + model_ + " at " + address_;
+  mesg = "Connected to " + model_ + " at " + address_ + (async_records_ ? " (ASYNC)" : " (SYNC)");
   setCtrlError(mesg);
 
   //Determine max number of axes the controller supports
@@ -1265,7 +1350,7 @@ void GalilController::connected(void)
         numAxesMax_ = model_[6] - ZEROASCII;
      else if (model_[3] == '3') //DMC30000 series
         numAxesMax_ = 1;
-     else //DMC21x3, DMC41x3, DMC40x0
+     else //DMC21x3, DMC41x3, DMC40x0, DMC42x0
         numAxesMax_ = model_[5] - ZEROASCII;
      }
   else //RIO PLC
@@ -1577,7 +1662,7 @@ bool GalilController::motorsAtStart(double startp[])
      //Calculate readback in user coordinates
      readback = (ueip) ? (epos * eres * dirm) + off : (mpos * mres * dirm) + off;
      //Calculate the motor start position in user coordinates
-     start = (startp[axisNo] * mres * dirm) + off;
+     start = (startp[i] * mres * dirm) + off;
      //Determine result
      if ((!moving && dmov && (readback < (start - rdbd))) || (!moving && dmov && (readback > (start + rdbd))) ||
          (!moving && (rev || fwd))) {
@@ -3660,6 +3745,17 @@ asynStatus GalilController::readInt32(asynUser *pasynUser, epicsInt32 *value)
       else    //Comms error, return last ParamList value set using setIntegerParam
          getIntegerParam(pAxis->axisNo_, function, value);
    } //GalilMotorType_
+   else if (function == GalilBrushType_) {
+      //If provided addr does not return an GalilAxis instance, then return asynError
+      if (!pAxis) return asynError;
+      sprintf(cmd_, "MG _BR%c", pAxis->axisName_);
+      status = get_integer(GalilBrushType_, value);
+   }
+   else if (function == GalilAmpModel_) {
+      //If provided addr does not return an GalilAxis instance, then return asynError
+      if (!pAxis) return asynError;
+      *value = (addr <= 3)? ampModel_[0] : ampModel_[1];
+   }
    else if (function >= GalilSSIInput_ && function <= GalilSSIData_) {
       //If provided addr does not return an GalilAxis instance, then return asynError
       if (!pAxis) return asynError;
@@ -3940,9 +4036,9 @@ asynStatus GalilController::readEnum(asynUser *pasynUser, char *strings[], int v
         numEnums = sizeof(ampGain_43140)/sizeof(enumStruct_t);
         break;
       case 43547:
-        // This is complicated because it has different gains for servo and stepper modes
-        // May need to add another parameter and record?
-        goto unsupported;
+        // This cannot be handled here because the allowed gains depend on the selected motor type
+        // We use doCallBacksEnum when the motor type changes
+        goto unsupported; 
       case 44040:
         pEnum    = ampGain_44040;
         numEnums = sizeof(ampGain_44040)/sizeof(enumStruct_t);
@@ -4158,8 +4254,7 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
 
      //Query motor type before changing setting
      sprintf(cmd_, "MT%c=?", pAxis->axisName_);
-     sync_writeReadController();
-     oldmotor = (float)atof(resp_);
+     status = sync_writeReadController(); // status used after switch statement
 
      //Assemble command to change motor type
      switch (value) {
@@ -4192,12 +4287,18 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
         default: newmtr = 1.0;
                 break;
      } //Switch
-
+     if (status == asynSuccess) {
+         oldmotor = (float)atof(resp_);
+     } else {
+         std::cerr << "Unable to read motor type from controller - assuming no change" << std::endl;
+         oldmotor = newmtr; // to avoid printing messages about servo -> stepper and trying to redefine position if comms failed
+     }
      //Change motor type
      sprintf(cmd_, "MT%c=%1.1f", pAxis->axisName_, newmtr);
      //Write setting to controller
      status = sync_writeReadController();
 
+     //Determine motor type
      //Determine if controller will use main or auxillary register with selected motor type
      pAxis->motorIsServo_ = (value < 2 || (value >= 6 && value <= 12)) ? true : false;
 
@@ -4252,6 +4353,15 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
      }
      else if (oldmotor != newmtr)
         pAxis->limitsDirState_ = unknown;
+        
+     // On some amplifiers (e.g. 43547) changing the motor type changes the amplifier gain enums.
+     // Need to do callbacks with the new enum choices.
+     ampGainCallback(addr, value);
+  }
+  else if (function == GalilBrushType_) {
+     sprintf(cmd_, "BR%c=%d", pAxis->axisName_, value);
+     //Write setting to controller
+     status = sync_writeReadController();
   }
   else if (function == GalilUseEncoder_) {
      //This is one of the last items pushed into driver at startup so flag
@@ -4459,6 +4569,22 @@ asynStatus GalilController::writeInt32(asynUser *pasynUser, epicsInt32 value)
         }
         //Call axis home
         pAxis->home(0, hvel, acceleration, (function == GalilHomr_) ? 0 : 1);
+     }
+  }
+  else if (function == GalilClearAmpFaults_) {
+     //Controller must be 40xx or 41xx series
+     if (model_[3] == '4' && (model_[4] == '0' || model_[4] == '1')) {
+        //Clear all latched amplifier errors
+        strcpy(cmd_, "AZ1");
+        status = sync_writeReadController();
+        if (asynSuccess != status) {
+           //Command failed, get error message from controller
+           strcpy(cmd_, "TC1");
+           if (asynSuccess == (status = sync_writeReadController())) {
+              //Set error message
+              setCtrlError(resp_);
+           }
+        }
      }
   }
   else {
@@ -4680,6 +4806,7 @@ asynStatus GalilController::writeOctet(asynUser *pasynUser, const char*  value, 
   string mesg;					//Controller mesg
   GalilCSAxis *pCSAxis;				//Pointer to CSAxis instance
   int addr=0;					//Address requested
+  char *endptr;					//String to double conversion
 
   //Just return if shutting down
   if (shuttingDown_)
@@ -4708,47 +4835,57 @@ asynStatus GalilController::writeOctet(asynUser *pasynUser, const char*  value, 
         //Increase timeout for user command
         timeout_ = 3;
      }
-     //Send the user command	
-     epicsSnprintf(cmd_, sizeof(cmd_), "%s", value_s.c_str());
-     status = sync_writeReadController();
-     //User command complete, set timeout back to default 1
-     timeout_ = 1;
-     if (status == asynSuccess)
+
+     //Ensure operator doesn't accidently kill all threads
+     if (value_s.find("ST") == string::npos)
         {
-        //Set readback value(s) = response from controller
-        //String monitor
-        setStringParam(GalilUserOctet_, resp_);
-        //ai monitor
-        aivalue = atof(resp_);
-        setDoubleParam(0, GalilUserOctetVal_, aivalue);
-        //Determine if custom command had potential to alter controller time base
-        if (value_s.find("TM ") != string::npos)
+        //Send the user command
+        epicsSnprintf(cmd_, sizeof(cmd_), "%s", value_s.c_str());
+        status = sync_writeReadController();
+
+        //User command complete, set timeout back to default 1
+        timeout_ = default_timeout_;
+        if (status == asynSuccess)
            {
-           //Retrieve controller time base
-           sprintf(cmd_, "MG _TM");
-           if (sync_writeReadController() == asynSuccess)
-              timeMultiplier_ = DEFAULT_TIME / atof(resp_);
-           }
-        }
-     else
-        {
-        //User command failed, get error message from controller
-        strcpy(cmd_, "TC1");
-        if ( (status = sync_writeReadController()) == asynSuccess )
-           {
-           //Set readback value = response from controller
+           //Set readback value(s) = response from controller
+           //String monitor
            setStringParam(GalilUserOctet_, resp_);
+           //ai monitor
+           aivalue = strtod(resp_, &endptr);
+           //Check for conversion error
+           if (errno == 0 && *endptr == '\0') {
+              //Conversion ok, pass value on
+              setDoubleParam(0, GalilUserOctetVal_, aivalue);
+           }
+           //Determine if custom command had potential to alter controller time base
+           if (value_s.find("TM ") != string::npos)
+              {
+              //Retrieve controller time base
+              sprintf(cmd_, "MG _TM");
+              if (sync_writeReadController() == asynSuccess)
+                 timeMultiplier_ = DEFAULT_TIME / atof(resp_);
+              }
+           }
+        else
+           {
+           //User command failed, get error message from controller
+           strcpy(cmd_, "TC1");
+           if ( (status = sync_writeReadController()) == asynSuccess )
+              {
+              //Set readback value = response from controller
+              setStringParam(GalilUserOctet_, resp_);
+              }
            }
         }
      }
-  else   
-  if (function >= GalilHomingRoutineA_ && function <= GalilHomingRoutineH_) {
+  else if (function >= GalilHomingRoutineA_ && function <= GalilHomingRoutineH_)
+     {
       GalilAxis* pAxis = getAxis(pasynUser);	//Retrieve the axis instance
       if (pAxis != nullptr) {
           std::string homingRoutineName = pAxis->homingRoutineName;
           setStringParam(function, homingRoutineName);
       }
-  }
+     }
   else if (function >= GalilCSMotorForward_ && function <= GalilCSMotorReverseH_)
      {
      //User has entered a new kinematic transform equation
@@ -5104,10 +5241,9 @@ void GalilController::enumRowCallback(unsigned ampNum, int reason, const enumStr
   char *strings[MAX_ENUM_ROWS];
   int values[MAX_ENUM_ROWS];
   int severities[MAX_ENUM_ROWS];
-  // Tranlate pEnum enumStruct_t into strings, values, severities for callback
+  // Translate pEnum enumStruct_t into arrays of strings, values, severities for callback
   for (i = 0; ((i < nElements) && (i < MAX_ENUM_ROWS)); i++) {
-    if (strings[i]) free(strings[i]);
-    strings[i] = epicsStrDup(pEnum[i].enumString);
+    strings[i] = (char *)pEnum[i].enumString;
     values[i] = pEnum[i].enumValue;
     severities[i] = 0;
   }
@@ -5118,6 +5254,39 @@ void GalilController::enumRowCallback(unsigned ampNum, int reason, const enumStr
   for (i = addressStart; i < addressEnd; i++) {
     doCallbacksEnum(strings, values, severities, nElements, reason, i);
   }
+}
+
+/** Update amplifier gains when motor type changes for some amplifiers (e.g. 43547)
+  * Called by GalilController::writeInt32
+  */
+void GalilController::ampGainCallback(int axis, int motorType) {
+  unsigned i;
+  char *strings[MAX_ENUM_ROWS] = {0};
+  int values[MAX_ENUM_ROWS];
+  int severities[MAX_ENUM_ROWS];
+  int ampModel;
+  unsigned numEnums = 0;
+  const enumStruct_t *pEnum;
+
+  ampModel = (axis <= 3) ? ampModel_[0] : ampModel_[1];
+  if (ampModel == 43547) {
+    if ((motorType >= 1) && (motorType <= 5)) {
+      pEnum    = ampStepperGain_43547;
+      numEnums = sizeof(ampStepperGain_43547)/sizeof(enumStruct_t);
+    } else {
+      pEnum    = ampServoGain_43547;
+      numEnums = sizeof(ampServoGain_43547)/sizeof(enumStruct_t);
+    }
+  }
+  if (numEnums == 0) return;
+
+  for (i = 0; ((i < numEnums) && (i < MAX_ENUM_ROWS)); i++) {
+    if (strings[i]) free(strings[i]);
+    strings[i] = epicsStrDup(pEnum[i].enumString);
+    values[i] = pEnum[i].enumValue;
+    severities[i] = 0;
+  }
+  doCallbacksEnum(strings, values, severities, numEnums, GalilAmpGain_, axis);
 }
 
 //Process unsolicited message from the controller
@@ -5189,7 +5358,7 @@ void GalilController::processUnsolicitedMesgs(void)
                   if (value)
                      {
                      //Send homed message to pollServices
-                     // logical also replicated in GalilAxis::checkHoming()
+                     // logic also replicated in GalilAxis::checkHoming()
                      pAxis->homedExecuted_ = false;
                      pAxis->pollRequest_.send((void*)&MOTOR_HOMED, sizeof(int));
                      pAxis->homedSent_ = true;
@@ -5243,7 +5412,7 @@ void GalilController::processUnsolicitedMesgs(void)
                //Unknown message
                //Display message in controller console
                rawbufOriginal.erase(rawbufOriginal.find_last_not_of(" \n\r\t:")+1);
-               setCtrlError(rawbufOriginal);
+               setCtrlError(std::string("Unknown unsolicited message: ") + rawbufOriginal);
                callParamCallbacks();
                //All complete
                break;
@@ -5259,7 +5428,8 @@ void GalilController::processUnsolicitedMesgs(void)
 //Return status of GalilController data record acquisition
 void GalilController::getStatus(void)
 {
-   char src[MAX_GALIL_STRING_SIZE];		//data source to retrieve
+   char src1[MAX_GALIL_STRING_SIZE];		//data source to retrieve
+   char src2[MAX_GALIL_STRING_SIZE];		//Two data sources per loop supported
    int addr;					//addr or byte of IO
    int start, end;				//start, and end of analog numbering for this controller
    double paramDouble;				//For passing asynFloat64 to ParamList
@@ -5274,20 +5444,23 @@ void GalilController::getStatus(void)
 
       //DMC30000 series only.
       if (model_[3] == '3') {
+         //Specify data source 1, digital input bit
+         strcpy(src1, "@IN[x]");
+         //Specify data source 2, digital output bit
+         strcpy(src2, "@OUT[x]");
          //First 8 input, and first 4 output bits only
          for (i = 1; i <= 8; i++) {
-            //Digital input bit
-            strcpy(src, "@IN[x]");
-            src[4] = i + ZEROASCII;
-            paramUDig = (unsigned)sourceValue(recdata_, src);
+            //Specify input bit
+            src1[4] = i + ZEROASCII;
+            paramUDig = (unsigned)sourceValue(recdata_, src1);
             in += paramUDig << (i - 1);
             //Digital output bits
             if (i <= 4) {
                //Database records are arranged by word
                //ValueMask = 0xFFFF because a word is 16 bits
-               strcpy(src, "@OUT[x]");
-               src[5] = i + ZEROASCII;
-               paramUDig = (unsigned)sourceValue(recdata_, src);
+               //Specify output bit
+               src2[5] = i + ZEROASCII;
+               paramUDig = (unsigned)sourceValue(recdata_, src2);
                out += paramUDig << (i - 1);
             }
          }//For
@@ -5312,10 +5485,12 @@ void GalilController::getStatus(void)
       else {
          //for all models except DMC30000 series
          //digital inputs in banks of 8 bits for all models except DMC30000 series
+         //Specify source 1, digital input byte
+         strcpy(src1, "_TIx");
          for (addr=0;addr<BINARYIN_BYTES;addr++) {
-            strcpy(src, "_TIx");
-            src[3] = addr + ZEROASCII;
-            paramUDig = (unsigned)sourceValue(recdata_, src);
+            //Specify byte
+            src1[3] = addr + ZEROASCII;
+            paramUDig = (unsigned)sourceValue(recdata_, src1);
             //ValueMask = 0xFF because a byte is 8 bits
             if (!digInitialUpdate_) {
                //Forced callbacks even if no value change
@@ -5327,10 +5502,12 @@ void GalilController::getStatus(void)
             }
          }//For
 	 //data record has digital outputs in banks of 16 bits for dmc, 8 bits for rio
+         //Specify source 1, digital output byte
+         strcpy(src1, "_OPx");
 	 for (addr=0;addr<BINARYOUT_WORDS;addr++) {
-            strcpy(src, "_OPx");
-            src[3] = addr + ZEROASCII;
-            paramUDig = (unsigned)sourceValue(recdata_, src);
+	    //Specify byte
+            src1[3] = addr + ZEROASCII;
+            paramUDig = (unsigned)sourceValue(recdata_, src1);
             if (!digInitialUpdate_) {
                //Forced callbacks even if no value change
                setUIntDigitalParam(addr, GalilBinaryOutRBV_, paramUDig, 0xFFFF, 0xFFFF );
@@ -5351,20 +5528,22 @@ void GalilController::getStatus(void)
       start = (rio_) ? 0 : 1;
       end = ANALOG_PORTS + start;
 
+      //Specify source 1, analog input
+      strcpy(src1, "@AN[x]");
+      //Specify source 2, analog output readback
+      strcpy(src2, "@AO[x]");
       for (addr = start;addr < end;addr++) {
-         //Analog inputs
-         strcpy(src, "@AN[x]");
-         src[4] = addr + ZEROASCII;
-         paramDouble = (double)sourceValue(recdata_, src);
+         //Specify analog input number
+         src1[4] = addr + ZEROASCII;
+         paramDouble = (double)sourceValue(recdata_, src1);
          if ((paramDouble < (analogInPosted_[addr] - analogIndeadb_[addr])) || (paramDouble > (analogInPosted_[addr] + analogIndeadb_[addr]))) {
             setDoubleParam(addr, GalilAnalogIn_, paramDouble);
             analogInPosted_[addr] = paramDouble;
          }
          if (rio_ || model_[3] == '3') {
-            //Analog output readbacks
-            strcpy(src, "@AO[x]");
-            src[4] = addr + ZEROASCII;
-            paramDouble = (double)sourceValue(recdata_, src);
+            //Specify analog output number
+            src2[4] = addr + ZEROASCII;
+            paramDouble = (double)sourceValue(recdata_, src2);
             if ((paramDouble < (analogOutRbvPosted_[addr] - analogOutRBVdeadb_[addr])) || (paramDouble > (analogOutRbvPosted_[addr] + analogOutRBVdeadb_[addr]))) {
                setDoubleParam(addr, GalilAnalogOutRBV_, paramDouble);
                analogOutRbvPosted_[addr] = paramDouble;
@@ -5376,17 +5555,42 @@ void GalilController::getStatus(void)
       processUnsolicitedMesgs();
 
       //Coordinate system status
+      //Specify source 1, coordinate system move status
+      strcpy(src1, "_BGx");
+      //Specify source 2, coordinate system segment count
+      strcpy(src2, "_CSx");
       for (addr=0;addr<COORDINATE_SYSTEMS;addr++) {
-         //Move/done status
-         strcpy(src, "_BGx");
-         src[3] = (addr) ? 'T' : 'S';
-         setIntegerParam(addr, GalilCoordSysMoving_, (int)sourceValue(recdata_, src));
-
-         //Segment count
-         strcpy(src, "_CSx");
-         src[3] = (addr) ? 'T' : 'S';
-         setIntegerParam(addr, GalilCoordSysSegments_, (int)sourceValue(recdata_, src));
+         //Specify coordinate system S or T to acquire move status from
+         src1[3] = (addr) ? 'T' : 'S';
+         setIntegerParam(addr, GalilCoordSysMoving_, (int)sourceValue(recdata_, src1));
+         //Specify coordinate system S or T to acquire segment count from
+         src2[3] = (addr) ? 'T' : 'S';
+         setIntegerParam(addr, GalilCoordSysSegments_, (int)sourceValue(recdata_, src2));
       } //For
+
+      //40xx and 41xx series, obtain internal amplifier fault status
+      if (model_[3] == '4' && (model_[4] == '0' || model_[4] == '1')) {
+         //Set the AD amplifier overcurrent status
+         setIntegerParam(0, GalilAmpOverCurrentStatus_, (int)sourceValue(recdata_, "TA00"));
+         //Set the AD amplifier overvoltage status
+         setIntegerParam(0, GalilAmpOverVoltageStatus_, (int)sourceValue(recdata_, "TA01"));
+         //Set the AD amplifier overtemperature status
+         setIntegerParam(0, GalilAmpOverTemperatureStatus_, (int)sourceValue(recdata_, "TA02"));
+         //Set the AD amplifier overtemperature status
+         setIntegerParam(0, GalilAmpUnderVoltageStatus_, (int)sourceValue(recdata_, "TA03"));
+         //Set the AD amplifier overcurrent status
+         setIntegerParam(1, GalilAmpOverCurrentStatus_, (int)sourceValue(recdata_, "TA04"));
+         //Set the AD amplifier overvoltage status
+         setIntegerParam(1, GalilAmpOverVoltageStatus_, (int)sourceValue(recdata_, "TA05"));
+         //Set the AD amplifier overtemperature status
+         setIntegerParam(1, GalilAmpOverTemperatureStatus_, (int)sourceValue(recdata_, "TA06"));
+         //Set the AD amplifier overtemperature status
+         setIntegerParam(1, GalilAmpUnderVoltageStatus_, (int)sourceValue(recdata_, "TA07"));
+         //Set the AD amplifier ELO status
+         setIntegerParam(0, GalilAmpELOStatus_, (int)sourceValue(recdata_, "TA3AD"));
+         //Set the EH amplifier ELO status
+         setIntegerParam(1, GalilAmpELOStatus_, (int)sourceValue(recdata_, "TA3EH"));
+      }
    } //connected_
 }
 
@@ -5427,13 +5631,14 @@ asynStatus GalilController::sendUnsolicitedMessage(char *mesg)
 }
 
 //Below function supplied for Cygwin, MingGw
-bool GalilController::my_isascii(int c)
+bool GalilController::isprintable(int c)
 {
-   if (c == 10 || c == 13 || (c >= 48 && c <= 57) || (c >= 65 && c <= 90) ||
-       (c >= 97 && c <= 122) || c == 32 || c == 46)
+   if ((10 == c) || (13 == c) || (0 != isprint(c))) {
+      //Character is printable
       return true;
-   else
-      return false;
+   }
+   //Character not printable
+   return false;
 }
 
 /** Reads a binary data record from the controller
@@ -5444,7 +5649,7 @@ bool GalilController::my_isascii(int c)
 asynStatus GalilController::readDataRecord(char *input, unsigned bytesize)
 {
   asynStatus status;	//Asyn status
-  size_t nread = 0;	//Asyn read bytes
+  size_t nread;	//Asyn read bytes
   int eomReason;	//Asyn end of message reason
   char buf[MAX_GALIL_DATAREC_SIZE];//Temporary buffer to hold data record in some circumstances
   char mesg[MAX_GALIL_STRING_SIZE] = {0x0};//Unsolicited mesg buffer
@@ -5459,19 +5664,20 @@ asynStatus GalilController::readDataRecord(char *input, unsigned bytesize)
 
   for (;;)
      {
+     nread = 0;
      //Read bytesize using octet interface and user supplied buffer
      if (async_records_)
         status = pAsyncOctet_->read(pAsyncOctetPvt_, pasynUserAsyncGalil_, input, readsize, &nread, &eomReason);
      else
         status = pSyncOctet_->read(pSyncOctetPvt_, pasynUserSyncGalil_, input, readsize, &nread, &eomReason);
 
-     //Serial mode characters arrive with nread = 1
+     //Serial mode characters can arrive with nread = 1 but also with nread > 1 but less than readsize
      //UDP async mode unsolicited mesg always cause read (above) to return with nread set to mesg length
      //TCP sync mode unsolicited mesg sometimes cause read to return with nread set to mesg length
      //TCP sync mode unsolicited mesg mostly cause read to return with nread = readsize
      //Readsize varies when reading data record tail in tcp sync with unsolicited message
 
-     if (nread == bytesize && eomReason == ASYN_EOM_CNT)
+     if (!status && nread == bytesize && eomReason == ASYN_EOM_CNT)
         {
         //Read returned ok, with expected bytes
         //Look for record header at expected location in buffer
@@ -5480,8 +5686,12 @@ asynStatus GalilController::readDataRecord(char *input, unsigned bytesize)
         //Record header cannot be found here in rs232 mode
         check = (unsigned char)input[3] << 8;
         check = (unsigned char)input[2] + check;
-        if (check == datarecsize_)
+        if (input[1] & 0x80 != 0 && check == datarecsize_) {
+           if (j > 0) {
+               std::cerr << "readDataRecord(): discarding message " << mesg << " length " << j << std::endl;
+           }
            return status;//Found record at expected location, job done
+        }
         }
 
      if (!status && nread > 0)
@@ -5505,21 +5715,19 @@ asynStatus GalilController::readDataRecord(char *input, unsigned bytesize)
                  {
                  //Detected record header
                  recstart = true;
-                 if (nread == bytesize && eomReason == ASYN_EOM_CNT)
-                    {
-                    //Received expected number of bytes, but didn't find header at expected location
-                    //Not a serial connection, so it must be synchronous tcp
-                    //This means the header is not at expected location due to unsolicited message
-                    //Store buffer index where datarecord header starts
-                    //Which is also number of data record bytes remaining (tail) to read
-                    readsize = i - HEADER_BYTES + 1;
-                    }
+                 //either Received expected number of bytes, but didn't find header at expected location
+                 //or read less bytes than expected. need to queue an extra read for later after prcoessing these bytes
+                 //This means the header is not at expected location due to unsolicited message
+                 // we read  nread  and  header started at offset (i - HEADER_BYTES + 1)
+                 int offset_to_header = i - HEADER_BYTES + 1; // location of found header in current input buffer
+                 readsize = bytesize + offset_to_header; // nread will be subtracted later
+                 memcpy(buf, input + offset_to_header, HEADER_BYTES);
                  }
               if (!recstart)
                  {
                  //Extract unsolictied message
                  value = (unsigned char)(input[i] - 0x80);
-                 if (((input[i] & 0x80) == 0x80) && (my_isascii((int)value)))
+                 if (((input[i] & 0x80) == 0x80) && (isprintable((int)value)))
                     {
                     //Byte looks like an unsolicited packet
                     //Check for overrun
@@ -5556,6 +5764,12 @@ asynStatus GalilController::readDataRecord(char *input, unsigned bytesize)
                  //Data record read complete
                  //Copy data record into user supplied buffer
                  memcpy(input, buf, bytesize);
+                 if (j > 0) {
+                     std::cerr << "readDataRecord(): discarding message " << mesg << " length " << j << std::endl;
+                     }
+                 if (i != nread-1) {
+                     std::cerr << "readDataRecord(): i error" << std::endl;
+                     }
                  return status;
                  }
               }
@@ -5565,8 +5779,16 @@ asynStatus GalilController::readDataRecord(char *input, unsigned bytesize)
         previous = input[nread - 1];
         //Loop back and keep reading until we get the data record or error
         }
-     else
-        return asynError;//Stop if any asyn error
+     else {
+         if (j > 0) {
+             std::cerr << "readDataRecord(): discarding message " << mesg << " length " << j << std::endl;
+             }
+         if (status == asynTimeout) {
+             std::cerr << "readDataRecord(): timeout after " << (async_records_ ? pasynUserAsyncGalil_->timeout : pasynUserSyncGalil_->timeout) << " seconds" << std::endl;
+         }
+         return asynError;//Stop if any asyn error
+     }
+     readsize -= nread;
      }
 }
 
@@ -5592,8 +5814,11 @@ void GalilController::acquireDataRecord(void)
         strcpy(cmd_, "QR\r");
         //Write the QR query to controller
         recstatus_ = pSyncOctet_->write(pSyncOctetPvt_, pasynUserSyncGalil_, cmd_, 3, &nwrite);
-        if (!recstatus_) //Solicited data record includes an extra colon at the end
+        if (!recstatus_) {//Solicited data record includes an extra colon at the end
            recstatus_ = readDataRecord(resp_, datarecsize_ + 1); //Get the record
+        } else {
+           std::cerr << "acquireDataRecord: failed to send QR" << std::endl;
+        }
         unlock();
         }
      else //Asynchronous poll
@@ -5608,17 +5833,18 @@ void GalilController::acquireDataRecord(void)
      }
 
   //Track timeouts
-  if (recstatus_ != asynSuccess)
+  if (recstatus_ != asynSuccess) {
      consecutive_acquire_timeouts_++;
+     std::cerr << "acquireDataRecord: data record acquire timeout number " << consecutive_acquire_timeouts_ << std::endl;
+  }
 
   //Force disconnect if any errors
-  if (consecutive_acquire_timeouts_ > ALLOWED_TIMEOUTS)
-     {
+  if (consecutive_acquire_timeouts_ > ALLOWED_TIMEOUTS) {
      //Disconnect
      disconnect();
      //Due to error, put poller to sleep at end of this cycle
      poller_->sleepPoller(false);
-     }
+  }
 
   //If no errors, copy the data
   if (!recstatus_ && connected_)
@@ -5639,17 +5865,24 @@ void GalilController::acquireDataRecord(void)
 asynStatus GalilController::sync_writeReadController(bool testQuery, bool logCommand)
 {
   const char *functionName="sync_writeReadController";
-  size_t nread;
+  size_t nread = 0;
+  static std::atomic<int> call_count = 0;
   int status;
   size_t len;
   static const char* debug_file_name = macEnvExpand("$(GALIL_DEBUG_FILE=)");
   static FILE* debug_file = ( (debug_file_name != NULL && strlen(debug_file_name) > 0) ? fopen(debug_file_name, "at") : NULL);
-
+//  if (!this->havelock()) {
+//      std::cerr << "sync_writeReadController problem 1" << std::endl;
+//  }
+  if (++call_count != 1) {
+      std::cerr << "sync_writeReadController problem 2" << std::endl;
+  }
   //Simply return asynSuccess if not connected
   //Asyn module corrupts ram if we try write/read with no connection
   if (!connected_ && !testQuery)
      {
      strcpy(resp_, "");
+     --call_count;
      return asynSuccess;
      }
 
@@ -5664,7 +5897,10 @@ asynStatus GalilController::sync_writeReadController(bool testQuery, bool logCom
      cmd_[len+1] = '\0';
      }
   else //Command too long
-     return asynError;
+  {
+      --call_count;
+      return asynError;
+  }
 
   //Write command, and retrieve response
   status = sync_writeReadController(cmd_, resp_, MAX_GALIL_STRING_SIZE, &nread, timeout_);
@@ -5693,8 +5929,72 @@ asynStatus GalilController::sync_writeReadController(bool testQuery, bool logCom
      fprintf(debug_file, "%s (%d) %s: controller=\"%s\" command=\"%s\", response=\"%s\", status=%s\n", 
 	      time_buffer, getpid(), functionName, address_.c_str(), cmd_, resp_, (status == asynSuccess ? "OK" : "ERROR"));
      }
-
+  --call_count;
   return (asynStatus)status;
+}
+
+asynStatus GalilController::sync_writeReadController(std::string& input, const char* output, ...)
+{
+    const char* functionName = "sync_writeReadController";
+    size_t nread = 0;
+    bool logCommand = true;
+    bool testQuery = false;
+    char output_buffer[MAX_GALIL_STRING_SIZE];
+    char input_buffer[MAX_GALIL_STRING_SIZE];
+    int status;
+    size_t len;
+    static const char* debug_file_name = macEnvExpand("$(GALIL_DEBUG_FILE=)");
+    static FILE* debug_file = ((debug_file_name != NULL && strlen(debug_file_name) > 0) ? fopen(debug_file_name, "at") : NULL);
+    va_list args;
+    va_start(args, output);
+    vsnprintf(output_buffer, sizeof(output_buffer), output, args);
+    va_end(args);
+    //Simply return asynSuccess if not connected
+    //Asyn module corrupts ram if we try write/read with no connection
+    if (!connected_ && !testQuery)
+    {
+        input = "";
+        return asynSuccess;
+    }
+
+    /*asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW,
+            "%s: controller=\"%s\" command=\"%s\"\n", functionName, address_, cmd_);*/
+
+            //Append carriage return to provided cmd
+    len = strlen(output_buffer);
+    if (len < MAX_GALIL_STRING_SIZE - 2)
+    {
+        output_buffer[len] = '\r';
+        output_buffer[len + 1] = '\0';
+    }
+    else //Command too long
+        return asynError;
+
+    //Write command, and retrieve response
+    status = sync_writeReadController(output_buffer, input_buffer, MAX_GALIL_STRING_SIZE, &nread, timeout_);
+
+    //Remove any unwanted characters
+    input = input_buffer;
+    input.erase(input.find_last_not_of(" \n\r\t:") + 1);
+
+    //Debugging
+    /*asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DRIVER,
+           "%s: controller=\"%s\" command=\"%s\", response=\"%s\", status=%s\n",
+            functionName, address_, cmd_, resp_, (status == asynSuccess ? "OK" : "ERROR"));*/
+
+    if (debug_file != NULL && logCommand)
+    {
+        time_t now;
+        //Use line buffering, then flush
+        setvbuf(debug_file, NULL, _IOLBF, BUFSIZ);
+        time(&now);
+        char time_buffer[64];
+        strftime(time_buffer, sizeof(time_buffer), "%Y-%m-%d %H:%M:%S", localtime(&now));
+        fprintf(debug_file, "%s (%d) %s: controller=\"%s\" command=\"%s\", response=\"%s\", status=%s\n",
+            time_buffer, getpid(), functionName, address_.c_str(), output_buffer, input_buffer, (status == asynSuccess ? "OK" : "ERROR"));
+    }
+
+    return (asynStatus)status;
 }
 
 /** Writes a string to the controller and reads a response.
@@ -5708,12 +6008,14 @@ asynStatus GalilController::sync_writeReadController(const char *output, char *i
   unsigned i = 0;	//Number of raw bytes received, general counting
   unsigned j = 0;	//Number of unsolicited bytes received
   unsigned k = 0;	//Number of solicited bytes received
-  size_t nwrite;	//Bytes written
+  unsigned m = 0;	//Number of discarded bytes received
+  size_t nwrite = 0;	//Bytes written
   asynStatus status = asynSuccess;//Asyn status
   int eomReason;	//End of message reason
   char buf[MAX_GALIL_DATAREC_SIZE] = "";	//Receive buffer
   char mesg[MAX_GALIL_DATAREC_SIZE] = "";	//Unsolicited buffer
   char resp[MAX_GALIL_DATAREC_SIZE] = "";	//Solicited buffer
+  char discard[MAX_GALIL_DATAREC_SIZE] = "";	//discard buffer
   string inp = "";                          //Solicited data concatenated over multiple reads				
 				//Sometimes caller puts many commands on one line separated by ; so we must
   string out_string = output;	//Determine number of output terminators to search for from requested command
@@ -5721,11 +6023,15 @@ asynStatus GalilController::sync_writeReadController(const char *output, char *i
   int found_terminators = 0;	//Terminator characters found so far
   unsigned char value;		//Used to identify unsolicited traffic
   bool done = false;		//Read complete?
+  bool term_done = false;   // found all terminators?
+  size_t this_nread;
 
+  //epicsGuard<epicsMutex> _lock(sync_writeReadLock_);
+  *nread = 0;
   //Null user supplied input buffer
   strcpy(input, "");
   //Set timeout for Sync connection
-  pasynUserSyncGalil_->timeout = timeout_;
+  pasynUserSyncGalil_->timeout = timeout;
   //Write the command
   status = pSyncOctet_->write(pSyncOctetPvt_, pasynUserSyncGalil_, output, strlen(output), &nwrite);
   //If write ok
@@ -5734,12 +6040,13 @@ asynStatus GalilController::sync_writeReadController(const char *output, char *i
      while (!done)
         {
         //Read any response
-        status = pSyncOctet_->read(pSyncOctetPvt_, pasynUserSyncGalil_, buf, MAX_GALIL_DATAREC_SIZE, nread, &eomReason);
+        this_nread = 0;
+        status = pSyncOctet_->read(pSyncOctetPvt_, pasynUserSyncGalil_, buf, MAX_GALIL_DATAREC_SIZE, &this_nread, &eomReason);
         //If read successful, search for terminator characters
-        if (!status && *nread > 0)
+        if (!status && this_nread > 0)
            {
            //Search for terminating characters
-           for (i = 0; i < *nread; i++)
+           for (i = 0; i < this_nread; i++)
               {
               //Controller responds with ? or : for each command separated by ;
               if (buf[i] == '?')
@@ -5755,7 +6062,7 @@ asynStatus GalilController::sync_writeReadController(const char *output, char *i
               //Split received byte stream into solicited, and unsolicited messages
               //Unsolicited messages are received here only in synchronous mode
               value = (unsigned char)buf[i] - 128;
-              if (((buf[i] & 0x80) == 0x80) && (my_isascii((int)value)))
+              if (((buf[i] & 0x80) == 0x80) && (isprintable((int)value)))
                  {
                  //Byte looks like an unsolicited packet
                  //Check for overrun
@@ -5765,35 +6072,72 @@ asynStatus GalilController::sync_writeReadController(const char *output, char *i
                  mesg[j++] = (unsigned char)value;
                  //Terminate the buffers
                  mesg[j] = '\0';
+                 //Send unsolicited message if last char was line feed
+                 if (mesg[j - 1] == '\n')
+                       {
+                       sendUnsolicitedMessage(mesg);
+                       mesg[0] = '\0';
+                       j = 0;
+                       }
                  }
               else
                  {
                  //Byte looks like a solicited packet
-                 //Check for overrun
-                 if (k > MAX_GALIL_DATAREC_SIZE - 2)
-                    return asynError;//No solicited message should be this long return error
-                 resp[k++] = buf[i];//Byte is part of solicited message
-                 //Terminate the buffer
-                 resp[k] = '\0';
+                if (!term_done)
+                  {
+                   //Check for overrun
+                   if (k > MAX_GALIL_DATAREC_SIZE - 2)
+                      return asynError;//No solicited message should be this long return error
+                   resp[k++] = buf[i];//Byte is part of solicited message
+                   //Terminate the buffer
+                   resp[k] = '\0';
+                  } else {
+                      discard[m++] = buf[i];
+                      discard[m] = '\0';
+                  }
+                  if (found_terminators == target_terminators) {
+                      term_done = true;
+                  }
+                 }
+              }
+              if (found_terminators > target_terminators)
+                 {
+                 std::cerr << "sync_writeReadController(): Found " << found_terminators - target_terminators << " more terminators than expected" << std::endl;
                  }
               //If received all expected terminators, read is complete
-              if (found_terminators == target_terminators)
+              if (term_done)
                  {
                  //Don't attempt any more reads
                  done = true;
                  //stop searching this read, and return the resp, then send unsolicited mesg
                  break;
                  }
-              }
            }
         else //Stop read if any asyn error
+        {
+         if (j != 0) {
+             std::cerr << "sync_writeReadController(): after error - Discarded unsolicited message: " << mesg << " length " << j << std::endl;
+             }
+         if (m != 0) {
+             std::cerr << "sync_writeReadController(): after error - Discarded bytes: " << rawToEscapedString(discard, m) << " length " << m << std::endl;
+             }
            return asynError;
+        }
         }//while (!done)
      //Copy solicited response into user supplied buffer
      strcpy(input, resp);
-     //Send unsolicited mesg to queue
-     if (j != 0)
-        sendUnsolicitedMessage(mesg);
+     *nread = strlen(resp);
+     //Check for any remaining unsolicited messages
+     //Any here did not end in a \n - discard or send anyway?
+     if (j != 0) {
+         std::cerr << "sync_writeReadController(): after success - Discarded unsolicited message: " << mesg << " length " << j << std::endl;
+         //std::cerr << "\"" << output << "\" \"" << input << "\"" << std::endl;
+         //sendUnsolicitedMessage(mesg);
+     }
+     if (m != 0) {
+         std::cerr << "sync_writeReadController(): after success - Discarded bytes: " << rawToEscapedString(discard, m) << " length " << m << std::endl;
+         //std::cerr << "\"" << output << "\" \"" << input << "\"" << std::endl;
+     }
      }//write ok
   return status;
 }
@@ -5905,41 +6249,6 @@ bool GalilController::checkGalilThreads()
         }
     }
     return result;
-}
-
-/*--------------------------------------------------------------*/
-/* Find and replace text in string                              */
-/*--------------------------------------------------------------*/
-void GalilController::findReplace(string& s, const string &toReplace, const string &replaceWith)
-{
-    while(s.find(toReplace) != std::string::npos) {
-        s.replace(s.find(toReplace), toReplace.length(), replaceWith);
-    }
-}
-
-/*--------------------------------------------------------------*/
-/* Remove non-functional elements from the code                 */
-/*--------------------------------------------------------------*/
-void GalilController::compressCode(string& code){
-    findReplace(code, "\r ", "");
-    // Tabs to space
-    findReplace(code, "\t", "    ");
-    // Trailing whitespace
-    findReplace(code, " \n", "\n");
-    // Leading whitespace
-    findReplace(code, "\n ", "\n");
-    // Blank lines
-    findReplace(code, "\n\n", "\n");
-}
-
-/*--------------------------------------------------------------*/
-/* Compare old code to new code                                 */
-/*--------------------------------------------------------------*/
-int GalilController::compareCode(string dc, string uc)
-{
-    compressCode(dc);
-    compressCode(uc);
-    return dc.compare(uc);
 }
 
 /*--------------------------------------------------------------*/
@@ -6657,9 +6966,9 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
       timeout_ = 10;
       //Upload code currently in controller for comparison to generated/user code
       status = programUpload(&uc);
-      if (status) //Upload failed
-         errlogPrintf("\nError uploading code model %s, address %s\n",model_.c_str(), address_.c_str());
-
+      if (status) { //Upload failed
+         errlogPrintf("\nError uploading code for comparison, model %s, address %s\nWill assume any on controller code is outdated\n",model_.c_str(), address_.c_str());
+      }
       if ((display_code == 2) || (display_code == 3)) {
          //Print out the uploaded code from the controller
          printf("\nUploaded code is\n\n");
@@ -6685,7 +6994,7 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
          dc.push_back('\r');
 
       //If code we wish to download differs from controller current code then download the new code
-      int code_changed = compareCode(dc, uc) != 0 && dc.compare("") != 0;
+      int code_changed = (dc.compare(uc) != 0 && dc.compare("") != 0);
       if (quiet_start_)
       {
           if (code_changed)
@@ -6715,7 +7024,7 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
            // Program validation failed
            downloadStatus = downloadFailed;
          }
-
+	
          if (downloadSuccess == downloadStatus) {
             errlogPrintf("Code transfer successful to model %s, address %s\n",model_.c_str(), address_.c_str());	
             //Burn program code to eeprom if burn_program is 1
@@ -6753,7 +7062,7 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
                uc.push_back('\r');
          }
          else {
-            errlogPrintf("\nError uploading code model %s, address %s\n",model_.c_str(), address_.c_str());
+            errlogPrintf("\nError uploading code after transfer to verify, model %s, address %s\n",model_.c_str(), address_.c_str());
          }
 
          //Start thread 0 if code on controller matches what was downloaded
@@ -6796,7 +7105,7 @@ void GalilController::GalilStartController(char *code_file, int burn_program, in
          timeMultiplier_ = DEFAULT_TIME / atof(resp_);
 
       //Decrease timeout now finished manipulating controller code
-      timeout_ = 1;
+      timeout_ = default_timeout_;
       //Wake poller, and re-start async records if needed
       poller_->wakePoller();
    }//connected_
@@ -7232,6 +7541,7 @@ void GalilController::InitializeDataRecord(void)
      axis_b = atoi(charstr);
      //Store the data record size
      datarecsize_ = HEADER_BYTES + (axes * axis_b) + general_b + coord_b;
+     std::cerr << "Galil data record is " << datarecsize_ << " bytes in size" << std::endl;
      //DMC300x0 returns 1 18 16 36, search for "DMC31" in model string to determine 16bit ADC
      if (general_b == 18) return Init30010(model.find("DMC31") != string::npos);
      //DMC40x0/DMC41x3/DMC50000         8 52 26 36
@@ -7505,35 +7815,35 @@ void GalilController::Init4000(int axes)
 	map["NO7"] = Source(51, "UB", 7, "Boolean", "Thread 7 running");
 
 	//Amplifier error status
-	map["TA00"] = Source(52, "UB", 0, "Boolean", "Axis A-D over current");
-	map["TA01"] = Source(52, "UB", 1, "Boolean", "Axis A-D over voltage");
-	map["TA02"] = Source(52, "UB", 2, "Boolean", "Axis A-D over temperature");
-	map["TA03"] = Source(52, "UB", 3, "Boolean", "Axis A-D under voltage");
-	map["TA04"] = Source(52, "UB", 4, "Boolean", "Axis E-H over current");
-	map["TA05"] = Source(52, "UB", 5, "Boolean", "Axis E-H over voltage");
-	map["TA06"] = Source(52, "UB", 6, "Boolean", "Axis E-H over temperature");
-	map["TA07"] = Source(52, "UB", 7, "Boolean", "Axis E-H under voltage");
+	map["TA3AD"] = Source(52, "UB", 0, "Boolean", "Axis A-D ELO active");
+	map["TA3EH"] = Source(52, "UB", 1, "Boolean", "Axis E-H ELO active");
 
-	map["TA1A"] = Source(53, "UB", 0, "Boolean", "Axis A hall error");
-	map["TA1B"] = Source(53, "UB", 1, "Boolean", "Axis B hall error");
-	map["TA1C"] = Source(53, "UB", 2, "Boolean", "Axis C hall error");
-	map["TA1D"] = Source(53, "UB", 3, "Boolean", "Axis D hall error");
-	map["TA1E"] = Source(53, "UB", 4, "Boolean", "Axis E hall error");
-	map["TA1F"] = Source(53, "UB", 5, "Boolean", "Axis F hall error");
-	map["TA1G"] = Source(53, "UB", 6, "Boolean", "Axis G hall error");
-	map["TA1H"] = Source(53, "UB", 7, "Boolean", "Axis H hall error");
+	map["TA2A"] = Source(53, "UB", 0, "Boolean", "Axis A at _TKA peak current");
+	map["TA2B"] = Source(53, "UB", 1, "Boolean", "Axis B at _TKB peak current");
+	map["TA2C"] = Source(53, "UB", 2, "Boolean", "Axis C at _TVC peak current");
+	map["TA2D"] = Source(53, "UB", 3, "Boolean", "Axis D at _TKD peak current");
+	map["TA2E"] = Source(53, "UB", 4, "Boolean", "Axis E at _TKE peak current");
+	map["TA2F"] = Source(53, "UB", 5, "Boolean", "Axis F at _TKF peak current");
+	map["TA2G"] = Source(53, "UB", 6, "Boolean", "Axis G at _TKG peak current");
+	map["TA2H"] = Source(53, "UB", 7, "Boolean", "Axis H at _TKH peak current");
 
-	map["TA2A"] = Source(54, "UB", 0, "Boolean", "Axis A at _TKA peak current");
-	map["TA2B"] = Source(54, "UB", 1, "Boolean", "Axis B at _TKB peak current");
-	map["TA2C"] = Source(54, "UB", 2, "Boolean", "Axis C at _TVC peak current");
-	map["TA2D"] = Source(54, "UB", 3, "Boolean", "Axis D at _TKD peak current");
-	map["TA2E"] = Source(54, "UB", 4, "Boolean", "Axis E at _TKE peak current");
-	map["TA2F"] = Source(54, "UB", 5, "Boolean", "Axis F at _TKF peak current");
-	map["TA2G"] = Source(54, "UB", 6, "Boolean", "Axis G at _TKG peak current");
-	map["TA2H"] = Source(54, "UB", 7, "Boolean", "Axis H at _TKH peak current");
+	map["TA1A"] = Source(54, "UB", 0, "Boolean", "Axis A hall error");
+	map["TA1B"] = Source(54, "UB", 1, "Boolean", "Axis B hall error");
+	map["TA1C"] = Source(54, "UB", 2, "Boolean", "Axis C hall error");
+	map["TA1D"] = Source(54, "UB", 3, "Boolean", "Axis D hall error");
+	map["TA1E"] = Source(54, "UB", 4, "Boolean", "Axis E hall error");
+	map["TA1F"] = Source(54, "UB", 5, "Boolean", "Axis F hall error");
+	map["TA1G"] = Source(54, "UB", 6, "Boolean", "Axis G hall error");
+	map["TA1H"] = Source(54, "UB", 7, "Boolean", "Axis H hall error");
 
-	map["TA3AD"] = Source(55, "UB", 0, "Boolean", "Axis A-D ELO active");
-	map["TA3EH"] = Source(55, "UB", 1, "Boolean", "Axis E-H ELO active");
+	map["TA00"] = Source(55, "UB", 0, "Boolean", "Axis A-D over current");
+	map["TA01"] = Source(55, "UB", 1, "Boolean", "Axis A-D over voltage");
+	map["TA02"] = Source(55, "UB", 2, "Boolean", "Axis A-D over temperature");
+	map["TA03"] = Source(55, "UB", 3, "Boolean", "Axis A-D under voltage");
+	map["TA04"] = Source(55, "UB", 4, "Boolean", "Axis E-H over current");
+	map["TA05"] = Source(55, "UB", 5, "Boolean", "Axis E-H over voltage");
+	map["TA06"] = Source(55, "UB", 6, "Boolean", "Axis E-H over temperature");
+	map["TA07"] = Source(55, "UB", 7, "Boolean", "Axis E-H under voltage");
 
 	//contour mode
 	map["CD"] = Source(56, "UL", -1, "segments", "Contour segment count");
@@ -8030,7 +8340,7 @@ void GalilController::dq_analog(int byte, int input_num)
   * \param[in] address      	 The name or address to provide to Galil communication library
   * \param[in] updatePeriod	     The time in ms between datarecords.  Async if controller + bus supports it, otherwise is polled/synchronous.
   *                              If (updatePeriod < 0), polled/synchronous at abs(updatePeriod) is done regardless of bus type
-  * \param[in] quietStart	 Don't stop threads and motors if control code is unchanged.
+  * \param[in] quietStart	     Don't stop threads and motors if control code is unchanged.
   */
 extern "C" int GalilCreateController(const char *portName, const char *address, int updatePeriod, int quietStart)
 {
@@ -8042,13 +8352,11 @@ extern "C" int GalilCreateController(const char *portName, const char *address, 
   * Configuration command, called directly or from iocsh
   * \param[in] portName          The name of the asyn port that has already been created for this driver
   * \param[in] axisname      	 The name motor A-H 
-  * \param[in] limits_as_home    Home routine will use limit switches for homing, and limits appear to motor record as home switch
   * \param[in] enables_string	 Comma separated list of digital IO ports used to enable/disable the motor
   * \param[in] switch_type	 Switch type attached to digital bits for enable/disable motor
   */
 extern "C" asynStatus GalilCreateAxis(const char *portName,        	/*specify which controller by port name */
                          	      char *axisname,                  	/*axis name A-H */
-				      int limit_as_home,		/*0=no, 1=yes. Using a limit switch as home*/
 				      char *enables_string,		/*digital input(s) to use to enable/inhibit motor*/
 				      int switch_type)		  	/*digital input switch type for enable/inhbit function*/
 {
@@ -8065,7 +8373,7 @@ extern "C" asynStatus GalilCreateAxis(const char *portName,        	/*specify wh
   
   pC->lock();
 
-  new GalilAxis(pC, axisname, limit_as_home, enables_string, switch_type);
+  new GalilAxis(pC, axisname, enables_string, switch_type);
 
   pC->unlock();
   return asynSuccess;
@@ -8233,7 +8541,7 @@ static void GalilCreateContollerCallFunc(const iocshArgBuf *args)
 //GalilCreateAxis iocsh function
 static const iocshArg GalilCreateAxisArg0 = {"Controller Port name", iocshArgString};
 static const iocshArg GalilCreateAxisArg1 = {"Specified Axis Name", iocshArgString};
-static const iocshArg GalilCreateAxisArg2 = {"Limit switch as home", iocshArgInt};
+static const iocshArg GalilCreateAxisArg2 = {"IGNORED limit_as_home", iocshArgInt}; //IGNORED, only present for backward compatibility with old st.cmd - option now set in galil_motor_extras.template 
 static const iocshArg GalilCreateAxisArg3 = {"Motor enable string", iocshArgString};
 static const iocshArg GalilCreateAxisArg4 = {"Motor enable switch type", iocshArgInt};
 
@@ -8247,7 +8555,8 @@ static const iocshFuncDef GalilCreateAxisDef = {"GalilCreateAxis", 5, GalilCreat
 
 static void GalilCreateAxisCallFunc(const iocshArgBuf *args)
 {
-  GalilCreateAxis(args[0].sval, args[1].sval, args[2].ival, args[3].sval, args[4].ival);
+  GalilCreateAxis(args[0].sval, args[1].sval, args[3].sval, args[4].ival); // limit_as_home not passed
+
 }
 
 //GalilCreateVAxis iocsh function
@@ -8309,7 +8618,7 @@ static void GalilAddCodeCallFunc(const iocshArgBuf *args)
 static const iocshArg GalilStartControllerArg0 = {"Controller Port name", iocshArgString};
 static const iocshArg GalilStartControllerArg1 = {"Code file", iocshArgString};
 static const iocshArg GalilStartControllerArg2 = {"Burn program", iocshArgInt};
-static const iocshArg GalilStartControllerArg3 = {"Display Code", iocshArgInt}; // ignored by driver, left here for compatibility with existing .cmd files
+static const iocshArg GalilStartControllerArg3 = {"IGNORED Display Code", iocshArgInt}; // ignored by driver, left here for compatibility with existing .cmd files
 static const iocshArg GalilStartControllerArg4 = {"Thread mask", iocshArgInt};
 static const iocshArg * const GalilStartControllerArgs[] = {&GalilStartControllerArg0,
                                                             &GalilStartControllerArg1,

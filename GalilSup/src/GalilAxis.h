@@ -39,6 +39,7 @@
 #define MOTOR_STOP_REV 3
 #define MOTOR_STOP_STOP 4
 #define MOTOR_STOP_ONERR 8
+#define MOTOR_STOP_SABORT 11
 #define MOTOR_STOP_ENC 12
 #define MOTOR_STOP_AMP 15
 #define MOTOR_STOP_ECATCOMM 70
@@ -88,7 +89,6 @@ public:
 
   GalilAxis(class GalilController *pC, 
 	    char *axisname,			/*axisname A-H */
-	    int limit_as_home,			/*0=no, 1=yes. Using a limit switch as home*/
 	    char *enables_string,		/*digital input(s) to use to send home, or interlock motor if -ve*/
 	    int switch_type);			/*digital input to use to send away from home*/
 
@@ -97,7 +97,7 @@ public:
   asynStatus poller(bool& moving);
 
   //Store settings, and implement defaults
-  asynStatus setDefaults(int limit_as_home, char *enables_string, int switch_type);
+  asynStatus setDefaults(char *enables_string, int switch_type);
 
   //Store motor digital inhibits
   void store_motors_enable(void);
@@ -142,6 +142,8 @@ public:
   void setStatus(bool *moving);
   //Verify encoder operation whilst moving for safety
   void checkEncoder(void);
+  //Check axis stop code whilst moving
+  void checkStopCode(void);
   //Synchronize aux register with encoder
   void syncEncodedStepper(void);
   //Stop motor for wrong limit protection
@@ -353,6 +355,7 @@ private:
   epicsEventId axisStatusShutRequest_;	//Request axisStatus thread shutdown
 
   std::string homingRoutineName = "";
+  bool inAutoOnWait_;
 
 friend class GalilController;
 friend class GalilCSAxis;

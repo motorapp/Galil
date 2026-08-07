@@ -24,10 +24,8 @@
 # Mark Clift
 # email: padmoz@tpg.com.au
 
-# P - Motion device
 # M - Motor name
-# PORT - Asyn port of controller
-# ADDR - Axis number 0-7
+# ADDR - Axis number 8-15
 # PREC - Precision of analog records
 # SCAN - Scan period for monitor records.  Use passive when only epics will change value (default)
 #      - Periodic scan will slow controller update performance (poller)
@@ -35,15 +33,15 @@
 file "$(GALIL)/GalilSup/Db/galil_csmotor_extras.template"
 {
 pattern
-{   P,        M,    PORT,    ADDR, PREC, SCAN,      EGU  }
- {  "DMC01:", "I",  "Galil", 8,    3,    "Passive", "mm" }
- {  "DMC01:", "J",  "Galil", 9,    3,    "Passive", "mm" }
- {  "DMC01:", "K",  "Galil", 10,   3,    "Passive", "mm" }
- {  "DMC01:", "L",  "Galil", 11,   3,    "Passive", "mm" }
- {  "DMC01:", "M",  "Galil", 12,   3,    "Passive", "mm" }
- {  "DMC01:", "N",  "Galil", 13,   3,    "Passive", "mm" }
- {  "DMC01:", "O",  "Galil", 14,   3,    "Passive", "mm" }
- {  "DMC01:", "P",  "Galil", 15,   3,    "Passive", "mm" }
+{   M,    ADDR, PREC, SCAN,      EGU  }
+ {  "I",  8,    3,    "Passive", "mm" }
+ {  "J",  9,    3,    "Passive", "mm" }
+ {  "K",  10,   3,    "Passive", "mm" }
+ {  "L",  11,   3,    "Passive", "mm" }
+ {  "M",  12,   3,    "Passive", "mm" }
+ {  "N",  13,   3,    "Passive", "mm" }
+ {  "O",  14,   3,    "Passive", "mm" }
+ {  "P",  15,   3,    "Passive", "mm" }
 }
 
 # end

@@ -24,32 +24,21 @@
 # Mark Clift
 # email: padmoz@tpg.com.au
 
-# P    - PV prefix
-# PORT - Asyn port name
 # ADDR - Asyn address
 # NELM - Number of elements
 
 file "$(GALIL)/GalilSup/Db/galil_user_array.template"
 {
 pattern
-{   P,	      PORT,    ADDR,  NELM } 
- {  "DMC01:", "Galil", "0",   1000 }
- {  "DMC01:", "Galil", "1",   1000 }
- {  "DMC01:", "Galil", "2",   1000 }
- {  "DMC01:", "Galil", "3",   1000 }
- {  "DMC01:", "Galil", "4",   1000 }
- {  "DMC01:", "Galil", "5",   1000 }
- {  "DMC01:", "Galil", "6",   1000 }
- {  "DMC01:", "Galil", "7",   1000 }
-
- {  "RIO01:", "RIO",   "0",   1000 }
- {  "RIO01:", "RIO",   "1",   1000 }
- {  "RIO01:", "RIO",   "2",   1000 }
- {  "RIO01:", "RIO",   "3",   1000 }
- {  "RIO01:", "RIO",   "4",   1000 }
- {  "RIO01:", "RIO",   "5",   1000 }
- {  "RIO01:", "RIO",   "6",   1000 }
- {  "RIO01:", "RIO",   "7",   1000 }
+{   ADDR,  NELM } 
+ {  "0",   1000 }
+ {  "1",   1000 }
+ {  "2",   1000 }
+ {  "3",   1000 }
+ {  "4",   1000 }
+ {  "5",   1000 }
+ {  "6",   1000 }
+ {  "7",   1000 }
 }
 
 # end

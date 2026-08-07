@@ -264,6 +264,17 @@ record(bi,"$(P)START_STATUS")
    	field(INP,  "@asyn($(PORT),0)CONTROLLER_START")
 }
 
+record(bo,"$(P)CLEARAMPFAULTS_CMD")
+{
+	field(DESC, "Clear amp faults")
+	field(DTYP, "asynInt32")
+	field(ZNAM, "CLEAR")
+	field(ZSV,  "NO_ALARM")
+	field(ONAM, "CLEAR")
+	field(OSV,  "NO_ALARM")
+	field(OUT,  "@asyn($(PORT),0)CONTROLLER_CLEARAMPFAULTS")
+}
+
 #Defered moves support
 record(bi,"$(P)DEFER_STATUS")
 {
@@ -591,7 +602,11 @@ record(ao,"$(P)PWRDET:SP") {
     field(DTYP, "asynFloat64")
     field(OUT, "@asyn($(PORT),0)USER_VAR pwrdet")
 	field(SCAN, "Passive")
+    # set a default non-zero as zero in galil is a problem
+    # and is never a test value
+    field(VAL, "2")
     info(autosaveFields_pass0, "VAL")
+    info(archive, "VAL")
 }
 
 record(ai,"$(P)PWRDET") {
@@ -599,7 +614,9 @@ record(ai,"$(P)PWRDET") {
     field(DTYP, "asynFloat64")
     field(INP,  "@asyn($(PORT),0)USER_VAR pwrdet")
 	field(SCAN, "10 second")
+    field(SDIS, "$(P)PWRDET:SP.PACT")
 	field(FLNK, "$(P)PWRDET:ALERT.PROC")
+    info(archive, "VAL")
 }
 
 ## 0 = ok, 1 = problem
@@ -610,7 +627,7 @@ record(calcout,"$(P)PWRDET:ALERT") {
 	field(INPB, "$(P)PWRDET:SP")
 	field(CALC, "A!=B")
 	field(OOPT, "When Zero")
-	field(OUT, "$(P)PWRDET:TIMER.PROC")
+	field(OUT, "$(P)PWRDET:TIMER.PROC PP")
     info(archive, "VAL")
 }
 
@@ -622,12 +639,16 @@ record(bo,"$(P)PWRDET:RESET:SP") {
 }
 
 ## how often we should set a new test value
-## A % 360 means 3600 seconds as we are on 10 second scan link
+## A = 360 means 3600 seconds as we are on 10 second scan link
+## Changing value is only a check in case it got saved into galil
+## firmware so changing this once per ioc run is fine 
+## make sure we don't set a new value too soon
+## after ioc startup in case of a quick restart causing a race condition 
 record(calcout, "$(P)PWRDET:TIMER") {
 	field(DESC, "Set new PWRDET test value")
-	field(CALC, "A % 360; A := A + 1")
+	field(CALC, "A = 360; A := A + 1")
 	field(INPA, "0")
-	field(OOPT, "When Zero")
+	field(OOPT, "When Non-zero")
 	field(DOPT, "Use OCAL")
 	field(OCAL, "CEIL(RNDM*100)+1")
 	field(OUT, "$(P)PWRDET:SP PP")
