@@ -27,7 +27,7 @@ else
   GalilSupport_SRCS += GalilDummy.cpp
 endif
 
-GalilSupport_LIBS += asyn motor calc sscan autosave busy
+GalilSupport_LIBS += asyn motor calc
 GalilSupport_LIBS += $(EPICS_BASE_IOC_LIBS)
 
 include $(TOP)/configure/RULES
