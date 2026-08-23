@@ -1,10 +1,22 @@
 #!/bin/bash
 
-#From config/MASTER_RELEASE extract paths to modules that provide qegui screens
-export galilpath=`grep "GALIL" configure/RELEASE.local | cut -d'=' -f2`
+#Extract paths to modules that provide QEGUI screens from configure/RELEASE.local
 
-#From module top, add offset path to qegui screens
-export galilpath=$galilpath/GalilSup/op/ui
+# 1. Extract the raw value of SUPPORT (e.g., SUPPORT=/path/to/support)
+raw_support=$(grep "SUPPORT=" configure/RELEASE.local | cut -d'=' -f2)
+export SUPPORT=${raw_support%$'\r'}
+
+# 2. Extract paths
+galilpath=$(grep "GALIL=" configure/RELEASE.local | cut -d'=' -f2)
+
+# 3. Strip Windows carriage returns (\r)
+galilpath=${galilpath%$'\r'}
+
+# 4. MACRO SUBSTITUTION: Replace the literal '$(SUPPORT)' text with the $SUPPORT variable value
+export galilpath="${galilpath//\$\(SUPPORT\)/$SUPPORT}"
+
+# 5. Append relative QEGUI screen offsets
+export galilpath="$galilpath/GalilSup/op/ui"
 
 #QEGUI path to screens
 export QE_UI_PATH=$galilpath
