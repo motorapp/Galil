@@ -2,10 +2,10 @@
 
 ## Release 4-1-16 (TBD)
 - GalilAxis::axisStatusThread()
-  - Causing paramVal::getInteger value not defined errors
+  - Causing paramVal::getInteger value not defined errors and excess mallocs
   - Parameters GalilSSICapable_ and GalilBISSCapable_ are set for list 0 only
    GalilAxis::axisStatusThread() adjusted so it obtains the values only from list 0
 
 - Update display shell scripts to be compatible with the SUPPORT macro
-
-
+- Set parameters GalilUserArrayUpload_, GalilEtherCatCapable_ to default 0 at startup
+  - Was causing paramVal::getInteger value not defined errors and excess mallocs
