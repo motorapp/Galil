@@ -1156,8 +1156,13 @@ void GalilController::setParamDefaults(void)
   setIntegerParam(GalilBISSCapable_, 0);
   //PVT capable
   setIntegerParam(GalilPVTCapable_, 0);
+  //EtherCat capable
+  setIntegerParam(GalilEtherCatCapable_, 0);
+
   //Communication status
   setIntegerParam(GalilCommunicationError_, 1);
+  // User Array upload status
+  setIntegerParam(GalilUserArrayUpload_, 0);
 
   //Deferred moves off 
   setIntegerParam(motorDeferMoves_, 0);
@@ -3558,12 +3563,14 @@ asynStatus GalilController::setDeferredMoves(bool deferMoves)
   * \param[in] axisNo is asyn Param list number 0 - 7.  Controller wide values use list 0 */
 asynStatus GalilController::get_integer(int function, epicsInt32 *value, int axisNo = 0)
 {
-  asynStatus status;				 //Communication status.
-	
+  asynStatus status = asynSuccess;  //Communication status.
+  // Attempt to obtain value from controller
   if ((status = sync_writeReadController()) == asynSuccess)
      *value = (epicsInt32)atoi(resp_);
-  else    //Comms error, return last ParamList value set using setIntegerParam
-     getIntegerParam(axisNo, function, value);
+  else {
+     // Comms error, return last ParamList value set using setIntegerParam
+     status = getIntegerParam(axisNo, function, value);
+  }
   return status;
 }
 
