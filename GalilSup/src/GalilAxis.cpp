@@ -3298,8 +3298,8 @@ void GalilAxis::axisStatusThread()
 
   while (true) {
     //Retrieve required parameters
-    status = pC_->getIntegerParam(axisNo_, pC_->GalilSSICapable_, &ssiCapable);
-    status |= pC_->getIntegerParam(axisNo_, pC_->GalilBISSCapable_, &bissCapable);
+    status = pC_->getIntegerParam(pC_->GalilSSICapable_, &ssiCapable);
+    status |= pC_->getIntegerParam(pC_->GalilBISSCapable_, &bissCapable);
 
     if (event == epicsEventWaitTimeout && !shuttingDown_) {
        if (ssiCapable == 1 && !status && !shuttingDown_) {
