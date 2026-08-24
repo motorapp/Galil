@@ -1,6 +1,6 @@
 # Galil: Release Notes
 
-## Release 4-1-16 (August 24, 2026)
+## Release 4-1-16 (TBD)
 - GalilAxis::axisStatusThread()
   - Causing paramVal::getInteger value not defined errors
   - Parameters GalilSSICapable_ and GalilBISSCapable_ are set for list 0 only
