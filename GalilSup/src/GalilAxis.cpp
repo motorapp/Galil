@@ -112,7 +112,7 @@ GalilAxis::GalilAxis(class GalilController *pC, //Pointer to controller instance
         thread_code += "II ,,dpon,dvalues;ENDIF\n";
   }
   //Insert the final jump statement for the current thread code
-  thread_code += "JP #THREAD" + string(1, axisName_) + "\n";
+  thread_code += string("JP #THREAD") + axisName_ + '\n';
 
   //Copy this axis code into the controller class code buffers
   pC->thread_code_ += thread_code;
@@ -310,6 +310,13 @@ asynStatus GalilAxis::setDefaults(char *enables_string, int switch_type)
    setPositionIn_ = false;
    setPositionOut_ = false;
 
+   //Axis position error
+   setDoubleParam(pC_->GalilError_, 0.0);
+   //Axis raw velocity
+   setDoubleParam(pC_->GalilMotorVelocityRAW_, 0.0);
+   //Axis connected status
+   setIntegerParam(pC_->GalilMotorConnected_, 0);
+
    //Default motor/axis related amplifier statuses
    setIntegerParam(pC_->GalilMotorHallErrorStatus_, 0);
    setIntegerParam(pC_->GalilMotorAtTorqueLimitStatus_, 0);
@@ -383,10 +390,10 @@ void GalilAxis::initialize_codegen(string &thread_code,
   //Insert code to start motor thread that will be constructed
   //thread 0 (motor A) is auto starting
   if (axisName_ != 'A')
-     pC_->card_code_ += "XQ #THREAD" + string(1, axisName_) + "," + tsp(axisNo_) + "\n";
+     pC_->card_code_ += string("XQ #THREAD") + axisName_ + ',' + tsp(axisNo_) + '\n';
 
   //Insert label for motor thread we are constructing	
-  thread_code += "#THREAD" + string(1, axisName_) + "\n";
+  thread_code += string("#THREAD") + axisName_ + '\n';
 
   //Insert limit switch interrupt label, if not done so already
   if (!pC_->rio_ && pC_->limit_code_.empty()) {
@@ -413,6 +420,7 @@ void GalilAxis::initialize_codegen(string &thread_code,
 void GalilAxis::gen_limitcode(string &limit_code)
 {
   string lc;		//Local limit code
+  lc.reserve(100);
 
   //Setup the LIMSWI interrupt routine. The Galil Code Below, is called once per limit activate on ANY axis **
   //Determine axis that requires stop based on stop code and moving status
@@ -447,6 +455,8 @@ void GalilAxis::gen_EnsureOkToMove(string &tc)
 void GalilAxis::gen_homecode(string &thread_code)
 {
    string tc;	//Temporary thread code string
+   // Reserve some space to reduce by line mallocs
+   tc.reserve(1500);
 
    tc = "IF(home?=1)\n";
    
@@ -543,8 +553,8 @@ asynStatus GalilAxis::setAccelVelocity(double acceleration, double velocity, boo
    double accel;		//Adjusted acceleration/deceleration for normal moves
    double vel;			//Velocity final value sent to controller
    char c = axisName_;
-   string cmd = "";
    int status;
+   int len = 0;
 
    //Set acceleration and deceleration for normal moves
    //Ensure acceleration is within maximum for this model
@@ -552,11 +562,10 @@ asynStatus GalilAxis::setAccelVelocity(double acceleration, double velocity, boo
    //Find closest hardware setting
    accel = (long)lrint(acceleration/1024.0) * 1024;
    //Format the command string
-   cmd = "AC" + string(1, c) + "=" + tsp(accel, 0) + ";DC" + string(1, c) + "=" + tsp(accel, 0);
+   len = epicsSnprintf(pC_->cmd_, sizeof(pC_->cmd_),"AC%c=%.0lf;DC%c=%.0lf", c, accel, c, accel);
 
    //Are we done here?
    if (!setVelocity) {
-      strcpy(pC_->cmd_, cmd.c_str());
       status = pC_->sync_writeReadController();
       return (asynStatus)status;
    }
@@ -564,7 +573,6 @@ asynStatus GalilAxis::setAccelVelocity(double acceleration, double velocity, boo
    //Set velocity
    //Find closest hardware setting
    vel = (long)lrint(velocity/2.0) * 2;
-   cmd += ";SP" + string(1, c) + "=" + tsp(vel, 0);
 
    //Set deceleration when limit activated
    //Retrieve required values from paramList
@@ -578,14 +586,15 @@ asynStatus GalilAxis::setAccelVelocity(double acceleration, double velocity, boo
    deceleration = (long)(lrint(decel/1024.0) * 1024);
    //Ensure deceleration is within maximum for this model
    deceleration = (deceleration > pC_->maxAcceleration_) ? pC_->maxAcceleration_ : deceleration;
-   //Set limit deceleration galil code variable
+   //Set limit deceleration
    limdc_ = (double)deceleration;
-   cmd += ";limdc" + string(1, c) + "=" + tsp(limdc_, 0);
-   //Set normal deceleration galil code variable
-   cmd += ";nrmdc" + string(1, c) + "=" + tsp(accel, 0);
-   
+
+   //Format the command string. Set speed, normal and limit deceleration
+   if (len > 0 && (size_t)len < sizeof(pC_->cmd_)) {
+      epicsSnprintf(pC_->cmd_ + len, sizeof(pC_->cmd_) - len,";SP%c=%.0lf;limdc%c=%.0lf;nrmdc%c=%.0lf", c, vel, c, limdc_, c, accel);
+   }
+
    //Write the command
-   strcpy(pC_->cmd_, cmd.c_str());
    status = pC_->sync_writeReadController();
 
    return (asynStatus)status;
@@ -872,15 +881,15 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
 
   //Check if requested home type is allowed
   if (!homeAllowed) {
-     mesg = string(functionName) + ": " + string(1, axisName_) + " ";
+     mesg = string(functionName) + ": " + axisName_ + ' ';
      mesg += "motor extra settings do not allow home";
   }
   if (homeAllowed == HOME_REV && forwards) {
-     mesg = string(functionName) + ": " + string(1, axisName_) + " ";
+     mesg = string(functionName) + ": " + axisName_ + ' ';
      mesg += "motor extra settings do not allow forward home";
   }
   if (homeAllowed == HOME_FWD && !forwards) {
-     mesg = string(functionName) + ": " + string(1, axisName_) + " ";
+     mesg = string(functionName) + ": " + axisName_ + ' ';
      mesg += "motor extra settings do not allow reverse home";
   }
 
@@ -889,18 +898,18 @@ asynStatus GalilAxis::home(double minVelocity, double maxVelocity, double accele
   ctrlType = (bool)(pC_->model_[3] != '2' && pC_->model_[3] != '1') ? true : false;
   if (!customHome_ && ulah && ctrlType) {
      if (useSwitch && forwards && (limitDisable == 1 || limitDisable ==3)) {
-        mesg = string(functionName) + ": " + string(1, axisName_) + " ";
+        mesg = string(functionName) + ": " + axisName_ + ' ';
         mesg += "axis can't home to fwd limit as fwd limit is disabled";
      }
      if (useSwitch && !forwards && limitDisable > 1) {
-        mesg = string(functionName) + ": " + string(1, axisName_) + " ";
+        mesg = string(functionName) + ": " + axisName_ + ' ';
         mesg += "axis can't home to rev limit as rev limit is disabled";
      }
   }
 
   //Homing not supported for absolute encoders, just move it where you want
   if ((ssiinput && ssicapable && ssiconnect) || (bissInput && bissCapable)) {
-     mesg = string(functionName) + ": " + string(1, axisName_) + " ";
+     mesg = string(functionName) + ": " + axisName_ + ' ';
      mesg += "axis has no home process because of SSI encoder";
   }
 
@@ -967,13 +976,13 @@ asynStatus GalilAxis::beginCheck(const char *caller, char callaxis, double maxVe
      pC_->setCtrlError("");
 
   if (!axisReady_) {
-     mesg = string(caller) + " " + string(1, callaxis) + " failed, " + string(1, axisName_);
+     mesg = string(caller) + ' ' + callaxis + " failed, " + axisName_;
      mesg += " axis still initializing";
   }
 
   //Dont start if velocity 0
   if (lrint(maxVelocity) == 0) {
-     mesg = string(caller) + " " + string(1, callaxis) + " failed, " + string(1, axisName_);
+     mesg = string(caller) + ' ' + callaxis + " failed, " + axisName_;
      mesg += " requested velocity is 0";
   }
 
@@ -984,7 +993,7 @@ asynStatus GalilAxis::beginCheck(const char *caller, char callaxis, double maxVe
   pC_->getIntegerParam(axisNo_, pC_->motorStatusPowerOn_, &motoron);
   pC_->getIntegerParam(axisNo_, pC_->GalilAutoOnOff_, &autoonoff);
   if (!motoron && !autoonoff) {
-     mesg = string(caller) + " " + string(1, callaxis) + " failed, " + string(1, axisName_);
+     mesg = string(caller) + ' ' + callaxis + " failed, " + axisName_;
      mesg += " motor amplifier is off";
   }
 
@@ -997,7 +1006,7 @@ asynStatus GalilAxis::beginCheck(const char *caller, char callaxis, double maxVe
   //Don't allow move when a limit is active
   if (wlp && (limitsDirState_ == not_consistent) && ((rev_ && limitDisable < 2) ||
      (fwd_ && (!limitDisable || limitDisable == 2)))) {
-     mesg = string(caller) + " " + string(1, callaxis) + " failed, " + string(1, axisName_);
+     mesg = string(caller) + ' ' + callaxis + " failed, " + axisName_;
      mesg += " wrong limit protect stop";
   }
 
@@ -1031,7 +1040,7 @@ asynStatus GalilAxis::checkLimits(const char *caller, char callaxis, double posi
       readback = (motorIsServo_) ? encoder_position_ : motor_position_;
       //Check physical limits
       if ((position < readback && rev) || (position > readback && fwd)) {
-         mesg = string(caller) + " " + string(1, callaxis) + " failed, " + string(1, axisName_) + " ";
+         mesg = string(caller) + ' ' + callaxis + " failed, " + axisName_ + ' ';
          mesg += "limit active in move direction";
       }
    }
@@ -1060,7 +1069,7 @@ asynStatus GalilAxis::checkSoftLimits(const char *caller, char callaxis, double 
 
    //Check soft limits
    if ((position < lowLimit_ && softlimits) || (position > highLimit_ && softlimits)) {
-      mesg = string(caller) + " " + string(1, callaxis) + " failed, " + string(1, axisName_) + " ";
+      mesg = string(caller) + ' ' + callaxis + " failed, " + axisName_ + ' ';
       mesg += "move would violate soft limits";
    }
 
@@ -1094,18 +1103,18 @@ asynStatus GalilAxis::checkMRSettings(const char *caller, char callaxis, bool mo
 
    //Check motor record status
    if (spmg != spmgGo && spmg != spmgMove) {
-      mesg = string(caller) + " " + string(1, callaxis) + " failed, " + string(1, axisName_);
+      mesg = string(caller) + ' ' + callaxis + " failed, " + axisName_;
       mesg += " spmg is not set to \"go\" or \"move\"";
    }
    if (set && !moveVelocity) {
-      mesg = string(caller) + " " + string(1, callaxis) + " failed, " + string(1, axisName_);
+      mesg = string(caller) + ' ' + callaxis + " failed, " + axisName_;
       mesg += " set field is not set to \"use\"";
    }
    //Galil EPICS driver will allow related CSAxis to move if movesDeferred true
    //So only check dmov of axis if movesDeferred false
    if (!pC_->movesDeferred_) {
       if (!dmov) {
-         mesg = string(caller) + " " + string(1, callaxis) + " failed, " + string(1, axisName_);
+         mesg = string(caller) + ' ' + callaxis + " failed, " + axisName_;
          mesg += " dmov field is false";
       }
    }
@@ -2560,7 +2569,7 @@ asynStatus GalilAxis::jogAfterHome(void) {
             epicsThreadSleep(.001);
             //Give up after 2000 ms
             if (j++ > 2000) {
-               mesg = "Jog after home failed, " + string(1, axisName_) + " motor record busy";
+               mesg = string("Jog after home failed, ") + axisName_ + " motor record busy";
                pC_->setCtrlError(mesg);
                status = asynError;
                break;
@@ -2884,7 +2893,7 @@ bool GalilAxis::motor_enabled(const char *caller, string &mesg)
                /* Motor is "no go", due to digital IO state */
                if (motor_enables->disablestates[j] == 1) {
                   //Set controller error mesg
-                  mesg = string(caller) + " failed, " + string(1, axisName_) + " ";
+                  mesg = string(caller) + " failed, " + axisName_ + ' ';
                   mesg += "disabled due to digital input";
                   return(false);
                }
@@ -2893,7 +2902,7 @@ bool GalilAxis::motor_enabled(const char *caller, string &mesg)
                /* Motor is "no go", due to digital IO state */
                if (motor_enables->disablestates[j] == 0) {
                   //Set controller error mesg
-                  mesg = string(caller) + " failed, " + string(1, axisName_) + " ";
+                  mesg = string(caller) + " failed, " + axisName_ + ' ';
                   mesg += "disabled due to digital input";
                   return(false);
                }

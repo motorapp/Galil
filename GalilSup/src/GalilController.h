@@ -465,7 +465,7 @@ public:
   void executeAutoOnBrakeOff(const char *axes);
   void processUnsolicitedMesgs(void);
   static std::string extractEthAddr(const char* str);
-  void setCtrlError(string mesg);
+  void setCtrlError(const string &mesg);
   //Enable/Disable EtherCat network
   void enableEtherCatNetwork(int value);
   //Check axes are good to go
