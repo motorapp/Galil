@@ -394,11 +394,11 @@ asynStatus GalilCSAxis::checkMRSettings(const char *caller)
 
    //Check motor record status
    if (spmg != 3 && spmg != 2) {
-      mesg = string(caller) + " " + string(1, axisName_) + " failed, " + string(1, axisName_);
+      mesg = string(caller) + ' ' + axisName_ + " failed, " + axisName_;
       mesg += " spmg is not set to \"go\" or \"move\"";
    }
    if (set && !moveVelocity_) {
-      mesg = string(caller) + " " + string(1, axisName_) + " failed, " + string(1, axisName_);
+      mesg = string(caller) + ' ' + axisName_ + " failed, " + axisName_;
       mesg += " set field is not set to \"use\"";
    }
 
