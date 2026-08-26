@@ -477,6 +477,8 @@
 //                  Fix motorsAtStart startp index.  motorsAtStart was looking at the wrong index when checking if motors were at start
 // 21/05/2026 A.Al-Dalleh
 //                  Alter GalilAxis::setBrake so the brake is only released on connected motors
+// 26/08/2026 M.Clift and M.DavidSaver
+//                  Heap optimization review
 
 #include <stdio.h>
 #include <math.h>
@@ -516,7 +518,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "4-1-15";
+static const char *driverVersion = "4-1-16";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);
