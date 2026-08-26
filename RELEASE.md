@@ -1,6 +1,6 @@
 # Galil: Release Notes
 
-## Release 4-1-16 (TBD)
+## Release 4-1-16 (26/08/2026)
 - GalilAxis::setDefaults
   - Added defaults for GalilError_, GalilMotorVelocityRAW_, GalilMotorConnected_ asyn parameters to avoid value not defined exceptions
 
