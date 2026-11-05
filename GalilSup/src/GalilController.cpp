@@ -479,6 +479,8 @@
 //                  Alter GalilAxis::setBrake so the brake is only released on connected motors
 // 26/08/2026 M.Clift and M.DavidSaver
 //                  Heap optimization review
+// 05/11/2026 M.Clift
+//                  Remove leading spaces in command responses
 
 #include <stdio.h>
 #include <math.h>
@@ -518,7 +520,7 @@ using namespace std; //cout ostringstream vector string
 #include <epicsExport.h>
 
 static const char *driverName = "GalilController";
-static const char *driverVersion = "4-1-16";
+static const char *driverVersion = "4-1-17";
 
 static void GalilProfileThreadC(void *pPvt);
 static void GalilArrayUploadThreadC(void *pPvt);
@@ -5698,11 +5700,30 @@ asynStatus GalilController::sync_writeReadController(bool testQuery, bool logCom
 
   //Remove any unwanted characters
   if (resp_ && resp_[0] != '\0') {
-    char *end = resp_ + strlen(resp_) - 1;
-    while (end >= resp_ && (*end == ' ' || *end == '\n' || *end == '\r' || *end == '\t' || *end == ':')) {
-      end--;
+    // 1. Find the first non-space character
+    char *start = resp_;
+    while (*start == ' ') {
+      start++;
     }
-    *(end + 1) = '\0';
+    
+    // 2. If there are leading spaces, shift the string over
+    size_t len = 0;
+    if (start != resp_) {
+      len = strlen(start);
+      memmove(resp_, start, len + 1); // +1 to copy the null terminator ('\0')
+    } else {
+      // If we didn't shift, we still need the length for the next step
+      len = strlen(resp_);
+    }
+    
+    // 3. Remove unwanted trailing characters (using our calculated 'len')
+    if (len > 0) {
+      char *end = resp_ + len - 1;
+      while (end >= resp_ && (*end == ' ' || *end == '\n' || *end == '\r' || *end == '\t' || *end == ':')) {
+        end--;
+      }
+      *(end + 1) = '\0';
+    }
   }
 
   //Debugging

@@ -24,3 +24,10 @@
 - Update display shell scripts to be compatible with the SUPPORT macro
 - Set parameters GalilUserArrayUpload_, GalilEtherCatCapable_ to default 0 at startup
   - Was causing paramVal::getInteger value not defined errors and excess mallocs
+  
+  ## Release 4-1-17 (05/11/2026)
+  - GalilController::sync_writeReadController
+    - Remove leading spaces in command response
+    
+  - Add PV $(P):SERIALNUM_MON to MEDM, QEGUI screens
+  
