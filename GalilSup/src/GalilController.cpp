@@ -493,6 +493,7 @@
 #else
 #include <unistd.h>
 #endif /* _WIN32 */
+#include <cstdint>
 #include <iostream>  //cout
 #include <fstream>   //ifstream
 #include <sstream> //format source keys, string stream
